@@ -16,31 +16,19 @@
     .pp-gen { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: var(--s-2); }
     .pp-gen div { padding: var(--s-2); border: 1px solid var(--line); border-radius: var(--r-sm); font-size: var(--fs-xs); background: var(--surface-sunk); }
     .pp-gen b { display: block; font-size: var(--fs-sm); font-family: var(--font-en); }
+    .pp-where { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+    .pp-lock { display: flex; gap: var(--s-2); align-items: center; font-size: var(--fs-sm); color: var(--text-2); padding: var(--s-2) var(--s-3); border: 1px dashed var(--line-strong); border-radius: var(--r-sm); background: var(--surface-sunk); }
+    @media (max-width: 640px) { .pp-pk { grid-template-columns: 1fr; } .pp-hide-sm { display: none; } }
   </style>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
-<body data-screen="packages-plans">
+<body data-screen="packages-plans" data-org-default="nile">
 <main id="screen">
 
-  <section class="t-banner" aria-label="Patient" data-en-aria-label="Patient">
-    <div class="t-banner-id">
-      <span class="t-avatar">س ب</span>
-      <div>
-        <div class="t-banner-name">سامية فؤاد عبد الرازق البدراوي</div>
-        <div class="t-banner-facts">
-          <span><b>58</b> <span data-en="yrs · F">سنة · أنثى</span></span>
-          <span><span data-en="File">ملف</span> <b class="t-ltr">1187</b></span>
-          <span class="t-ltr">0106 448 2290</span>
-          <span data-en="Mit Ghamr">ميت غمر</span>
-        </div>
-      </div>
-    </div>
-    <div class="t-banner-alerts">
-      <span class="t-allergy">⚠ <span data-en="Allergy: Diclofenac">حساسية: ديكلوفيناك</span></span>
-      <span class="t-flag" data-en="Knee OA (both)">خشونة الركبتين</span>
-      <span class="t-balance deposit" data-en="Physio package: 6 sessions left">باقة علاج طبيعي: باقي ٦ جلسات</span>
-      <span class="t-balance followup" data-en="Plan: 900 EGP to go">الخطة: باقي ٩٠٠ ج.م</span>
-    </div>
-  </section>
+  <section class="t-banner" aria-label="Patient" data-en-aria-label="Patient" id="pp-banner"
+           data-note="One patient file per organization: the same banner (file no., allergies, balances) shows in every branch of the org, and each visit, session or instalment below says which branch and room it happened in."
+           data-note-ar="ملف واحد للمريض في المنشأة: نفس البانر (رقم الملف، الحساسية، الأرصدة) بيظهر في كل فروعها، وكل زيارة أو جلسة أو قسط تحت مكتوب جنبه الفرع والغرفة."></section>
 
   <div class="t-container">
     <header class="t-screen-head">
@@ -50,138 +38,123 @@
             data-note-ar="المرحلة ٢ (باقة المجمعات): مش في نسخة العيادة الفردية. اتعملت دلوقتي لأنها رخيصة فوق الفواتير وحساب المريض، وNITCO بيثبت إن المجمعات محتاجاها." data-en="Tier 2 — polyclinic plan">المرحلة ٢ — باقة المجمعات</span></h1>
         <p class="t-sub mb-0" data-en="Prepaid session packages and treatment plans paid in instalments, tracked on the patient.">باقات جلسات مدفوعة مقدمًا وخطط علاج بالتقسيط، متابعة على ملف المريض.</p>
       </div>
-      <div class="t-actions">
+      <div class="t-actions" id="pp-actions">
         <a class="t-btn" href="patient-account.html"><svg class="t-icon sm"><use href="#i-wallet"/></svg><span data-en="Patient account">حساب المريض</span></a>
         <button class="t-btn" type="button" data-open="#pp-sell"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="Sell a package">بيع باقة</span></button>
         <button class="t-btn" type="button" data-open="#pp-newplan"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="New treatment plan">خطة علاج جديدة</span></button>
       </div>
     </header>
 
-    <div class="t-tabs" role="tablist">
-      <button class="t-tab" role="tab" aria-selected="true" data-tab="pk"><span data-en="Packages (1 active)">الباقات (١ سارية)</span></button>
-      <button class="t-tab" role="tab" aria-selected="false" data-tab="pl"><span data-en="Treatment plans (1 active)">خطط العلاج (١ سارية)</span></button>
-    </div>
+    <!-- Org on a plan without Tier 2 (e.g. the solo clinic) -->
+    <div id="pp-upsell" hidden></div>
 
-    <!-- ===== Packages ===== -->
-    <div data-panel="pk">
-      <div class="t-split aside-end">
-        <div class="t-stack lg">
-          <section class="t-card" data-tier="2">
-            <div class="t-card-head">
-              <h2 data-en="Physiotherapy package · 10 sessions">باقة علاج طبيعي · ١٠ جلسات</h2>
-              <span class="t-chip paid" data-en="Paid in full">مدفوعة بالكامل</span>
-              <div class="t-actions t-small t-muted"><span data-en="Valid until 20 Jan 2027">سارية حتى ٢٠ يناير ٢٠٢٧</span></div>
-            </div>
-            <div class="pp-pk mb-4"
-                 data-note="Remaining sessions are the headline number, with a meter. The package was sold once (INV-004601) and each use only writes a consumption line; NITCO issues a new zero-amount invoice for every session (v31, v85), which floods the invoice list."
-                 data-note-ar="الجلسات الباقية هي الرقم الأساسي. الباقة اتباعت مرة واحدة وكل استخدام بيتسجل كسطر استهلاك؛ في NITCO فاتورة بصفر لكل جلسة.">
-              <div class="t-stack" style="gap:var(--s-2)">
-                <div class="t-row tight"><span class="pp-big" id="pp-left">6</span><span class="t-muted"><span data-en="of 10 sessions left">من ١٠ جلسات باقية</span></span></div>
-                <div class="pp-meter" aria-hidden="true"><span id="pp-bar" style="width:40%"></span></div>
-                <span class="t-small t-muted"><span data-en="Sold 20 Oct for">اتباعت ٢٠ أكتوبر بـ</span> <b class="t-money">1,800</b> <span data-en="instead of 2,200 · invoice">بدل ٢٬٢٠٠ · فاتورة</span> <a class="t-ltr" href="invoice-detail.html">INV-004601</a></span>
-              </div>
-              <button class="t-btn primary lg" type="button" id="pp-use"><svg class="t-icon"><use href="#i-check"/></svg><span data-en="Use 1 session today">استخدم جلسة النهارده</span><span class="t-kbd">U</span></button>
-            </div>
-            <div>
-              <div class="pp-pk-svc"><span data-en="Physiotherapy session (45 min) × 10">جلسة علاج طبيعي (٤٥ دقيقة) × ١٠</span><span><b id="pp-used">4</b> <span data-en="used">مستخدمة</span></span></div>
-              <div class="pp-pk-svc"><span data-en="Initial assessment × 1">تقييم مبدئي × ١</span><span><b>1</b> <span data-en="used">مستخدمة</span></span></div>
-            </div>
-          </section>
-
-          <section class="t-card flush" data-tier="2">
-            <div class="t-card-head"><h3 data-en="Consumption log">سجل الاستهلاك</h3><div class="t-actions"><span class="t-tier" data-en="Tier 2">المرحلة ٢</span></div></div>
-            <div class="t-table-wrap" style="border:0;border-radius:0">
-              <table class="t-table">
-                <thead><tr><th data-en="Date">التاريخ</th><th data-en="Service">الخدمة</th><th data-en="Therapist">المعالج</th><th data-en="Visit">الزيارة</th><th class="num" data-en="Left">الباقي</th></tr></thead>
-                <tbody id="pp-log">
-                  <tr><td class="t-ltr">11/11</td><td data-en="Physiotherapy session">جلسة علاج طبيعي</td><td data-en="Dr. Marwa El-Gendy">د. مروة الجندي</td><td><a href="visit-note.html" data-en="Visit 11 Nov">زيارة ١١ نوفمبر</a></td><td class="num">6</td></tr>
-                  <tr><td class="t-ltr">06/11</td><td data-en="Physiotherapy session">جلسة علاج طبيعي</td><td data-en="Dr. Marwa El-Gendy">د. مروة الجندي</td><td><a href="visit-note.html" data-en="Visit 6 Nov">زيارة ٦ نوفمبر</a></td><td class="num">7</td></tr>
-                  <tr><td class="t-ltr">30/10</td><td data-en="Physiotherapy session">جلسة علاج طبيعي</td><td data-en="Dr. Marwa El-Gendy">د. مروة الجندي</td><td><a href="visit-note.html" data-en="Visit 30 Oct">زيارة ٣٠ أكتوبر</a></td><td class="num">8</td></tr>
-                  <tr><td class="t-ltr">23/10</td><td data-en="Physiotherapy session">جلسة علاج طبيعي</td><td data-en="Dr. Marwa El-Gendy">د. مروة الجندي</td><td><a href="visit-note.html" data-en="Visit 23 Oct">زيارة ٢٣ أكتوبر</a></td><td class="num">9</td></tr>
-                  <tr class="is-muted"><td class="t-ltr">20/10</td><td data-en="Initial assessment">تقييم مبدئي</td><td data-en="Dr. Marwa El-Gendy">د. مروة الجندي</td><td><a href="visit-note.html" data-en="Visit 20 Oct">زيارة ٢٠ أكتوبر</a></td><td class="num">—</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
-        </div>
-
-        <aside class="t-stack">
-          <section class="t-card sunk">
-            <h3 class="mb-2" data-en="Clinic packages">باقات العيادة</h3>
-            <ul class="t-small" style="margin:0;padding-inline-start:18px;display:flex;flex-direction:column;gap:6px">
-              <li><b data-en="Physio 10 sessions">علاج طبيعي ١٠ جلسات</b> · 1,800 <span class="t-faint" data-en="(list 2,200) · 90 days">(أصلي ٢٬٢٠٠) · ٩٠ يوم</span></li>
-              <li><b data-en="Physio 5 sessions">علاج طبيعي ٥ جلسات</b> · 1,000 <span class="t-faint" data-en="(list 1,100) · 45 days">(أصلي ١٬١٠٠) · ٤٥ يوم</span></li>
-              <li><b data-en="Diabetes care · 3 visits + HbA1c">متابعة سكر · ٣ زيارات + سكر تراكمي</b> · 900 <span class="t-faint" data-en="· 120 days">· ١٢٠ يوم</span></li>
-            </ul>
-            <a class="t-small" href="services-prices.html" data-en="Edit packages in Services &amp; prices">تعديل الباقات في الخدمات والأسعار</a>
-          </section>
-          <section class="t-card">
-            <h3 class="mb-2" data-en="Rules">القواعد</h3>
-            <ul class="t-small t-muted" style="margin:0;padding-inline-start:18px">
-              <li data-en="Using a session never creates an invoice.">استخدام جلسة مش بيعمل فاتورة.</li>
-              <li data-en="Unpaid packages can't be used until paid (shown, not hidden).">الباقة غير المدفوعة مش بتستخدم قبل الدفع (ظاهرة مش مخفية).</li>
-              <li data-en="Expired sessions: owner decides to extend or refund by credit note.">الجلسات المنتهية: المالك يقرر تمديد أو مرتجع.</li>
-            </ul>
-          </section>
-        </aside>
+    <div id="pp-main">
+      <div class="t-tabs" role="tablist">
+        <button class="t-tab" role="tab" aria-selected="true" data-tab="pk"><span id="pp-tab-pk"></span></button>
+        <button class="t-tab" role="tab" aria-selected="false" data-tab="pl"><span id="pp-tab-pl"></span></button>
       </div>
-    </div>
 
-    <!-- ===== Treatment plans ===== -->
-    <div data-panel="pl" hidden>
-      <div class="t-split aside-end">
-        <div class="t-stack lg">
-          <section class="t-card" data-tier="2">
-            <div class="t-card-head">
-              <h2 data-en="Knee injection (hyaluronic acid) · 3 sessions every 7 days">حقن ركبة (هيالورونيك) · ٣ جلسات كل ٧ أيام</h2>
-              <span class="t-chip partial" data-en="2 of 3 paid">مدفوع ٢ من ٣</span>
-            </div>
-            <dl class="t-dl mb-4">
-              <dt data-en="Doctor">الطبيب</dt><dd data-en="Dr. Sherif El-Hosseiny — Orthopaedics">د. شريف الحسيني — عظام</dd>
-              <dt data-en="Started">البداية</dt><dd><span class="t-ltr">01/11/2026</span> · <span data-en="ends ~15 Nov">تنتهي ~١٥ نوفمبر</span></dd>
-              <dt data-en="Price">السعر</dt><dd><b class="t-money">2,700</b> <span data-en="= 3 × 900 · instalment per session">= ٣ × ٩٠٠ · قسط مع كل جلسة</span></dd>
-            </dl>
-            <div class="t-table-wrap"
-                 data-note="Treatment plan = service × sessions × every N days. Expected dates are generated from the start date; actual dates come from the visits, so a late session is visible (NITCO v16, v22, v87: expected vs actual + 'used' tick)."
-                 data-note-ar="خطة العلاج = خدمة × عدد جلسات × كل كام يوم. المواعيد المتوقعة محسوبة من البداية والفعلية من الزيارات، فالتأخير بيبان.">
-              <table class="t-table">
-                <thead><tr><th>#</th><th data-en="Expected">المتوقع</th><th data-en="Actual">الفعلي</th><th data-en="Status">الحالة</th><th></th></tr></thead>
-                <tbody>
-                  <tr><td>1</td><td class="t-ltr">01/11</td><td class="t-ltr">01/11</td><td><span class="t-chip done" data-en="Done">تمت</span></td><td class="actions"><a class="t-btn sm ghost" href="visit-note.html" data-en="Visit">الزيارة</a></td></tr>
-                  <tr><td>2</td><td class="t-ltr">08/11</td><td><span class="t-ltr">09/11</span> <span class="pp-late" data-en="+1 day">+١ يوم</span></td><td><span class="t-chip done" data-en="Done">تمت</span></td><td class="actions"><a class="t-btn sm ghost" href="visit-note.html" data-en="Visit">الزيارة</a></td></tr>
-                  <tr class="is-selected"><td>3</td><td class="t-ltr">15/11</td><td>—</td><td><span class="t-chip booked" data-en="Booked Mon 16 Nov 6:30 pm">محجوزة الإثنين ١٦ نوفمبر ٦:٣٠ م</span></td><td class="actions"><a class="t-btn sm" href="appointment-book.html" data-en="Change">تغيير</a></td></tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
+      <!-- ===== Packages ===== -->
+      <div data-panel="pk">
+        <div class="t-split aside-end">
+          <div class="t-stack lg">
+            <section class="t-card" data-tier="2">
+              <div class="t-card-head">
+                <h2 id="pp-pk-h"></h2>
+                <span class="t-chip paid" data-en="Paid in full">مدفوعة بالكامل</span>
+                <div class="t-actions t-small t-muted"><span id="pp-pk-valid"></span></div>
+              </div>
+              <div class="pp-pk mb-4"
+                   data-note="Remaining sessions are the headline number, with a meter. The package was sold once (one invoice) and each use only writes a consumption line; NITCO issues a new zero-amount invoice for every session (v31, v85), which floods the invoice list. The package belongs to the patient's org-wide file, but a session can only be used in a branch that has a room and a doctor for that service."
+                   data-note-ar="الجلسات الباقية هي الرقم الأساسي. الباقة اتباعت مرة واحدة بفاتورة واحدة وكل استخدام بيتسجل كسطر استهلاك؛ في NITCO فاتورة بصفر لكل جلسة. الباقة على ملف المريض في المنشأة كلها، لكن الجلسة بتتستخدم بس في فرع فيه غرفة ودكتور للخدمة دي.">
+                <div class="t-stack" style="gap:var(--s-2)">
+                  <div class="t-row tight"><span class="pp-big" id="pp-left"></span><span class="t-muted" id="pp-left-of"></span></div>
+                  <div class="pp-meter" aria-hidden="true"><span id="pp-bar"></span></div>
+                  <span class="t-small t-muted" id="pp-sold"></span>
+                  <span class="pp-where" id="pp-where"></span>
+                </div>
+                <button class="t-btn primary lg" type="button" id="pp-use"><svg class="t-icon"><use href="#i-check"/></svg><span data-en="Use 1 session today">استخدم جلسة النهارده</span><span class="t-kbd">U</span></button>
+              </div>
+              <div id="pp-svc"></div>
+            </section>
 
-          <section class="t-card flush" data-tier="2"
-                   data-note="Instalments with a running remaining balance, linked to the patient account. The unpaid remainder of the plan is shown separately from debt: it becomes debt only if a session is done and not paid."
-                   data-note-ar="الأقساط برصيد متبقي مربوط بحساب المريض. باقي الخطة منفصل عن المديونية: يبقى مديونية بس لو الجلسة اتعملت ومتدفعتش.">
-            <div class="t-card-head"><h3 data-en="Instalments">الأقساط</h3><div class="t-actions"><span class="t-tier" data-en="Tier 2">المرحلة ٢</span></div></div>
-            <div class="t-table-wrap" style="border:0;border-radius:0">
-              <table class="t-table">
-                <thead><tr><th data-en="Due">الاستحقاق</th><th data-en="Invoice">الفاتورة</th><th data-en="Status">الحالة</th><th class="num" data-en="Amount">المبلغ</th><th class="num" data-en="Plan balance">باقي الخطة</th></tr></thead>
-                <tbody>
-                  <tr><td class="t-ltr">01/11</td><td><a class="t-ltr" href="invoice-detail.html">INV-004702</a></td><td><span class="t-chip paid" data-en="Paid · cash">مدفوع · كاش</span></td><td class="num">900</td><td class="num">1,800</td></tr>
-                  <tr><td class="t-ltr">09/11</td><td><a class="t-ltr" href="invoice-detail.html">INV-004770</a></td><td><span class="t-chip paid" data-en="Paid · InstaPay">مدفوع · إنستاباي</span></td><td class="num">900</td><td class="num">900</td></tr>
-                  <tr><td class="t-ltr">16/11</td><td>—</td><td><span class="t-chip unpaid" data-en="Due with session 3">مستحق مع الجلسة ٣</span></td><td class="num">900</td><td class="num"><span class="t-money">0</span></td></tr>
-                </tbody>
-                <tfoot><tr><td colspan="3" data-en="Remaining on plan">الباقي على الخطة</td><td class="num"><span class="t-money">900 <span class="cur" data-en="EGP">ج.م</span></span></td><td></td></tr></tfoot>
-              </table>
-            </div>
-            <div class="t-card-foot">
-              <span class="t-small t-muted t-grow" data-en="At check-in for session 3, checkout opens with the 900 instalment pre-filled.">عند تسجيل حضور الجلسة ٣ شاشة التحصيل بتفتح بالقسط ٩٠٠ جاهز.</span>
-              <a class="t-btn sm" href="cashier-checkout.html"><svg class="t-icon sm"><use href="#i-cash"/></svg><span data-en="Collect instalment now">تحصيل القسط الآن</span></a>
-            </div>
-          </section>
+            <section class="t-card flush" data-tier="2">
+              <div class="t-card-head"><h3 data-en="Consumption log">سجل الاستهلاك</h3><div class="t-actions"><span class="t-tier" data-en="Tier 2">المرحلة ٢</span></div></div>
+              <div class="t-table-wrap" style="border:0;border-radius:0">
+                <table class="t-table">
+                  <thead><tr><th data-en="Date">التاريخ</th><th data-en="Doctor">الطبيب</th><th data-en="Branch · room">الفرع · الغرفة</th><th class="pp-hide-sm" data-en="Visit">الزيارة</th><th class="num" data-en="Left">الباقي</th></tr></thead>
+                  <tbody id="pp-log"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+
+          <aside class="t-stack">
+            <section class="t-card sunk">
+              <h3 class="mb-2" data-en="Organization packages">باقات المنشأة</h3>
+              <ul class="t-small" id="pp-catalog" style="margin:0;padding-inline-start:18px;display:flex;flex-direction:column;gap:6px"></ul>
+              <a class="t-small" href="services-prices.html" data-en="Edit packages in Services &amp; prices">تعديل الباقات في الخدمات والأسعار</a>
+            </section>
+            <section class="t-card">
+              <h3 class="mb-2" data-en="Rules">القواعد</h3>
+              <ul class="t-small t-muted" style="margin:0;padding-inline-start:18px">
+                <li data-en="Using a session never creates an invoice.">استخدام جلسة مش بيعمل فاتورة.</li>
+                <li data-en="Unpaid packages can't be used until paid (shown, not hidden).">الباقة غير المدفوعة مش بتستخدم قبل الدفع (ظاهرة مش مخفية).</li>
+                <li data-en="Sold in one branch, usable in any branch of the organization that offers the service.">بتتباع في فرع وتتستخدم في أي فرع في المنشأة بيقدّم الخدمة.</li>
+                <li data-en="Expired sessions: owner decides to extend or refund by credit note.">الجلسات المنتهية: المالك يقرر تمديد أو مرتجع.</li>
+              </ul>
+            </section>
+          </aside>
         </div>
-        <aside class="t-stack">
-          <section class="t-card sunk">
-            <h3 class="mb-2" data-en="Why plans live on the patient">ليه الخطة على المريض</h3>
-            <p class="t-small t-muted mb-0" data-en="NITCO builds plans inside an invoice modal, 2–3 modals deep (v87). Here the plan is its own object on the patient: the doctor creates it from the visit, reception books and collects from it.">في NITCO الخطة جوه مودال الفاتورة على ٢–٣ مستويات. هنا الخطة لوحدها على ملف المريض: الدكتور يعملها من الكشف، والاستقبال يحجز ويحصّل منها.</p>
-          </section>
-        </aside>
+      </div>
+
+      <!-- ===== Treatment plans ===== -->
+      <div data-panel="pl" hidden>
+        <div class="t-split aside-end">
+          <div class="t-stack lg">
+            <section class="t-card" data-tier="2">
+              <div class="t-card-head">
+                <h2 id="pp-pl-h"></h2>
+                <span class="t-chip partial" id="pp-pl-chip"></span>
+              </div>
+              <dl class="t-dl mb-4" id="pp-pl-dl"></dl>
+              <div id="pp-pl-clin" class="mb-4"
+                   data-note="Clinical visibility is respected: this doctor's membership is set to 'own patients only', so the clinical part of the plan (teeth, notes) is shown only to him. Reception and other doctors still see the schedule and the money, which they need to book and collect."
+                   data-note-ar="خصوصية الكشف محترمة: عضوية الدكتور ده مظبوطة على «مرضاه بس»، فالجزء الطبي من الخطة (الأسنان والملاحظات) بيظهر له هو بس. الاستقبال والأطباء التانيين بيشوفوا المواعيد والفلوس اللي محتاجينها للحجز والتحصيل."></div>
+              <div class="t-table-wrap"
+                   data-note="Treatment plan = service × sessions × every N days. Expected dates are generated from the start date; actual dates come from the visits, so a late session is visible (NITCO v16, v22, v87: expected vs actual + 'used' tick)."
+                   data-note-ar="خطة العلاج = خدمة × عدد جلسات × كل كام يوم. المواعيد المتوقعة محسوبة من البداية والفعلية من الزيارات، فالتأخير بيبان.">
+                <table class="t-table">
+                  <thead><tr><th>#</th><th data-en="Expected">المتوقع</th><th data-en="Actual">الفعلي</th><th data-en="Status">الحالة</th><th></th></tr></thead>
+                  <tbody id="pp-pl-rows"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="t-card flush" data-tier="2"
+                     data-note="Instalments with a running remaining balance, linked to the patient account. Each invoice takes its number from the series of the branch where it was collected. The unpaid remainder of the plan is shown separately from debt: it becomes debt only if a session is done and not paid."
+                     data-note-ar="الأقساط برصيد متبقي مربوط بحساب المريض. كل فاتورة رقمها من سلسلة الفرع اللي اتحصّلت فيه. باقي الخطة منفصل عن المديونية: يبقى مديونية بس لو الجلسة اتعملت ومتدفعتش.">
+              <div class="t-card-head"><h3 data-en="Instalments">الأقساط</h3><div class="t-actions"><span class="t-tier" data-en="Tier 2">المرحلة ٢</span></div></div>
+              <div class="t-table-wrap" style="border:0;border-radius:0">
+                <table class="t-table">
+                  <thead><tr><th data-en="Due">الاستحقاق</th><th data-en="Invoice">الفاتورة</th><th data-en="Status">الحالة</th><th class="num" data-en="Amount">المبلغ</th><th class="num" data-en="Plan balance">باقي الخطة</th></tr></thead>
+                  <tbody id="pp-inst"></tbody>
+                  <tfoot id="pp-inst-foot"></tfoot>
+                </table>
+              </div>
+              <div class="t-card-foot">
+                <span class="t-small t-muted t-grow" id="pp-inst-hint"></span>
+                <a class="t-btn sm" href="cashier-checkout.html"><svg class="t-icon sm"><use href="#i-cash"/></svg><span data-en="Collect instalment now">تحصيل القسط الآن</span></a>
+              </div>
+            </section>
+          </div>
+          <aside class="t-stack">
+            <section class="t-card sunk">
+              <h3 class="mb-2" data-en="Why plans live on the patient">ليه الخطة على المريض</h3>
+              <p class="t-small t-muted mb-0" data-en="NITCO builds plans inside an invoice modal, 2–3 modals deep (v87). Here the plan is its own object on the patient: the doctor creates it from the visit, reception books and collects from it, in whichever branch the patient comes to.">في NITCO الخطة جوه مودال الفاتورة على ٢–٣ مستويات. هنا الخطة لوحدها على ملف المريض: الدكتور يعملها من الكشف، والاستقبال يحجز ويحصّل منها، في أي فرع المريض يروحه.</p>
+            </section>
+          </aside>
+        </div>
       </div>
     </div>
   </div>
@@ -190,20 +163,16 @@
   <div class="t-scrim" id="pp-sell" hidden>
     <div class="t-modal" role="dialog" aria-labelledby="pp-s-h">
       <div class="t-modal-head">
-        <h2 id="pp-s-h" data-en="Sell a package to Samia">بيع باقة لسامية</h2>
+        <h2 id="pp-s-h"></h2>
         <button class="t-btn icon ghost" type="button" data-close aria-label="Close" title="Close"><svg class="t-icon"><use href="#i-close"/></svg></button>
       </div>
       <div class="t-modal-body t-stack">
         <div class="t-field">
           <label class="t-label" for="pp-s-pk" data-en="Package">الباقة</label>
-          <select id="pp-s-pk" class="t-select">
-            <option data-en="Physio 5 sessions — 1,000 (list 1,100) · 45 days">علاج طبيعي ٥ جلسات — ١٬٠٠٠ (أصلي ١٬١٠٠) · ٤٥ يوم</option>
-            <option data-en="Physio 10 sessions — 1,800 (list 2,200) · 90 days">علاج طبيعي ١٠ جلسات — ١٬٨٠٠ (أصلي ٢٬٢٠٠) · ٩٠ يوم</option>
-            <option data-en="Diabetes care — 900 · 120 days">متابعة سكر — ٩٠٠ · ١٢٠ يوم</option>
-          </select>
+          <select id="pp-s-pk" class="t-select"></select>
         </div>
         <label class="t-check"><input type="checkbox"> <span data-en="Use the first session today">استخدم أول جلسة النهارده</span></label>
-        <div class="t-alert info"><svg class="t-icon"><use href="#i-info"/></svg><span data-en="One invoice at the package price goes to checkout. Split payment and remainder-as-debt work as usual.">فاتورة واحدة بسعر الباقة بتروح للتحصيل. الدفع المقسم والباقي كمديونية زي العادي.</span></div>
+        <div class="t-alert info"><svg class="t-icon"><use href="#i-info"/></svg><span id="pp-s-info"></span></div>
       </div>
       <div class="t-modal-foot">
         <button class="t-btn" type="button" data-close data-en="Cancel">إلغاء</button>
@@ -222,8 +191,8 @@
       <div class="t-modal-body t-stack lg">
         <div class="t-form-grid">
           <div class="t-field span-2">
-            <label class="t-label" for="pp-n-svc" data-en="Service">الخدمة</label>
-            <select id="pp-n-svc" class="t-select"><option data-en="Physiotherapy session (45 min) — 220">جلسة علاج طبيعي (٤٥ دقيقة) — ٢٢٠</option><option data-en="Knee injection (hyaluronic) — 900">حقن ركبة (هيالورونيك) — ٩٠٠</option><option data-en="PRP injection — 1,200">حقن بلازما — ١٬٢٠٠</option></select>
+            <label class="t-label" for="pp-n-svc" data-en="Service (priced for this branch)">الخدمة (بسعر الفرع ده)</label>
+            <select id="pp-n-svc" class="t-select"></select>
           </div>
           <div class="t-field"><label class="t-label" for="pp-n-n" data-en="Sessions">عدد الجلسات</label><input id="pp-n-n" class="t-input ltr" value="6" inputmode="numeric"></div>
           <div class="t-field"><label class="t-label" for="pp-n-e" data-en="Every (days)">كل (يوم)</label><input id="pp-n-e" class="t-input ltr" value="3" inputmode="numeric"></div>
@@ -245,37 +214,167 @@
     </div>
   </div>
 </main>
+<script src="../assets/demo-data.js"></script>
 <script src="../assets/shell.js"></script>
 <script>
 (function () {
+  /* Names, prices, rooms and branches come from Tamargi.data. The package and plan below only hold
+     ids, counts and dates (they are not in the shared dataset yet). */
+  var D = Tamargi.data, C = Tamargi.ctx, F = D.fmt;
+  var MON = { ar: ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"],
+              en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] };
+  var PKG = { org: "nile", patient: "n-p7", service: "n-lz-s", doctor: "n-noha", branch: "tor", room: "T4", sessions: 6, sold: "2026-10-12", validDays: 120, invSeq: 3012,
+              uses: ["2026-10-19", "2026-10-26", "2026-11-02", "2026-11-09"] };
+  var PLAN = { org: "nile", patient: "n-p7", doctor: "n-yasser", branch: "gam", room: "G3", service: "n-dt-fl", sessions: 3, every: 7, start: "2026-11-01",
+               actual: ["2026-11-01", "2026-11-09", null], booked: { date: "2026-11-16", from: 18 }, teeth: ["16", "26", "36"],
+               paid: [{ date: "2026-11-01", method: "cash", seq: 1188 }, { date: "2026-11-09", method: "instapay", seq: 1219 }] };
+  var extraUses = [];
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
-  var en = function () { return window.Tamargi && Tamargi.lang() === "en"; };
-  var left = 6, used = 4;
-  function tab(t) {
-    $$("[data-tab]").forEach(function (b) { b.setAttribute("aria-selected", String(b.getAttribute("data-tab") === t)); });
-    $$("[data-panel]").forEach(function (p) { p.hidden = p.getAttribute("data-panel") !== t; });
+  function t(r) { return F.t(r, C.lang); }
+  function tx(a, e) { return C.lang === "en" ? e : a; }
+  function n(x) { return F.num(x, C.lang); }
+  function m(x) { return F.money(x); }
+  function shortB(id) { var b = D.branch(id); return b ? (C.lang === "en" ? b.shortEn : b.shortAr) : ""; }
+  function brTag(id) { return '<span class="t-branch-tag"><svg class="t-icon"><use href="#i-pin"/></svg>' + shortB(id) + "</span>"; }
+  function spTag(sp) { var s = D.specialties[sp]; return s ? '<span class="t-spec-tag ' + s.cls + '">' + t(s) + "</span>" : ""; }
+  function docShort(id) { var d = D.doctor(id); return d ? (C.lang === "en" ? d.shortEn : d.shortAr) : ""; }
+  function dLong(s) { var p = s.split("-"); return n(+p[2]) + " " + MON[C.lang][+p[1] - 1] + " " + n(+p[0]); }
+  function dm(s) { var p = s.split("-"); return p[2] + "/" + p[1]; }
+  function addDays(s, k) { var p = s.split("-"), d = new Date(+p[0], +p[1] - 1, +p[2] + k); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
+  function invNo(seq, br) { return D.invoiceNo(br, seq); }   /* per-branch series (D39) */
+  function clinicalVisible(docId) {
+    if (D.visibilityOf(docId) !== "own") return C.role !== "reception" && C.role !== "cashier";
+    var d = D.doctor(docId);
+    return C.role === "all" || (C.role === "doctor" && d && d.person === D.me);
+  }
+
+  function renderBanner(p) {
+    var used = PKG.uses.length + extraUses.length, left = PKG.sessions - used;
+    var planLeft = (PLAN.sessions - PLAN.paid.length) * D.price(PLAN.service, PLAN.doctor, PLAN.branch);
+    var ini = t(p).split(" ").slice(0, 2).map(function (w) { return w.charAt(0); }).join(" ");
+    $("#pp-banner").innerHTML = '<div class="t-banner-id"><span class="t-avatar">' + ini + "</span><div>" +
+      '<div class="t-banner-name">' + t(p) + "</div>" +
+      '<div class="t-banner-facts"><span><b>' + n(p.age) + "</b> " + tx("سنة · " + (p.sex === "F" ? "أنثى" : "ذكر"), "yrs · " + p.sex) + "</span>" +
+      "<span>" + tx("ملف", "File") + ' <b class="t-ltr">' + p.fileNo + "</b> · " + t(C.orgRec) + "</span>" +
+      '<span class="t-ltr">' + p.phone + "</span>" +
+      "<span>" + tx("اتسجل في ", "Registered at ") + shortB(p.regBranch) + "</span></div></div></div>" +
+      '<div class="t-banner-alerts">' +
+      p.allergies.map(function (a) { return '<span class="t-allergy">⚠ ' + tx("حساسية: ", "Allergy: ") + t(a) + "</span>"; }).join("") +
+      p.chronic.map(function (c) { return '<span class="t-flag">' + t(c) + "</span>"; }).join("") +
+      '<span class="t-balance deposit">' + tx("باقة " + t(D.service(PKG.service)) + ": باقي " + n(left) + " جلسات", t(D.service(PKG.service)) + " package: " + left + " sessions left") + "</span>" +
+      '<span class="t-balance followup">' + tx("الخطة: باقي " + m(planLeft) + " ج.م", "Plan: " + m(planLeft) + " EGP to go") + "</span></div>";
+  }
+
+  function renderPackage() {
+    var s = D.service(PKG.service), unit = D.price(PKG.service, PKG.doctor, PKG.branch), used = PKG.uses.length + extraUses.length, left = PKG.sessions - used;
+    $("#pp-tab-pk").textContent = tx("الباقات (" + n(left > 0 ? 1 : 0) + " سارية)", "Packages (" + (left > 0 ? 1 : 0) + " active)");
+    $("#pp-pk-h").textContent = tx("باقة " + t(s) + " · " + n(PKG.sessions) + " جلسات", t(s) + " package · " + PKG.sessions + " sessions");
+    $("#pp-pk-valid").textContent = tx("سارية حتى ", "Valid until ") + dLong(addDays(PKG.sold, PKG.validDays));
+    $("#pp-left").textContent = n(left);
+    $("#pp-left-of").textContent = tx("من " + n(PKG.sessions) + " جلسات باقية", "of " + PKG.sessions + " sessions left");
+    $("#pp-bar").style.width = (used / PKG.sessions * 100) + "%";
+    $("#pp-sold").innerHTML = tx("اتباعت " + dLong(PKG.sold) + " بـ", "Sold " + dLong(PKG.sold) + " for") + ' <b class="t-money">' + m(unit * PKG.sessions) + "</b> " + tx("(" + n(PKG.sessions) + " × " + m(unit) + ") · فاتورة", "(" + PKG.sessions + " × " + m(unit) + ") · invoice") + ' <a class="t-ltr" href="invoice-detail.html">' + invNo(PKG.invSeq, PKG.branch) + "</a> · " + shortB(PKG.branch);
+    $("#pp-where").innerHTML = '<span class="t-small t-muted">' + tx("بتتعمل في:", "Done in:") + "</span> " + brTag(PKG.branch) + ' <span class="t-small">' + t(D.room(PKG.room)) + "</span> · " + docShort(PKG.doctor) + " " + spTag(s.sp);
+    $("#pp-svc").innerHTML = '<div class="pp-pk-svc"><span>' + t(s) + " (" + n(s.minutes) + tx(" دقيقة", " min") + ") × " + n(PKG.sessions) + "</span><span><b>" + n(used) + "</b> " + tx("مستخدمة", "used") + "</span></div>";
+    var rows = PKG.uses.concat(extraUses.map(function (u) { return u.date; })), html = "";
+    rows.forEach(function (d, i) {
+      var x = i >= PKG.uses.length ? extraUses[i - PKG.uses.length] : { date: d, branch: PKG.branch, room: PKG.room, doctor: PKG.doctor };
+      html = '<tr' + (i >= PKG.uses.length ? ' class="is-selected"' : "") + '><td class="t-ltr">' + dm(x.date) + "</td><td>" + docShort(x.doctor) + "</td><td>" + brTag(x.branch) + ' <span class="t-small">' + t(D.room(x.room)) + "</span></td>" +
+        '<td class="pp-hide-sm"><a href="visit-note.html">' + (x.date === D.today ? tx("زيارة النهارده", "Today's visit") : tx("زيارة ", "Visit ") + dLong(x.date)) + '</a></td><td class="num">' + n(PKG.sessions - i - 1) + "</td></tr>" + html;
+    });
+    $("#pp-log").innerHTML = html;
+    var cat = D.services.filter(function (x) { return x.org === C.org && x.kind === "session"; });
+    var items = []; cat.forEach(function (x) { [3, 6].forEach(function (k) { items.push({ s: x, k: k, price: D.price(x.id, null, C.all ? PKG.branch : C.branch) * k }); }); });
+    $("#pp-catalog").innerHTML = items.map(function (it) { return "<li><b>" + t(it.s) + " × " + n(it.k) + "</b> · " + m(it.price) + ' <span class="t-faint">· ' + tx(n(it.k * 20) + " يوم", it.k * 20 + " days") + "</span></li>"; }).join("") || '<li class="t-muted">' + tx("مفيش باقات", "No packages") + "</li>";
+    $("#pp-s-pk").innerHTML = items.map(function (it) { return "<option>" + t(it.s) + " × " + n(it.k) + " — " + m(it.price) + "</option>"; }).join("");
+    $("#pp-s-info").textContent = tx("فاتورة واحدة بسعر الباقة بتروح للتحصيل في فرع " + (C.all ? shortB(PKG.branch) : shortB(C.branch)) + ". الدفع المقسم والباقي كمديونية زي العادي.", "One invoice at the package price goes to checkout in " + (C.all ? shortB(PKG.branch) : shortB(C.branch)) + ". Split payment and remainder-as-debt work as usual.");
+  }
+
+  function renderPlan() {
+    var s = D.service(PLAN.service), unit = D.price(PLAN.service, PLAN.doctor, PLAN.branch), d = D.doctor(PLAN.doctor), doneN = PLAN.actual.filter(Boolean).length;
+    $("#pp-tab-pl").textContent = tx("خطط العلاج (" + n(1) + " سارية)", "Treatment plans (1 active)");
+    $("#pp-pl-h").textContent = tx(t(s) + " · " + n(PLAN.sessions) + " جلسات كل " + n(PLAN.every) + " أيام", t(s) + " · " + PLAN.sessions + " sessions every " + PLAN.every + " days");
+    $("#pp-pl-chip").textContent = tx("مدفوع " + n(PLAN.paid.length) + " من " + n(PLAN.sessions), PLAN.paid.length + " of " + PLAN.sessions + " paid");
+    $("#pp-pl-dl").innerHTML = "<dt>" + tx("الطبيب", "Doctor") + "</dt><dd>" + t(d) + " " + spTag(d.sp[0]) + "</dd>" +
+      "<dt>" + tx("الفرع", "Branch") + "</dt><dd>" + brTag(PLAN.branch) + " " + t(D.room(PLAN.room)) + "</dd>" +
+      "<dt>" + tx("البداية", "Started") + '</dt><dd><span class="t-ltr">' + F.date(PLAN.start) + "</span> · " + tx("تنتهي ~", "ends ~") + dLong(addDays(PLAN.start, PLAN.every * (PLAN.sessions - 1))) + "</dd>" +
+      "<dt>" + tx("السعر", "Price") + '</dt><dd><b class="t-money">' + m(unit * PLAN.sessions) + "</b> " + tx("= " + n(PLAN.sessions) + " × " + m(unit) + " · قسط مع كل جلسة", "= " + PLAN.sessions + " × " + m(unit) + " · instalment per session") + "</dd>";
+    var vis = clinicalVisible(PLAN.doctor);
+    $("#pp-pl-clin").innerHTML = vis
+      ? '<div class="t-alert info"><svg class="t-icon"><use href="#i-info"/></svg><span>' + tx("الأسنان: ", "Teeth: ") + '<b class="t-ltr">' + PLAN.teeth.join(" · ") + "</b> · " + tx("حشو كومبوزيت A2، ضرس في كل جلسة.", "composite A2, one tooth per session.") +
+        (D.visibilityOf(PLAN.doctor) === "own" ? " " + tx("(ظاهر لأن العرض «كل الأدوار»؛ الطبيب ضابط ملفاته على «مرضاه بس»)", "(shown because you view as all roles; this doctor keeps clinical notes to his own patients)") : "") + "</span></div>"
+      : '<div class="pp-lock"><svg class="t-icon sm"><use href="#i-lock"/></svg><span>' + tx("التفاصيل الطبية للخطة ظاهرة لـ" + docShort(PLAN.doctor) + " بس (ضابط ملفاته على «مرضاه بس»). المواعيد والفلوس ظاهرة للكل.", "The plan's clinical details are visible to " + docShort(PLAN.doctor) + " only (own-patients setting). Dates and money are visible to everyone.") + "</span></div>";
+    var rows = "";
+    for (var i = 0; i < PLAN.sessions; i++) {
+      var exp = addDays(PLAN.start, PLAN.every * i), act = PLAN.actual[i], late = act ? -D.daysTo(exp) + D.daysTo(act) : 0, st;
+      if (act) st = '<span class="t-chip done">' + tx("تمت", "Done") + "</span>";
+      else st = '<span class="t-chip booked">' + tx("محجوزة " + F.day(D.dayIndex(PLAN.booked.date), "ar") + " " + dLong(PLAN.booked.date) + " " + F.hour(PLAN.booked.from, "ar"), "Booked " + F.day(D.dayIndex(PLAN.booked.date), "en") + " " + dLong(PLAN.booked.date) + " " + F.hour(PLAN.booked.from, "en")) + "</span> " + brTag(PLAN.branch);
+      rows += "<tr" + (act ? "" : ' class="is-selected"') + "><td>" + n(i + 1) + '</td><td class="t-ltr">' + dm(exp) + "</td><td>" + (act ? '<span class="t-ltr">' + dm(act) + "</span>" + (late > 0 ? ' <span class="pp-late">+' + n(late) + tx(" يوم", " day") + "</span>" : "") : "—") + "</td><td>" + st + "</td>" +
+        '<td class="actions">' + (act ? (vis ? '<a class="t-btn sm ghost" href="visit-note.html">' + tx("الزيارة", "Visit") + "</a>" : '<span class="t-small t-muted">' + tx("مقفولة", "Private") + "</span>") : '<a class="t-btn sm" href="appointment-book.html">' + tx("تغيير", "Change") + "</a>") + "</td></tr>";
+    }
+    $("#pp-pl-rows").innerHTML = rows;
+    var bal = unit * PLAN.sessions, inst = "";
+    for (var k = 0; k < PLAN.sessions; k++) {
+      var pay = PLAN.paid[k], due = PLAN.actual[k] || PLAN.booked.date; bal -= unit;
+      inst += '<tr><td class="t-ltr">' + dm(due) + "</td><td>" + (pay ? '<a class="t-ltr" href="invoice-detail.html">' + invNo(pay.seq, PLAN.branch) + "</a> " + brTag(PLAN.branch) : "—") + "</td>" +
+        "<td>" + (pay ? '<span class="t-chip paid">' + tx("مدفوع · ", "Paid · ") + t(D.payMethods[pay.method]) + "</span>" : '<span class="t-chip unpaid">' + tx("مستحق مع الجلسة " + n(k + 1), "Due with session " + (k + 1)) + "</span>") + "</td>" +
+        '<td class="num">' + m(unit) + '</td><td class="num">' + (bal ? m(bal) : '<span class="t-money">0</span>') + "</td></tr>";
+    }
+    $("#pp-inst").innerHTML = inst;
+    var rem = (PLAN.sessions - PLAN.paid.length) * unit;
+    $("#pp-inst-foot").innerHTML = '<tr><td colspan="3">' + tx("الباقي على الخطة", "Remaining on plan") + '</td><td class="num"><span class="t-money">' + m(rem) + ' <span class="cur">' + tx("ج.م", "EGP") + "</span></span></td><td></td></tr>";
+    $("#pp-inst-hint").textContent = tx("عند تسجيل حضور الجلسة " + n(doneN + 1) + " في فرع " + shortB(PLAN.branch) + " شاشة التحصيل بتفتح بالقسط " + m(unit) + " جاهز.", "At check-in for session " + (doneN + 1) + " in " + shortB(PLAN.branch) + ", checkout opens with the " + m(unit) + " instalment pre-filled.");
+    var svcs = D.services.filter(function (x) { return x.org === C.org && (x.kind === "procedure" || x.kind === "session"); });
+    var keep = $("#pp-n-svc").selectedIndex;
+    $("#pp-n-svc").innerHTML = svcs.map(function (x) { return "<option>" + t(x) + " (" + n(x.minutes) + tx(" دقيقة", " min") + ") — " + m(D.price(x.id, null, C.all ? PLAN.branch : C.branch)) + "</option>"; }).join("");
+    if (keep > -1 && keep < svcs.length) $("#pp-n-svc").selectedIndex = keep;
+  }
+
+  function render() {
+    var poly = C.orgRec.plan === "poly";
+    $("#pp-main").hidden = !poly; $("#pp-banner").hidden = !poly; $("#pp-actions").hidden = !poly; $("#pp-upsell").hidden = poly;
+    if (!poly) {
+      $("#pp-upsell").innerHTML = '<div class="t-card" data-tier="2"><div class="t-empty"><div class="t-empty-art"><svg class="t-icon"><use href="#i-lock"/></svg></div>' +
+        "<h3>" + tx("الباقات وخطط العلاج في باقة المجمعات", "Packages and treatment plans are in the polyclinic plan") + "</h3>" +
+        "<p>" + tx(t(C.orgRec) + " على " + C.orgRec.planAr + ". الكشف والتحصيل والمديونية والعربون شغالين كلهم عندك؛ الباقات بالجلسات والخطط بالتقسيط بتفتح مع باقة المجمعات.", t(C.orgRec) + " is on the " + C.orgRec.planEn + ". Visits, cash, debt and deposits all work today; session packages and plans with instalments open with the polyclinic plan.") + "</p>" +
+        '<div class="t-row tight"><a class="t-btn primary" href="subscription-plan.html">' + tx("شوف الباقات", "See plans") + "</a>" +
+        D.orgs.filter(function (o) { return o.plan === "poly"; }).map(function (o) { return '<button class="t-btn" type="button" data-scope-org="' + o.id + '">' + tx("شوف مثال " + o.ar, "See the " + o.en + " sample") + "</button>"; }).join("") + "</div></div></div>";
+      Tamargi.clearNotice("pp");
+      return;
+    }
+    var p = D.patient(PKG.patient);
+    if (p.org !== C.org) { Tamargi.scopeNotice({ org: p.org, what: { ar: "ملف المريض ده", en: "This patient's file" }, key: "pp" }); return; }
+    renderBanner(p); renderPackage(); renderPlan();
+  }
+
+  function tab(x) {
+    $$("[data-tab]").forEach(function (b) { b.setAttribute("aria-selected", String(b.getAttribute("data-tab") === x)); });
+    $$("[data-panel]").forEach(function (p) { p.hidden = p.getAttribute("data-panel") !== x; });
   }
   function gen() {
-    var n = Math.min(20, parseInt($("#pp-n-n").value, 10) || 0), ev = parseInt($("#pp-n-e").value, 10) || 1;
+    var cnt = Math.min(20, parseInt($("#pp-n-n").value, 10) || 0), ev = parseInt($("#pp-n-e").value, 10) || 1;
     var d = new Date($("#pp-n-s").value || "2026-11-16"), out = "";
-    for (var i = 0; i < n; i++) {
+    for (var i = 0; i < cnt; i++) {
       var x = new Date(d.getTime() + i * ev * 864e5);
-      var dd = ("0" + x.getDate()).slice(-2) + "/" + ("0" + (x.getMonth() + 1)).slice(-2);
-      out += "<div><b>" + dd + "</b>" + (en() ? "Session " : "جلسة ") + (i + 1) + "</div>";
+      out += "<div><b>" + ("0" + x.getDate()).slice(-2) + "/" + ("0" + (x.getMonth() + 1)).slice(-2) + "</b>" + tx("جلسة ", "Session ") + n(i + 1) + "</div>";
     }
     $("#pp-gen").innerHTML = out;
   }
   function use() {
-    if (left <= 0) { Tamargi.toast(en() ? "No sessions left — sell a new package" : "مفيش جلسات باقية — بيع باقة جديدة"); return; }
-    left--; used++;
-    $("#pp-left").textContent = left; $("#pp-used").textContent = used; $("#pp-bar").style.width = (used * 10) + "%";
-    var tr = document.createElement("tr");
-    tr.innerHTML = '<td class="t-ltr">14/11</td><td>' + (en() ? "Physiotherapy session" : "جلسة علاج طبيعي") + "</td><td>" + (en() ? "Dr. Marwa El-Gendy" : "د. مروة الجندي") + '</td><td><a href="visit-note.html">' + (en() ? "Today's visit" : "زيارة النهارده") + '</a></td><td class="num">' + left + "</td>";
-    tr.className = "is-selected"; $("#pp-log").insertBefore(tr, $("#pp-log").firstChild);
-    var b = $(".t-banner .t-balance.deposit"), ar = "باقة علاج طبيعي: باقي " + left + " جلسات", e2 = "Physio package: " + left + " sessions left";
-    b.setAttribute("data-ar", ar); b.setAttribute("data-en", e2); b.innerHTML = en() ? e2 : ar;
-    Tamargi.toast(en() ? "Session logged — no invoice created. " + left + " left." : "الجلسة اتسجلت — من غير فاتورة. باقي " + left + ".");
+    var left = PKG.sessions - PKG.uses.length - extraUses.length;
+    if (left <= 0) { Tamargi.toast(tx("مفيش جلسات باقية — بيع باقة جديدة", "No sessions left — sell a new package")); return; }
+    var chk = Tamargi.scopeNotice({ needBranch: true, key: "pp-use" });
+    if (!chk.ok) return;
+    var sp = D.service(PKG.service).sp;
+    var sh = D.shifts.filter(function (x) { return x.org === C.org && x.branch === C.branch && x.sp === sp; })[0];
+    if (!sh) {
+      Tamargi.toast(tx("الخدمة دي مش متاحة في فرع " + shortB(C.branch) + " — بتتعمل في " + shortB(PKG.branch), "This service isn't offered in " + shortB(C.branch) + " — it runs in " + shortB(PKG.branch)));
+      return;
+    }
+    extraUses.push({ date: D.today, branch: C.branch, room: sh.room, doctor: sh.doctor });
+    render();
+    Tamargi.toast(tx("الجلسة اتسجلت في " + shortB(C.branch) + " — من غير فاتورة. باقي " + n(left - 1) + ".", "Session logged in " + shortB(C.branch) + " — no invoice created. " + (left - 1) + " left."));
   }
   document.addEventListener("click", function (e) {
     var b;
@@ -283,13 +382,15 @@
     if (e.target.closest("#pp-use")) use();
     if ((b = e.target.closest("#pp-newplan .t-seg button"))) $$("#pp-newplan .t-seg button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
     if (e.target.closest('[data-open="#pp-newplan"]')) setTimeout(gen, 0);
+    if (e.target.closest('[data-open="#pp-sell"]')) { var p = D.patient(PKG.patient); $("#pp-s-h").textContent = tx("بيع باقة لـ", "Sell a package to ") + t(p).split(" ")[0]; }
   });
   document.addEventListener("input", function (e) { if (e.target.closest("#pp-newplan")) gen(); });
   document.addEventListener("keydown", function (e) {
     var typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
-    if (!typing && !e.altKey && !e.ctrlKey && (e.key === "u" || e.key === "U") && !$('[data-panel="pk"]').hidden) use();
+    if (!typing && !e.altKey && !e.ctrlKey && (e.key === "u" || e.key === "U") && !$('[data-panel="pk"]').hidden && !$("#pp-main").hidden) use();
   });
-  gen();
+  Tamargi.onCtx(function () { render(); gen(); });
+  render(); gen();
 })();
 </script>
 </body>

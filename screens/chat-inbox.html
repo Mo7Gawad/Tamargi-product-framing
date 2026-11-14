@@ -18,7 +18,9 @@
     .ci-conv .ci-who { font-weight: var(--fw-m); font-size: var(--fs-sm); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .ci-conv .ci-last { grid-column: 2 / 4; font-size: var(--fs-xs); color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .ci-conv .ci-time { font-size: var(--fs-xs); color: var(--text-3); font-family: var(--font-en); direction: ltr; }
-    .ci-conv .ci-st { grid-column: 2 / 4; display: flex; gap: 6px; align-items: center; }
+    .ci-conv .ci-st { grid-column: 2 / 4; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    .ci-conv:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+    .ci-thread .t-card-head h2 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .ci-conv.is-unread .ci-who { font-weight: var(--fw-b); }
     .ci-thread { display: flex; flex-direction: column; height: calc(100vh - 210px); min-height: 520px; }
     .ci-msgs { flex: 1; display: flex; flex-direction: column; gap: var(--s-3); padding: var(--s-5); overflow-y: auto; background: var(--surface-sunk); }
@@ -37,8 +39,10 @@
     .ci-channel { display: inline-flex; align-items: center; gap: 6px; }
     @media (max-width: 860px) { .ci-convs { max-height: 280px; } .ci-thread { height: auto; min-height: 480px; } .ci-msg { max-width: 92%; } }
   </style>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
-<body data-screen="chat-inbox">
+<body data-screen="chat-inbox" data-org-default="selim">
 <main id="screen">
   <div class="t-container">
 
@@ -64,79 +68,27 @@
         <div class="t-seg" role="group" id="ci-filter"
              data-note="Each conversation has a text status — New (not answered), Answered, Booked — plus an unread count. Filters let reception clear 'New' first. Status is a word, never colour alone."
              data-note-ar="كل محادثة ليها حالة مكتوبة — جديدة، اتردّ عليها، اتحجزت — وعدد غير المقروء. الفلتر بيخلي الاستقبال يخلّص الجديد الأول.">
-          <button type="button" aria-pressed="true" data-f="all"><span data-en="All 7">الكل ٧</span></button>
-          <button type="button" aria-pressed="false" data-f="new"><span data-en="New 3">جديدة ٣</span></button>
+          <button type="button" aria-pressed="true" data-f="all"><span data-en="All">الكل</span> <span data-count="all"></span></button>
+          <button type="button" aria-pressed="false" data-f="new"><span data-en="New">جديدة</span> <span data-count="new"></span></button>
           <button type="button" aria-pressed="false" data-f="answered"><span data-en="Answered">اتردّ</span></button>
           <button type="button" aria-pressed="false" data-f="booked"><span data-en="Booked">اتحجز</span></button>
         </div>
-        <ul class="ci-convs" id="ci-convs" role="listbox">
-          <li class="ci-conv is-unread" role="option" aria-selected="true" data-s="new" data-id="1">
-            <span class="t-avatar sm">ن ع</span>
-            <span class="ci-who">نهى عبد الفتاح زكي</span>
-            <span class="ci-time">7:42 PM</span>
-            <span class="ci-last">ينفع بكره بالليل؟ وهل المتابعة بفلوس؟</span>
-            <span class="ci-st"><span class="t-chip info" data-st data-en="New">جديدة</span><span class="t-badge" data-unread>2</span></span>
-          </li>
-          <li class="ci-conv is-unread" role="option" aria-selected="false" data-s="new" data-id="2">
-            <span class="t-avatar sm">م د</span>
-            <span class="ci-who">محمود الدمرداش</span>
-            <span class="ci-time">7:31 PM</span>
-            <span class="ci-last">بكام الكشف عند دكتور الباطنة؟</span>
-            <span class="ci-st"><span class="t-chip info" data-en="New">جديدة</span><span class="t-badge">1</span></span>
-          </li>
-          <li class="ci-conv is-unread" role="option" aria-selected="false" data-s="new" data-id="3">
-            <span class="t-avatar sm">؟</span>
-            <span class="ci-who t-ltr">0155 667 7120</span>
-            <span class="ci-time">7:05 PM</span>
-            <span class="ci-last">العيادة فين بالظبط؟ أنا في طلخا</span>
-            <span class="ci-st"><span class="t-chip info" data-en="New">جديدة</span><span class="t-badge">1</span></span>
-          </li>
-          <li class="ci-conv" role="option" aria-selected="false" data-s="answered" data-id="4">
-            <span class="t-avatar sm">س ح</span>
-            <span class="ci-who">سارة الحسيني</span>
-            <span class="ci-time">6:50 PM</span>
-            <span class="ci-last">تمام شكرًا، هعدّي بكره</span>
-            <span class="ci-st"><span class="t-chip done" data-en="Answered">اتردّ عليها</span></span>
-          </li>
-          <li class="ci-conv" role="option" aria-selected="false" data-s="booked" data-id="5">
-            <span class="t-avatar sm">ن ج</span>
-            <span class="ci-who">نادية مصطفى الجمل</span>
-            <span class="ci-time">3:12 PM</span>
-            <span class="ci-last">أنتِ: اتحجز النهارده ٨:٣٠ م مع د. أحمد</span>
-            <span class="ci-st"><span class="t-chip paid" data-en="Booked · today 8:30">اتحجز · النهارده ٨:٣٠</span></span>
-          </li>
-          <li class="ci-conv" role="option" aria-selected="false" data-s="booked" data-id="6">
-            <span class="t-avatar sm">ع م</span>
-            <span class="ci-who">عادل منصور البيلي</span>
-            <span class="ci-time">1:05 PM</span>
-            <span class="ci-last">أنتِ: اتحجز الإتنين ٥:٤٠ م مع د. أحمد</span>
-            <span class="ci-st"><span class="t-chip paid" data-en="Booked · Mon 5:40">اتحجز · الإتنين ٥:٤٠</span></span>
-          </li>
-          <li class="ci-conv" role="option" aria-selected="false" data-s="answered" data-id="7">
-            <span class="t-avatar sm">ي ك</span>
-            <span class="ci-who">يسرا كمال</span>
-            <span class="ci-time" data-en="Yesterday">امبارح</span>
-            <span class="ci-last">أنتِ: د. هبة بتكشف أطفال لحد ١٤ سنة</span>
-            <span class="ci-st"><span class="t-chip done" data-en="Answered">اتردّ عليها</span></span>
-          </li>
-        </ul>
+        <ul class="ci-convs" id="ci-convs" role="listbox" aria-label="Conversations" data-en-aria-label="Conversations"
+            data-note="Polyclinic: each branch has its own page link, so every chat lands in that branch's inbox. Reception sees its branch only; the owner under 'All branches' sees every chat with a branch tag. A solo clinic never sees a branch tag."
+            data-note-ar="المجمع: لكل فرع لينك صفحة، فكل محادثة بتنزل في صندوق الفرع بتاعها. الاستقبال بيشوف فرعه بس؛ والمالك في «كل الفروع» بيشوف الكل وعلى كل محادثة اسم الفرع. العيادة الفردية مفيهاش اسم فرع خالص."></ul>
       </section>
 
       <!-- Thread -->
       <section class="t-card flush ci-thread" aria-labelledby="ci-th-name">
         <div class="t-card-head">
-          <span class="t-avatar sm">ن ع</span>
-          <div class="t-grow">
-            <h2 id="ci-th-name">نهى عبد الفتاح زكي</h2>
-            <span class="t-small t-muted"><span class="t-ltr">0109 332 0145</span> · <span data-en="via web chat · clinic page">من شات صفحة العيادة</span></span>
+          <span class="t-avatar sm" id="ci-th-ini"></span>
+          <div class="t-grow" style="min-width:0">
+            <h2 id="ci-th-name"></h2>
+            <span class="t-small t-muted" id="ci-th-sub"></span>
           </div>
-          <span class="t-chip info" id="ci-th-status" data-en="New">جديدة</span>
+          <span class="t-chip info" id="ci-th-status"></span>
         </div>
-        <div class="ci-msgs" id="ci-msgs" aria-live="polite">
-          <span class="ci-sys" data-en="Visitor gave name and mobile on the clinic page · 7:38 PM">الزائرة كتبت الاسم والموبايل في صفحة العيادة · ٧:٣٨ م</span>
-          <div class="ci-msg in">السلام عليكم، أنا والدة ريم أحمد. د. هبة كشفت عليها السبت اللي فات وقالت نرجع للمتابعة بعد أسبوع.<small>7:40 PM</small></div>
-          <div class="ci-msg in">ينفع بكره بالليل؟ وهل المتابعة بفلوس؟<small>7:42 PM</small></div>
-        </div>
+        <div class="ci-msgs" id="ci-msgs" aria-live="polite"></div>
         <div class="ci-quick"
              data-note="Quick replies answer the four questions patients ask most (hours, fee, location, follow-up rule) in one click; the text comes from Clinic profile & rules, so fees and hours are never retyped wrong."
              data-note-ar="ردود جاهزة على أكتر ٤ أسئلة (المواعيد، السعر، العنوان، المتابعة) بضغطة؛ الكلام جاي من إعدادات العيادة فمفيش سعر أو ميعاد يتكتب غلط.">
@@ -155,41 +107,19 @@
       <!-- Side panel: patient, slots, book -->
       <aside class="t-stack">
         <section class="t-card"
-                 data-note="The mobile is matched against patient files and guardian phones: here it finds Reem (5 yrs), whose free follow-up with Dr. Heba runs until 18 Nov. No match → 'Create provisional patient' keyed on the mobile, completed at check-in (journey J2)."
-                 data-note-ar="الموبايل بيتطابق مع ملفات المرضى وأرقام أولياء الأمور: هنا لقى ريم (٥ سنين) ومتابعتها المجانية مع د. هبة لحد ١٨ نوفمبر. مفيش تطابق ← «ملف مبدئي» بالموبايل يكمل يوم الحضور.">
-          <div class="t-card-head"><h3 data-en="Patient">المريض</h3><span class="t-chip arrived plain" data-en="Matched by mobile">اتعرف بالموبايل</span></div>
-          <div class="t-row tight">
-            <span class="t-avatar">ر أ</span>
-            <div class="t-grow">
-              <b>ريم أحمد عبد الفتاح زكي</b>
-              <div class="t-small t-muted"><span data-en="5 yrs · F · file">٥ سنين · أنثى · ملف</span> <span class="t-ltr">2214</span> · <span data-en="guardian's phone">رقم ولي الأمر</span></div>
-            </div>
-          </div>
-          <div class="t-row tight mt-2">
-            <span class="t-balance followup" data-en="Free follow-up until 18 Nov">متابعة مجانية حتى ١٨ نوفمبر</span>
-            <span class="t-allergy none" data-en="No known allergies">لا حساسية معروفة</span>
-          </div>
-          <div class="t-row tight mt-4">
-            <a class="t-btn sm" href="patient-file.html"><span data-en="Open file">فتح الملف</span></a>
-            <button class="t-btn sm ghost" type="button" data-toast="اتعمل ملف مبدئي بالموبايل — يكمل يوم الحضور" data-toast-en="Provisional patient created on this mobile — completed at check-in"><span data-en="Another child? New provisional">طفل تاني؟ ملف مبدئي</span></button>
-          </div>
+                 data-note="The mobile is matched against the organization's patient files and guardian phones (one file per organization, whatever branch the chat came from). The card shows the free follow-up window from the last visit with that doctor, balances and allergies. No match → 'Create provisional patient' keyed on the mobile, completed at check-in (journey J2)."
+                 data-note-ar="الموبايل بيتطابق مع ملفات مرضى المنشأة وأرقام أولياء الأمور (ملف واحد للمنشأة كلها، مهما كان الفرع اللي جت منه المحادثة). الكارت بيبين المتابعة المجانية من آخر كشف مع الدكتور، والحساب، والحساسية. مفيش تطابق ← «ملف مبدئي» بالموبايل يكمل يوم الحضور.">
+          <div class="t-card-head"><h3 data-en="Patient">المريض</h3><span class="t-chip arrived plain" id="ci-pt-match"></span></div>
+          <div id="ci-pt"></div>
         </section>
 
         <section class="t-card"
-                 data-note="Free slots already respect the doctor's hours, split shifts, patients per slot and leaves (NITCO v57, v58, v102): Dr. Heba's Tuesday leave is shown, full slots are struck through. Visit type and fee come from the follow-up window, so the reply 'is it free?' is answered by the system."
-                 data-note-ar="المواعيد الفاضية بتحترم ساعات الطبيب والفترتين وعدد المرضى في الميعاد والإجازات (NITCO): إجازة د. هبة يوم الثلاثاء ظاهرة، والمليان متشطب. نوع الزيارة والسعر من مدة المتابعة.">
-          <div class="t-card-head"><h3 data-en="Free slots">مواعيد فاضية</h3></div>
+                 data-note="Free slots already respect the doctor's hours in THIS branch, split shifts, patients per slot and leaves (NITCO v57, v58, v102): a doctor's leave is shown, full slots are struck through. A doctor who also works in another branch only offers this branch's days. Visit type and fee come from the follow-up window and the branch price list, so 'is it free?' is answered by the system."
+                 data-note-ar="المواعيد الفاضية بتحترم ساعات الطبيب في الفرع ده، والفترتين، وعدد المرضى في الميعاد، والإجازات (NITCO): الإجازة ظاهرة والمليان متشطب. الدكتور اللي شغال في فرعين بيظهر بأيام الفرع ده بس. نوع الزيارة والسعر من مدة المتابعة وأسعار الفرع.">
+          <div class="t-card-head"><h3 data-en="Free slots">مواعيد فاضية</h3><span class="t-chip plain" id="ci-slot-branch" hidden></span></div>
           <div class="t-stack">
-            <div class="t-seg" role="group" id="ci-doc">
-              <button type="button" aria-pressed="true" data-doc="B"><span data-en="Dr. Heba · Paeds">د. هبة · أطفال</span></button>
-              <button type="button" aria-pressed="false" data-doc="A"><span data-en="Dr. Ahmed · IM">د. أحمد · باطنة</span></button>
-            </div>
-            <div class="t-tabs mb-0" role="tablist" id="ci-days">
-              <button class="t-tab" role="tab" aria-selected="false" data-day="0"><span data-en="Today">النهارده</span></button>
-              <button class="t-tab" role="tab" aria-selected="true" data-day="1"><span data-en="Sun 15">الأحد ١٥</span></button>
-              <button class="t-tab" role="tab" aria-selected="false" data-day="2"><span data-en="Mon 16">الإتنين ١٦</span></button>
-              <button class="t-tab" role="tab" aria-selected="false" data-day="3"><span data-en="Tue 17">الثلاثاء ١٧</span></button>
-            </div>
+            <div class="t-field"><label class="t-label" for="ci-doc" data-en="Doctor">الطبيب</label><select class="t-select" id="ci-doc"></select></div>
+            <div class="t-tabs mb-0" role="tablist" id="ci-days"></div>
             <div class="ci-slots" id="ci-slots"></div>
             <div class="t-small" id="ci-visit"></div>
             <button class="t-btn primary block" type="button" id="ci-book"><svg class="t-icon sm"><use href="#i-calendar"/></svg><span id="ci-book-l"></span><span class="t-kbd">Ctrl Enter</span></button>
@@ -198,11 +128,11 @@
         </section>
 
         <section class="t-card"
-                 data-note="The confirmation is sent from a template whose merge fields are readable labelled chips, not raw {AppointmentTime} tokens in English like NITCO's 17 templates (v44, v100). Each sent message shows its status (sent / seen)."
-                 data-note-ar="رسالة التأكيد من قالب حقوله ظاهرة كبطاقات بأسماء عربي، مش رموز خام زي {AppointmentTime} في NITCO. كل رسالة بتبين حالتها (اتبعتت / اتشافت).">
+                 data-note="The confirmation is sent from a template whose merge fields are readable labelled chips, not raw {AppointmentTime} tokens in English like NITCO's 17 templates (v44, v100). Each sent message shows its status (sent / seen). In a polyclinic the address and room are the booked branch's."
+                 data-note-ar="رسالة التأكيد من قالب حقوله ظاهرة كبطاقات بأسماء عربي، مش رموز خام زي {AppointmentTime} في NITCO. كل رسالة بتبين حالتها (اتبعتت / اتشافت). في المجمع العنوان والغرفة بتوع الفرع اللي اتحجز فيه.">
           <div class="t-card-head"><h3 data-en="Booking confirmation message">رسالة تأكيد الحجز</h3><div class="t-actions"><a class="t-btn sm ghost" href="settings-templates.html"><svg class="t-icon sm"><use href="#i-edit"/></svg><span data-en="Edit">تعديل</span></a></div></div>
-          <div class="ci-tpl" data-en="You are booked for a &lt;span class=&quot;ci-tok&quot;&gt;Visit type&lt;/span&gt; for &lt;span class=&quot;ci-tok&quot;&gt;Patient name&lt;/span&gt; with &lt;span class=&quot;ci-tok&quot;&gt;Doctor&lt;/span&gt; on &lt;span class=&quot;ci-tok&quot;&gt;Day&lt;/span&gt; at &lt;span class=&quot;ci-tok&quot;&gt;Time&lt;/span&gt;. Address: &lt;span class=&quot;ci-tok&quot;&gt;Clinic address&lt;/span&gt;. Your queue number is given when you arrive. Reply to this message to cancel.">
-            اتحجزلك <span class="ci-tok">نوع الزيارة</span> لـ <span class="ci-tok">اسم المريض</span> مع <span class="ci-tok">الطبيب</span> يوم <span class="ci-tok">اليوم</span> الساعة <span class="ci-tok">الساعة</span>. العنوان: <span class="ci-tok">عنوان العيادة</span>. رقمك في الدور هيتحدد لما توصل. للإلغاء ردّ على الرسالة دي.
+          <div class="ci-tpl" data-en="You are booked for a &lt;span class=&quot;ci-tok&quot;&gt;Visit type&lt;/span&gt; for &lt;span class=&quot;ci-tok&quot;&gt;Patient name&lt;/span&gt; with &lt;span class=&quot;ci-tok&quot;&gt;Doctor&lt;/span&gt; on &lt;span class=&quot;ci-tok&quot;&gt;Day&lt;/span&gt; at &lt;span class=&quot;ci-tok&quot;&gt;Time&lt;/span&gt;. Address: &lt;span class=&quot;ci-tok&quot;&gt;Branch address&lt;/span&gt;. Your queue number is given when you arrive. Reply to this message to cancel.">
+            اتحجزلك <span class="ci-tok">نوع الزيارة</span> لـ <span class="ci-tok">اسم المريض</span> مع <span class="ci-tok">الطبيب</span> يوم <span class="ci-tok">اليوم</span> الساعة <span class="ci-tok">الساعة</span>. العنوان: <span class="ci-tok">عنوان الفرع</span>. رقمك في الدور هيتحدد لما توصل. للإلغاء ردّ على الرسالة دي.
           </div>
           <p class="t-hint mt-2 mb-0" data-en="Sent in Arabic; the English version is used if the visitor wrote in English.">بتتبعت بالعربي، والنسخة الإنجليزي لو الزائر كتب بالإنجليزي.</p>
         </section>
@@ -216,109 +146,323 @@
         <h3 data-en="No messages yet">مفيش رسايل لسه</h3>
         <p data-en="Patients write here from your clinic's web page. Share the page link on Facebook and on the clinic sign so they can ask and book.">المرضى بيكتبوا هنا من صفحة العيادة على النت. شارك الرابط على فيسبوك وعلى يافطة العيادة عشان يسألوا ويحجزوا.</p>
         <div class="t-row tight">
-          <button class="t-btn primary" type="button" data-toast="الرابط اتنسخ: tamargi.app/dr-ahmed-selim" data-toast-en="Link copied: tamargi.app/dr-ahmed-selim"><svg class="t-icon sm"><use href="#i-copy"/></svg><span data-en="Copy page link">نسخ رابط الصفحة</span></button>
+          <button class="t-btn primary" type="button" id="ci-copy-link" data-toast="الرابط اتنسخ: tamargi.app/dr-ahmed-selim" data-toast-en="Link copied: tamargi.app/dr-ahmed-selim"><svg class="t-icon sm"><use href="#i-copy"/></svg><span data-en="Copy page link">نسخ رابط الصفحة</span></button>
           <a class="t-btn" href="clinic-web-page.html"><span data-en="Preview clinic page">معاينة صفحة العيادة</span></a>
         </div>
       </div>
     </section>
   </div>
 </main>
+<script src="../assets/demo-data.js"></script>
 <script src="../assets/shell.js"></script>
 <script>
 (function () {
   "use strict";
-  var T = window.Tamargi;
-  function en() { return T.lang() === "en"; }
-  function setTx(el, ar, e) { el.setAttribute("data-ar", ar); el.setAttribute("data-en", e); el.innerHTML = en() ? e : ar; }
+  var T = window.Tamargi, D = T.data, C = T.ctx, F = D.fmt;
   var $ = function (id) { return document.getElementById(id); };
+  function L() { return C.lang === "en"; }
+  function tx(o) { return F.t(o, C.lang); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  var MON = { ar: ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"],
+              en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] };
 
-  var REPLIES = {
-    hours: ["العيادة شغالة من السبت للخميس من ٥ لـ ١٠ مساءً. د. هبة (أطفال) من ٦ لـ ١٠، والجمعة إجازة.", "We're open Sat–Thu, 5–10 PM. Dr. Heba (paediatrics) 6–10 PM. Closed Fridays."],
-    fees: ["كشف الباطنة ٣٠٠ ج.م وكشف الأطفال ٢٥٠ ج.م. الدفع كاش أو إنستاباي في العيادة.", "Internal medicine consult 300 EGP, paediatric consult 250 EGP. Pay cash or InstaPay at the clinic."],
-    loc: ["العيادة في المنصورة، ١٤ شارع الجمهورية، الدور التاني فوق صيدلية النور. خريطة: tamargi.app/dr-ahmed-selim/map", "14 El-Gomhoreya St., Mansoura, 2nd floor above El-Nour pharmacy. Map: tamargi.app/dr-ahmed-selim/map"],
-    fu: ["المتابعة مجانية خلال ١٠ أيام من كشف الأطفال (١٤ يوم للباطنة). ريم متابعتها المجانية لحد ١٨ نوفمبر.", "Follow-up is free within 10 days of a paediatric visit (14 days for internal medicine). Reem's free follow-up runs until 18 Nov."]
-  };
-  var SLOTS = {
-    B: [[["9:20", 0], ["9:40", 0]], [["6:00", 1], ["6:20", 0], ["6:40", 1], ["7:00", 0], ["7:20", 0], ["8:00", 0]], [["6:00", 0], ["6:20", 0], ["7:40", 0]], null],
-    A: [[["9:00", 0], ["9:30", 0]], [["5:00", 1], ["5:20", 1], ["5:40", 0], ["8:20", 0]], [["5:20", 0], ["6:00", 0]], [["5:00", 0], ["5:40", 0], ["6:20", 0]]]
-  };
-  var DAYS = [["النهارده", "today"], ["الأحد ١٥ نوفمبر", "Sun 15 Nov"], ["الإتنين ١٦ نوفمبر", "Mon 16 Nov"], ["الثلاثاء ١٧ نوفمبر", "Tue 17 Nov"]];
-  var st = { doc: "B", day: 1, slot: "6:20" };
+  /* ---------- Conversations (page-local demo: web chats per org + branch; people come from TamargiData) ----------
+     msgs: [dir, ar, en, hour]. Tokens: {doc} doctor, {sp} specialty, {branch} branch, {first} patient first name,
+     {tmr} doctor's hours tomorrow in that branch. appt = the appointment a "booked" chat produced. */
+  var CONVS = [
+    { id: "c1", org: "selim", branch: "main", patient: "s-p2", doctor: "s-ahmed", st: "new", unread: 2, t: 19.7,
+      msgs: [["in", "السلام عليكم، كان عندي استشارة النهارده مع {doc} واضطريت أمشي قبل دوري.", "Hello, I had a follow-up with {doc} today but had to leave before my turn.", 19.67],
+             ["in", "ينفع بكرة؟ وهل المتابعة لسه مجانية؟", "Can I come tomorrow? Is the follow-up still free?", 19.7]] },
+    { id: "c2", org: "selim", branch: "main", phone: "0100 000 0931", st: "new", unread: 1, t: 19.08,
+      msgs: [["in", "العيادة فين بالظبط؟ أنا في طلخا", "Where exactly is the clinic? I'm in Talkha", 19.08]] },
+    { id: "c3", org: "selim", branch: "main", patient: "s-p4", doctor: "s-ahmed", st: "new", unread: 1, t: 18.52,
+      msgs: [["in", "بكام كشف ال{sp} عند {doc}؟", "How much is a {sp} consult with {doc}?", 18.52]] },
+    { id: "c4", org: "selim", branch: "main", patient: "s-p7", doctor: "s-ahmed", st: "answered", t: 18.83,
+      msgs: [["in", "الدكتور موجود بكرة الصبح؟", "Is the doctor in tomorrow morning?", 18.7], ["out", "أيوه، {doc} موجود بكرة {tmr}.", "Yes, {doc} is in tomorrow {tmr}.", 18.75], ["in", "تمام شكرًا، هعدّي بكرة", "Great, thanks. I'll come tomorrow", 18.83]] },
+    { id: "c5", org: "selim", branch: "main", patient: "s-p6", doctor: "s-ahmed", st: "booked", appt: "s-a12", t: 13.08,
+      msgs: [["in", "عايز أحجز كشف مع {doc} بكرة لو فيه مكان", "I'd like a consult with {doc} tomorrow if there's room", 13]] },
+    { id: "c6", org: "selim", branch: "main", patient: "s-p1", doctor: "s-noha", st: "answered", t: null,
+      msgs: [["in", "هو فيه دكتورة {sp} في العيادة؟", "Is there a {sp} doctor at the clinic?", 20], ["out", "أيوه، {doc} ({sp}) موجودة السبت والأربع.", "Yes, {doc} ({sp}) is in on Saturday and Wednesday.", 20.1]] },
 
-  function paintSlots() {
-    var list = SLOTS[st.doc][st.day], box = $("ci-slots");
-    Array.prototype.forEach.call(document.querySelectorAll("#ci-doc [data-doc]"), function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-doc") === st.doc)); });
-    Array.prototype.forEach.call(document.querySelectorAll("#ci-days [data-day]"), function (b) { b.setAttribute("aria-selected", String(+b.getAttribute("data-day") === st.day)); });
-    if (!list) {
-      box.innerHTML = '<div class="t-alert warning w-full"><svg class="t-icon"><use href="#i-alert"/></svg><span>' + (en() ? "Dr. Heba is on leave on Tue 17 Nov. Pick another day." : "د. هبة إجازة يوم الثلاثاء ١٧ نوفمبر. اختار يوم تاني.") + "</span></div>";
-      st.slot = null;
-    } else {
-      if (!list.some(function (s) { return s[0] === st.slot && !s[1]; })) st.slot = (list.filter(function (s) { return !s[1]; })[0] || [null])[0];
-      box.innerHTML = list.map(function (s) {
-        return '<button class="t-pick' + (s[0] === st.slot ? " is-on" : "") + '" type="button" data-slot="' + s[0] + '"' + (s[1] ? ' disabled title="' + (en() ? "Full" : "محجوز") + '"' : "") + '><span class="t-ltr">' + s[0] + " PM</span></button>";
-      }).join("");
+    { id: "n1", org: "nile", branch: "tor", patient: "n-p14", doctor: "n-marwa", st: "new", unread: 2, t: 19.7,
+      msgs: [["in", "السلام عليكم، أنا والدة {first}. {doc} كشفت عليها النهارده وقالت نرجع للمتابعة بعد أسبوع.", "Hello, I'm {first}'s mother. {doc} saw her today and asked us to come back in a week.", 19.67],
+             ["in", "ينفع الأسبوع الجاي؟ وهل المتابعة بفلوس؟", "Is next week OK? Is the follow-up paid?", 19.7]] },
+    { id: "n2", org: "nile", branch: "tor", phone: "0100 000 0932", st: "new", unread: 1, t: 19.1,
+      msgs: [["in", "فرع {branch} فين بالظبط؟", "Where exactly is the {branch} branch?", 19.1]] },
+    { id: "n3", org: "nile", branch: "tor", patient: "n-p18", doctor: "n-karim", st: "new", unread: 1, t: 18.6,
+      msgs: [["in", "بكام كشف ال{sp} عند {doc}؟", "How much is an {sp} consult with {doc}?", 18.6]] },
+    { id: "n4", org: "nile", branch: "tor", patient: "n-p1", doctor: "n-karim", st: "booked", appt: "n-a15", t: 12.4,
+      msgs: [["in", "عايزة أحجز مع دكتور {sp} النهارده بالليل", "I'd like an {sp} appointment tonight", 12.3]] },
+    { id: "n5", org: "nile", branch: "tor", patient: "n-p15", doctor: "n-marwa", st: "answered", t: 16.2,
+      msgs: [["in", "فيه دكتورة أطفال في الفرع؟", "Is there a paediatrician at this branch?", 16], ["out", "أيوه، {doc} ({sp}) موجودة بكرة {tmr}.", "Yes, {doc} ({sp}) is in tomorrow {tmr}.", 16.1], ["in", "تمام شكرًا", "Great, thanks", 16.2]] },
+    { id: "n6", org: "nile", branch: "gam", patient: "n-p8", doctor: "n-heba", st: "new", unread: 1, t: 19.4,
+      msgs: [["in", "ينفع أعمل سونار مع الكشف الجاي عند {doc}؟", "Can I have an ultrasound at my next visit with {doc}?", 19.4]] },
+    { id: "n7", org: "nile", branch: "gam", patient: "n-p16", doctor: "n-yasser", st: "booked", appt: "n-a22", t: 11.2,
+      msgs: [["in", "ضرسي واجعني، ينفع النهارده؟", "My tooth hurts, can I come today?", 11.1]] },
+    { id: "n8", org: "nile", branch: "gam", patient: "n-p20", doctor: "n-heba", st: "answered", t: 17.2,
+      msgs: [["in", "معلش مقدرتش آجي النهارده", "Sorry, I couldn't make it today", 17], ["out", "ولا يهمك، تحبي نحجزلك ميعاد تاني مع {doc}؟", "No problem. Shall we book you another time with {doc}?", 17.2]] }
+  ];
+  var st = { conv: null, filter: "all", doc: null, day: null, slot: null, sent: {} };
+
+  /* ---------- helpers ---------- */
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function toDate(iso) { var p = iso.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function addDays(iso, n) { var d = toDate(iso); d.setDate(d.getDate() + n); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function dayMonth(iso) { var d = toDate(iso); return L() ? d.getDate() + " " + MON.en[d.getMonth()] : F.num(d.getDate(), "ar") + " " + MON.ar[d.getMonth()]; }
+  function relDay(iso, lang) {
+    var en = (lang || C.lang) === "en";
+    if (iso === D.today) return en ? "today" : "النهارده";
+    if (iso === addDays(D.today, 1)) return en ? "tomorrow" : "بكرة";
+    return F.day(D.dayIndex(iso), en ? "en" : "ar");
+  }
+  function hr(h, lang) { return F.hour(h, lang || C.lang); }
+  function multi() { return D.branchesOf(C.org).length > 1; }
+  function bShort(id, lang) { var b = D.branch(id); return (lang || C.lang) === "en" ? b.shortEn : b.shortAr; }
+  function dShort(d, lang) { return (lang || C.lang) === "en" ? d.shortEn : d.shortAr; }
+  function first(p, lang) { return ((lang || C.lang) === "en" ? p.en : p.ar).split(" ")[0]; }
+  function initials(name) { var w = name.replace(/^(د\.|Dr\.)\s*/, "").split(" "); return (w[0] || "").charAt(0) + " " + (w[1] || "").charAt(0); }
+  function shiftsOn(docId, bId, day) { return D.shifts.filter(function (s) { return s.doctor === docId && s.branch === bId && s.days.indexOf(day) > -1; }).sort(function (a, b) { return a.from - b.from; }); }
+  function onLeave(docId, iso) { var l = D.leaveAt(docId, iso); return !!(l && !l.hours); }   /* full-day leaves from D.leaves */
+  function docsIn(bId) { return D.doctors.filter(function (d) { return d.org === C.org && D.doctorBranches(d.id).indexOf(bId) > -1; }); }
+  function fuDays(doc) {
+    var f = D.services.filter(function (s) { return s.org === doc.org && s.kind === "followup" && doc.sp.indexOf(s.sp) > -1 && s.freeWithinDays; })[0];
+    return f ? f.freeWithinDays : D.org(doc.org).followupDays;
+  }
+  /* free follow-up end with this doctor: last finished visit + window, else the file's open window if they saw this doctor */
+  function freeUntil(p, doc) {
+    if (!p) return null;
+    var hist = D.patientAppointments(p.id).filter(function (a) { return a.doctor === doc.id && a.status !== "cancelled" && a.status !== "noshow"; });
+    var done = hist.filter(function (a) { return a.status === "done"; })[0];
+    if (done) return addDays(done.date, fuDays(doc));
+    return p.followupUntil && hist.length ? p.followupUntil : null;
+  }
+  function consult(doc, bId) { var s = D.mainService(doc.org, doc.sp[0]); return s ? { svc: s, price: D.price(s.id, doc.id, bId) } : null; }
+  function money(n, lang) { return F.money(n) + ((lang || C.lang) === "en" ? " EGP" : " ج.م"); }
+  function fill(text, c, lang) {
+    lang = lang || C.lang;
+    var doc = c.doctor ? D.doctor(c.doctor) : null, p = c.patient ? D.patient(c.patient) : null;
+    var tm = addDays(D.today, 1), sh = doc ? shiftsOn(doc.id, c.branch, D.dayIndex(tm)) : [];
+    return text.replace(/\{doc\}/g, doc ? dShort(doc, lang) : "")
+      .replace(/\{sp\}/g, doc ? F.t(D.specialties[doc.sp[0]], lang) : "")
+      .replace(/\{branch\}/g, bShort(c.branch, lang))
+      .replace(/\{first\}/g, p ? first(p, lang) : "")
+      .replace(/\{tmr\}/g, sh.map(function (s) { return F.range(s.from, s.to, lang); }).join(" / "));
+  }
+  function convName(c) { return c.patient ? tx(D.patient(c.patient)) : c.phone; }
+  function scoped() { return CONVS.filter(function (c) { return D.inScope(c, C); }); }
+  function statusOf(c) {
+    if (c.st === "booked") {
+      var a = c.bookedAppt || D.by("appointments", c.appt);
+      var when = relDay(a.date) + " " + hr(a.from);
+      return { cls: "t-chip paid", txt: (L() ? "Booked · " : "اتحجز · ") + when };
     }
-    var fu = st.doc === "B";
-    $("ci-visit").innerHTML = fu
-      ? '<span class="t-chip free">' + (en() ? "Free follow-up · 0 EGP" : "متابعة مجانية · ٠ ج.م") + '</span> <span class="t-faint">' + (en() ? "last visit with Dr. Heba 8 Nov" : "آخر كشف مع د. هبة ٨ نوفمبر") + "</span>"
-      : '<span class="t-chip info">' + (en() ? "New consult · 300 EGP" : "كشف جديد · ٣٠٠ ج.م") + '</span> <span class="t-faint">' + (en() ? "first visit with Dr. Ahmed" : "أول زيارة مع د. أحمد") + "</span>";
-    var b = $("ci-book"); b.disabled = !st.slot;
-    $("ci-book-l").textContent = st.slot ? (en() ? "Book " + DAYS[st.day][1] + " " + st.slot + " PM" : "احجز " + DAYS[st.day][0] + " " + st.slot + " م") : (en() ? "Pick a slot" : "اختار ميعاد");
+    return c.st === "new" ? { cls: "t-chip info", txt: L() ? "New" : "جديدة" } : { cls: "t-chip done", txt: L() ? "Answered" : "اتردّ عليها" };
+  }
+  function lastLine(c) {
+    var extra = st.sent[c.id] || [];
+    if (extra.length) { var m = extra[extra.length - 1]; return (L() ? "You: " : "أنتِ: ") + (L() ? m.en : m.ar); }
+    if (c.st === "booked") { var a = D.by("appointments", c.appt), d = D.doctor(a.doctor); return (L() ? "You: booked " : "أنتِ: اتحجز ") + relDay(a.date) + " " + hr(a.from) + (L() ? " with " : " مع ") + dShort(d); }
+    var m2 = c.msgs[c.msgs.length - 1];
+    return (m2[0] === "out" ? (L() ? "You: " : "أنتِ: ") : "") + fill(L() ? m2[2] : m2[1], c);
   }
 
-  function addMsg(text, out, status) {
-    var d = document.createElement("div");
-    d.className = "ci-msg " + (out ? "out" : "in");
-    d.textContent = text;
-    var s = document.createElement("small");
-    s.textContent = "7:4" + (5 + $("ci-msgs").children.length % 4) + " PM" + (status ? " · " + status : "");
-    d.appendChild(s); $("ci-msgs").appendChild(d); d.scrollIntoView({ behavior: "smooth", block: "end" });
-  }
-  function setStatus(kind) {
-    var chip = $("ci-th-status"), li = document.querySelector('.ci-conv[data-id="1"]'), lc = li.querySelector("[data-st]");
-    var map = { answered: ["t-chip done", "اتردّ عليها", "Answered"], booked: ["t-chip paid", "اتحجز · " + DAYS[st.day][0] + " " + st.slot, "Booked · " + DAYS[st.day][1] + " " + st.slot] };
-    var m = map[kind]; chip.className = m[0]; setTx(chip, m[1], m[2]); lc.className = m[0]; setTx(lc, m[1], m[2]);
-    li.setAttribute("data-s", kind); li.classList.remove("is-unread");
-    var u = li.querySelector("[data-unread]"); if (u) u.remove();
-  }
-  function send() {
-    var t = $("ci-text").value.trim(); if (!t) return;
-    addMsg(t, true, en() ? "sent" : "اتبعتت"); $("ci-text").value = "";
-    if (document.querySelector('.ci-conv[data-id="1"]').getAttribute("data-s") === "new") setStatus("answered");
+  /* ---------- list ---------- */
+  function renderList() {
+    var list = scoped();
+    $("ci-convs").innerHTML = list.length ? list.map(function (c) {
+      var s = statusOf(c), unread = c.st === "new" && c.unread && !(st.sent[c.id] || []).length;
+      return '<li class="ci-conv' + (unread ? " is-unread" : "") + '" role="option" tabindex="0" aria-selected="' + (c.id === st.conv) + '" data-s="' + c.st + '" data-id="' + c.id + '"' + (st.filter !== "all" && c.st !== st.filter ? " hidden" : "") + ">" +
+        '<span class="t-avatar sm">' + esc(c.patient ? initials(D.patient(c.patient).ar) : "؟") + "</span>" +
+        '<span class="ci-who' + (c.patient ? "" : " t-ltr") + '">' + esc(convName(c)) + "</span>" +
+        '<span class="ci-time">' + (c.t == null ? (L() ? "Yesterday" : "امبارح") : esc(F.hour(c.t, "en").toUpperCase())) + "</span>" +
+        '<span class="ci-last">' + esc(lastLine(c)) + "</span>" +
+        '<span class="ci-st"><span class="' + s.cls + '">' + esc(s.txt) + "</span>" + (unread ? '<span class="t-badge">' + c.unread + "</span>" : "") +
+        (multi() ? '<span class="t-chip plain">' + esc(bShort(c.branch)) + "</span>" : "") + "</span></li>";
+    }).join("") : '<li class="t-muted t-small" style="padding:var(--s-4)">' + (L() ? "No chats for this branch yet." : "مفيش محادثات للفرع ده لسه.") + "</li>";
+    var nNew = list.filter(function (c) { return c.st === "new"; }).length;
+    document.querySelector('[data-count="all"]').textContent = F.num(list.length, C.lang);
+    document.querySelector('[data-count="new"]').textContent = F.num(nNew, C.lang);
+    Array.prototype.forEach.call(document.querySelectorAll("#ci-filter [data-f]"), function (x) { x.setAttribute("aria-pressed", String(x.getAttribute("data-f") === st.filter)); });
   }
 
-  document.addEventListener("click", function (e) {
-    var b;
-    if ((b = e.target.closest("[data-reply]"))) { var r = REPLIES[b.getAttribute("data-reply")]; var ta = $("ci-text"); ta.value = (ta.value ? ta.value + "\n" : "") + r[en() ? 1 : 0]; ta.focus(); return; }
-    if ((b = e.target.closest("#ci-send"))) { send(); return; }
-    if ((b = e.target.closest("#ci-doc [data-doc]"))) { st.doc = b.getAttribute("data-doc"); paintSlots(); return; }
-    if ((b = e.target.closest("#ci-days [data-day]"))) { st.day = +b.getAttribute("data-day"); paintSlots(); return; }
-    if ((b = e.target.closest("[data-slot]"))) { st.slot = b.getAttribute("data-slot"); paintSlots(); return; }
-    if ((b = e.target.closest("#ci-book"))) { book(); return; }
-    if ((b = e.target.closest("#ci-filter [data-f]"))) {
-      var f = b.getAttribute("data-f");
-      Array.prototype.forEach.call(document.querySelectorAll("#ci-filter [data-f]"), function (x) { x.setAttribute("aria-pressed", String(x === b)); });
-      Array.prototype.forEach.call(document.querySelectorAll(".ci-conv"), function (li) { li.hidden = f !== "all" && li.getAttribute("data-s") !== f; });
+  /* ---------- thread + side panel ---------- */
+  function renderThread() {
+    var c = CONVS.filter(function (x) { return x.id === st.conv; })[0];
+    var has = !!c; ["ci-th-status"].forEach(function (id) { $(id).hidden = !has; });
+    if (!c) { $("ci-th-name").textContent = L() ? "No conversation selected" : "مفيش محادثة مختارة"; $("ci-th-sub").textContent = ""; $("ci-th-ini").textContent = "—"; $("ci-msgs").innerHTML = ""; $("ci-pt").innerHTML = ""; $("ci-pt-match").hidden = true; return; }
+    var p = c.patient ? D.patient(c.patient) : null, phone = p ? p.phone : c.phone;
+    $("ci-th-ini").textContent = p ? initials(p.ar) : "؟";
+    $("ci-th-name").textContent = convName(c);
+    $("ci-th-sub").innerHTML = '<span class="t-ltr">' + esc(phone) + "</span> · " + esc(L() ? "via web chat · " + (multi() ? bShort(c.branch) + " branch page" : "clinic page") : "من شات " + (multi() ? "صفحة فرع " + bShort(c.branch) : "صفحة العيادة"));
+    var s = statusOf(c); $("ci-th-status").className = s.cls; $("ci-th-status").textContent = s.txt;
+
+    var m0 = c.msgs[0][3], sys = '<span class="ci-sys">' + esc(p ? (L() ? "Visitor gave name and mobile on the page · " : "الزائر كتب الاسم والموبايل في الصفحة · ") + hr(m0 - 0.05) : (L() ? "Visitor gave a mobile only · no file matched · " : "الزائر كتب الموبايل بس · مفيش ملف مطابق · ") + hr(m0 - 0.02)) + "</span>";
+    var out = c.msgs.map(function (m) { return '<div class="ci-msg ' + m[0] + '">' + esc(fill(L() ? m[2] : m[1], c)) + "<small>" + esc(F.hour(m[3], "en").toUpperCase()) + (m[0] === "out" ? (L() ? " · seen" : " · اتشافت") : "") + "</small></div>"; }).join("");
+    if (c.st === "booked" && c.appt) {
+      var a = D.by("appointments", c.appt);
+      out += '<div class="ci-msg out">' + esc(confirmText(c, D.doctor(a.doctor), a.date, a.from, a.room, a.service, C.lang)) + "<small>" + esc(F.hour(c.t, "en").toUpperCase()) + (L() ? " · seen · confirmation" : " · اتشافت · تأكيد") + "</small></div>";
+    }
+    (st.sent[c.id] || []).forEach(function (m) { out += '<div class="ci-msg out">' + esc(L() ? m.en : m.ar) + "<small>" + esc(m.time) + " · " + esc(L() ? m.stEn : m.stAr) + "</small></div>"; });
+    $("ci-msgs").innerHTML = sys + out;
+    $("ci-msgs").scrollTop = $("ci-msgs").scrollHeight;
+
+    /* patient card */
+    var match = $("ci-pt-match"); match.hidden = false;
+    if (!p) {
+      match.className = "t-chip plain"; match.textContent = L() ? "No match" : "مش متسجل";
+      $("ci-pt").innerHTML = '<p class="t-small t-muted">' + esc(L() ? "No patient file in " + tx(D.org(C.org)) + " has this mobile." : "مفيش ملف في " + tx(D.org(C.org)) + " بالموبايل ده.") + "</p>" +
+        '<button class="t-btn sm" type="button" data-toast="اتعمل ملف مبدئي بالموبايل — يكمل يوم الحضور" data-toast-en="Provisional patient created on this mobile — completed at check-in">' + (L() ? "Create provisional patient" : "ملف مبدئي بالموبايل") + "</button>";
       return;
     }
-    if ((b = e.target.closest(".ci-conv"))) {
-      if (b.getAttribute("data-id") !== "1") T.toast(en() ? "Prototype: only the first conversation is wired" : "النموذج: أول محادثة بس هي المتوصّلة");
-    }
-  });
-  function book() {
-    if (!st.slot) return;
-    var fu = st.doc === "B";
-    var ar = "اتحجزلك " + (fu ? "متابعة مجانية" : "كشف جديد") + " لـ ريم أحمد عبد الفتاح مع " + (fu ? "د. هبة الشناوي" : "د. أحمد سليم") + " يوم " + DAYS[st.day][0] + " الساعة " + st.slot + " م. العنوان: ١٤ شارع الجمهورية، المنصورة. رقمك في الدور هيتحدد لما توصل. للإلغاء ردّ على الرسالة دي.";
-    var enT = "Booked: " + (fu ? "free follow-up" : "new consult") + " for Reem Ahmed with " + (fu ? "Dr. Heba El-Shennawy" : "Dr. Ahmed Selim") + " on " + DAYS[st.day][1] + " at " + st.slot + " PM. Address: 14 El-Gomhoreya St., Mansoura. Your queue number is given on arrival. Reply to cancel.";
-    addMsg(en() ? enT : ar, true, en() ? "sent · confirmation" : "اتبعتت · تأكيد");
-    setStatus("booked");
-    T.toast(en() ? "Booked and confirmation sent — added to the appointments calendar" : "اتحجز واتبعتت رسالة التأكيد — اتضاف لجدول المواعيد");
-    $("ci-book").disabled = true; setTx($("ci-book-l"), "اتحجز ✓", "Booked ✓");
+    match.className = "t-chip arrived plain"; match.textContent = L() ? "Matched by mobile" : "اتعرف بالموبايل";
+    var doc = c.doctor ? D.doctor(c.doctor) : null, fu = doc ? freeUntil(p, doc) : null;
+    var age = L() ? p.age + " yrs · " + (p.sex === "F" ? "F" : "M") + " · file" : F.num(p.age, "ar") + (p.age < 11 ? " سنين" : " سنة") + " · " + (p.sex === "F" ? "أنثى" : "ذكر") + " · ملف";
+    var chips = "";
+    if (fu && fu >= D.today) chips += '<span class="t-balance followup">' + esc((L() ? "Free follow-up with " : "متابعة مجانية مع ") + dShort(doc) + (L() ? " until " : " حتى ") + dayMonth(fu)) + "</span>";
+    if (p.debt) chips += '<span class="t-balance debt">' + esc((L() ? "Owes " : "عليه ") + money(p.debt)) + "</span>";
+    if (p.deposit) chips += '<span class="t-balance deposit">' + esc((L() ? "Credit " : "رصيد ") + money(p.deposit)) + "</span>";
+    chips += p.allergies.length ? '<span class="t-allergy">' + esc((L() ? "Allergy: " : "حساسية: ") + p.allergies.map(tx).join(L() ? ", " : "، ")) + "</span>" : '<span class="t-allergy none">' + (L() ? "No known allergies" : "لا حساسية معروفة") + "</span>";
+    $("ci-pt").innerHTML = '<div class="t-row tight"><span class="t-avatar">' + esc(initials(p.ar)) + '</span><div class="t-grow" style="min-width:0"><b>' + esc(tx(p)) + "</b>" +
+      '<div class="t-small t-muted">' + esc(age) + ' <span class="t-ltr">' + esc(p.fileNo) + "</span>" + (p.child ? " · " + (L() ? "guardian's phone" : "رقم ولي الأمر") : "") + "</div>" +
+      (multi() ? '<div class="t-small t-muted">' + esc(L() ? "Registered at " + bShort(p.regBranch) + " · one file for all branches" : "متسجل في فرع " + bShort(p.regBranch) + " · ملف واحد لكل الفروع") + "</div>" : "") +
+      '</div></div><div class="t-row tight mt-2">' + chips + "</div>" +
+      '<div class="t-row tight mt-4"><a class="t-btn sm" href="patient-file.html">' + (L() ? "Open file" : "فتح الملف") + "</a>" +
+      (p.child ? '<button class="t-btn sm ghost" type="button" data-toast="اتعمل ملف مبدئي بالموبايل — يكمل يوم الحضور" data-toast-en="Provisional patient created on this mobile — completed at check-in">' + (L() ? "Another child? New provisional" : "طفل تاني؟ ملف مبدئي") + "</button>" : "") + "</div>";
   }
+
+  /* ---------- slots ---------- */
+  var STEP = 1 / 3;   /* 20-minute slots */
+  function slotsFor(docId, bId, iso) {
+    var sh = shiftsOn(docId, bId, D.dayIndex(iso)), out = [];
+    var taken = D.appointments.filter(function (a) { return a.doctor === docId && a.date === iso && a.status !== "cancelled"; });
+    sh.forEach(function (s) {
+      for (var h = s.from; h + STEP <= s.to + 1e-6; h += STEP) {
+        var hh = Math.round(h * 60) / 60;
+        if (iso === D.today && hh < D.now + 0.25) continue;
+        var full = taken.some(function (a) { return a.from < hh + STEP - 1e-6 && a.from + a.dur / 60 > hh + 1e-6; });
+        out.push({ h: hh, full: full });
+      }
+    });
+    return out.slice(0, 12);
+  }
+  function renderSlots() {
+    var c = CONVS.filter(function (x) { return x.id === st.conv; })[0];
+    var card = $("ci-book").closest(".t-card");
+    if (!c) { card.hidden = true; return; } card.hidden = false;
+    var docs = docsIn(c.branch);
+    if (!st.doc || !docs.some(function (d) { return d.id === st.doc; })) { st.doc = c.doctor || (docs[0] && docs[0].id); st.day = null; }
+    if (st.day == null) st.day = [1, 0, 2, 3].filter(function (i) { var d = addDays(D.today, i); return !onLeave(st.doc, d) && slotsFor(st.doc, c.branch, d).some(function (x) { return !x.full; }); })[0] || 1;
+    var sb = $("ci-slot-branch"); sb.hidden = !multi(); sb.textContent = multi() ? (L() ? "Branch: " : "فرع ") + bShort(c.branch) : "";
+    $("ci-doc").innerHTML = docs.map(function (d) { return '<option value="' + d.id + '"' + (d.id === st.doc ? " selected" : "") + ">" + esc(dShort(d) + " · " + tx(D.specialties[d.sp[0]])) + "</option>"; }).join("");
+    var tabs = ""; for (var i = 0; i < 4; i++) { var iso = addDays(D.today, i); tabs += '<button class="t-tab" role="tab" type="button" aria-selected="' + (i === st.day) + '" data-day="' + i + '">' + esc(i === 0 ? (L() ? "Today" : "النهارده") : F.day(D.dayIndex(iso), C.lang) + " " + F.num(toDate(iso).getDate(), C.lang)) + "</button>"; }
+    $("ci-days").innerHTML = tabs;
+
+    var doc = D.doctor(st.doc), date = addDays(D.today, st.day), box = $("ci-slots"), list = slotsFor(st.doc, c.branch, date);
+    var b = D.branch(c.branch);
+    if (onLeave(st.doc, date)) {
+      box.innerHTML = '<div class="t-alert warning w-full"><svg class="t-icon"><use href="#i-alert"/></svg><span>' + esc(L() ? dShort(doc) + " is on leave on " + F.day(D.dayIndex(date), "en") + " " + dayMonth(date) + ". Pick another day." : dShort(doc) + " إجازة يوم " + F.day(D.dayIndex(date), "ar") + " " + dayMonth(date) + ". اختار يوم تاني.") + "</span></div>";
+      st.slot = null;
+    } else if (!list.length) {
+      var other = D.shifts.filter(function (s) { return s.doctor === st.doc && s.branch !== c.branch && s.days.indexOf(D.dayIndex(date)) > -1; })[0];
+      var why = b.closedDays.indexOf(D.dayIndex(date)) > -1 ? (L() ? "The branch is closed this day." : "الفرع مقفول اليوم ده.")
+        : other ? (L() ? "That day " + dShort(doc) + " works at " + bShort(other.branch) + ", not here." : "اليوم ده " + dShort(doc) + " في فرع " + bShort(other.branch) + "، مش هنا.")
+        : (L() ? "No free time this day." : "مفيش وقت فاضي اليوم ده.");
+      box.innerHTML = '<div class="t-alert w-full"><svg class="t-icon"><use href="#i-alert"/></svg><span>' + esc(why) + "</span></div>";
+      st.slot = null;
+    } else {
+      if (!list.some(function (s) { return s.h === st.slot && !s.full; })) st.slot = (list.filter(function (s) { return !s.full; })[0] || { h: null }).h;
+      box.innerHTML = list.map(function (s) {
+        return '<button class="t-pick' + (s.h === st.slot ? " is-on" : "") + '" type="button" data-slot="' + s.h + '"' + (s.full ? ' disabled title="' + (L() ? "Full" : "محجوز") + '"' : "") + '><span class="t-ltr">' + esc(F.hour(s.h, "en").toUpperCase()) + "</span></button>";
+      }).join("");
+    }
+    var p = c.patient ? D.patient(c.patient) : null, fu = freeUntil(p, doc), cs = consult(doc, c.branch), isFu = !!(fu && fu >= date);
+    var sh = shiftsOn(st.doc, c.branch, D.dayIndex(date))[0], room = sh ? D.room(sh.room) : null;
+    $("ci-visit").innerHTML = (isFu ? '<span class="t-chip free">' + esc(L() ? "Free follow-up · 0 EGP" : "متابعة مجانية · ٠ ج.م") + '</span> <span class="t-faint">' + esc((L() ? "free until " : "مجانية لحد ") + dayMonth(fu)) + "</span>"
+      : '<span class="t-chip info">' + esc((L() ? "New consult · " : "كشف جديد · ") + (cs ? money(cs.price) : "")) + '</span> <span class="t-faint">' + esc(p ? (L() ? "no open follow-up with " : "مفيش متابعة مفتوحة مع ") + dShort(doc) : (L() ? "new patient" : "مريض جديد")) + "</span>") +
+      (room ? '<div class="t-faint mt-1">' + esc(tx(room) + (multi() ? " · " + (L() ? bShort(c.branch) + " branch" : "فرع " + bShort(c.branch)) : "")) + "</div>" : "");
+    $("ci-book").disabled = st.slot == null || c.st === "booked" && !!c.bookedAppt;
+    $("ci-book-l").textContent = st.slot != null ? (L() ? "Book " + relDay(date) + " " + F.hour(st.slot, "en") : "احجز " + relDay(date) + " " + F.hour(st.slot, "ar")) : (L() ? "Pick a slot" : "اختار ميعاد");
+  }
+
+  function confirmText(c, doc, date, from, roomId, svcId, lang) {
+    var en = lang === "en", p = c.patient ? D.patient(c.patient) : null, b = D.branch(c.branch), svc = D.service(svcId), room = D.room(roomId);
+    var who = p ? (en ? p.en : p.ar).split(" ").slice(0, 2).join(" ") : c.phone;
+    var rd = relDay(date, lang), day = (en ? (date === D.today || date === addDays(D.today, 1) ? rd + ", " : "on " + rd + " ") : rd + " ") + (en ? toDate(date).getDate() + " " + MON.en[toDate(date).getMonth()] : F.num(toDate(date).getDate(), "ar") + " " + MON.ar[toDate(date).getMonth()]);
+    var addr = (en ? b.addressEn : b.addressAr) + (multi() ? (en ? " (" + b.shortEn + " branch)" : " (فرع " + b.shortAr + ")") : "");
+    return en ? "Booked: " + F.t(svc, "en") + " for " + who + " with " + doc.shortEn + " " + day + " at " + F.hour(from, "en") + (room ? ", " + room.en : "") + ". Address: " + addr + ". Your queue number is given on arrival. Reply to cancel."
+      : "اتحجزلك " + F.t(svc, "ar") + " لـ " + who + " مع " + doc.shortAr + " يوم " + day + " الساعة " + F.hour(from, "ar") + (room ? "، " + room.ar : "") + ". العنوان: " + addr + ". رقمك في الدور هيتحدد لما توصل. للإلغاء ردّ على الرسالة دي.";
+  }
+
+  function render() {
+    var list = scoped();
+    if (!list.some(function (c) { return c.id === st.conv; })) { st.conv = list[0] ? list[0].id : null; st.doc = null; st.slot = null; }
+    renderList(); renderThread(); renderSlots();
+    var slug = D.org(C.org).en.toLowerCase().replace(/\b(clinic|centre|center)\b/g, "").replace(/^dr\.\s*/, "dr ").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    var cp = $("ci-copy-link"); if (cp) { cp.setAttribute("data-toast", "الرابط اتنسخ: tamargi.app/" + slug); cp.setAttribute("data-toast-en", "Link copied: tamargi.app/" + slug); }
+  }
+
+  /* ---------- actions ---------- */
+  function cur() { return CONVS.filter(function (x) { return x.id === st.conv; })[0]; }
+  function nowTxt() { var n = (st.clock = (st.clock || 19.75) + 1 / 60); return F.hour(n, "en").toUpperCase(); }
+  function push(c, ar, en, stAr, stEn) { (st.sent[c.id] = st.sent[c.id] || []).push({ ar: ar, en: en, time: nowTxt(), stAr: stAr, stEn: stEn }); }
+  function send() {
+    var c = cur(), t = $("ci-text").value.trim(); if (!t || !c) return;
+    push(c, t, t, "اتبعتت", "sent"); $("ci-text").value = "";
+    if (c.st === "new") c.st = "answered";
+    renderList(); renderThread();
+  }
+  function quick(kind) {
+    var c = cur(); if (!c) return;
+    var b = D.branch(c.branch), docs = docsIn(c.branch), doc = c.doctor ? D.doctor(c.doctor) : docs[0], p = c.patient ? D.patient(c.patient) : null, lang = C.lang, en = lang === "en";
+    var t;
+    if (kind === "hours") {
+      var closed = b.closedDays.map(function (d) { return F.day(d, lang); }).join(en ? ", " : " و");
+      t = (multi() ? (en ? "Our " + b.shortEn + " branch" : "فرع " + b.shortAr) : (en ? "The clinic" : "العيادة")) + (en ? " is open " + F.range(b.hours.from, b.hours.to, lang) + ", closed " + closed + ". " : " شغال من " + F.range(b.hours.from, b.hours.to, lang) + "، و" + closed + " إجازة. ") +
+        docs.map(function (d) {
+          var g = {}; D.shifts.filter(function (s) { return s.doctor === d.id && s.branch === b.id; }).forEach(function (s) { var k = s.from + "-" + s.to; (g[k] = g[k] || { s: s, days: [] }).days = g[k].days.concat(s.days); });
+          return dShort(d, lang) + " (" + F.t(D.specialties[d.sp[0]], lang) + "): " + Object.keys(g).map(function (k) { return g[k].days.sort().map(function (x) { return F.day(x, lang); }).join(en ? "/" : "/") + " " + F.range(g[k].s.from, g[k].s.to, lang); }).join(en ? "; " : "؛ ");
+        }).join(en ? ". " : ". ") + ".";
+    } else if (kind === "fees") {
+      t = docs.map(function (d) { var cs = consult(d, b.id); return cs ? dShort(d, lang) + ": " + F.t(cs.svc, lang) + " " + money(cs.price, lang) : ""; }).filter(Boolean).join(en ? ", " : "، ") + (en ? ". Pay cash or InstaPay at the clinic." : ". الدفع كاش أو إنستاباي في العيادة.");
+    } else if (kind === "loc") {
+      var slug = D.org(C.org).en.toLowerCase().replace(/\b(clinic|centre|center)\b/g, "").replace(/^dr\.\s*/, "dr ").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      t = (en ? b.addressEn + (b.addressEn.indexOf(b.city.en) > -1 ? "" : ", " + b.city.en) : b.addressAr + (b.addressAr.indexOf(b.city.ar) > -1 ? "" : "، " + b.city.ar)) + (en ? ". Map: " : ". خريطة: ") + "tamargi.app/" + slug + (multi() ? "/" + b.shortEn.toLowerCase() : "") + "/map";
+    } else {
+      var n = fuDays(doc), fu = freeUntil(p, doc);
+      t = en ? "Follow-up with " + doc.shortEn + " is free within " + n + " days of the consult." + (fu && fu >= D.today ? " " + first(p, "en") + "'s free follow-up runs until " + toDate(fu).getDate() + " " + MON.en[toDate(fu).getMonth()] + "." : "")
+        : "المتابعة مع " + doc.shortAr + " مجانية خلال " + F.num(n, "ar") + " يوم من الكشف." + (fu && fu >= D.today ? " متابعة " + first(p, "ar") + " المجانية لحد " + F.num(toDate(fu).getDate(), "ar") + " " + MON.ar[toDate(fu).getMonth()] + "." : "");
+    }
+    var ta = $("ci-text"); ta.value = (ta.value ? ta.value + "\n" : "") + t; ta.focus();
+  }
+  function book() {
+    var c = cur(); if (!c || st.slot == null || $("ci-book").disabled) return;
+    var doc = D.doctor(st.doc), date = addDays(D.today, st.day), p = c.patient ? D.patient(c.patient) : null, fu = freeUntil(p, doc);
+    var isFu = !!(fu && fu >= date), sh = shiftsOn(doc.id, c.branch, D.dayIndex(date))[0];
+    var svc = isFu ? (D.services.filter(function (s) { return s.org === doc.org && s.kind === "followup" && s.sp === doc.sp[0]; })[0] || D.mainService(doc.org, doc.sp[0])) : D.mainService(doc.org, doc.sp[0]);
+    var ar = confirmText(c, doc, date, st.slot, sh && sh.room, svc.id, "ar"), en = confirmText(c, doc, date, st.slot, sh && sh.room, svc.id, "en");
+    if (isFu) { ar = ar.replace(F.t(svc, "ar"), "متابعة مجانية"); en = en.replace(F.t(svc, "en"), "free follow-up"); }
+    push(c, ar, en, "اتبعتت · تأكيد", "sent · confirmation");
+    c.st = "booked"; c.bookedAppt = { date: date, from: st.slot, doctor: doc.id }; c.appt = null;
+    T.toast(L() ? "Booked and confirmation sent — added to the " + (multi() ? bShort(c.branch) + " " : "") + "appointments calendar" : "اتحجز واتبعتت رسالة التأكيد — اتضاف لجدول مواعيد " + (multi() ? "فرع " + bShort(c.branch) : "العيادة"));
+    render();
+    $("ci-book").disabled = true; $("ci-book-l").textContent = L() ? "Booked ✓" : "اتحجز ✓";
+  }
+  document.addEventListener("click", function (e) {
+    var b;
+    if ((b = e.target.closest("[data-reply]"))) { quick(b.getAttribute("data-reply")); return; }
+    if ((b = e.target.closest("#ci-send"))) { send(); return; }
+    if ((b = e.target.closest("#ci-days [data-day]"))) { st.day = +b.getAttribute("data-day"); renderSlots(); return; }
+    if ((b = e.target.closest("[data-slot]"))) { st.slot = +b.getAttribute("data-slot"); renderSlots(); return; }
+    if ((b = e.target.closest("#ci-book"))) { book(); return; }
+    if ((b = e.target.closest("#ci-filter [data-f]"))) { st.filter = b.getAttribute("data-f"); renderList(); return; }
+    if ((b = e.target.closest(".ci-conv[data-id]"))) { if (b.getAttribute("data-id") !== st.conv) { st.conv = b.getAttribute("data-id"); st.doc = null; st.slot = null; st.day = null; $("ci-text").value = ""; render(); } }
+  });
+  $("ci-convs").addEventListener("keydown", function (e) { var li = e.target.closest(".ci-conv"); if (li && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); li.click(); } });
+  $("ci-doc").addEventListener("change", function () { st.doc = this.value; st.slot = null; st.day = null; renderSlots(); });
   $("ci-text").addEventListener("keydown", function (e) { if (e.key === "Enter" && !e.shiftKey && !e.ctrlKey) { e.preventDefault(); send(); } });
   window.addEventListener("keydown", function (e) { if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); book(); } });
-  document.addEventListener("click", function (e) { if (e.target.closest("[data-shell-lang]")) setTimeout(paintSlots, 0); });
-  paintSlots();
+  T.onCtx(render);
+  render();
 })();
 </script>
 </body>

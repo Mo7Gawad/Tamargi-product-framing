@@ -473,7 +473,7 @@ html.notes-on .t-spec { display: block; }
 .t-lane-head { display: flex; align-items: center; gap: var(--s-2); padding: var(--s-3) var(--s-4); border-block-end: 1px solid var(--line); }
 .t-lane-head h3 { font-size: var(--fs-md); }
 .t-lane-body { padding: var(--s-2); display: flex; flex-direction: column; gap: var(--s-2); }
-.t-qcard { display: grid; grid-template-columns: auto 1fr auto; gap: var(--s-3); align-items: center; padding: var(--s-2) var(--s-3); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-sm); }
+.t-qcard { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--s-3); align-items: center; padding: var(--s-2) var(--s-3); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-sm); }
 .t-qcard:hover { border-color: var(--primary-line); }
 .t-qcard .t-qname { font-weight: var(--fw-m); }
 .t-qcard .t-qmeta { font-size: var(--fs-xs); color: var(--text-3); }
@@ -754,6 +754,7 @@ html.notes-on .t-notes-panel { display: block; }
 .is-other-branch { display: none !important; }
 html:not([data-scope-all]) .t-only-all { display: none !important; }
 .t-scope-alert { margin-block-end: var(--s-4); align-items: center; }
+.t-scope-alert { flex-wrap: wrap; } .t-scope-alert > span { flex: 1 1 200px; min-width: 0; } .t-scope-alert .t-actions { flex-wrap: wrap; min-width: 0; }   /* phones: switch buttons wrap instead of widening the page */
 
 /* Phase badge: post-v1 module (honest demos) */
 .t-tier.t-phase { background: var(--done-bg); color: var(--text-2); border-color: var(--line-strong); }
@@ -776,6 +777,7 @@ html:not([data-scope-all]) .t-only-all { display: none !important; }
 .t-meter { height: 8px; border-radius: var(--r-pill); background: var(--surface-sunk); border: 1px solid var(--line); overflow: hidden; }
 .t-meter > i { display: block; height: 100%; background: var(--primary); border-radius: inherit; }
 .t-meter.warn > i { background: var(--waiting-fg); }
+.t-meter.danger > i { background: var(--danger); }
 
 /* Stock & equipment states (word + colour) */
 .t-chip.low      { background: var(--waiting-bg); color: var(--waiting-fg); border-color: var(--waiting-line); }  /* below minimum */

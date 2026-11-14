@@ -6,6 +6,7 @@
   <title data-en="Cashier shift close — Tamargi">تقفيل الخزنة — تمرجي</title>
   <link rel="stylesheet" href="../assets/tamargi.css">
   <style>
+    /* scope notice: let its branch buttons wrap at phone width (shared fix requested for tamargi.css) */
     .cc-den { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--s-2); }
     .cc-den label { display: grid; grid-template-columns: 64px 1fr; align-items: center; gap: var(--s-2); padding: var(--s-2); border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface-sunk); }
     .cc-note { font-family: var(--font-en); font-weight: var(--fw-sb); text-align: center; padding: 6px 4px; border-radius: var(--r-xs); background: var(--surface); border: 1px solid var(--line-strong); font-variant-numeric: tabular-nums; }
@@ -20,60 +21,52 @@
     .cc-lock { display: flex; gap: var(--s-4); align-items: center; flex-wrap: wrap; }
     .cc-owner { border-inline-start: 3px solid var(--primary); }
   </style>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
-<body data-screen="cash-close">
+<body data-screen="cash-close" data-org-default="nile">
 <main id="screen">
   <div class="t-container">
 
     <header class="t-screen-head">
       <div>
         <h1 data-en="Close the drawer">تقفيل الخزنة</h1>
-        <p class="t-sub mb-0"><span data-en="Shift of Sara Ramadan · opened Sat 14 Nov 9:00 am · float 500 EGP">وردية سارة رمضان · فتحت السبت ١٤ نوفمبر ٩:٠٠ ص · فكّة البداية ٥٠٠ ج.م</span></p>
+        <p class="t-sub mb-0" id="cc-sub"></p>
       </div>
       <div class="t-actions">
         <span data-state="counting"><span class="t-chip waiting" data-en="Shift open · counting">الوردية مفتوحة · جاري العد</span></span>
-        <span data-state="closed"><span class="t-stamp"><svg class="t-icon sm"><use href="#i-lock"/></svg><span data-en="Closed 10:05 pm · locked">اتقفلت ١٠:٠٥ م · مقفولة</span></span></span>
+        <span data-state="closed"><span class="t-stamp"><svg class="t-icon sm"><use href="#i-lock"/></svg><span id="cc-closed-at"></span></span></span>
         <a class="t-btn" href="reports.html"><svg class="t-icon sm"><use href="#i-download"/></svg><span data-en="Transactions list">قائمة الحركات</span></a>
         <button class="t-btn" type="button" onclick="window.print()"><svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Print summary">طباعة الملخص</span></button>
       </div>
     </header>
+
+    <!-- Owner on "All branches": one row per branch drawer -->
+    <section class="t-card flush t-only-all mb-4" data-tier="2"
+             data-note="Each branch has its own drawer and its own shift. An owner on 'All branches' sees every drawer side by side (collected, cash expected, who is on shift); counting and closing always happen inside one branch."
+             data-note-ar="كل فرع ليه درج ووردية لوحده. المالك على «كل الفروع» بيشوف الأدراج جنب بعض؛ العد والتقفيل دايمًا جوه فرع واحد.">
+      <div class="t-card-head"><h2 data-en="Drawers by branch">الأدراج حسب الفرع</h2><span class="t-tier">Tier 2</span></div>
+      <div class="t-table-wrap" style="border:0;border-radius:0">
+        <table class="t-table">
+          <thead><tr><th data-en="Branch">الفرع</th><th data-en="On shift">في الوردية</th><th class="num" data-en="Payments">العمليات</th><th class="num" data-en="Collected">المُحصَّل</th><th class="num" data-en="Cash expected">الكاش المتوقع</th><th><span class="t-sr" data-en="Actions">إجراءات</span></th></tr></thead>
+          <tbody id="cc-allbr"></tbody>
+        </table>
+      </div>
+    </section>
 
     <div class="t-split aside-end">
       <div class="t-stack lg">
 
         <!-- Expected vs counted by method -->
         <section class="t-card flush"
-                 data-note="Expected totals by payment method come from collected payments only (Collect, not printing), so the number is trustworthy. Cash, card and InstaPay are counted; 'deposit used' is shown but not counted because no money moved today (NITCO v34, v74, v91: per-method close and handover report)."
-                 data-note-ar="المتوقع لكل طريقة دفع محسوب من التحصيل بس (مش الطباعة). الكاش والكارت وإنستاباي بيتعدّوا؛ «من الرصيد» ظاهر بس مش بيتعد لأن مفيش فلوس اتحركت النهارده.">
-          <div class="t-card-head"><h2 data-en="Expected vs counted">المتوقع مقابل الفعلي</h2></div>
+                 data-note="Expected totals by payment method come from collected payments only (Collect, not printing), so the number is trustworthy. Cash, card and InstaPay are counted; 'deposit used' is shown but not counted because no money moved today (NITCO v34, v74, v91: per-method close and handover report). Only this branch's invoices count."
+                 data-note-ar="المتوقع لكل طريقة دفع محسوب من التحصيل بس (مش الطباعة) ولفواتير الفرع ده بس. الكاش والكارت وإنستاباي بيتعدّوا؛ «من الرصيد» ظاهر بس مش بيتعد.">
+          <div class="t-card-head"><h2 data-en="Expected vs counted">المتوقع مقابل الفعلي</h2><div class="t-actions" id="cc-brtag"></div></div>
           <div class="t-table-wrap" style="border:0;border-radius:0">
             <table class="t-table">
               <thead><tr><th data-en="Method">الطريقة</th><th class="num" data-en="Payments">العمليات</th><th class="num" data-en="Expected">المتوقع</th><th class="num" data-en="Counted">الفعلي</th><th class="num" data-en="Difference">الفرق</th></tr></thead>
-              <tbody>
-                <tr>
-                  <td><span class="t-name"><svg class="t-icon sm"><use href="#i-cash"/></svg> <span data-en="Cash in drawer">كاش في الدرج</span></span><span class="t-meta" data-en="Float 500 + cash in 5,150 − refunds 100">فكّة ٥٠٠ + كاش داخل ٥١٥٠ − مرتجع ١٠٠</span></td>
-                  <td class="num">38</td><td class="num"><span class="t-money">5,550</span></td>
-                  <td class="num"><span class="t-money" id="cc-cash-counted">5,540</span><span class="t-meta" data-en="from counter below">من العدّاد تحت</span></td>
-                  <td class="num"><span class="t-money debt" id="cc-cash-diff">−10</span></td>
-                </tr>
-                <tr>
-                  <td><span class="t-name"><svg class="t-icon sm"><use href="#i-card"/></svg> <span data-en="Card (POS)">كارت (ماكينة)</span></span><span class="t-meta" data-en="Match against the POS settlement slip">قارن بإيصال تسوية الماكينة</span></td>
-                  <td class="num">4</td><td class="num"><span class="t-money">1,200</span></td>
-                  <td class="num"><input class="t-input ltr" style="height:32px;width:96px" value="1200" aria-label="Card counted" data-cc-other="1200" data-state="counting"><span class="t-money" data-state="closed">1,200</span></td>
-                  <td class="num"><span class="t-money" data-cc-od>0</span></td>
-                </tr>
-                <tr>
-                  <td><span class="t-name"><svg class="t-icon sm"><use href="#i-phone"/></svg> <span data-en="InstaPay">إنستاباي</span></span><span class="t-meta" data-en="Match against the clinic's bank app">قارن بتطبيق بنك العيادة</span></td>
-                  <td class="num">3</td><td class="num"><span class="t-money">650</span></td>
-                  <td class="num"><input class="t-input ltr" style="height:32px;width:96px" value="650" aria-label="InstaPay counted" data-cc-other="650" data-state="counting"><span class="t-money" data-state="closed">650</span></td>
-                  <td class="num"><span class="t-money" data-cc-od>0</span></td>
-                </tr>
-                <tr class="is-muted">
-                  <td><span class="t-name"><svg class="t-icon sm"><use href="#i-wallet"/></svg> <span data-en="Paid from deposits">مدفوع من الأرصدة المقدمة</span></span><span class="t-meta" data-en="Not counted: money was taken on earlier days">مش بيتعد: الفلوس اتاخدت قبل كده</span></td>
-                  <td class="num">2</td><td class="num"><span class="t-money">270</span></td><td class="num">—</td><td class="num">—</td>
-                </tr>
-              </tbody>
-              <tfoot><tr><td data-en="Total collected today (excl. float)">إجمالي المُحصَّل النهارده (من غير الفكّة)</td><td class="num">47</td><td class="num"><span class="t-money">6,900</span></td><td></td><td></td></tr></tfoot>
+              <tbody id="cc-methods"></tbody>
+              <tfoot><tr><td data-en="Total collected today (excl. float)">إجمالي المُحصَّل النهارده (من غير الفكّة)</td><td class="num" id="cc-foot-n"></td><td class="num"><span class="t-money" id="cc-foot-t"></span></td><td></td><td></td></tr></tfoot>
             </table>
           </div>
         </section>
@@ -84,51 +77,31 @@
                  data-note-ar="عدّاد الفئات: اكتب عدد كل ورقة؛ الإجمالي والفرق بيتحدثوا لحظيًا. نفس طريقة العد على الورق.">
           <div class="t-card-head">
             <h2 data-en="Count the cash">عدّ الكاش</h2>
-            <div class="t-actions"><span class="t-small t-muted" data-en="Counted">الفعلي</span> <b class="t-money lg" id="cc-total">5,540</b></div>
+            <div class="t-actions"><span class="t-small t-muted" data-en="Counted">الفعلي</span> <b class="t-money lg" id="cc-total">0</b></div>
           </div>
           <div class="cc-den" id="cc-den">
-            <label><span class="cc-note">200</span><input class="t-input ltr" inputmode="numeric" value="20" data-den="200" aria-label="200 EGP notes"><small>4,000</small></label>
-            <label><span class="cc-note">100</span><input class="t-input ltr" inputmode="numeric" value="10" data-den="100" aria-label="100 EGP notes"><small>1,000</small></label>
-            <label><span class="cc-note">50</span><input class="t-input ltr" inputmode="numeric" value="7" data-den="50" aria-label="50 EGP notes"><small>350</small></label>
-            <label><span class="cc-note">20</span><input class="t-input ltr" inputmode="numeric" value="6" data-den="20" aria-label="20 EGP notes"><small>120</small></label>
-            <label><span class="cc-note">10</span><input class="t-input ltr" inputmode="numeric" value="4" data-den="10" aria-label="10 EGP notes"><small>40</small></label>
-            <label><span class="cc-note">5</span><input class="t-input ltr" inputmode="numeric" value="3" data-den="5" aria-label="5 EGP notes"><small>15</small></label>
-            <label><span class="cc-note" data-en="Coins">فكّة معدن</span><input class="t-input ltr" inputmode="decimal" value="15" data-den="1" aria-label="Coins total in EGP"><small data-en="EGP total">إجمالي بالجنيه</small></label>
+            <label><span class="cc-note">200</span><input class="t-input ltr" inputmode="numeric" value="0" data-den="200" aria-label="200 EGP notes"><small>0</small></label>
+            <label><span class="cc-note">100</span><input class="t-input ltr" inputmode="numeric" value="0" data-den="100" aria-label="100 EGP notes"><small>0</small></label>
+            <label><span class="cc-note">50</span><input class="t-input ltr" inputmode="numeric" value="0" data-den="50" aria-label="50 EGP notes"><small>0</small></label>
+            <label><span class="cc-note">20</span><input class="t-input ltr" inputmode="numeric" value="0" data-den="20" aria-label="20 EGP notes"><small>0</small></label>
+            <label><span class="cc-note">10</span><input class="t-input ltr" inputmode="numeric" value="0" data-den="10" aria-label="10 EGP notes"><small>0</small></label>
+            <label><span class="cc-note">5</span><input class="t-input ltr" inputmode="numeric" value="0" data-den="5" aria-label="5 EGP notes"><small>0</small></label>
+            <label><span class="cc-note" data-en="Coins">فكّة معدن</span><input class="t-input ltr" inputmode="decimal" value="0" data-den="1" aria-label="Coins total in EGP"><small data-en="EGP total">إجمالي بالجنيه</small></label>
           </div>
         </section>
 
         <!-- Money movements -->
         <section class="t-card flush"
-                 data-note="Everything the owner asks about, with reasons: debts collected, deposits taken, refunds (credit notes) and every discount with its reason and who gave it. Discounts are the owner's #1 blind spot today ('assistant discounts he never sees')."
-                 data-note-ar="كل اللي المالك بيسأل عنه بأسبابه: مديونيات اتحصلت، مقدمات، مرتجعات، وكل خصم بسببه ومين اداه.">
+                 data-note="Everything the owner asks about, with reasons: debts created, refunds (credit notes), free follow-ups at list value and every discount with its reason and who gave it. Discounts are the owner's #1 blind spot today ('assistant discounts he never sees')."
+                 data-note-ar="كل اللي المالك بيسأل عنه بأسبابه: مديونيات، مرتجعات، متابعات مجانية، وكل خصم بسببه ومين اداه.">
           <div class="t-card-head"><h2 data-en="Money in and out, with reasons">الداخل والخارج بالأسباب</h2></div>
           <div class="t-card-body">
-            <div class="t-grid c2 mb-4">
-              <dl class="t-totals">
-                <dt data-en="Invoices collected (cash)">فواتير اتحصّلت (كاش)</dt><dd><span class="t-money">4,350</span></dd>
-                <dt data-en="Old debts collected · 4">مديونيات قديمة اتحصّلت · ٤</dt><dd><span class="t-money">300</span></dd>
-                <dt data-en="Deposits taken · 1">مقدمات اتاخدت · ١</dt><dd><span class="t-money deposit">500</span></dd>
-                <dt data-en="Cash refunds · CN-000036">مرتجع كاش · CN-000036</dt><dd><span class="t-money debt">−100</span></dd>
-              </dl>
-              <dl class="t-totals">
-                <dt data-en="Refund to deposit · CN-000037">مرتجع للرصيد · CN-000037</dt><dd><span class="t-money">250</span></dd>
-                <dt data-en="New debt created today · 3 invoices">مديونية جديدة النهارده · ٣ فواتير</dt><dd><span class="t-money debt">110</span></dd>
-                <dt data-en="Free follow-ups · 7 (list value)">متابعات مجانية · ٧ (بالسعر الأصلي)</dt><dd><span class="t-money">2,100</span></dd>
-                <dt data-en="Discounts given · 6">خصومات · ٦</dt><dd><span class="t-money">245</span></dd>
-              </dl>
-            </div>
+            <div class="t-grid c2 mb-4" id="cc-moves"></div>
           </div>
           <div class="t-table-wrap" style="border:0;border-radius:0;border-block-start:1px solid var(--line)">
             <table class="t-table">
               <thead><tr><th data-en="Invoice">الفاتورة</th><th data-en="Patient">المريض</th><th data-en="Reason">السبب</th><th data-en="By">بواسطة</th><th class="num" data-en="Discount">الخصم</th></tr></thead>
-              <tbody>
-                <tr><td class="t-ltr">INV-004812</td><td>كريم عبد العزيز</td><td data-en="Tier: Seniors 65+ (10%)">شريحة: كبار السن (١٠٪)</td><td data-en="Sara">سارة</td><td class="num">20</td></tr>
-                <tr><td class="t-ltr">INV-004809</td><td>فاطمة السيد الجمال</td><td data-en="Tier: Seniors 65+ (10%)">شريحة: كبار السن (١٠٪)</td><td data-en="Sara">سارة</td><td class="num">30</td></tr>
-                <tr><td class="t-ltr">INV-004804</td><td>محمد عادل الشربيني</td><td data-en="Tier: Seniors 65+ (10%)">شريحة: كبار السن (١٠٪)</td><td data-en="Sara">سارة</td><td class="num">30</td></tr>
-                <tr><td class="t-ltr">INV-004799</td><td>د. هاني رشاد البيلي</td><td data-en="Tier: Medical colleagues (20%)">شريحة: زملاء المهنة (٢٠٪)</td><td data-en="Sara">سارة</td><td class="num">60</td></tr>
-                <tr><td class="t-ltr">INV-004795</td><td>أم ياسين عبد الله</td><td data-en="Financial hardship · approved by Dr. Ahmed (PIN)">ظروف مادية · موافقة د. أحمد (رقم سري)</td><td data-en="Sara + owner">سارة + المالك</td><td class="num">55</td></tr>
-                <tr><td class="t-ltr">INV-004792</td><td>سعيد مصطفى القاضي</td><td data-en="Financial hardship">ظروف مادية</td><td data-en="Sara">سارة</td><td class="num">50</td></tr>
-              </tbody>
+              <tbody id="cc-disc"></tbody>
             </table>
           </div>
         </section>
@@ -141,7 +114,7 @@
           <div class="cc-diff short" id="cc-diff"
                data-note="Over/short is shown in words and colour (short = red, over = amber, balanced = green). Any difference needs a note before the shift can close; the note goes to the owner with the summary."
                data-note-ar="الزيادة/العجز بالكلام واللون. أي فرق محتاج ملاحظة قبل التقفيل وبتروح للمالك مع الملخص.">
-            <span id="cc-diff-l" data-en="Short (missing)">عجز</span><span class="t-money"><span id="cc-diff-v">10</span> <span data-en="EGP">ج.م</span></span>
+            <span id="cc-diff-l"></span><span class="t-money"><span id="cc-diff-v">0</span> <span data-en="EGP">ج.م</span></span>
           </div>
           <div class="t-field mt-4" id="cc-note-f">
             <label class="t-label" for="cc-note"><span data-en="Explain the difference">اشرح الفرق</span><span class="req">*</span></label>
@@ -151,7 +124,7 @@
           <div class="t-field mt-4">
             <label class="t-label" for="cc-next" data-en="Leave as float for tomorrow">فكّة للوردية الجاية</label>
             <div class="t-input-affix"><input id="cc-next" class="t-input ltr" value="500" inputmode="decimal"><span class="t-affix" data-en="EGP">ج.م</span></div>
-            <span class="t-hint" data-en="The rest (5,040) goes to the owner.">الباقي (٥٬٠٤٠) يتسلم للمالك.</span>
+            <span class="t-hint" id="cc-rest"></span>
           </div>
           <button class="t-btn primary block lg mt-4" type="button" id="cc-close"
                   data-note="Close shift locks every payment in it: no more collecting or crediting on this shift. Reopening needs the owner's PIN and a reason, and is logged."
@@ -164,26 +137,20 @@
         <section class="t-card" data-state="closed">
           <div class="cc-lock mb-4">
             <span class="t-stamp"><svg class="t-icon sm"><use href="#i-lock"/></svg><span data-en="Closed · locked">مقفولة</span></span>
-            <span class="t-small t-muted" data-en="14/11/2026 10:05 pm · Sara Ramadan">14/11/2026 10:05 م · سارة رمضان</span>
+            <span class="t-small t-muted" id="cc-closed-by"></span>
           </div>
-          <dl class="t-totals mb-4">
-            <dt data-en="Cash expected">الكاش المتوقع</dt><dd>5,550</dd>
-            <dt data-en="Cash counted">الكاش الفعلي</dt><dd>5,540</dd>
-            <dt data-en="Short">عجز</dt><dd><span class="t-money debt">−10</span></dd>
-            <dt data-en="Handed to owner">اتسلم للمالك</dt><dd>5,040</dd>
-            <dt data-en="Float left">فكّة متروكة</dt><dd>500</dd>
-          </dl>
-          <p class="t-small t-muted" data-en="Note: “Gave 10 EGP change and forgot to record it.”">الملاحظة: «فكّة ١٠ ج.م اديتها لمريض ونسيت أسجلها».</p>
+          <dl class="t-totals mb-4" id="cc-closed-tot"></dl>
+          <p class="t-small t-muted" id="cc-closed-note"></p>
           <button class="t-btn block" type="button" data-open="#cc-reopen"><svg class="t-icon sm"><use href="#i-lock"/></svg><span data-en="Reopen (owner only)">إعادة فتح (المالك فقط)</span></button>
         </section>
 
         <section class="t-card sunk cc-owner"
-                 data-note="The same summary is pushed to the owner dashboard the moment the shift closes, answering 'where is today's money?' on the owner's phone at 11 pm."
-                 data-note-ar="نفس الملخص بيوصل لوحة المالك أول ما الوردية تتقفل: «فلوس النهارده فين؟» على موبايل المالك.">
+                 data-note="The same summary is pushed to the owner dashboard the moment the shift closes, answering 'where is today's money?' on the owner's phone at 11 pm. With two branches the owner gets one line per branch drawer."
+                 data-note-ar="نفس الملخص بيوصل لوحة المالك أول ما الوردية تتقفل. لو في فرعين المالك بيوصله سطر لكل درج.">
           <h3 class="mb-2" data-en="What the owner sees">اللي المالك بيشوفه</h3>
-          <p class="t-small mb-2" data-en="“Sara closed: 6,900 collected (cash 5,050 net · card 1,200 · InstaPay 650), short 10 with note, 6 discounts = 245, 2 credit notes.”">«سارة قفلت: ٦٬٩٠٠ اتحصّل (كاش ٥٬٠٥٠ صافي · كارت ١٬٢٠٠ · إنستاباي ٦٥٠)، عجز ١٠ بملاحظة، ٦ خصومات = ٢٤٥، مرتجعين.»</p>
+          <p class="t-small mb-2" id="cc-owner-line"></p>
           <span data-state="counting" class="t-small t-faint" data-en="Sent when you close the shift.">بيتبعت لما تقفل الوردية.</span>
-          <span data-state="closed" class="t-small"><span class="t-chip paid" data-en="Sent 10:05 pm">اتبعت ١٠:٠٥ م</span> <a href="owner-dashboard.html" data-en="Open owner dashboard">فتح لوحة المالك</a></span>
+          <span data-state="closed" class="t-small"><span class="t-chip paid" id="cc-sent"></span> <a href="owner-dashboard.html" data-en="Open owner dashboard">فتح لوحة المالك</a></span>
         </section>
       </aside>
     </div>
@@ -193,7 +160,7 @@
   <div class="t-scrim" id="cc-reopen" hidden>
     <div class="t-modal" role="dialog" aria-labelledby="cc-ro-h">
       <div class="t-modal-head">
-        <h2 id="cc-ro-h" data-en="Reopen Sara's shift?">إعادة فتح وردية سارة؟</h2>
+        <h2 id="cc-ro-h"></h2>
         <button class="t-btn icon ghost" type="button" data-close aria-label="Close" title="Close"><svg class="t-icon"><use href="#i-close"/></svg></button>
       </div>
       <div class="t-modal-body t-stack">
@@ -214,14 +181,120 @@
     </div>
   </div>
 </main>
+<script src="../assets/demo-data.js"></script>
 <script src="../assets/shell.js"></script>
 <script>
 (function () {
+  "use strict";
+  /* One drawer per branch. Expected amounts = today's invoices of that branch in assets/demo-data.js. */
+  var D = Tamargi.data, C = Tamargi.ctx, F = D.fmt, tx = Tamargi.tx;
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
-  var en = function () { return window.Tamargi && Tamargi.lang() === "en"; };
-  var EXPECTED = 5550;
-  var f = function (n) { return n.toLocaleString("en-US"); };
+  var f = function (n) { return Number(n).toLocaleString("en-US"); };
+  var FLOAT = 500, DEMO_SHORT = 10;   /* the demo count is 10 EGP short so the note flow shows */
+  var ICON = { cash: "cash", card: "card", instapay: "phone", wallet: "wallet" };
+  var X = {};
+  function T(rec) { return F.t(rec, C.lang); }
+  function N(n) { return F.num(n, C.lang); }
+  function member(role, br) { return D.staff.filter(function (m) { return m.org === C.org && m.status !== "inactive" && D.rolesIn(m, br).indexOf(role) > -1; })[0] || null; }
+  function bshort(b) { return C.lang === "en" ? b.shortEn : b.shortAr; }
+
+  /* figures for one branch drawer today */
+  function drawer(br) {
+    var inv = D.invoices.filter(function (i) { return i.org === C.org && i.branch === br && i.date === D.today; });
+    var by = { cash: { n: 0, t: 0 }, card: { n: 0, t: 0 }, instapay: { n: 0, t: 0 }, wallet: { n: 0, t: 0 } }, n = 0, t = 0;
+    var cnCash = D.invoices.filter(function (i) { return i.org === C.org && i.branch === br && i.creditNote && i.date === D.today; });
+    inv.forEach(function (i) { if (i.paid > 0) { by[i.method].n++; by[i.method].t += i.paid; n++; t += i.paid; } });
+    var refunds = cnCash.reduce(function (s, i) { return s + i.creditNote.amount; }, 0);
+    var discounts = [], free = [], debt = [];
+    inv.forEach(function (i) {
+      i.lines.forEach(function (l) {
+        if (l.discount) discounts.push({ inv: i, line: l });
+        if (l.price === 0) free.push({ inv: i, line: l, value: D.price(l.service, i.doctor, i.branch) });
+      });
+      if (i.paid < i.total) debt.push(i);
+    });
+    return { br: br, inv: inv, by: by, n: n, t: t, refunds: refunds, cns: cnCash, discounts: discounts, free: free, debt: debt,
+      cashExp: FLOAT + by.cash.t - refunds, cashier: member("cashier", br) };
+  }
+
+  function pickBranch() {
+    var brs = D.scopeBranches(C), ok = brs.filter(function (b) { return C.allowed.indexOf(b) > -1; });
+    return C.all ? (ok[0] || brs[0]) : C.branch;
+  }
+  function fillCount(amount) {
+    var left = Math.max(0, amount);
+    $$("#cc-den input").forEach(function (i) {
+      var d = +i.getAttribute("data-den");
+      if (d === 1) { i.value = left; left = 0; return; }
+      var k = Math.floor(left / d); if (d === 200) k = Math.max(0, k - 2); /* keep some 100s, like a real drawer */
+      i.value = k; left -= k * d;
+    });
+  }
+
+  function render() {
+    Tamargi.scopeNotice({ needBranch: true, what: { ar: "تقفيل الخزنة", en: "Closing the drawer" } });
+    X = drawer(pickBranch());
+    var b = D.branch(X.br), cashierAr = X.cashier ? D.memberName(X.cashier, "ar") : "—", cashierEn = X.cashier ? D.memberName(X.cashier, "en") : "—";
+    var multi = D.branchesOf(C.org).length > 1, owner = member("owner", X.br);
+    X.cashierName = tx(cashierAr, cashierEn); X.owner = owner ? D.memberName(owner, C.lang) : tx("المالك", "the owner");
+    var day = F.day(D.dayIndex(D.today), C.lang), dmy = C.lang === "en" ? "14 Nov" : "١٤ نوفمبر";
+    $("#cc-sub").textContent = tx("وردية ", "Shift of ") + X.cashierName + (multi ? tx(" · فرع ", " · ") + bshort(b) + tx("", " branch") : "") +
+      tx(" · فتحت ", " · opened ") + day + " " + dmy + " " + F.hour(b.hours.from, C.lang) + tx(" · فكّة البداية " + N(FLOAT) + " ج.م", " · float " + FLOAT + " EGP");
+    $("#cc-brtag").innerHTML = multi ? '<span class="t-branch-tag"><svg class="t-icon"><use href="#i-building"/></svg>' + T(b) + "</span>" : "";
+
+    /* methods table */
+    var rows = '<tr><td><span class="t-name"><svg class="t-icon sm"><use href="#i-cash"/></svg> <span>' + tx("كاش في الدرج", "Cash in drawer") + '</span></span><span class="t-meta">' +
+      tx("فكّة " + N(FLOAT) + " + كاش داخل " + N(f(X.by.cash.t)) + (X.refunds ? " − مرتجع " + N(f(X.refunds)) : ""), "Float " + FLOAT + " + cash in " + f(X.by.cash.t) + (X.refunds ? " − refunds " + f(X.refunds) : "")) + "</span></td>" +
+      '<td class="num">' + X.by.cash.n + '</td><td class="num"><span class="t-money">' + f(X.cashExp) + "</span></td>" +
+      '<td class="num"><span class="t-money" id="cc-cash-counted">0</span><span class="t-meta">' + tx("من العدّاد تحت", "from counter below") + "</span></td>" +
+      '<td class="num"><span class="t-money" id="cc-cash-diff">0</span></td></tr>';
+    ["card", "instapay", "wallet"].forEach(function (m) {
+      var e = X.by[m]; if (!e.n && m === "wallet") return;
+      var hint = m === "card" ? tx("قارن بإيصال تسوية الماكينة", "Match against the POS settlement slip") : m === "instapay" ? tx("قارن بتطبيق بنك المنشأة", "Match against the organization's bank app") : tx("قارن بتطبيق المحفظة", "Match against the wallet app");
+      rows += '<tr><td><span class="t-name"><svg class="t-icon sm"><use href="#i-' + ICON[m] + '"/></svg> <span>' + T(D.payMethods[m]) + '</span></span><span class="t-meta">' + hint + "</span></td>" +
+        '<td class="num">' + e.n + '</td><td class="num"><span class="t-money">' + f(e.t) + "</span></td>" +
+        '<td class="num"><input class="t-input ltr cc-other-in" style="height:32px;width:96px" value="' + e.t + '" aria-label="' + D.payMethods[m].en + ' counted" data-cc-other="' + e.t + '"><span class="t-money cc-other-closed">' + f(e.t) + "</span></td>" +
+        '<td class="num"><span class="t-money" data-cc-od>0</span></td></tr>';
+    });
+    rows += '<tr class="is-muted"><td><span class="t-name"><svg class="t-icon sm"><use href="#i-wallet"/></svg> <span>' + tx("مدفوع من الأرصدة المقدمة", "Paid from deposits") + '</span></span><span class="t-meta">' +
+      tx("مش بيتعد: الفلوس اتاخدت قبل كده", "Not counted: money was taken on earlier days") + '</span></td><td class="num">0</td><td class="num"><span class="t-money">0</span></td><td class="num">—</td><td class="num">—</td></tr>';
+    $("#cc-methods").innerHTML = rows;
+    $("#cc-foot-n").textContent = X.n; $("#cc-foot-t").textContent = f(X.t);
+
+    /* money in and out */
+    var freeVal = X.free.reduce(function (s, x) { return s + x.value; }, 0), discVal = X.discounts.reduce(function (s, x) { return s + x.line.discount; }, 0);
+    var debtVal = X.debt.reduce(function (s, i) { return s + i.total - i.paid; }, 0);
+    $("#cc-moves").innerHTML = '<dl class="t-totals">' +
+      "<dt>" + tx("فواتير اتحصّلت (كاش)", "Invoices collected (cash)") + '</dt><dd><span class="t-money">' + f(X.by.cash.t) + "</span></dd>" +
+      "<dt>" + tx("فواتير اتحصّلت (غير كاش)", "Invoices collected (non-cash)") + '</dt><dd><span class="t-money">' + f(X.t - X.by.cash.t) + "</span></dd>" +
+      "<dt>" + tx("مرتجع كاش · ", "Cash refunds · ") + N(X.cns.length) + '</dt><dd><span class="t-money debt">' + (X.refunds ? "−" + f(X.refunds) : "0") + "</span></dd></dl>" +
+      '<dl class="t-totals">' +
+      "<dt>" + tx("مديونية جديدة النهارده · " + N(X.debt.length) + " فواتير", "New debt created today · " + X.debt.length + " invoices") + '</dt><dd><span class="t-money debt">' + f(debtVal) + "</span></dd>" +
+      "<dt>" + tx("متابعات مجانية · " + N(X.free.length) + " (بالسعر الأصلي)", "Free follow-ups · " + X.free.length + " (list value)") + '</dt><dd><span class="t-money">' + f(freeVal) + "</span></dd>" +
+      "<dt>" + tx("خصومات · ", "Discounts given · ") + N(X.discounts.length) + '</dt><dd><span class="t-money">' + f(discVal) + "</span></dd></dl>";
+    $("#cc-disc").innerHTML = X.discounts.length ? X.discounts.map(function (x) {
+      var p = D.patient(x.inv.patient);
+      return '<tr><td class="t-ltr">' + x.inv.no + "</td><td>" + T(p) + "</td><td>" + tx("بند «" + x.line.ar + "» ضمن زيارة إجراء", "“" + x.line.en + "” waived within a procedure visit") + "</td><td>" + D.memberName(D.member(x.inv.cashier), C.lang).split(" ")[0] + '</td><td class="num">' + f(x.line.discount) + "</td></tr>";
+    }).join("") : '<tr><td colspan="5" class="t-muted">' + tx("مفيش خصومات النهارده في الفرع ده.", "No discounts today in this branch.") + "</td></tr>";
+
+    /* all-branches comparison (owner) */
+    $("#cc-allbr").innerHTML = D.scopeBranches(C).map(function (id) {
+      var d = drawer(id), bb = D.branch(id);
+      return "<tr><td><span class=\"t-name\">" + T(bb) + "</span></td><td>" + (d.cashier ? D.memberName(d.cashier, C.lang) : "—") + '</td><td class="num">' + d.n + '</td><td class="num"><span class="t-money">' + f(d.t) + '</span></td><td class="num"><span class="t-money">' + f(d.cashExp) +
+        '</span></td><td class="actions"><button class="t-btn sm" type="button" data-scope-branch="' + id + '">' + tx("افتح الدرج", "Open drawer") + "</button></td></tr>";
+    }).join("");
+
+    $("#cc-ro-h").textContent = tx("إعادة فتح وردية " + cashierAr + "؟", "Reopen " + cashierEn + "'s shift?");
+    var closeAt = F.hour(b.hours.to + 1 / 12, C.lang);
+    $("#cc-closed-at").textContent = tx("اتقفلت " + closeAt + " · مقفولة", "Closed " + closeAt + " · locked");
+    $("#cc-closed-by").innerHTML = '<span class="t-ltr">' + F.date(D.today) + "</span> " + closeAt + " · " + X.cashierName;
+    $("#cc-sent").textContent = tx("اتبعت " + closeAt, "Sent " + closeAt);
+    X.closeAt = closeAt;
+    fillCount(X.cashExp - DEMO_SHORT);
+    calc();
+  }
+
   function calc() {
     var t = 0;
     $$("#cc-den input").forEach(function (i) {
@@ -230,41 +303,56 @@
     });
     $("#cc-total").textContent = f(t);
     $("#cc-cash-counted").textContent = f(t);
-    var diff = t - EXPECTED, box = $("#cc-diff"), lbl = $("#cc-diff-l");
+    var diff = t - X.cashExp, box = $("#cc-diff");
     $("#cc-cash-diff").textContent = (diff > 0 ? "+" : "") + f(diff);
     $("#cc-cash-diff").className = "t-money" + (diff < 0 ? " debt" : "");
     box.className = "cc-diff " + (diff === 0 ? "ok" : diff < 0 ? "short" : "over");
-    var ar = diff === 0 ? "مظبوط" : diff < 0 ? "عجز" : "زيادة", en_ = diff === 0 ? "Balanced" : diff < 0 ? "Short (missing)" : "Over (extra)";
-    lbl.setAttribute("data-ar", ar); lbl.setAttribute("data-en", en_); lbl.innerHTML = en() ? en_ : ar;
+    $("#cc-diff-l").textContent = diff === 0 ? tx("مظبوط", "Balanced") : diff < 0 ? tx("عجز", "Short (missing)") : tx("زيادة", "Over (extra)");
     $("#cc-diff-v").textContent = f(Math.abs(diff));
+    var odiff = false;
     $$("[data-cc-other]").forEach(function (i, k) {
-      var d = (parseFloat(i.value) || 0) - (+i.getAttribute("data-cc-other"));
+      var d = (parseFloat(i.value) || 0) - (+i.getAttribute("data-cc-other")); if (d) odiff = true;
       var od = $$("[data-cc-od]")[k]; od.textContent = (d > 0 ? "+" : "") + f(d); od.className = "t-money" + (d < 0 ? " debt" : "");
+      i.parentNode.querySelector(".cc-other-closed").textContent = f(parseFloat(i.value) || 0);
     });
-    return diff;
+    var next = parseFloat($("#cc-next").value) || 0, hand = Math.max(0, t - next);
+    $("#cc-rest").textContent = tx("الباقي (" + N(f(hand)) + ") يتسلم لـ" + X.owner + ".", "The rest (" + f(hand) + ") goes to " + X.owner + ".");
+    var note = $("#cc-note").value.trim();
+    $("#cc-closed-tot").innerHTML = "<dt>" + tx("الكاش المتوقع", "Cash expected") + "</dt><dd>" + f(X.cashExp) + "</dd><dt>" + tx("الكاش الفعلي", "Cash counted") + "</dt><dd>" + f(t) + "</dd>" +
+      "<dt>" + (diff === 0 ? tx("الفرق", "Difference") : diff < 0 ? tx("عجز", "Short") : tx("زيادة", "Over")) + '</dt><dd><span class="t-money' + (diff < 0 ? " debt" : "") + '">' + (diff > 0 ? "+" : "") + f(diff) + "</span></dd>" +
+      "<dt>" + tx("اتسلم للمالك", "Handed to owner") + "</dt><dd>" + f(hand) + "</dd><dt>" + tx("فكّة متروكة", "Float left") + "</dt><dd>" + f(next) + "</dd>";
+    $("#cc-closed-note").textContent = note ? tx("الملاحظة: «" + note + "»", "Note: “" + note + "”") : "";
+    var parts = ["cash", "card", "instapay", "wallet"].filter(function (m) { return X.by[m].t; }).map(function (m) { return T(D.payMethods[m]) + " " + f(m === "cash" ? X.by.cash.t - X.refunds : X.by[m].t); });
+    var dsum = X.discounts.reduce(function (s, x) { return s + x.line.discount; }, 0);
+    $("#cc-owner-line").textContent = tx("«تقفيل وردية " + X.cashierName + (D.branchesOf(C.org).length > 1 ? " (" + bshort(D.branch(X.br)) + ")" : "") + ": " + f(X.t) + " اتحصّل (" + parts.join(" · ") + ")" +
+        (diff ? (diff < 0 ? "، عجز " : "، زيادة ") + f(Math.abs(diff)) + " بملاحظة" : "، الدرج مظبوط") + "، " + N(X.discounts.length) + " خصومات = " + f(dsum) + ".»",
+      "“" + X.cashierName + " closed" + (D.branchesOf(C.org).length > 1 ? " (" + bshort(D.branch(X.br)) + ")" : "") + ": " + f(X.t) + " collected (" + parts.join(" · ") + ")" +
+        (diff ? (diff < 0 ? ", short " : ", over ") + f(Math.abs(diff)) + " with note" : ", drawer balanced") + ", " + X.discounts.length + " discounts = " + f(dsum) + ".”");
+    return diff !== 0 || odiff;
   }
-  function anyDiff() {
-    var d = calc() !== 0;
-    $$("[data-cc-other]").forEach(function (i) { if ((parseFloat(i.value) || 0) !== +i.getAttribute("data-cc-other")) d = true; });
-    return d;
-  }
-  document.addEventListener("input", function (e) { if (e.target.closest("#cc-den") || e.target.hasAttribute("data-cc-other")) { calc(); } if (e.target.id === "cc-note") $("#cc-note-err").hidden = true; });
+  /* counted card/InstaPay inputs only while counting */
+  function syncClosedCells() { var closed = !$('[data-state="counting"]').hidden ? false : true; $$(".cc-other-in").forEach(function (i) { i.hidden = closed; }); $$(".cc-other-closed").forEach(function (s) { s.hidden = !closed; }); }
+  document.addEventListener("input", function (e) {
+    if (e.target.closest("#cc-den") || e.target.hasAttribute("data-cc-other") || e.target.id === "cc-next" || e.target.id === "cc-note") calc();
+    if (e.target.id === "cc-note") $("#cc-note-err").hidden = true;
+  });
   function close() {
-    if (anyDiff() && !$("#cc-note").value.trim()) { $("#cc-note-err").hidden = false; $("#cc-note").focus(); return; }
-    Tamargi.setState("closed"); window.scrollTo({ top: 0, behavior: "smooth" });
-    Tamargi.toast(en() ? "Shift closed and locked — summary sent to the owner" : "الوردية اتقفلت — الملخص اتبعت للمالك");
+    if (calc() && !$("#cc-note").value.trim()) { $("#cc-note-err").hidden = false; $("#cc-note").focus(); return; }
+    if (C.all) { Tamargi.toast(tx("اختار فرع الأول — كل درج بيتقفل لوحده", "Pick a branch first — each drawer closes on its own")); return; }
+    Tamargi.setState("closed"); syncClosedCells(); window.scrollTo({ top: 0, behavior: "smooth" });
+    Tamargi.toast(tx("الوردية اتقفلت — الملخص اتبعت لـ" + X.owner, "Shift closed and locked — summary sent to " + X.owner));
   }
   document.addEventListener("click", function (e) {
     if (e.target.closest("#cc-close")) close();
+    if (e.target.closest("[data-set-state]")) setTimeout(syncClosedCells, 0);
     if (e.target.closest("#cc-ro-ok")) {
       if (!$("#cc-ro-r").value.trim() || ($("#cc-ro-p").value || "").length < 4) { $("#cc-ro-r").classList.toggle("is-invalid", !$("#cc-ro-r").value.trim()); $("#cc-ro-p").classList.add("is-invalid"); return; }
-      $("#cc-reopen").hidden = true; Tamargi.setState("counting");
-      Tamargi.toast(en() ? "Shift reopened by Dr. Ahmed — logged" : "د. أحمد أعاد فتح الوردية — اتسجل");
+      $("#cc-reopen").hidden = true; Tamargi.setState("counting"); syncClosedCells();
+      Tamargi.toast(tx(X.owner + " أعاد فتح الوردية — اتسجل", "Shift reopened by " + X.owner + " — logged"));
     }
-    if (e.target.closest("[data-shell-lang]")) setTimeout(calc, 0);
   });
   document.addEventListener("keydown", function (e) { if (e.key === "F10") { e.preventDefault(); if (!$("#cc-close").closest("[hidden]")) close(); } });
-  calc();
+  Tamargi.onCtx(function () { render(); syncClosedCells(); }); render(); syncClosedCells();
 })();
 </script>
 </body>

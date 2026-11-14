@@ -23,8 +23,10 @@
     .eq-cost { font-size: var(--fs-xs); color: var(--text-3); }
     @media (max-width: 860px) { .eq-aside { position: static; } .eq-hide-sm { display: none; } }
   </style>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
-<body data-screen="equipment" data-org="nile">
+<body data-screen="equipment" data-org-default="nile">
 <main id="screen">
   <div class="t-container">
 
@@ -127,6 +129,7 @@
   </div>
 </div>
 
+<script src="../assets/demo-data.js"></script>
 <script src="../assets/shell.js"></script>
 <script>
 (function () {
@@ -137,45 +140,23 @@
   function tx(a, e) { return L() ? e : a; }
   var AD = "٠١٢٣٤٥٦٧٨٩";
   function num(n) { return L() ? String(n) : String(n).replace(/\d/g, function (d) { return AD[d]; }); }
-  var TODAY = new Date(2026, 10, 14);
+  /* Devices, rooms, branches, suppliers: assets/demo-data.js (Tamargi.data). Scope: Tamargi.ctx. */
+  var D = Tamargi.data, C = Tamargi.ctx;
+  var TODAY = (function () { var p = D.today.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); })();
   function d(s) { var p = s.split("-"); return new Date(+p[0], +p[1] - 1, +(p[2] || 1)); }
   function dshow(s) { var p = s.split("-"); return '<span class="t-ltr">' + (p[2] ? p[2] + "/" : "") + p[1] + "/" + p[0] + "</span>"; }
   function daysTo(s) { return Math.round((d(s) - TODAY) / 864e5); }
-
-  var BR = { tor: ["توريل", "Toreil"], gam: ["الجامعة", "University"] };
-  var ST = { service: ["شغّال", "In service"], maint: ["في الصيانة", "Under maintenance"], oos: ["عطلان", "Out of service"] };
-  var KIND = { pm: ["صيانة دورية", "Preventive maintenance"], cal: ["معايرة", "Calibration"], fix: ["إصلاح", "Repair"], chk: ["فحص", "Check"] };
-  var V1 = ["شركة النور للأجهزة الطبية", "Al-Nour Medical Devices Co."], V2 = ["المصرية لصيانة الأجهزة الطبية", "Egyptian Medical Equipment Service"];
-  /* FAKE devices. next: [kind, date]. log: [date, kind, ar, en, cost, warranty?] */
-  var DEV = [
-    { id: "laser", b: "tor", room: ["غرفة الليزر", "Laser room"], ar: "جهاز ليزر إزالة الشعر (دايود)", en: "Diode hair-removal laser", st: "service", next: ["pm", "2026-12-02"], war: "2027-06", serial: "LZ-2291-A", bought: "2025-06", cost: 420000, vendor: V1,
-      log: [["2026-09-02", "pm", "تغيير فلتر المياه وتنظيف الهاند بيس", "Water filter change, handpiece cleaning", 1500], ["2026-06-15", "fix", "عطل في التبريد — اتصلح", "Cooling fault — repaired", 0, true], ["2026-03-02", "pm", "صيانة دورية", "Preventive maintenance", 1500]],
-      files: [["فاتورة الشراء", "Purchase invoice", "PDF"], ["شهادة الضمان", "Warranty certificate", "PDF"], ["تقرير صيانة سبتمبر ٢٠٢٦", "Service report Sep 2026", "PDF"], ["دليل التشغيل", "User manual", "PDF"]] },
-    { id: "ecg", b: "tor", room: ["غرفة الإجراءات والحقن", "Procedures & injections"], ar: "جهاز رسم قلب ١٢ قناة", en: "12-lead ECG", st: "service", next: ["cal", "2027-01-15"], war: "2026-03", serial: "ECG-7781", bought: "2024-03", cost: 38000, vendor: V2,
-      log: [["2026-01-15", "cal", "معايرة سنوية — مطابق", "Annual calibration — passed", 900]], files: [["شهادة معايرة ٢٠٢٦", "Calibration certificate 2026", "PDF"], ["فاتورة الشراء", "Purchase invoice", "JPG"]] },
-    { id: "fridge", b: "tor", room: ["غرفة الإجراءات والحقن", "Procedures & injections"], ar: "ثلاجة اللقاحات (٢–٨°)", en: "Vaccine fridge (2–8 °C)", st: "service", next: ["chk", "2026-12-20"], war: "2027-11", serial: "VF-120-339", bought: "2025-11", cost: 26000, vendor: V1, cold: true,
-      log: [["2026-11-14", "chk", "قراءة الحرارة الصبح ٤٫٦° والمسا ٥٫١°", "Temperature am 4.6 °C, pm 5.1 °C", 0], ["2026-06-20", "chk", "فحص كل ٦ شهور — سليم", "6-month check — OK", 400]], files: [["سجل الحرارة نوفمبر", "Temperature log Nov", "PDF"]] },
-    { id: "suction", b: "tor", room: ["غرفة الإجراءات والحقن", "Procedures & injections"], ar: "جهاز شفط", en: "Suction unit", st: "service", next: ["pm", "2027-03-01"], war: "2027-09", serial: "SU-0457", bought: "2025-09", cost: 9500, vendor: V2, log: [["2026-09-01", "pm", "صيانة دورية", "Preventive maintenance", 300]], files: [] },
-    { id: "bp1", b: "tor", room: ["غرفة كشف ١", "Consult room 1"], ar: "جهاز ضغط ديجيتال", en: "Digital BP monitor", st: "service", next: ["cal", "2026-11-20"], war: "2027-02", serial: "BP-55-1021", bought: "2025-02", cost: 2200, vendor: V2, log: [["2025-11-20", "cal", "معايرة — فرق ٢ مم زئبق", "Calibration — 2 mmHg offset", 250]], files: [] },
-    { id: "gluco", b: "tor", room: ["غرفة كشف ١", "Consult room 1"], ar: "جهاز قياس السكر", en: "Glucometer", st: "service", next: ["chk", "2027-02-10"], war: "2027-02", serial: "GM-3390", bought: "2025-02", cost: 900, vendor: V2, log: [], files: [] },
-    { id: "scale", b: "tor", room: ["غرفة كشف ٢", "Consult room 2"], ar: "ميزان ديجيتال بالطول", en: "Digital scale with height rod", st: "service", next: ["cal", "2027-04-01"], war: "2026-10", serial: "SC-2210", bought: "2024-10", cost: 4800, vendor: V2, log: [], files: [] },
-    { id: "neb", b: "tor", room: ["غرفة كشف ٣", "Consult room 3"], ar: "جهاز نيبولايزر", en: "Nebuliser", st: "service", next: ["pm", "2027-05-01"], war: "2027-05", serial: "NB-8812", bought: "2025-05", cost: 1800, vendor: V2, log: [], files: [] },
-    { id: "scope", b: "tor", room: ["غرفة كشف ٣", "Consult room 3"], ar: "منظار أنف وأذن", en: "ENT endoscope", st: "service", next: ["pm", "2026-12-28"], war: "2027-08", serial: "EN-4471", bought: "2025-08", cost: 65000, vendor: V1, log: [["2026-06-28", "pm", "صيانة دورية وتعقيم", "Preventive maintenance and sterilisation", 800]], files: [["فاتورة الشراء", "Purchase invoice", "PDF"]] },
-    { id: "us", b: "gam", room: ["غرفة كشف ١", "Consult room 1"], ar: "جهاز سونار محمول", en: "Portable ultrasound", st: "maint", next: ["fix", "2026-11-18"], war: "2027-02", serial: "US-PX-6630", bought: "2025-02", cost: 185000, vendor: V1,
-      log: [["2026-11-10", "fix", "الصورة بتقطع — الجهاز عند المورد (في الضمان)", "Image dropouts — with vendor (under warranty)", 0, true], ["2026-08-02", "pm", "صيانة دورية", "Preventive maintenance", 1200]], files: [["إيصال استلام المورد", "Vendor pick-up receipt", "JPG"], ["شهادة الضمان", "Warranty certificate", "PDF"]] },
-    { id: "bp2", b: "gam", room: ["غرفة كشف ٢", "Consult room 2"], ar: "جهاز ضغط ديجيتال", en: "Digital BP monitor", st: "service", next: ["cal", "2027-09-01"], war: "2028-09", serial: "BP-55-1140", bought: "2026-09", cost: 2400, vendor: V2, log: [], files: [] },
-    { id: "chair", b: "gam", room: ["كرسي أسنان ١", "Dental chair 1"], ar: "كرسي أسنان كامل + كمبروسر", en: "Dental unit + compressor", st: "service", next: ["pm", "2026-11-20"], war: "2027-09", serial: "DU-9920", bought: "2026-09", cost: 310000, vendor: V1, log: [["2026-09-20", "chk", "تركيب وتشغيل", "Installation and commissioning", 0, true]], files: [["فاتورة الشراء", "Purchase invoice", "PDF"], ["محضر التركيب", "Installation report", "PDF"]] },
-    { id: "xray", b: "gam", room: ["كرسي أسنان ١", "Dental chair 1"], ar: "جهاز أشعة أسنان صغير", en: "Intra-oral dental X-ray", st: "service", next: ["cal", "2027-01-05"], war: "2027-09", serial: "XR-IO-3307", bought: "2026-09", cost: 95000, vendor: V1, log: [], files: [["شهادة الفحص الإشعاعي", "Radiation safety check", "PDF"]] },
-    { id: "auto", b: "gam", room: ["على مستوى الفرع", "Branch level"], ar: "جهاز تعقيم (أوتوكلاف)", en: "Autoclave steriliser", st: "oos", next: ["fix", "2026-11-05"], war: "2026-08", serial: "AC-23L-118", bought: "2024-08", cost: 48000, vendor: V2,
-      log: [["2026-11-05", "fix", "عطل في الحساس — مستني قطعة غيار (بره الضمان)", "Sensor fault — waiting for spare part (out of warranty)", 3200]], files: [["عرض سعر الإصلاح", "Repair quotation", "PDF"]], impact: true }
-  ];
+  function t(rec) { return D.fmt.t(rec, C.lang); }
+  function brName(x) { var b = D.branch(x.branch); return tx(b.shortAr, b.shortEn); }
+  function roomName(x) { return x.room ? t(D.room(x.room)) : tx("على مستوى الفرع", "Branch level"); }
+  var DEV = D.equipment, ST = D.equipStatus, KIND = D.maintKinds;
 
   var sel = "laser", filter = "all";
-  function inScope(x) { var sc = Tamargi.scope(); return sc.mismatch || sc.all || sc.branch === x.b; }
+  function inScope(x) { return D.inScope(x, C); }
   function dueHtml(x) {
-    var n = daysTo(x.next[1]), cls = n < 0 ? "over" : n <= 30 ? "soon" : "";
+    var n = daysTo(x.next.date), cls = n < 0 ? "over" : n <= 30 ? "soon" : "";
     var lbl = n < 0 ? tx("متأخر " + num(-n) + " يوم", num(-n) + " days overdue") : n === 0 ? tx("النهارده", "today") : tx("بعد " + num(n) + " يوم", "in " + num(n) + " days");
-    return tx(KIND[x.next[0]][0], KIND[x.next[0]][1]) + " · " + dshow(x.next[1]) + '<span class="eq-due ' + cls + '">' + lbl + "</span>";
+    return t(KIND[x.next.kind]) + " · " + dshow(x.next.date) + '<span class="eq-due ' + cls + '">' + lbl + "</span>";
   }
   function warHtml(x) {
     var exp = d(x.war + "-28") < TODAY;
@@ -183,24 +164,24 @@
   }
   function render() {
     var list = DEV.filter(inScope), k = { all: 0, ok: 0, bad: 0, due: 0 };
-    list.forEach(function (x) { k.all++; if (x.st === "service") k.ok++; else k.bad++; if (daysTo(x.next[1]) <= 30) k.due++; });
+    list.forEach(function (x) { k.all++; if (x.status === "service") k.ok++; else k.bad++; if (daysTo(x.next.date) <= 30) k.due++; });
     $("#ek-all").textContent = num(k.all); $("#ek-ok").textContent = num(k.ok); $("#ek-bad").textContent = num(k.bad); $("#ek-due").textContent = num(k.due);
     if (!list.some(function (x) { return x.id === sel; }) && list.length) sel = list[0].id;
-    $("#eq-body").innerHTML = list.filter(function (x) { return filter === "all" || x.st === filter; }).map(function (x) {
+    $("#eq-body").innerHTML = list.filter(function (x) { return filter === "all" || x.status === filter; }).map(function (x) {
       return '<tr tabindex="0" data-dev="' + x.id + '"' + (x.id === sel ? ' class="is-selected" aria-selected="true"' : "") + '><td><span class="t-name">' + tx(x.ar, x.en) + '</span><span class="t-meta t-ltr">' + x.serial + "</span></td>" +
-        '<td><span class="t-branch-tag"><svg class="t-icon"><use href="#i-pin"/></svg>' + tx(BR[x.b][0], BR[x.b][1]) + '</span><span class="t-meta">' + tx(x.room[0], x.room[1]) + "</span></td>" +
-        '<td><span class="t-chip ' + x.st + '">' + tx(ST[x.st][0], ST[x.st][1]) + "</span></td><td>" + dueHtml(x) + '</td><td class="eq-hide-sm">' + warHtml(x) + "</td></tr>";
+        '<td><span class="t-branch-tag"><svg class="t-icon"><use href="#i-pin"/></svg>' + brName(x) + '</span><span class="t-meta">' + roomName(x) + "</span></td>" +
+        '<td><span class="t-chip ' + x.status + '">' + t(ST[x.status]) + "</span></td><td>" + dueHtml(x) + '</td><td class="eq-hide-sm">' + warHtml(x) + "</td></tr>";
     }).join("");
     detail();
   }
   function detail() {
     var x = DEV.filter(function (y) { return y.id === sel; })[0]; if (!x) return;
     $("#eq-d-name").textContent = tx(x.ar, x.en);
-    $("#eq-d-loc").textContent = tx(BR[x.b][0], BR[x.b][1]) + " · " + tx(x.room[0], x.room[1]);
-    $("#eq-d-status").innerHTML = '<span class="t-chip ' + x.st + '">' + tx(ST[x.st][0], ST[x.st][1]) + "</span>";
+    $("#eq-d-loc").textContent = brName(x) + " · " + roomName(x);
+    $("#eq-d-status").innerHTML = '<span class="t-chip ' + x.status + '">' + t(ST[x.status]) + "</span>";
     $("#eq-d-facts").innerHTML =
       "<dt>" + tx("الرقم التسلسلي", "Serial no.") + '</dt><dd class="t-ltr">' + x.serial + "</dd>" +
-      "<dt>" + tx("المورد / الصيانة", "Supplier / service") + "</dt><dd>" + tx(x.vendor[0], x.vendor[1]) + "</dd>" +
+      "<dt>" + tx("المورد / الصيانة", "Supplier / service") + "</dt><dd>" + t(D.supplier(x.vendor)) + "</dd>" +
       "<dt>" + tx("الشراء", "Purchased") + "</dt><dd>" + dshow(x.bought) + ' · <span class="t-money">' + x.cost.toLocaleString("en-US") + '<span class="cur">' + tx("ج.م", "EGP") + "</span></span></dd>" +
       "<dt>" + tx("الضمان", "Warranty") + "</dt><dd>" + warHtml(x) + "</dd>" +
       "<dt>" + tx("الميعاد الجاي", "Next due") + "</dt><dd>" + dueHtml(x) + "</dd>";
@@ -209,10 +190,10 @@
     else if (x.cold) { al.hidden = false; al.className = "t-alert info"; al.innerHTML = '<svg class="t-icon"><use href="#i-info"/></svg><span>' + tx("ثلاجة سلسلة التبريد: اللقاحات في المخزن مربوطة بيها. لو الحرارة خرجت عن ٢–٨°، اللقاحات بتتعلّم 'محتاجة مراجعة'.", "Cold-chain fridge: vaccines in stock are linked to it. If temperature leaves 2–8 °C, vaccines are flagged 'needs review'.") + ' <a href="stock.html">' + tx("المخزون", "Stock") + "</a></span>"; }
     else al.hidden = true;
     $("#eq-d-log").innerHTML = x.log.length ? x.log.map(function (l) {
-      return '<li><span class="t-small"><b>' + tx(KIND[l[1]][0], KIND[l[1]][1]) + "</b> — " + tx(l[2], l[3]) + '</span><div class="t-when">' + dshow(l[0]) + ' · <span class="eq-cost">' + (l[5] ? tx("في الضمان", "under warranty") : l[4] ? '<span class="t-money">' + l[4].toLocaleString("en-US") + '<span class="cur">' + tx("ج.م", "EGP") + "</span></span>" : tx("من غير تكلفة", "no cost")) + "</span></div></li>";
+      return '<li><span class="t-small"><b>' + t(KIND[l.kind]) + "</b> — " + t(l) + '</span><div class="t-when">' + dshow(l.date) + ' · <span class="eq-cost">' + (l.warranty ? tx("في الضمان", "under warranty") : l.cost ? '<span class="t-money">' + l.cost.toLocaleString("en-US") + '<span class="cur">' + tx("ج.م", "EGP") + "</span></span>" : tx("من غير تكلفة", "no cost")) + "</span></div></li>";
     }).join("") : '<li class="muted"><span class="t-small t-muted">' + tx("مفيش صيانة متسجلة لسه.", "No maintenance logged yet.") + "</span></li>";
     $("#eq-d-files").innerHTML = x.files.length ? x.files.map(function (f) {
-      return '<li><svg class="t-icon sm"><use href="#i-file"/></svg><span>' + tx(f[0], f[1]) + "</span><small>" + f[2] + "</small></li>";
+      return '<li><svg class="t-icon sm"><use href="#i-file"/></svg><span>' + t(f) + "</span><small>" + f.type + "</small></li>";
     }).join("") : '<li><span class="t-small t-muted">' + tx("مفيش مرفقات. ارفع فاتورة الشراء والضمان من الموبايل.", "No files. Upload the invoice and warranty from your phone.") + "</span></li>";
   }
   $("#eq-body").addEventListener("click", function (e) { var r = e.target.closest("[data-dev]"); if (!r) return; sel = r.getAttribute("data-dev"); render(); });
@@ -221,7 +202,7 @@
     var b = e.target.closest("button"); if (!b) return; filter = b.getAttribute("data-f");
     $$("#eq-filter button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); render();
   });
-  document.addEventListener("tamargi:scope", render);
+  Tamargi.onCtx(render);
   render();
   $$(".t-scrim").forEach(function (s) { s.addEventListener("click", function (e) { if (e.target === s) s.hidden = true; }); });
   document.addEventListener("keydown", function (e) {

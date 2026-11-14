@@ -35,6 +35,11 @@
     .appt[data-s="confirmed"] { border-inline-start-color: var(--called-fg); }
     .appt[data-s="arrived"]   { border-inline-start-color: var(--inroom-fg); }
     .appt[data-s="noshow"]    { border-inline-start-color: var(--left-fg); }
+    .appt[data-s="done"]      { border-inline-start-color: var(--done-fg); opacity: .8; }
+    .cal-h .t-spec-tag { margin-block: 2px; }
+    .cal-h .br { display: flex; align-items: center; gap: 4px; color: var(--text-2); font-size: var(--fs-xs); }
+    .cal-none { grid-column: 1 / -1; padding: var(--s-6) var(--s-4); text-align: center; color: var(--text-3); }
+    .wk .t-name { white-space: nowrap; }
     .appt[data-s="cancelled"] { opacity: .6; }
     .appt[data-s="cancelled"] .nm { text-decoration: line-through; }
     .cal.only-fu .appt:not([data-fu]) { opacity: .25; }
@@ -50,8 +55,10 @@
     .drw-sec { margin-block-end: var(--s-5); }
     .drw-sec h4 { font-size: var(--fs-sm); color: var(--text-2); margin-block-end: var(--s-2); }
   </style>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
-<body data-screen="appointments-calendar">
+<body data-screen="appointments-calendar" data-org-default="nile">
 <main id="screen">
   <div class="t-container">
 
@@ -59,6 +66,7 @@
       <div>
         <h1 data-en="Appointments">جدول المواعيد</h1>
         <p class="t-sub mb-0" data-en="Who is booked with which doctor today, who has arrived, and which follow-ups still need a date.">مين محجوز مع أنهي دكتور النهارده، مين وصل، وأنهي متابعات لسه محتاجة ميعاد.</p>
+        <p class="t-small t-muted mb-0" id="cal-scope"></p>
       </div>
       <div class="t-actions">
         <a class="t-btn" href="doctor-schedule.html"><svg class="t-icon sm"><use href="#i-clock"/></svg><span data-en="Doctor hours &amp; leaves">مواعيد الأطباء والإجازات</span></a>
@@ -75,17 +83,13 @@
             <button type="button" aria-pressed="false" data-view="week" data-en="Week">أسبوع</button>
           </div>
           <div class="t-row tight">
-            <button class="t-btn icon ghost" type="button" aria-label="Previous day" title="اليوم السابق" data-en-title="Previous day" data-en-aria-label="Previous day" data-toast="اليوم السابق (نموذج)" data-toast-en="Previous day (prototype)"><svg class="t-icon chev-prev"><use href="#i-chevron"/></svg></button>
-            <span class="cal-date" data-en="Sat 14 Nov 2026">السبت ١٤ نوفمبر ٢٠٢٦</span>
-            <button class="t-btn icon ghost" type="button" aria-label="Next day" title="اليوم التالي" data-en-title="Next day" data-en-aria-label="Next day" data-toast="اليوم التالي (نموذج)" data-toast-en="Next day (prototype)"><svg class="t-icon flip"><use href="#i-chevron"/></svg></button>
-            <button class="t-btn sm" type="button" data-en="Today">النهارده</button>
+            <button class="t-btn icon ghost" type="button" id="day-prev" aria-label="اليوم السابق" title="اليوم السابق" data-en-title="Previous day" data-en-aria-label="Previous day"><svg class="t-icon chev-prev"><use href="#i-chevron"/></svg></button>
+            <span class="cal-date" id="cal-date" aria-live="polite"></span>
+            <button class="t-btn icon ghost" type="button" id="day-next" aria-label="اليوم التالي" title="اليوم التالي" data-en-title="Next day" data-en-aria-label="Next day"><svg class="t-icon flip"><use href="#i-chevron"/></svg></button>
+            <button class="t-btn sm" type="button" id="day-today" data-en="Today">النهارده</button>
           </div>
           <label class="t-sr" for="doc-filter" data-en="Doctor">الطبيب</label>
-          <select id="doc-filter" class="t-select" style="width:auto;height:34px;font-size:var(--fs-sm)">
-            <option value="all" data-en="All doctors (2)">كل الأطباء (٢)</option>
-            <option value="ahmed" data-en="Dr. Ahmed Selim">د. أحمد سليم</option>
-            <option value="mona" data-en="Dr. Mona El-Sherbiny">د. منى الشربيني</option>
-          </select>
+          <select id="doc-filter" class="t-select" style="width:auto;height:34px;font-size:var(--fs-sm)"></select>
           <button class="t-btn sm t-end" type="button" id="fu-filter" aria-pressed="false"
                   data-note="Follow-ups due: filters the grid to follow-up visits and lists patients whose free follow-up window is closing without a booking (NITCO v7–8 'follow-up days' column, turned into a to-do list)."
                   data-note-ar="المتابعات المستحقة: يفلتر الجدول على زيارات المتابعة ويعرض المرضى اللي مدة الاستشارة المجانية بتاعتهم قربت تخلص ومن غير حجز.">
@@ -94,11 +98,12 @@
         </div>
 
         <div class="cal-counts" aria-label="Today's totals" data-en-aria-label="Today's totals"
-             data-note="Five appointment states, each a word + colour + dot, everywhere in the product: booked, confirmed, arrived, no-show, cancelled. NITCO uses ~10 row colours with a legend nobody can read (v6–8)."
-             data-note-ar="خمس حالات للموعد، كل حالة كلمة + لون + نقطة: محجوز، مؤكد، وصل، مجاش، ملغي. بدل ١٠ ألوان صفوف في NITCO.">
+             data-note="Six appointment states, each a word + colour + dot, everywhere in the product: booked, confirmed, arrived (waiting, called or in the room), done, no-show, cancelled. Counts follow the selected branch and doctor. NITCO uses ~10 row colours with a legend nobody can read (v6–8)."
+             data-note-ar="ست حالات للموعد، كل حالة كلمة + لون + نقطة: محجوز، مؤكد، وصل (منتظر أو اتنادى أو في الكشف)، خلص، مجاش، ملغي. العدد بيتبع الفرع والدكتور المختار. بدل ١٠ ألوان صفوف في NITCO.">
           <span class="t-chip booked"><span data-en="Booked">محجوز</span> <b id="n-booked">6</b></span>
           <span class="t-chip confirmed"><span data-en="Confirmed">مؤكد</span> <b id="n-confirmed">5</b></span>
           <span class="t-chip arrived"><span data-en="Arrived">وصل</span> <b id="n-arrived">2</b></span>
+          <span class="t-chip done"><span data-en="Done">خلص</span> <b id="n-done">0</b></span>
           <span class="t-chip noshow"><span data-en="No-show">مجاش</span> <b id="n-noshow">1</b></span>
           <span class="t-chip cancelled"><span data-en="Cancelled">ملغي</span> <b id="n-cancelled">1</b></span>
         </div>
@@ -116,7 +121,7 @@
             <div class="t-empty">
               <div class="t-empty-art"><svg class="t-icon"><use href="#i-calendar"/></svg></div>
               <h3 data-en="No bookings on this day yet">مفيش حجوزات في اليوم ده لسه</h3>
-              <p data-en="Both doctors are working. Book the first patient, or check follow-ups that are due.">الدكتورين شغالين. احجز أول مريض، أو شوف المتابعات المستحقة.</p>
+              <p id="nb-text">الدكاترة شغالين. احجز أول مريض، أو شوف المتابعات المستحقة.</p>
               <div class="t-row tight">
                 <a class="t-btn primary" href="appointment-book.html"><span data-en="Book appointment">حجز موعد</span><span class="t-kbd">N</span></a>
               </div>
@@ -128,33 +133,8 @@
         <div id="view-week" hidden>
           <div class="t-table-wrap" style="border:0;border-radius:0">
             <table class="t-table wk">
-              <thead><tr>
-                <th data-en="Doctor">الطبيب</th>
-                <th data-en="Sat 14">السبت ١٤</th><th data-en="Sun 15">الأحد ١٥</th><th data-en="Mon 16">الاثنين ١٦</th>
-                <th data-en="Tue 17">الثلاثاء ١٧</th><th data-en="Wed 18">الأربعاء ١٨</th><th data-en="Thu 19">الخميس ١٩</th><th data-en="Fri 20">الجمعة ٢٠</th>
-              </tr></thead>
-              <tbody>
-                <tr>
-                  <td><span class="t-name" data-en="Dr. Ahmed Selim">د. أحمد سليم</span><span class="t-meta" data-en="Internal medicine · 2 per slot">باطنة · ٢ لكل ميعاد</span></td>
-                  <td class="cell" tabindex="0"><b>15</b> <span class="t-faint" data-en="of 28">من ٢٨</span><div class="bar"><i style="width:54%"></i></div></td>
-                  <td class="cell" tabindex="0"><b>11</b> <span class="t-faint" data-en="of 28">من ٢٨</span><div class="bar"><i style="width:39%"></i></div></td>
-                  <td class="cell" tabindex="0"><b>6</b> <span class="t-faint" data-en="of 16">من ١٦</span><div class="bar"><i style="width:37%"></i></div></td>
-                  <td class="cell" tabindex="0"><b>4</b> <span class="t-faint" data-en="of 28">من ٢٨</span><div class="bar"><i style="width:14%"></i></div></td>
-                  <td class="cell" tabindex="0"><b>3</b> <span class="t-faint" data-en="of 32">من ٣٢</span><div class="bar"><i style="width:9%"></i></div></td>
-                  <td class="cell" tabindex="0"><span class="t-chip noshow plain" data-en="Leave 5–9 pm">إجازة ٥–٩ م</span><div class="t-meta" data-en="4 bookings to move">٤ حجوزات محتاجة نقل</div></td>
-                  <td class="cell t-faint" data-en="Closed">مغلق</td>
-                </tr>
-                <tr>
-                  <td><span class="t-name" data-en="Dr. Mona El-Sherbiny">د. منى الشربيني</span><span class="t-meta" data-en="Paediatrics · 1 per slot">أطفال · ١ لكل ميعاد</span></td>
-                  <td class="cell" tabindex="0"><b>6</b> <span class="t-faint" data-en="of 6">من ٦</span><div class="bar"><i class="full" style="width:100%"></i></div><div class="t-meta" data-en="Full · leave 5–7 pm">كامل · إجازة ٥–٧ م</div></td>
-                  <td class="cell" tabindex="0"><b>7</b> <span class="t-faint" data-en="of 10">من ١٠</span><div class="bar"><i style="width:70%"></i></div></td>
-                  <td class="cell" tabindex="0"><span class="t-chip noshow plain" data-en="On leave">إجازة</span></td>
-                  <td class="cell" tabindex="0"><b>2</b> <span class="t-faint" data-en="of 10">من ١٠</span><div class="bar"><i style="width:20%"></i></div></td>
-                  <td class="cell" tabindex="0"><b>1</b> <span class="t-faint" data-en="of 10">من ١٠</span><div class="bar"><i style="width:10%"></i></div></td>
-                  <td class="cell t-faint" data-en="Not working">مش شغالة</td>
-                  <td class="cell t-faint" data-en="Closed">مغلق</td>
-                </tr>
-              </tbody>
+              <thead><tr id="wk-head"></tr></thead>
+              <tbody id="wk-body"></tbody>
             </table>
           </div>
           <p class="t-small t-muted" style="padding:var(--s-3) var(--s-4);margin:0" data-en="Booked of available places (slots × patients per slot). Click a day to open it.">المحجوز من الأماكن المتاحة (عدد المواعيد × المرضى في كل ميعاد). اضغط على يوم لفتحه.</p>
@@ -166,33 +146,15 @@
         <div class="t-card" id="fu-card">
           <div class="t-card-head">
             <h3 data-en="Follow-ups due, not booked">متابعات مستحقة من غير حجز</h3>
-            <div class="t-actions"><span class="t-badge">4</span></div>
+            <div class="t-actions"><span class="t-badge" id="fu-badge">0</span></div>
           </div>
-          <div>
-            <div class="fu-item">
-              <div><span class="t-name" style="font-weight:500" data-en="Rania Magdy Farag">رانيا مجدي فرج</span><div class="t-small t-faint"><span data-en="Dr. Ahmed · free until 16 Nov">د. أحمد · مجانية حتى ١٦ نوفمبر</span></div></div>
-              <a class="t-btn sm soft" href="appointment-book.html?p=rania&amp;type=fu" data-en="Book">احجز</a>
-            </div>
-            <div class="fu-item">
-              <div><span class="t-name" style="font-weight:500" data-en="Hossam El-Din Fawzy Attia">حسام الدين فوزي عطية</span><div class="t-small t-faint"><span data-en="Dr. Ahmed · free until 18 Nov">د. أحمد · مجانية حتى ١٨ نوفمبر</span></div></div>
-              <a class="t-btn sm soft" href="appointment-book.html?p=hossam&amp;type=fu" data-en="Book">احجز</a>
-            </div>
-            <div class="fu-item">
-              <div><span class="t-name" style="font-weight:500" data-en="Jana Ahmed El-Saeed">جنى أحمد السعيد</span><div class="t-small t-faint"><span data-en="Dr. Mona · free until 19 Nov">د. منى · مجانية حتى ١٩ نوفمبر</span></div></div>
-              <a class="t-btn sm soft" href="appointment-book.html?p=jana&amp;d=mona&amp;type=fu" data-en="Book">احجز</a>
-            </div>
-            <div class="fu-item">
-              <div><span class="t-name" style="font-weight:500" data-en="Abdallah Moustafa El-Hennawy">عبد الله مصطفى الحناوي</span><div class="t-small t-faint"><span data-en="Dr. Ahmed · window ended 12 Nov">د. أحمد · المدة خلصت ١٢ نوفمبر</span></div></div>
-              <a class="t-btn sm" href="chat-inbox.html" data-en="Message">راسله</a>
-            </div>
-          </div>
+          <div id="fu-list"></div>
         </div>
-
-        <div class="t-card sunk" data-note="Check in = one click: the appointment becomes Arrived, the visit and the bill (with the planned services and the right fee, 0 for a free follow-up) are created, and the patient gets a queue ticket. No second search at the cashier (NITCO v6, v90 appointment-invoice link, without the &quot;link or cancel?&quot; prompt)." data-note-ar="تسجيل الحضور بضغطة: الموعد يبقى وصل، والزيارة والفاتورة بالخدمات والسعر الصح بيتفتحوا، والمريض ياخد تذكرة في الدور.">
+<div class="t-card sunk" data-note="Check in = one click: the appointment becomes Arrived, the visit and the bill (with the planned services and the right fee, 0 for a free follow-up) are created, and the patient gets a queue ticket. No second search at the cashier (NITCO v6, v90 appointment-invoice link, without the &quot;link or cancel?&quot; prompt)." data-note-ar="تسجيل الحضور بضغطة: الموعد يبقى وصل، والزيارة والفاتورة بالخدمات والسعر الصح بيتفتحوا، والمريض ياخد تذكرة في الدور.">
           <div class="t-card-head mb-2"><h3 data-en="How states work">حالات الموعد</h3></div>
           <ul class="t-small t-muted" style="margin:0;padding-inline-start:var(--s-4);line-height:1.9">
             <li><span data-en="Booked → Confirmed when the patient confirms (call or chat).">محجوز ← مؤكد لما المريض يأكد (تليفون أو شات).</span></li>
-            <li><span data-en="Check in → Arrived: creates the visit, the bill and a queue ticket.">تسجيل حضور ← وصل: بيفتح الزيارة والفاتورة وتذكرة في الدور.</span></li>
+            <li><span data-en="Check in → Arrived: creates the visit, the bill (next number in the organization's series) and a queue ticket for the doctor's room in that branch.">تسجيل حضور ← وصل: بيفتح الزيارة والفاتورة (الرقم التالي في مسلسل المنشأة) وتذكرة في دور غرفة الدكتور في الفرع ده.</span></li>
             <li><span data-en="No-show is set 30 min after the slot if not checked in (clinic setting).">مجاش بيتسجل تلقائي بعد ٣٠ دقيقة من الميعاد لو محضرش (إعداد العيادة).</span></li>
           </ul>
         </div>
@@ -214,185 +176,345 @@
   </div>
 </main>
 
+<script src="../assets/demo-data.js"></script>
+<script src="../assets/shell.js"></script>
 <script>
 (function () {
   "use strict";
-  function lang() { if (window.Tamargi) return Tamargi.lang(); try { return localStorage.getItem("tamargi.lang") || "ar"; } catch (e) { return "ar"; } }
+  /* All data from assets/demo-data.js; scope from Tamargi.ctx. */
+  var D = Tamargi.data, C = Tamargi.ctx, F = D.fmt;
+  var $ = function (id) { return document.getElementById(id); };
+  function L() { return C.lang === "en"; }
+  function tx(a, e) { return L() ? e : a; }
+  function t(rec) { return F.t(rec, C.lang); }
+  function hr(h) { return F.hour(h, C.lang); }
+  function n(x) { return F.num(x, C.lang); }
   function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;"); }
-  function bi(ar, en, tag) { tag = tag || "span"; return "<" + tag + ' data-ar="' + esc(ar) + '" data-en="' + esc(en) + '">' + (lang() === "en" ? en : ar) + "</" + tag + ">"; }
-  function tm(t) { var p = t.split(":"), h = +p[0], ap = h >= 12; var h12 = h % 12 || 12; var s = h12 + ":" + p[1]; return bi(s + (ap ? " م" : " ص"), s + (ap ? " pm" : " am")); }
-  function mins(t) { var p = t.split(":"); return +p[0] * 60 + +p[1]; }
+  function money(v) { return '<span class="t-money">' + F.money(v) + '<span class="cur">' + t(D.currency) + "</span></span>"; }
+  function docShort(id) { var d = D.doctor(id); return tx(d.shortAr, d.shortEn); }
+  function spTag(sp) { return '<span class="t-spec-tag ' + D.specialties[sp].cls + '">' + t(D.specialties[sp]) + "</span>"; }
+  function brShort(id) { var b = D.branch(id); return tx(b.shortAr, b.shortEn); }
+  function shortDate(s) { return F.dateLong(s, C.lang, { noDay: true }); }
 
-  var DOCS = [
-    { id: "ahmed", ar: "د. أحمد سليم", en: "Dr. Ahmed Selim", spAr: "باطنة · ١٠–١ و ٥–٩ · ٢ لكل ميعاد", spEn: "Internal med. · 10–1 & 5–9 · 2 per slot", per: 2, shifts: [["10:00", "13:00"], ["17:00", "21:00"]], tk: "A", next: 18 },
-    { id: "mona", ar: "د. منى الشربيني", en: "Dr. Mona El-Sherbiny", spAr: "أطفال · ٥–١٠ م · ١ لكل ميعاد", spEn: "Paediatrics · 5–10 pm · 1 per slot", per: 1, shifts: [["17:00", "22:00"]], leave: ["17:00", "19:00"], tk: "B", next: 5 }
-  ];
-  var ROWS = ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "|", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30"];
-  var ST = { booked: ["محجوز", "Booked"], confirmed: ["مؤكد", "Confirmed"], arrived: ["وصل", "Arrived"], noshow: ["مجاش", "No-show"], cancelled: ["ملغي", "Cancelled"] };
-  var VIA = { phone: ["تليفون", "phone"], chat: ["شات الموقع", "web chat"], walkin: ["حضوري", "in person"], doctor: ["من الكشف (متابعة)", "from the visit (follow-up)"] };
-  var A = [
-    { id: 1, d: "ahmed", t: "10:00", ar: "كريم محمود عبد العزيز", en: "Karim Mahmoud Abdelaziz", ph: "0122 870 4411", file: "1188", ty: "new", s: "arrived", via: "phone", tk: "A-12", inv: "INV-1041" },
-    { id: 2, d: "ahmed", t: "10:30", ar: "هالة سمير عبد الفتاح", en: "Hala Samir Abdelfattah", ph: "0109 551 2380", file: "0974", ty: "fu", fuAr: "مجانية حتى ١٦ نوفمبر", fuEn: "free until 16 Nov", s: "arrived", via: "doctor", tk: "A-14", inv: "INV-1043" },
-    { id: 3, d: "ahmed", t: "11:00", ar: "محمد السيد الدسوقي", en: "Mohamed El-Sayed El-Desouky", ph: "0111 402 7765", file: "1201", ty: "new", s: "noshow", via: "chat" },
-    { id: 4, d: "ahmed", t: "11:30", ar: "سعاد إبراهيم المنشاوي", en: "Soad Ibrahim El-Menshawy", ph: "0100 776 3412", file: "0652", ty: "fu", fuAr: "مجانية حتى ٢٠ نوفمبر", fuEn: "free until 20 Nov", s: "confirmed", via: "doctor" },
-    { id: 5, d: "ahmed", t: "12:00", ar: "عمرو فتحي البيومي", en: "Amr Fathy El-Bayoumi", ph: "0127 330 9054", file: "1150", ty: "new", s: "cancelled", via: "phone", why: ["المريض مسافر", "patient travelling"] },
-    { id: 6, d: "ahmed", t: "12:00", ar: "رحاب عادل شلبي", en: "Rehab Adel Shalaby", ph: "0155 218 6630", file: "", ty: "new", s: "booked", via: "chat" },
-    { id: 7, d: "ahmed", t: "17:00", ar: "يوسف إبراهيم حسن", en: "Youssef Ibrahim Hassan", ph: "0128 664 0917", file: "0833", ty: "fu", fuAr: "مجانية حتى ١٧ نوفمبر", fuEn: "free until 17 Nov", s: "confirmed", via: "doctor" },
-    { id: 8, d: "ahmed", t: "17:30", ar: "منى عبد الرحمن الشناوي", en: "Mona Abdelrahman El-Shenawy", ph: "0100 234 5678", file: "1043", ty: "fu", fuAr: "مجانية حتى ١٦ نوفمبر", fuEn: "free until 16 Nov", s: "confirmed", via: "phone", extra: [["رسم قلب", "ECG", 150]] },
-    { id: 9, d: "ahmed", t: "17:30", ar: "طارق ممدوح غنيم", en: "Tarek Mamdouh Ghoneim", ph: "0114 905 2271", file: "1207", ty: "new", s: "booked", via: "phone", extra: [["سونار بطن", "Abdominal ultrasound", 250]] },
-    { id: 10, d: "ahmed", t: "17:30", ar: "نادية حسن عبد السلام", en: "Nadia Hassan Abdelsalam", ph: "0106 338 1190", file: "0418", ty: "new", s: "booked", via: "walkin", over: true },
-    { id: 11, d: "ahmed", t: "18:00", ar: "أحمد رضا القاضي", en: "Ahmed Reda El-Kady", ph: "0120 447 8823", file: "1199", ty: "new", s: "booked", via: "chat" },
-    { id: 12, d: "ahmed", t: "19:00", ar: "إيمان صلاح الجندي", en: "Eman Salah El-Gendy", ph: "0112 650 3398", file: "0791", ty: "fu", fuAr: "مجانية حتى ٢١ نوفمبر", fuEn: "free until 21 Nov", s: "booked", via: "doctor" },
-    { id: 13, d: "ahmed", t: "20:00", ar: "شريف عادل مصطفى", en: "Sherif Adel Moustafa", ph: "0101 893 2207", file: "1176", ty: "new", s: "confirmed", via: "phone" },
-    { id: 14, d: "mona", t: "19:00", ar: "سلمى محمد عوض", en: "Salma Mohamed Awad", ph: "0109 224 7716", file: "1210", ty: "new", s: "confirmed", via: "phone", age: ["٤ سنين", "4 yrs"] },
-    { id: 15, d: "mona", t: "19:30", ar: "آدم وليد الشافعي", en: "Adam Walid El-Shafei", ph: "0122 301 5584", file: "1095", ty: "fu", fuAr: "مجانية حتى ٢٢ نوفمبر", fuEn: "free until 22 Nov", s: "booked", via: "doctor", age: ["٧ سنين", "7 yrs"] },
-    { id: 16, d: "mona", t: "20:30", ar: "ليلى أشرف حمدي", en: "Laila Ashraf Hamdy", ph: "0115 772 9043", file: "", ty: "new", s: "booked", via: "chat", age: ["سنتين", "2 yrs"] },
-    { id: 17, d: "mona", t: "21:30", ar: "مالك حسام زكي", en: "Malek Hossam Zaki", ph: "0127 118 6625", file: "1062", ty: "fu", fuAr: "مجانية حتى ١٨ نوفمبر", fuEn: "free until 18 Nov", s: "confirmed", via: "doctor", age: ["١٠ سنين", "10 yrs"] }
-  ];
-  var docFilter = "all", onlyFu = false, openId = null, NOW = 11 * 60 + 42, undo = null;
+  /* group of each status for the counters and the card border */
+  var GROUP = { booked: "booked", confirmed: "confirmed", arrived: "arrived", waiting: "arrived", called: "arrived", inroom: "arrived", done: "done", left: "done", noshow: "noshow", cancelled: "cancelled" };
+  var VIA = { phone: ["تليفون", "phone"], whatsapp: ["واتساب", "WhatsApp"], walkin: ["حضوري", "in person"], online: ["الحجز أونلاين", "online booking"] };
+  var day = D.today, docFilter = "all", onlyFu = false, openId = null, undo = null, lastKey = "";
 
-  function inShift(doc, t) { var m = mins(t); return doc.shifts.some(function (s) { return m >= mins(s[0]) && m < mins(s[1]); }); }
-  function onLeave(doc, t) { if (!doc.leave) return false; var m = mins(t); return m >= mins(doc.leave[0]) && m < mins(doc.leave[1]); }
-  function chip(a) { return '<span class="t-chip ' + a.s + '">' + bi(ST[a.s][0], ST[a.s][1]) + "</span>"; }
-  function apptBtn(a) {
-    var ty = a.ty === "fu" ? bi("متابعة · " + a.fuAr, "Follow-up · " + a.fuEn) : bi("كشف جديد" + (a.file ? "" : " · بدون ملف"), "New consult" + (a.file ? "" : " · no file yet"));
-    return '<button type="button" class="appt' + (openId === a.id ? " is-open" : "") + '" data-appt="' + a.id + '" data-s="' + a.s + '"' + (a.ty === "fu" ? " data-fu" : "") + ">" +
-      '<span class="nm">' + bi(a.ar, a.en) + "</span>" + chip(a) + '<span class="ty">' + ty + "</span></button>";
+  /* ---------- derived data ---------- */
+  /* one column per doctor x branch working (or booked) on the date */
+  function columns(date) {
+    var cols = [];
+    C.branches.forEach(function (br) {
+      D.doctors.filter(function (d) { return d.org === C.org; }).forEach(function (d) {
+        var sh = D.shiftsOn(d.id, date, [br]);
+        var appts = D.appointments.filter(function (a) { return a.doctor === d.id && a.branch === br && a.date === date; });
+        if (!sh.length && !appts.length) return;
+        var rooms = [];
+        sh.forEach(function (s) { if (rooms.indexOf(s.room) === -1) rooms.push(s.room); });
+        appts.forEach(function (a) { if (rooms.indexOf(a.room) === -1) rooms.push(a.room); });
+        cols.push({ doctor: d.id, branch: br, shifts: sh, rooms: rooms, per: D.slotPer(d.id), appts: appts, sp: sh.length ? sh[0].sp : d.sp[0] });
+      });
+    });
+    return cols;
+  }
+  function visible(cols) { return cols.filter(function (c) { return docFilter === "all" || c.doctor === docFilter; }); }
+  function rowsFor(cols) {
+    var set = {};
+    cols.forEach(function (c) {
+      c.shifts.forEach(function (s) { for (var h = s.from; h < s.to; h += 0.5) set[h] = 1; });
+      c.appts.forEach(function (a) { set[Math.floor(a.from * 2) / 2] = 1; });
+    });
+    return Object.keys(set).map(Number).sort(function (a, b) { return a - b; });
+  }
+  function isFree(a) { var p = D.patient(a.patient), s = D.service(a.service); return !!(s && s.kind === "followup" && p.followupUntil && p.followupUntil >= a.date); }
+  function invoiceOf(a) { return D.invoices.filter(function (i) { return i.appointment === a.id; })[0] || a._inv || null; }
+  function plannedLines(a) {
+    var s = D.service(a.service), inv = D.invoices.filter(function (i) { return i.appointment === a.id; })[0];
+    if (inv) return inv.lines.map(function (l) { return { ar: l.ar, en: l.en, price: l.qty * l.price - l.discount }; });
+    return [{ ar: s.ar, en: s.en, price: isFree(a) ? 0 : D.price(a.service, a.doctor, a.branch) }];
+  }
+  function receptionist(branch) {
+    var m = D.staff.filter(function (x) { return x.org === C.org && D.rolesIn(x, branch).indexOf("reception") > -1 && !x.status; })[0];
+    return m ? t(m) : tx("الاستقبال", "Reception");
   }
 
-  function render() {
-    var docs = DOCS.filter(function (d) { return docFilter === "all" || d.id === docFilter; });
-    var cal = document.getElementById("cal");
-    cal.style.setProperty("--cols", docs.length);
+  /* ---------- day grid ---------- */
+  function chip(a) { return '<span class="t-chip ' + a.status + '">' + t(D.apptStatus[a.status]) + "</span>"; }
+  function apptBtn(a, col) {
+    var s = D.service(a.service), p = D.patient(a.patient), fu = s && s.kind === "followup";
+    var ty = fu ? (isFree(a) ? tx("متابعة · مجانية حتى ", "Follow-up · free until ") + shortDate(p.followupUntil) : tx("متابعة بأجر", "Paid follow-up")) : t(s);
+    if (col.rooms.length > 1) ty += " · " + t(D.room(a.room));
+    if (a.queueNo) ty += " · " + D.ticket(a);
+    return '<button type="button" class="appt' + (openId === a.id ? " is-open" : "") + '" data-appt="' + a.id + '" data-s="' + GROUP[a.status] + '"' + (fu ? " data-fu" : "") + ">" +
+      '<span class="nm">' + esc(t(p)) + "</span>" + chip(a) + '<span class="ty">' + esc(ty) + "</span></button>";
+  }
+
+  function renderDay(cols) {
+    var cal = $("cal"), vis = visible(cols), rows = rowsFor(vis), h;
+    cal.style.setProperty("--cols", Math.max(vis.length, 1));
     cal.classList.toggle("only-fu", onlyFu);
-    var h = '<div class="cal-h">' + bi("الوقت", "Time", "small") + "</div>";
-    docs.forEach(function (d) {
-      var n = A.filter(function (a) { return a.d === d.id && a.s !== "cancelled"; }).length;
-      h += '<div class="cal-h">' + bi(d.ar, d.en, "b") + bi(d.spAr, d.spEn, "small") + bi(n + " حجز النهارده", n + " bookings today", "small") + "</div>";
+    h = '<div class="cal-h"><small>' + tx("الوقت", "Time") + "</small></div>";
+    if (!vis.length) {
+      cal.innerHTML = h + '<div class="cal-h"></div><div class="cal-none">' + esc(cols.length ? tx("الدكتور ده مش شغال اليوم ده.", "This doctor is not working on this day.") :
+        tx("مفيش أطباء شغالين اليوم ده في " + C.branchName + ".", "No doctors work on this day in " + C.branchName + ".")) + "</div>";
+      return;
+    }
+    vis.forEach(function (c) {
+      var live = c.appts.filter(function (a) { return a.status !== "cancelled"; }).length;
+      var hours = c.shifts.map(function (s) { return F.range(s.from, s.to, C.lang); }).join(tx(" و ", " & "));
+      h += '<div class="cal-h"><b>' + esc(docShort(c.doctor)) + "</b>" + spTag(c.sp) +
+        '<span class="br"><svg class="t-icon sm"><use href="#i-pin"/></svg>' + esc(brShort(c.branch) + " · " + c.rooms.map(function (r) { return t(D.room(r)); }).join("، ")) + "</span>" +
+        "<small>" + esc((hours || tx("خارج المواعيد", "off schedule")) + " · " + tx(n(c.per) + " لكل ميعاد", c.per + " per slot")) + "</small>" +
+        "<small>" + esc(tx(n(live) + " حجز", live + " bookings")) + "</small></div>";
     });
-    ROWS.forEach(function (t) {
-      if (t === "|") { h += '<div class="cal-break">' + bi("استراحة ١:٠٠ – ٥:٠٠ م · مفيش دكاترة شغالين", "Break 1:00 – 5:00 pm · no doctor working") + "</div>"; return; }
-      h += '<div class="cal-t' + (t === "11:30" ? " now" : "") + '">' + tm(t) + (t === "11:30" ? "<br>" + bi("الآن", "now", "small") : "") + "</div>";
-      docs.forEach(function (d) {
-        if (onLeave(d, t)) { h += '<div class="cal-c leave">' + (t === d.leave[0] ? bi("إجازة جزئية ٥–٧ م", "Partial leave 5–7 pm") : bi("إجازة", "Leave")) + "</div>"; return; }
-        if (!inShift(d, t)) { h += '<div class="cal-c off">' + bi("خارج المواعيد", "Not working") + "</div>"; return; }
-        var list = A.filter(function (a) { return a.d === d.id && a.t === t; });
-        var live = list.filter(function (a) { return a.s !== "cancelled"; }).length;
-        var over = live > d.per;
-        h += '<div class="cal-c' + (over ? " over" : "") + '"' + (over ? ' data-overbook' : "") + ">";
-        if (over) h += '<span class="over-tag"><svg class="t-icon sm"><use href="#i-alert"/></svg>' + bi("محجوز زيادة: " + live + " من " + d.per, "Overbooked: " + live + " of " + d.per) + "</span>";
-        list.forEach(function (a) { h += apptBtn(a); });
-        if (live < d.per && mins(t) + 30 > NOW) h += '<a class="t-btn sm ghost cal-add" href="appointment-book.html?d=' + d.id + "&amp;t=" + t + '"><svg class="t-icon sm"><use href="#i-plus"/></svg>' + bi("احجز هنا", "Book here") + "</a>";
+    var firstOver = false, firstAdd = false;
+    rows.forEach(function (r, i) {
+      if (i > 0 && r - rows[i - 1] > 0.5) h += '<div class="cal-break">' + esc(tx("استراحة " + hr(rows[i - 1] + 0.5) + " – " + hr(r) + " · مفيش دكاترة شغالين", "Break " + hr(rows[i - 1] + 0.5) + " – " + hr(r) + " · no doctor working")) + "</div>";
+      var now = day === D.today && D.now >= r && D.now < r + 0.5;
+      h += '<div class="cal-t' + (now ? " now" : "") + '">' + hr(r) + (now ? "<br><small>" + tx("الآن", "now") + "</small>" : "") + "</div>";
+      vis.forEach(function (c) {
+        var list = c.appts.filter(function (a) { return a.from >= r && a.from < r + 0.5; });
+        var lv = D.leaveAt(c.doctor, day, r), inShift = c.shifts.some(function (s) { return r >= s.from && r < s.to; });
+        if (lv && !list.length) {
+          var first = lv.hours ? r === lv.hours.from : r === rows[0];
+          h += '<div class="cal-c leave">' + esc(first ? (lv.hours ? tx("إجازة جزئية ", "Partial leave ") + F.range(lv.hours.from, lv.hours.to, C.lang) : tx("إجازة", "Leave")) + " · " + t(lv) : tx("إجازة", "Leave")) + "</div>";
+          return;
+        }
+        if (!inShift && !list.length) { h += '<div class="cal-c off">' + tx("خارج المواعيد", "Not working") + "</div>"; return; }
+        var live = list.filter(function (a) { return a.status !== "cancelled"; }).length, over = live > c.per, mark = "";
+        if (over && !firstOver) { firstOver = true; mark = " data-overbook"; }
+        h += '<div class="cal-c' + (over ? " over" : "") + '"' + mark + ">";
+        if (over) h += '<span class="over-tag"><svg class="t-icon sm"><use href="#i-alert"/></svg>' + esc(tx("محجوز زيادة: " + n(live) + " من " + n(c.per), "Overbooked: " + live + " of " + c.per)) + "</span>";
+        list.forEach(function (a) { h += apptBtn(a, c); });
+        var future = day > D.today || (day === D.today && r + 0.5 > D.now);
+        if (inShift && !lv && live < c.per && future) {
+          h += '<a class="t-btn sm ghost cal-add"' + (firstAdd ? "" : " data-first-add") + ' href="appointment-book.html?d=' + c.doctor + "&amp;b=" + c.branch + "&amp;date=" + day + "&amp;t=" + F.hhmm(r) + '"><svg class="t-icon sm"><use href="#i-plus"/></svg>' + tx("احجز هنا", "Book here") + "</a>";
+          firstAdd = true;
+        }
         h += "</div>";
       });
     });
     cal.innerHTML = h;
-    var ob = cal.querySelector("[data-overbook]");
+    var ob = cal.querySelector("[data-overbook]") || cal.querySelector("[data-first-add]");
     if (ob) {
-      ob.setAttribute("data-note", "Overbooked slot marker: Dr. Ahmed takes 2 patients per 30-min slot; a third booking is allowed (Egyptian reality) but the slot is outlined and labelled with the count, never a hard block (NITCO v57 'more than one patient' flag).");
-      ob.setAttribute("data-note-ar", "علامة الميعاد المحجوز زيادة: د. أحمد بياخد مريضين في كل نص ساعة؛ الحجز التالت مسموح بس الميعاد بيتعلم بالعدد، من غير منع.");
+      ob.setAttribute("data-note", "Overbooked slot marker: each doctor takes N patients per 30-min slot (from the length of the main service); one more booking is allowed (Egyptian reality) but the slot is outlined and labelled with the count, never a hard block (NITCO v57 'more than one patient' flag).");
+      ob.setAttribute("data-note-ar", "علامة الميعاد المحجوز زيادة: كل دكتور بياخد عدد مرضى في كل نص ساعة (حسب مدة الكشف)؛ الحجز الزيادة مسموح بس الميعاد بيتعلم بالعدد، من غير منع.");
     }
-    var c = { booked: 0, confirmed: 0, arrived: 0, noshow: 0, cancelled: 0 };
-    A.forEach(function (a) { if (docFilter === "all" || a.d === docFilter) c[a.s]++; });
-    for (var k in c) document.getElementById("n-" + k).textContent = c[k];
-    if (window.Tamargi) Tamargi.setState("day");
   }
 
+  function renderCounts(cols) {
+    var c = { booked: 0, confirmed: 0, arrived: 0, done: 0, noshow: 0, cancelled: 0 };
+    visible(cols).forEach(function (col) { col.appts.forEach(function (a) { c[GROUP[a.status]]++; }); });
+    for (var k in c) $("n-" + k).textContent = n(c[k]);
+    return c;
+  }
+
+  /* ---------- week: one row per doctor x branch ---------- */
+  function renderWeek() {
+    var dates = []; for (var i = 0; i < 7; i++) dates.push(D.addDays(D.today, i));
+    $("wk-head").innerHTML = "<th>" + tx("الطبيب", "Doctor") + "</th>" + dates.map(function (d) { return "<th>" + esc(F.day(D.dayIndex(d), C.lang) + " " + n(+d.slice(8))) + "</th>"; }).join("");
+    var pairs = [];
+    C.branches.forEach(function (br) {
+      D.doctors.filter(function (d) { return d.org === C.org && (docFilter === "all" || d.id === docFilter); }).forEach(function (d) {
+        if (D.shiftsOf(d.id).some(function (s) { return s.branch === br; })) pairs.push({ doctor: d, branch: br });
+      });
+    });
+    var h = "";
+    pairs.forEach(function (pr) {
+      var d = pr.doctor, per = D.slotPer(d.id), B = D.branch(pr.branch), sp = D.shiftsOf(d.id).filter(function (s) { return s.branch === pr.branch; })[0].sp;
+      h += '<tr><td><span class="t-name">' + esc(tx(d.shortAr, d.shortEn)) + '</span><span class="t-meta">' + esc(t(D.specialties[sp]) + (C.branches.length > 1 ? " · " + brShort(pr.branch) : "") + " · " + tx(n(per) + " لكل ميعاد", per + " per slot")) + "</span></td>";
+      dates.forEach(function (date) {
+        var di = D.dayIndex(date);
+        if (B.closedDays.indexOf(di) > -1) { h += '<td class="cell t-faint">' + tx("مقفول", "Closed") + "</td>"; return; }
+        var sh = D.shiftsOn(d.id, date, [pr.branch]);
+        if (!sh.length) { h += '<td class="cell t-faint">' + tx("مش شغال", "Not working") + "</td>"; return; }
+        var lv = D.leaveAt(d.id, date, null);
+        if (lv && !lv.hours) { h += '<td class="cell" tabindex="0" data-date="' + date + '"><span class="t-chip noshow plain">' + tx("إجازة", "On leave") + "</span></td>"; return; }
+        var cap = 0, booked = 0, real = D.hasDay(C.org, date);
+        sh.forEach(function (s) {
+          for (var x = s.from; x < s.to; x += 0.5) {
+            if (D.leaveAt(d.id, date, x)) continue;
+            cap += per; if (!real) booked += D.slotLoad(d.id, date, x);
+          }
+        });
+        if (real) booked = D.appointments.filter(function (a) { return a.doctor === d.id && a.branch === pr.branch && a.date === date && a.status !== "cancelled"; }).length;
+        var pct = cap ? Math.min(100, Math.round(booked / cap * 100)) : 0;
+        var move = lv ? D.inLeave(lv).filter(function (a) { return a.date === date && a.branch === pr.branch; }).length : 0;
+        h += '<td class="cell" tabindex="0" data-date="' + date + '"><b>' + n(booked) + '</b> <span class="t-faint">' + tx("من " + n(cap), "of " + cap) + '</span><div class="bar"><i class="' + (pct >= 100 ? "full" : "") + '" style="width:' + pct + '%"></i></div>' +
+          (lv ? '<div class="t-meta">' + esc(tx("إجازة ", "Leave ") + F.range(lv.hours.from, lv.hours.to, C.lang)) + (move ? " · " + esc(tx(n(move) + " حجوزات محتاجة نقل", move + " bookings to move")) : "") + "</div>" : "") + "</td>";
+      });
+      h += "</tr>";
+    });
+    $("wk-body").innerHTML = h || '<tr><td colspan="8" class="t-faint">' + tx("مفيش أطباء في الفرع ده.", "No doctors in this branch.") + "</td></tr>";
+  }
+
+  /* ---------- follow-ups due, not booked (org-wide file, shown in the branch of the last visit) ---------- */
+  function renderFollowups() {
+    var out = [];
+    D.patients.filter(function (p) { return p.org === C.org; }).forEach(function (p) {
+      var appts = D.patientAppointments(p.id);
+      var ahead = appts.some(function (a) { return a.status !== "cancelled" && (a.date > D.today || (a.date === D.today && (a.status === "booked" || a.status === "confirmed"))); });
+      if (ahead) return;
+      var consult = appts.filter(function (a) { return a.status === "done" && D.service(a.service).kind === "consult"; })[0];
+      var until = p.followupUntil || (consult ? D.addDays(consult.date, C.orgRec.followupDays) : null);
+      if (!until) return;
+      var last = consult || appts.filter(function (a) { return a.status !== "cancelled"; })[0];
+      var doc = consult ? consult.doctor : D.lastDoctor(p.id) || (last && last.doctor), br = last ? last.branch : p.regBranch;
+      if (!doc || C.branches.indexOf(br) === -1 || (docFilter !== "all" && doc !== docFilter)) return;
+      if (D.daysTo(until) < -7) return;
+      out.push({ p: p, doc: doc, br: br, until: until });
+    });
+    out.sort(function (a, b) { return a.until < b.until ? -1 : 1; });
+    $("fu-badge").textContent = n(out.length);
+    $("fu-list").innerHTML = out.slice(0, 6).map(function (x) {
+      var ended = x.until < D.today;
+      var meta = docShort(x.doc) + (C.branches.length > 1 ? " · " + brShort(x.br) : "") + " · " + (ended ? tx("المدة خلصت ", "window ended ") : tx("مجانية حتى ", "free until ")) + shortDate(x.until);
+      return '<div class="fu-item"><div><span class="t-name" style="font-weight:500">' + esc(t(x.p)) + '</span><div class="t-small t-faint">' + esc(meta) + "</div></div>" +
+        (ended ? '<a class="t-btn sm" href="chat-inbox.html">' + tx("راسله", "Message") + "</a>" : '<a class="t-btn sm soft" href="appointment-book.html?p=' + x.p.id + "&amp;d=" + x.doc + "&amp;b=" + x.br + '&amp;type=fu">' + tx("احجز", "Book") + "</a>") + "</div>";
+    }).join("") || '<p class="t-small t-muted mb-0">' + tx("كل المتابعات ليها ميعاد.", "Every follow-up has a date.") + "</p>";
+  }
+
+  /* ---------- toolbar ---------- */
+  function renderToolbar(cols) {
+    var docs = []; cols.forEach(function (c) { if (docs.indexOf(c.doctor) === -1) docs.push(c.doctor); });
+    D.doctorsIn(C).forEach(function (d) { if (docs.indexOf(d.id) === -1) docs.push(d.id); });
+    if (docFilter !== "all" && docs.indexOf(docFilter) === -1) docFilter = "all";
+    $("doc-filter").innerHTML = '<option value="all">' + tx("كل الأطباء (" + n(docs.length) + ")", "All doctors (" + docs.length + ")") + "</option>" +
+      docs.map(function (id) { var d = D.doctor(id); return '<option value="' + id + '"' + (id === docFilter ? " selected" : "") + ">" + esc(docShort(id) + " · " + t(D.specialties[d.sp[0]])) + "</option>"; }).join("");
+    $("cal-date").textContent = F.dateLong(day, C.lang, { year: true }) + (day === D.today ? tx(" (النهارده)", " (today)") : "");
+    $("cal-scope").textContent = (C.orgRec ? t(C.orgRec) : "") + " · " + C.branchName;
+  }
+
+  function render() {
+    var cols = columns(day);
+    renderToolbar(cols); renderDay(cols);
+    var c = renderCounts(cols);
+    renderWeek(); renderFollowups();
+    var any = c.booked + c.confirmed + c.arrived + c.done + c.noshow + c.cancelled;
+    var working = visible(cols).filter(function (x) { return x.shifts.length; }).length;
+    $("nb-text").textContent = tx(n(working) + " دكاترة شغالين. احجز أول مريض، أو شوف المتابعات المستحقة.", working + " doctor(s) working. Book the first patient, or check follow-ups that are due.");
+    var key = C.org + "|" + C.branch + "|" + day + "|" + docFilter;
+    if (key !== lastKey) { lastKey = key; Tamargi.setState(any || !working ? "day" : "no-bookings"); }
+    if (openId && !$("appt-drawer").hidden) fillDrawer(openId);
+  }
+
+  /* ---------- drawer ---------- */
+  function stamp(a, h) { return F.date(a.date).slice(0, 5) + " · " + F.hour(h, "en"); }
   function audit(a) {
-    var ev = [];
-    var by = a.via === "doctor" ? ["د. " + (a.d === "mona" ? "منى" : "أحمد"), "Dr. " + (a.d === "mona" ? "Mona" : "Ahmed")] : ["سارة رمضان (استقبال)", "Sara Ramadan (reception)"];
-    ev.push([bi("اتحجز عن طريق " + VIA[a.via][0], "Booked via " + VIA[a.via][1]), bi(by[0], by[1]), "12/11 · 2:05 pm"]);
-    if (a.over) ev.push([bi("اتحجز زيادة عن عدد الميعاد (٣ من ٢)", "Overbooked the slot (3 of 2)"), bi("سارة رمضان", "Sara Ramadan"), "13/11 · 6:40 pm"]);
-    if (a.s === "confirmed" || a.s === "arrived") ev.push([bi("اتأكد بالتليفون", "Confirmed by phone"), bi("سارة رمضان", "Sara Ramadan"), "13/11 · 7:15 pm"]);
-    if (a.s === "arrived") ev.push([bi("تسجيل حضور ← تذكرة " + a.tk + " وفاتورة " + a.inv, "Checked in → ticket " + a.tk + ", bill " + a.inv), bi("سارة رمضان", "Sara Ramadan"), a.at || "14/11 · " + a.t]);
-    if (a.s === "noshow") ev.push([bi("اتعلم مجاش تلقائي بعد ٣٠ دقيقة", "Marked no-show automatically after 30 min"), bi("النظام", "System"), "14/11 · 11:30 am"]);
-    if (a.s === "cancelled") ev.push([bi("اتلغى · السبب: " + a.why[0], "Cancelled · reason: " + a.why[1]), bi("سارة رمضان", "Sara Ramadan"), "13/11 · 5:10 pm"]);
-    return '<ol class="t-timeline">' + ev.map(function (e, i) { return "<li" + (i === ev.length - 1 ? "" : ' class="muted"') + "><div>" + e[0] + '</div><div class="t-when">' + e[1] + ' · <span class="t-ltr">' + e[2] + "</span></div></li>"; }).join("") + "</ol>";
+    var ev = [], rc = receptionist(a.branch), via = VIA[a.source] || VIA.phone, inv = invoiceOf(a);
+    ev.push([tx("اتحجز عن طريق " + via[0], "Booked via " + via[1]), a.source === "online" ? tx("المريض", "Patient") : rc, "12/11 · 2:05 pm"]);
+    if (a.status !== "booked" && a.status !== "cancelled" && a.status !== "noshow") ev.push([tx("اتأكد بالتليفون", "Confirmed by phone"), rc, "13/11 · 7:15 pm"]);
+    if (a.queueNo) ev.push([tx("تسجيل حضور ← تذكرة " + D.ticket(a), "Checked in → ticket " + D.ticket(a)) + (inv ? tx(" وفاتورة " + inv.no, ", bill " + inv.no) : ""), rc, stamp(a, a._at || a.from)]);
+    if (a.status === "noshow") ev.push([tx("اتعلم مجاش تلقائي بعد ٣٠ دقيقة", "Marked no-show automatically after 30 min"), tx("النظام", "System"), stamp(a, a.from + 0.5)]);
+    if (a.status === "cancelled") ev.push([a._why ? tx("اتلغى · السبب: " + a._why[0], "Cancelled · reason: " + a._why[1]) : tx("اتلغى · السبب: المريض اعتذر", "Cancelled · reason: patient apologised"), rc, "13/11 · 5:10 pm"]);
+    if (a.status === "left") ev.push([tx("مشي قبل الكشف", "Left before being seen"), rc, stamp(a, a.from + 0.75)]);
+    return '<ol class="t-timeline">' + ev.map(function (e, i) { return "<li" + (i === ev.length - 1 ? "" : ' class="muted"') + "><div>" + esc(e[0]) + '</div><div class="t-when">' + esc(e[1]) + ' · <span class="t-ltr">' + e[2] + "</span></div></li>"; }).join("") + "</ol>";
   }
-
-  function openDrawer(id) {
-    var a = A.filter(function (x) { return x.id === id; })[0]; if (!a) return;
-    var d = DOCS.filter(function (x) { return x.id === a.d; })[0];
-    openId = id; render();
-    var fee = a.ty === "fu" ? 0 : 300;
-    var svc = [[a.ty === "fu" ? "استشارة (متابعة)" : "كشف جديد", a.ty === "fu" ? "Follow-up visit" : "New consultation", fee]].concat(a.extra || []);
-    var total = svc.reduce(function (s, x) { return s + x[2]; }, 0);
-    var b = "";
-    b += '<div class="t-row between mb-4"><div><div class="t-banner-name">' + bi(a.ar, a.en) + '</div><div class="t-small t-muted"><span class="t-ltr">' + a.ph + "</span> · " +
-      (a.file ? bi("ملف " + a.file, "File " + a.file) : bi("بدون ملف — مريض مؤقت على الموبايل", "No file yet — provisional on mobile")) + (a.age ? " · " + bi(a.age[0], a.age[1]) : "") + "</div></div>" + chip(a) + "</div>";
-    if (a.ty === "fu") b += '<div class="t-alert info mb-4"><svg class="t-icon"><use href="#i-info"/></svg><span>' + bi("استشارة مجانية — داخل مدة المتابعة (" + a.fuAr + "). الكشف هيتسعر صفر تلقائي عند الحضور.", "Free follow-up — inside the window (" + a.fuEn + "). Fee is set to 0 automatically at check-in.") + "</span></div>";
-    if (a.s === "noshow") b += '<div class="t-alert warning mb-4"><svg class="t-icon"><use href="#i-alert"/></svg><span>' + bi("المريض ده مجاش. ممكن تعيد الحجز أو تبعتله رسالة.", "This patient did not come. Rebook or send a message.") + "</span></div>";
-    b += '<dl class="t-dl drw-sec"><dt>' + bi("الطبيب", "Doctor") + "</dt><dd>" + bi(d.ar, d.en) + "</dd><dt>" + bi("الميعاد", "Time") + "</dt><dd>" + bi("السبت ١٤ نوفمبر · ", "Sat 14 Nov · ") + tm(a.t) + bi(" · ٣٠ دقيقة", " · 30 min") + "</dd><dt>" +
-      bi("نوع الزيارة", "Visit type") + "</dt><dd>" + (a.ty === "fu" ? bi("متابعة", "Follow-up") : bi("كشف جديد", "New consultation")) + "</dd><dt>" + bi("الحجز عن طريق", "Booked via") + "</dt><dd>" + bi(VIA[a.via][0], VIA[a.via][1]) + "</dd></dl>";
-    b += '<div class="drw-sec" data-note="Planned services are attached at booking (NITCO v5) and become the bill lines at check-in, so reception never re-types them." data-note-ar="الخدمات المخططة بتتسجل مع الحجز وبتتحول لبنود الفاتورة عند الحضور."><h4>' + bi("الخدمات المخططة", "Planned services") + '</h4><table class="t-table"><tbody>' +
-      svc.map(function (s) { return "<tr><td>" + bi(s[0], s[1]) + '</td><td class="num"><span class="t-money">' + s[2] + '<span class="cur">' + bi("ج.م", "EGP") + "</span></span></td></tr>"; }).join("") +
-      '</tbody><tfoot><tr><td>' + bi("المتوقع", "Expected") + '</td><td class="num"><span class="t-money">' + total + '<span class="cur">' + bi("ج.م", "EGP") + "</span></span></td></tr></tfoot></table></div>";
+  function fillDrawer(id) {
+    var a = D.by("appointments", id); if (!a) return;
+    var p = D.patient(a.patient), d = D.doctor(a.doctor), s = D.service(a.service), inv = invoiceOf(a), lines = plannedLines(a), via = VIA[a.source] || VIA.phone;
+    var total = lines.reduce(function (x, l) { return x + l.price; }, 0), b = "";
+    b += '<div class="t-row between mb-4"><div><div class="t-banner-name">' + esc(t(p)) + '</div><div class="t-small t-muted"><span class="t-ltr">' + p.phone + "</span> · " +
+      esc(tx("ملف " + p.fileNo, "File " + p.fileNo) + " · " + tx(n(p.age) + (p.age < 11 ? " سنين" : " سنة"), p.age + " yrs")) + "</div></div>" + chip(a) + "</div>";
+    if (p.allergies.length) b += '<div class="t-row tight mb-4"><span class="t-allergy"><svg class="t-icon sm"><use href="#i-alert"/></svg>' + esc(tx("حساسية: ", "Allergy: ") + p.allergies.map(t).join("، ")) + "</span></div>";
+    if (isFree(a)) b += '<div class="t-alert info mb-4"><svg class="t-icon"><use href="#i-info"/></svg><span>' + esc(tx("استشارة مجانية — داخل مدة المتابعة (حتى " + shortDate(p.followupUntil) + "). الكشف هيتسعر صفر تلقائي عند الحضور.", "Free follow-up — inside the window (until " + shortDate(p.followupUntil) + "). Fee is set to 0 automatically at check-in.")) + "</span></div>";
+    if (a.status === "noshow") b += '<div class="t-alert warning mb-4"><svg class="t-icon"><use href="#i-alert"/></svg><span>' + tx("المريض ده مجاش. ممكن تعيد الحجز أو تبعتله رسالة.", "This patient did not come. Rebook or send a message.") + "</span></div>";
+    if (p.debt) b += '<div class="t-alert warning mb-4"><svg class="t-icon"><use href="#i-cash"/></svg><span>' + esc(tx("عليه مديونية " + F.money(p.debt) + " ج.م في ملف المنشأة.", "Owes " + F.money(p.debt) + " EGP on the organization file.")) + "</span></div>";
+    b += '<dl class="t-dl drw-sec"><dt>' + tx("الطبيب", "Doctor") + "</dt><dd>" + esc(tx(d.ar, d.en)) + " " + spTag(d.sp[0]) + "</dd>" +
+      "<dt>" + tx("الفرع والغرفة", "Branch & room") + "</dt><dd>" + esc(t(D.branch(a.branch)) + " · " + t(D.room(a.room))) + "</dd>" +
+      "<dt>" + tx("الميعاد", "Time") + "</dt><dd>" + esc(F.dateLong(a.date, C.lang) + " · " + hr(a.from) + " · " + tx(n(a.dur) + " دقيقة", a.dur + " min")) + "</dd>" +
+      "<dt>" + tx("نوع الزيارة", "Visit type") + "</dt><dd>" + esc(t(s)) + "</dd>" +
+      "<dt>" + tx("الحجز عن طريق", "Booked via") + "</dt><dd>" + esc(tx(via[0], via[1])) + "</dd>" +
+      (a.queueNo ? "<dt>" + tx("التذكرة", "Ticket") + '</dt><dd><span class="t-ltr">' + D.ticket(a) + "</span></dd>" : "") + "</dl>";
+    b += '<div class="drw-sec" data-note="Planned services are attached at booking (NITCO v5) and become the bill lines at check-in, so reception never re-types them. Prices come from the price list: doctor + branch, then doctor, then branch, then the default." data-note-ar="الخدمات المخططة بتتسجل مع الحجز وبتتحول لبنود الفاتورة عند الحضور. الأسعار من قائمة الأسعار: دكتور + فرع، ثم دكتور، ثم فرع، ثم السعر الأساسي."><h4>' +
+      (inv ? esc(tx("الفاتورة ", "Bill ")) + '<span class="t-ltr">' + inv.no + "</span> " + '<span class="t-chip ' + inv.status + '">' + t(D.invoiceStatus[inv.status]) + "</span>" : tx("الخدمات المخططة", "Planned services")) + '</h4><table class="t-table"><tbody>' +
+      lines.map(function (l) { return "<tr><td>" + esc(t(l)) + '</td><td class="num">' + money(l.price) + "</td></tr>"; }).join("") +
+      "</tbody><tfoot><tr><td>" + (inv ? tx("الإجمالي", "Total") : tx("المتوقع", "Expected")) + '</td><td class="num">' + money(total) + "</td></tr></tfoot></table></div>";
     b += '<div id="drw-result"></div>';
-    b += '<div class="drw-sec"><h4>' + bi("سجل الموعد", "Audit trail") + "</h4>" + audit(a) + "</div>";
-    document.getElementById("drw-body").innerHTML = b;
-    var f = "";
-    if (a.s === "booked" || a.s === "confirmed") {
-      f += '<button class="t-btn primary" type="button" data-act="checkin"><svg class="t-icon sm"><use href="#i-check"/></svg>' + bi("تسجيل حضور", "Check in") + '<span class="t-kbd">Enter</span></button>';
-      if (a.s === "booked") f += '<button class="t-btn" type="button" data-act="confirm">' + bi("تأكيد", "Confirm") + "</button>";
-      f += '<a class="t-btn" href="appointment-book.html?move=' + a.id + '">' + bi("تغيير الميعاد", "Reschedule") + "</a>";
-      f += '<button class="t-btn ghost" type="button" data-act="noshow">' + bi("مجاش", "No-show") + "</button>";
-      f += '<button class="t-btn danger-ghost" type="button" data-act="cancel">' + bi("إلغاء", "Cancel") + "</button>";
-    } else if (a.s === "arrived") {
-      f += '<a class="t-btn primary" href="reception-queue.html"><svg class="t-icon sm"><use href="#i-queue"/></svg>' + bi("عرض في الدور", "Open in queue") + "</a>";
-      f += '<a class="t-btn" href="cashier-checkout.html"><svg class="t-icon sm"><use href="#i-cash"/></svg>' + bi("التحصيل", "Collect") + "</a>";
-      f += '<a class="t-btn ghost" href="patient-file.html">' + bi("ملف المريض", "Patient file") + "</a>";
+    b += '<div class="drw-sec"><h4>' + tx("سجل الموعد", "Audit trail") + "</h4>" + audit(a) + "</div>";
+    $("drw-body").innerHTML = b;
+    var f = "", today = a.date === D.today;
+    if (a.status === "booked" || a.status === "confirmed") {
+      if (today) f += '<button class="t-btn primary" type="button" data-act="checkin"><svg class="t-icon sm"><use href="#i-check"/></svg>' + tx("تسجيل حضور", "Check in") + '<span class="t-kbd">Enter</span></button>';
+      if (a.status === "booked") f += '<button class="t-btn' + (today ? "" : " primary") + '" type="button" data-act="confirm">' + tx("تأكيد", "Confirm") + "</button>";
+      f += '<a class="t-btn" href="appointment-book.html?move=' + a.id + '">' + tx("تغيير الميعاد", "Reschedule") + "</a>";
+      if (today) f += '<button class="t-btn ghost" type="button" data-act="noshow">' + tx("مجاش", "No-show") + "</button>";
+      f += '<button class="t-btn danger-ghost" type="button" data-act="cancel">' + tx("إلغاء", "Cancel") + "</button>";
+    } else if (D.isLive(a)) {
+      f += '<a class="t-btn primary" href="reception-queue.html"><svg class="t-icon sm"><use href="#i-queue"/></svg>' + tx("عرض في الدور", "Open in queue") + "</a>";
+      f += '<a class="t-btn" href="cashier-checkout.html"><svg class="t-icon sm"><use href="#i-cash"/></svg>' + tx("التحصيل", "Collect") + "</a>";
+      f += '<a class="t-btn ghost" href="patient-file.html">' + tx("ملف المريض", "Patient file") + "</a>";
+    } else if (a.status === "done") {
+      f += '<a class="t-btn primary" href="patient-file.html">' + tx("ملف المريض", "Patient file") + "</a>";
+      f += '<a class="t-btn" href="appointment-book.html?p=' + p.id + "&amp;d=" + a.doctor + "&amp;b=" + a.branch + '&amp;type=fu">' + tx("احجز متابعة", "Book follow-up") + "</a>";
     } else {
-      f += '<a class="t-btn primary" href="appointment-book.html?move=' + a.id + '">' + bi("إعادة حجز", "Rebook") + "</a>";
-      f += '<a class="t-btn" href="chat-inbox.html">' + bi("راسل المريض", "Message patient") + "</a>";
+      f += '<a class="t-btn primary" href="appointment-book.html?move=' + a.id + '">' + tx("إعادة حجز", "Rebook") + "</a>";
+      f += '<a class="t-btn" href="chat-inbox.html">' + tx("راسل المريض", "Message patient") + "</a>";
     }
-    document.getElementById("drw-foot").innerHTML = f;
-    var dr = document.getElementById("appt-drawer"); dr.hidden = false;
-    dr.dataset.id = id;
+    $("drw-foot").innerHTML = f;
+  }
+  function openDrawer(id) {
+    var dr = $("appt-drawer");
+    openId = id; dr.hidden = false; dr.dataset.id = id; render();
     var first = document.querySelector("#drw-foot .t-btn"); if (first) first.focus();
   }
-
+  /* next number in the branch's invoice series (D39: one series per branch) */
+  function nextInvoiceNo(branch) {
+    return D.nextInvoiceNo(branch, D.appointments.map(function (a) { return a._inv && a._inv.no; }));
+  }
   function act(kind) {
-    var id = +document.getElementById("appt-drawer").dataset.id;
-    var a = A.filter(function (x) { return x.id === id; })[0]; if (!a) return;
-    var d = DOCS.filter(function (x) { return x.id === a.d; })[0];
-    var en = lang() === "en";
+    var a = D.by("appointments", $("appt-drawer").dataset.id); if (!a) return;
     if (kind === "checkin") {
-      a.s = "arrived"; a.tk = d.tk + "-" + d.next++; a.inv = "INV-10" + (47 + id % 9); a.at = "14/11 · 11:42 am";
-      openDrawer(id);
-      document.getElementById("drw-result").innerHTML = '<div class="t-alert success drw-sec"><svg class="t-icon"><use href="#i-check"/></svg><span>' +
-        bi("اتسجل الحضور: تذكرة " + a.tk + " في دور " + d.ar + "، والفاتورة " + a.inv + " اتفتحت بالخدمات المخططة.", "Checked in: ticket " + a.tk + " in " + d.en + "'s queue, bill " + a.inv + " opened with the planned services.") + "</span></div>";
-      Tamargi.toast(en ? "Checked in · ticket " + a.tk : "اتسجل الحضور · تذكرة " + a.tk);
-    } else if (kind === "confirm") { a.s = "confirmed"; openDrawer(id); Tamargi.toast(en ? "Confirmed" : "اتأكد الموعد"); }
-    else if (kind === "noshow") { undo = [a.id, a.s]; a.s = "noshow"; openDrawer(id); Tamargi.toast(en ? "Marked no-show" : "اتعلم مجاش", en ? "Undo" : "تراجع"); }
-    else if (kind === "cancel") { undo = [a.id, a.s]; a.s = "cancelled"; a.why = ["طلب المريض", "patient request"]; openDrawer(id); Tamargi.toast(en ? "Appointment cancelled" : "اتلغى الموعد", en ? "Undo" : "تراجع"); }
+      undo = { a: a, s: a.status, q: a.queueNo, inv: a._inv, checkin: true };
+      var q = 0; D.appointments.forEach(function (x) { if (x.org === a.org && x.branch === a.branch && x.date === a.date && x.queueNo) q = Math.max(q, x.queueNo); });
+      a.status = "arrived"; a.queueNo = q + 1; a._at = D.now;
+      a._inv = { org: a.org, no: nextInvoiceNo(a.branch), status: "unpaid" };
+      openDrawer(a.id);
+      $("drw-result").innerHTML = '<div class="t-alert success drw-sec"><svg class="t-icon"><use href="#i-check"/></svg><span>' +
+        esc(tx("اتسجل الحضور: تذكرة " + D.ticket(a) + " في دور " + docShort(a.doctor) + " (" + t(D.room(a.room)) + "، " + brShort(a.branch) + ")، والفاتورة " + a._inv.no + " اتفتحت بالخدمات المخططة.",
+               "Checked in: ticket " + D.ticket(a) + " in " + docShort(a.doctor) + "'s queue (" + t(D.room(a.room)) + ", " + brShort(a.branch) + "), bill " + a._inv.no + " opened with the planned services.")) + "</span></div>";
+      Tamargi.toast(tx("اتسجل الحضور · تذكرة " + D.ticket(a), "Checked in · ticket " + D.ticket(a)), tx("تراجع", "Undo"));
+    } else if (kind === "confirm") { a.status = "confirmed"; openDrawer(a.id); Tamargi.toast(tx("اتأكد الموعد", "Confirmed")); }
+    else if (kind === "noshow") { undo = { a: a, s: a.status }; a.status = "noshow"; openDrawer(a.id); Tamargi.toast(tx("اتعلم مجاش", "Marked no-show"), tx("تراجع", "Undo")); }
+    else if (kind === "cancel") { undo = { a: a, s: a.status }; a.status = "cancelled"; a._why = ["طلب المريض", "patient request"]; openDrawer(a.id); Tamargi.toast(tx("اتلغى الموعد", "Appointment cancelled"), tx("تراجع", "Undo")); }
   }
 
+  function closeDrawer() { openId = null; $("appt-drawer").hidden = true; }
+  function setDay(d) { day = d; closeDrawer(); render(); }
+
+  Tamargi.onCtx(function (ctx, reason) { if (reason !== "lang" && reason !== "init") closeDrawer(); render(); });
   render();
 
   document.addEventListener("click", function (e) {
     if (e.target.closest(".t-toast-action") && undo) {
-      var u = undo, a = A.filter(function (x) { return x.id === u[0]; })[0]; undo = null;
-      a.s = u[1]; delete a.why; e.target.closest(".t-toast").remove();
-      if (!document.getElementById("appt-drawer").hidden && +document.getElementById("appt-drawer").dataset.id === a.id) openDrawer(a.id); else render();
-      Tamargi.toast(lang() === "en" ? "Undone" : "اتلغى التغيير"); return;
+      var u = undo; undo = null;
+      u.a.status = u.s; if (u.checkin) { u.a.queueNo = u.q; u.a._inv = u.inv; }
+      delete u.a._why;
+      e.target.closest(".t-toast").remove();
+      if (!$("appt-drawer").hidden && $("appt-drawer").dataset.id === u.a.id) openDrawer(u.a.id); else render();
+      Tamargi.toast(tx("اتلغى التغيير", "Undone")); return;
     }
-    var b = e.target.closest("[data-appt]"); if (b) { openDrawer(+b.getAttribute("data-appt")); return; }
+    var b = e.target.closest("[data-appt]"); if (b) { openDrawer(b.getAttribute("data-appt")); return; }
     var x = e.target.closest("[data-act]"); if (x) { act(x.getAttribute("data-act")); return; }
     var v = e.target.closest("[data-view]");
     if (v) {
       var w = v.getAttribute("data-view") === "week";
-      document.getElementById("view-day").hidden = w; document.getElementById("view-week").hidden = !w;
-      Array.prototype.forEach.call(document.querySelectorAll("[data-view]"), function (n) { n.setAttribute("aria-pressed", String(n === v)); });
+      $("view-day").hidden = w; $("view-week").hidden = !w;
+      Array.prototype.forEach.call(document.querySelectorAll("[data-view]"), function (nn) { nn.setAttribute("aria-pressed", String(nn === v)); });
       return;
     }
-    if (e.target.closest(".wk td.cell")) { document.querySelector('[data-view="day"]').click(); return; }
+    var c = e.target.closest(".wk td.cell[data-date]"); if (c) { setDay(c.getAttribute("data-date")); document.querySelector('[data-view="day"]').click(); return; }
+    if (e.target.closest("#day-prev")) { setDay(D.addDays(day, -1)); return; }
+    if (e.target.closest("#day-next")) { setDay(D.addDays(day, 1)); return; }
+    if (e.target.closest("#day-today")) { setDay(D.today); return; }
     if (e.target.closest("#fu-filter")) {
-      onlyFu = !onlyFu; document.getElementById("fu-filter").setAttribute("aria-pressed", String(onlyFu));
-      document.getElementById("fu-filter").classList.toggle("soft", onlyFu); render(); return;
+      onlyFu = !onlyFu; $("fu-filter").setAttribute("aria-pressed", String(onlyFu));
+      $("fu-filter").classList.toggle("soft", onlyFu); render(); return;
     }
     if (e.target.closest("[data-close]")) { openId = null; render(); }
   });
-  document.getElementById("doc-filter").addEventListener("change", function (e) { docFilter = e.target.value; render(); });
+  $("doc-filter").addEventListener("change", function (e) { docFilter = e.target.value; render(); });
   document.addEventListener("keydown", function (e) {
     var typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
     if (e.key === "Escape" && openId !== null) { openId = null; render(); return; }
@@ -402,6 +524,5 @@
   });
 })();
 </script>
-<script src="../assets/shell.js"></script>
 </body>
 </html>

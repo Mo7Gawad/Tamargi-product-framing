@@ -6,6 +6,7 @@
   <title data-en="Invoice &amp; credit note — Tamargi">الفاتورة والمرتجع — تمرجي</title>
   <link rel="stylesheet" href="../assets/tamargi.css">
   <style>
+    /* scope notice: let its branch buttons wrap at phone width (shared fix requested for tamargi.css) */
     .iv-list { display: flex; flex-direction: column; }
     .iv-item { display: grid; grid-template-columns: 1fr auto; gap: 2px var(--s-3); padding: var(--s-3) var(--s-4); border-block-end: 1px solid var(--line); text-decoration: none; color: var(--text); }
     .iv-item:hover { background: var(--surface-hover); color: var(--text); }
@@ -28,10 +29,13 @@
     .cn-line .t-input { height: 32px; text-align: center; }
     @media (max-width: 860px) { .iv-arrow { transform: rotate(90deg); width: 100%; } [dir="ltr"] .iv-arrow { transform: rotate(90deg); } }
   </style>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
-<body data-screen="invoice-detail">
+<body data-screen="invoice-detail" data-org-default="nile">
 <main id="screen">
   <span data-state="issued"></span><!-- first state in DOM = default -->
+  <span data-state="credited"></span>
   <div class="t-container">
 
     <header class="t-screen-head">
@@ -49,52 +53,27 @@
          data-note="One search box for patient name, mobile or invoice/credit-note number, Arabic-normalised. Replaces NITCO's reprint screen with 10 filters defaulting to the last 2 days (v86) and the separate returns screen (v49)."
          data-note-ar="خانة بحث واحدة بالاسم أو الموبايل أو رقم الفاتورة/المرتجع. بدل شاشة إعادة الطباعة في NITCO بعشرة فلاتر.">
       <svg class="t-icon"><use href="#i-search"/></svg>
-      <input id="iv-q" class="t-input" type="search" placeholder="اسم المريض أو الموبايل أو رقم الفاتورة (مثلاً 4790)" data-en-placeholder="Patient name, mobile or invoice no. (e.g. 4790)" aria-label="Search invoices" data-en-aria-label="Search invoices">
+      <input id="iv-q" class="t-input" type="search" placeholder="اسم المريض أو الموبايل أو رقم الفاتورة" data-en-placeholder="Patient name, mobile or invoice no." aria-label="Search invoices" data-en-aria-label="Search invoices">
       <span class="t-kbd">Ctrl K</span>
     </div>
 
     <div class="t-split">
       <!-- Results -->
-      <section class="t-card flush">
+      <section class="t-card flush"
+               data-note="The list follows the branch picked in the top bar: a cashier sees their branch's invoices; an owner on 'All branches' sees every branch, each row tagged with its branch. Numbers keep one series per organization prefix, and the branch is printed on every document."
+               data-note-ar="القايمة بتتبع الفرع المختار فوق: الكاشير بيشوف فواتير فرعه، والمالك على «كل الفروع» بيشوف الكل وكل سطر عليه اسم فرعه.">
         <div class="t-card-head">
-          <h3 data-en="Last 7 days">آخر ٧ أيام</h3>
+          <h3 id="iv-list-h"></h3>
           <div class="t-actions">
-            <select class="t-select" style="height:30px;font-size:var(--fs-xs);width:auto" aria-label="Status filter">
-              <option data-en="All statuses">كل الحالات</option><option data-en="Paid">مدفوعة</option><option data-en="Partial">جزئي</option><option data-en="Unpaid">غير مدفوعة</option><option data-en="Credited">عليها مرتجع</option>
+            <select id="iv-status" class="t-select" style="height:30px;font-size:var(--fs-xs);width:auto" aria-label="Status filter" data-en-aria-label="Status filter">
+              <option value="" data-en="All statuses">كل الحالات</option><option value="paid" data-en="Paid">مدفوعة</option><option value="partial" data-en="Part-paid">مدفوع جزء</option><option value="unpaid" data-en="Unpaid">مش مدفوعة</option><option value="credit" data-en="Credited">عليها مرتجع</option>
             </select>
           </div>
         </div>
-        <div class="iv-list" id="iv-list">
-          <a class="iv-item" href="#" data-s="4812 كريم عبد العزيز 01228704411 karim">
-            <span class="iv-no">INV-004812</span><span class="t-chip partial" data-en="Partial">جزئي</span>
-            <span class="iv-who">كريم محمود عبد العزيز · 180 <span data-en="EGP · today 7:42 pm">ج.م · النهارده ٧:٤٢ م</span></span>
-          </a>
-          <a class="iv-item" href="#" data-state="credited" data-s="4806 منى الشناوي 01002345678 mona">
-            <span class="iv-no">INV-004806</span><span class="t-chip paid" data-en="Paid">مدفوعة</span>
-            <span class="iv-who">منى عبد الرحمن الشناوي · 220 <span data-en="EGP · today 7:58 pm">ج.م · النهارده ٧:٥٨ م</span></span>
-          </a>
-          <a class="iv-item" href="#" data-state="credited" data-s="cn 37 منى الشناوي 01002345678 mona">
-            <span class="iv-no">CN-000037</span><span class="t-chip credit" data-en="Credit note">إشعار مرتجع</span>
-            <span class="iv-who">منى عبد الرحمن الشناوي · −250 <span data-en="EGP · today 7:56 pm">ج.م · النهارده ٧:٥٦ م</span></span>
-          </a>
-          <a class="iv-item" href="#" data-s="4801 يوسف إبراهيم حسن 01067712093 youssef">
-            <span class="iv-no">INV-004801</span><span class="t-chip unpaid" data-en="Unpaid">غير مدفوعة</span>
-            <span class="iv-who">يوسف إبراهيم حسن · 300 <span data-en="EGP · 13 Nov · left before paying">ج.م · ١٣ نوفمبر · مشي قبل الدفع</span></span>
-          </a>
-          <a class="iv-item" href="#" aria-current="true" data-s="4790 منى الشناوي 01002345678 mona">
-            <span class="iv-no">INV-004790</span>
-            <span data-state="issued"><span class="t-chip paid" data-en="Paid">مدفوعة</span></span>
-            <span data-state="credited"><span class="t-chip credit" data-en="Part-credited">مرتجع جزئي</span></span>
-            <span class="iv-who">منى عبد الرحمن الشناوي · 550 <span data-en="EGP · 12 Nov">ج.م · ١٢ نوفمبر</span></span>
-          </a>
-          <a class="iv-item" href="#" data-s="4776 سعيد مصطفى القاضي 01005512390 saeed">
-            <span class="iv-no">INV-004776</span><span class="t-chip paid" data-en="Paid">مدفوعة</span>
-            <span class="iv-who">سعيد مصطفى القاضي · 450 <span data-en="EGP · 11 Nov">ج.م · ١١ نوفمبر</span></span>
-          </a>
-          <div class="t-empty" id="iv-empty" hidden style="padding:var(--s-8) var(--s-4)">
-            <h3 data-en="No invoice matches">مفيش فاتورة مطابقة</h3>
-            <p data-en="Try the mobile number or the last 4 digits of the invoice.">جرّب رقم الموبايل أو آخر ٤ أرقام من الفاتورة.</p>
-          </div>
+        <div class="iv-list" id="iv-list"></div>
+        <div class="t-empty" id="iv-empty" hidden style="padding:var(--s-8) var(--s-4)">
+          <h3 data-en="No invoice matches">مفيش فاتورة مطابقة</h3>
+          <p data-en="Try the mobile number or the last 4 digits of the invoice.">جرّب رقم الموبايل أو آخر ٤ أرقام من الفاتورة.</p>
         </div>
       </section>
 
@@ -102,51 +81,34 @@
       <div class="t-stack lg">
         <section class="t-card">
           <div class="iv-head mb-4">
-            <h2>INV-004790</h2>
+            <h2 id="iv-no"></h2>
             <span class="t-stamp"
                   data-note="Issued = immutable. There is no Edit button on an issued invoice; the only correction is a credit note (NITCO v4, v48–50, v86: edit = counter invoice + new invoice). This is the owner's anti-theft guarantee."
                   data-note-ar="الفاتورة الصادرة مقفولة: مفيش زرار تعديل. التصحيح الوحيد بإشعار مرتجع. ده ضمان المالك ضد التلاعب."><svg class="t-icon sm"><use href="#i-lock"/></svg><span data-en="Issued · locked">صادرة · مقفولة</span></span>
-            <span data-state="issued"><span class="t-chip paid" data-en="Paid">مدفوعة</span></span>
-            <span data-state="credited"><span class="t-chip credit" data-en="Part-credited (CN-000037)">مرتجع جزئي (CN-000037)</span></span>
+            <span id="iv-chip"></span>
             <div class="t-actions t-end t-row tight">
-              <a class="t-btn" href="receipt-print.html"><svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Reprint (copy)">إعادة طباعة (نسخة)</span></a>
-              <button class="t-btn primary" type="button" data-open="#cn-drawer" id="cn-open" data-state="issued"><svg class="t-icon sm"><use href="#i-receipt"/></svg><span data-en="Create credit note">عمل إشعار مرتجع</span><span class="t-kbd">Alt R</span></button>
+              <a class="t-btn" href="receipt-print.html" id="iv-reprint"><svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Reprint (copy)">إعادة طباعة (نسخة)</span></a>
+              <button class="t-btn primary" type="button" data-open="#cn-drawer" id="cn-open"><svg class="t-icon sm"><use href="#i-receipt"/></svg><span data-en="Create credit note">عمل إشعار مرتجع</span><span class="t-kbd">Alt R</span></button>
             </div>
           </div>
-          <dl class="t-dl mb-4">
-            <dt data-en="Patient">المريض</dt><dd><a href="patient-file.html">منى عبد الرحمن السيد الشناوي</a> · <span data-en="File">ملف</span> <span class="t-ltr">1043</span> · <span class="t-ltr">0100 234 5678</span></dd>
-            <dt data-en="Doctor">الطبيب</dt><dd data-en="Dr. Ahmed Selim — visit 12 Nov 5:40 pm">د. أحمد سليم — زيارة ١٢ نوفمبر ٥:٤٠ م</dd>
-            <dt data-en="Issued">صدرت</dt><dd><span class="t-ltr">12/11/2026 18:05</span> · <span data-en="by Sara Ramadan (cashier)">بواسطة سارة رمضان (كاشير)</span></dd>
-          </dl>
+          <dl class="t-dl mb-4" id="iv-dl"
+              data-note="Header shows where the money was taken: branch (with its address, as on the printed receipt), the room and the doctor with specialty. The patient link opens the one org-wide file."
+              data-note-ar="رأس الفاتورة بيوضح الفرع وعنوانه زي الإيصال المطبوع، والغرفة والطبيب وتخصصه. رابط المريض بيفتح ملفه الموحد في المنشأة."></dl>
           <div class="t-table-wrap mb-4">
             <table class="t-table">
               <thead><tr><th data-en="Service">الخدمة</th><th class="num" data-en="Qty">العدد</th><th class="num" data-en="Price">السعر</th><th class="num" data-en="Discount">الخصم</th><th class="num" data-en="Total">الإجمالي</th></tr></thead>
-              <tbody>
-                <tr><td><span class="t-name" data-en="New consultation">كشف جديد</span></td><td class="num">1</td><td class="num">300</td><td class="num">0</td><td class="num"><span class="t-money">300</span></td></tr>
-                <tr id="iv-us-row">
-                  <td><span class="t-name" data-en="Abdominal ultrasound">سونار بطن</span>
-                    <span class="t-meta" data-state="credited" data-en="Credited by CN-000037 — wrong service billed">اتعمله مرتجع بـ CN-000037 — خدمة غلط</span></td>
-                  <td class="num">1</td><td class="num">250</td><td class="num">0</td><td class="num"><span class="t-money">250</span></td>
-                </tr>
-              </tbody>
-              <tfoot><tr><td colspan="4" data-en="Invoice total">إجمالي الفاتورة</td><td class="num"><span class="t-money">550 <span class="cur" data-en="EGP">ج.م</span></span></td></tr></tfoot>
+              <tbody id="iv-lines"></tbody>
+              <tfoot><tr><td colspan="4" data-en="Invoice total">إجمالي الفاتورة</td><td class="num"><span class="t-money"><span id="iv-total"></span> <span class="cur" data-en="EGP">ج.م</span></span></td></tr></tfoot>
             </table>
           </div>
           <div class="t-grid c2">
             <div>
               <h4 class="mb-2" data-en="Payments">المدفوعات</h4>
-              <dl class="t-totals">
-                <dt data-en="Cash · 12/11 18:05 · Sara">كاش · 12/11 18:05 · سارة</dt><dd><span class="t-money">550</span></dd>
-                <dt class="grand" data-en="Paid">المدفوع</dt><dd class="grand"><span class="t-money">550</span></dd>
-              </dl>
+              <dl class="t-totals" id="iv-pays"></dl>
             </div>
             <div>
               <h4 class="mb-2" data-en="Balance">الرصيد</h4>
-              <dl class="t-totals">
-                <dt data-en="Remaining on invoice">الباقي على الفاتورة</dt><dd><span class="t-money">0</span></dd>
-                <dt data-state="credited" data-en="Credited">المرتجع</dt><dd data-state="credited"><span class="t-money">− 250</span></dd>
-                <dt class="grand" data-en="Net revenue">صافي الإيراد</dt><dd class="grand"><span class="t-money" data-state="issued">550</span><span class="t-money" data-state="credited">300</span></dd>
-              </dl>
+              <dl class="t-totals" id="iv-bal"></dl>
             </div>
           </div>
         </section>
@@ -156,25 +118,14 @@
                  data-note="Linked documents chain: invoice → credit note → corrected invoice, each clickable. NITCO shows this only as yellow/red row colours in a reprint grid (v86); here the whole story of a correction is one readable line."
                  data-note-ar="سلسلة المستندات: فاتورة ← إشعار مرتجع ← فاتورة مصححة، كل واحدة بتتفتح. في NITCO مجرد ألوان صفوف.">
           <div class="t-card-head"><h3 data-en="Linked documents">المستندات المرتبطة</h3></div>
-          <div class="iv-chain">
-            <a class="iv-doc is-here" href="#"><b>INV-004790</b><small data-en="Invoice · 550 · 12 Nov">فاتورة · ٥٥٠ · ١٢ نوفمبر</small></a>
-            <span class="iv-arrow" data-state="credited"><svg class="t-icon flip"><use href="#i-arrow"/></svg></span>
-            <a class="iv-doc" href="#" data-state="credited"><b>CN-000037</b><small data-en="Credit note · −250 · to deposit">إشعار مرتجع · −٢٥٠ · للرصيد</small></a>
-            <span class="iv-arrow" data-state="credited"><svg class="t-icon flip"><use href="#i-arrow"/></svg></span>
-            <a class="iv-doc" href="#" data-state="credited"><b>INV-004806</b><small data-en="New invoice · pelvic ultrasound 220 · paid from deposit">فاتورة جديدة · سونار حوض ٢٢٠ · من الرصيد</small></a>
-            <p class="t-small t-muted mb-0" data-state="issued" data-en="No corrections. If something is wrong, create a credit note: the lines are copied from this invoice, nothing is retyped.">مفيش تصحيحات. لو في غلط اعمل إشعار مرتجع: البنود بتتنسخ من الفاتورة دي، من غير كتابة تاني.</p>
-          </div>
-          <p class="t-small t-muted mt-4 mb-0" data-state="credited" data-en="Patient deposit after the chain: 250 credited − 220 used = 30 EGP left.">رصيد المريض بعد السلسلة: ٢٥٠ مرتجع − ٢٢٠ مستخدم = ٣٠ ج.م متبقي.</p>
+          <div class="iv-chain" id="iv-chain"></div>
+          <p class="t-small t-muted mt-4 mb-0" id="iv-chain-note"></p>
         </section>
 
         <!-- Activity log -->
         <section class="t-card">
           <div class="t-card-head"><h3 data-en="Activity log">سجل النشاط</h3><div class="t-actions"><a class="t-btn sm ghost" href="reports.html" data-en="Full log">السجل كامل</a></div></div>
-          <ul class="t-timeline">
-            <li data-state="credited"><b data-en="Credit note CN-000037 issued — 250 to deposit">صدر إشعار مرتجع CN-000037 — ٢٥٠ للرصيد</b><div class="t-small t-muted" data-en="Reason: wrong service billed — “Billed abdominal, doctor ordered pelvic ultrasound.”">السبب: خدمة غلط — «اتسجل سونار بطن والدكتور طالب سونار حوض».</div><div class="t-when">14/11/2026 19:56 · <span data-en="Sara Ramadan (cashier, within her 300 EGP limit)">سارة رمضان (كاشير، في حدود ٣٠٠ ج.م)</span></div></li>
-            <li class="muted"><b data-en="Printed (1st)">اتطبعت (أول مرة)</b><div class="t-when">12/11/2026 18:06 · <span data-en="Sara Ramadan">سارة رمضان</span></div></li>
-            <li class="muted"><b data-en="Collected 550 cash · issued">اتحصّل ٥٥٠ كاش · صدرت</b><div class="t-when">12/11/2026 18:05 · <span data-en="Sara Ramadan">سارة رمضان</span></div></li>
-          </ul>
+          <ul class="t-timeline" id="iv-log"></ul>
         </section>
       </div>
     </div>
@@ -184,15 +135,15 @@
   <div class="t-scrim" id="cn-drawer" hidden style="place-items:stretch end">
     <aside class="t-modal cn-panel" role="dialog" aria-labelledby="cn-h">
       <div class="t-modal-head">
-        <h2 id="cn-h" data-en="Credit note from INV-004790">إشعار مرتجع من INV-004790</h2>
+        <h2 id="cn-h"></h2>
         <button class="t-btn icon ghost" type="button" data-close aria-label="Close" title="Close"><svg class="t-icon"><use href="#i-close"/></svg></button>
       </div>
       <div class="t-modal-body t-stack lg">
         <div class="t-alert info"
-             data-note="Role-gated and audited: owner and cashier can issue; cashier up to a daily limit, above it the owner approves with a PIN on the spot. Every credit note lands in the activity log and the owner's report. NITCO sends a request to an approval queue (v50, v86); we keep it on the invoice."
-             data-note-ar="بالصلاحيات ومسجل: المالك والكاشير بس. الكاشير لحد حد يومي، وفوقه المالك يوافق بالرقم السري. كل مرتجع في سجل النشاط وتقرير المالك.">
+             data-note="Role-gated and audited: owner and cashier can issue; cashier up to a daily limit, above it the owner approves with a PIN on the spot. Every credit note lands in the activity log and the owner's report. NITCO sends a request to an approval queue (v50, v86); we keep it on the invoice. A credit note is issued in the invoice's own branch, so a refund in cash leaves that branch's drawer."
+             data-note-ar="بالصلاحيات ومسجل: المالك والكاشير بس. الكاشير لحد حد يومي، وفوقه المالك يوافق بالرقم السري. المرتجع بيصدر في فرع الفاتورة نفسه.">
           <svg class="t-icon"><use href="#i-lock"/></svg>
-          <span data-en="Signed in as Sara (cashier). You can credit up to 300 EGP a day; used today: 0. Logged under your name.">داخلة باسم سارة (كاشير). تقدري ترجّعي لحد ٣٠٠ ج.م في اليوم؛ المستخدم النهارده: ٠. بيتسجل باسمك.</span>
+          <span id="cn-who"></span>
         </div>
 
         <div class="t-field">
@@ -204,10 +155,7 @@
         </div>
         <div id="cn-lines"
              data-note="Lines are copied from the original invoice: tick the line, set the quantity. NITCO's return screen makes the user retype the invoice no., patient, clinic, doctor and services by hand (v49)."
-             data-note-ar="البنود متنسخة من الفاتورة الأصلية: علّم البند وحدد العدد. في NITCO بيكتبوا كل حاجة من الأول.">
-          <label class="cn-line"><input type="checkbox" data-amt="300"> <span data-en="New consultation · 300">كشف جديد · ٣٠٠</span><input class="t-input" value="1" aria-label="Qty" disabled><span class="t-money">300</span></label>
-          <label class="cn-line"><input type="checkbox" data-amt="250" checked> <span data-en="Abdominal ultrasound · 250">سونار بطن · ٢٥٠</span><input class="t-input" value="1" aria-label="Qty"><span class="t-money">250</span></label>
-        </div>
+             data-note-ar="البنود متنسخة من الفاتورة الأصلية: علّم البند وحدد العدد. في NITCO بيكتبوا كل حاجة من الأول."></div>
 
         <div class="t-form-grid">
           <div class="t-field span-2">
@@ -223,7 +171,7 @@
           </div>
           <div class="t-field span-2">
             <label class="t-label" for="cn-text"><span data-en="Details">التفاصيل</span><span class="req">*</span></label>
-            <textarea id="cn-text" class="t-textarea" style="min-height:72px">اتسجل سونار بطن والدكتور طالب سونار حوض.</textarea>
+            <textarea id="cn-text" class="t-textarea" style="min-height:72px"></textarea>
             <span class="t-hint" data-en="Shown in the activity log and the credit-notes report.">بتظهر في سجل النشاط وتقرير المرتجعات.</span>
           </div>
         </div>
@@ -241,60 +189,203 @@
         <div id="cn-err" class="t-error" hidden data-en="Pick at least one line and a reason.">اختار بند واحد على الأقل والسبب.</div>
       </div>
       <div class="t-modal-foot">
-        <span class="t-grow t-small"><span data-en="Credit total">إجمالي المرتجع</span>: <b class="t-money"><span id="cn-total">250</span> <span data-en="EGP">ج.م</span></b></span>
+        <span class="t-grow t-small"><span data-en="Credit total">إجمالي المرتجع</span>: <b class="t-money"><span id="cn-total">0</span> <span data-en="EGP">ج.م</span></b></span>
         <button class="t-btn" type="button" data-close data-en="Cancel">إلغاء</button>
         <button class="t-btn primary" type="button" id="cn-issue" data-en="Issue credit note">إصدار المرتجع</button>
       </div>
     </aside>
   </div>
 </main>
+<script src="../assets/demo-data.js"></script>
 <script src="../assets/shell.js"></script>
 <script>
 (function () {
+  "use strict";
+  /* Invoices and credit notes come from assets/demo-data.js (Tamargi.data.invoices), scoped to the top-bar org + branch. */
+  var D = Tamargi.data, C = Tamargi.ctx, F = D.fmt, tx = Tamargi.tx;
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
-  var en = function () { return window.Tamargi && Tamargi.lang() === "en"; };
+  var money = F.money;
+  var MON = [["يناير", "Jan"], ["فبراير", "Feb"], ["مارس", "Mar"], ["أبريل", "Apr"], ["مايو", "May"], ["يونيو", "Jun"], ["يوليو", "Jul"], ["أغسطس", "Aug"], ["سبتمبر", "Sep"], ["أكتوبر", "Oct"], ["نوفمبر", "Nov"], ["ديسمبر", "Dec"]];
+  function T(rec) { return F.t(rec, C.lang); }
+  function N(n) { return F.num(n, C.lang); }
+  function dm(iso) { var p = iso.split("-"), m = MON[+p[1] - 1]; return C.lang === "en" ? +p[2] + " " + m[1] : F.num(+p[2], "ar") + " " + m[0]; }
+  function when(inv) { return (inv.date === D.today ? tx("النهارده ", "today ") : dm(inv.date) + " ") + F.hour(inv.time, C.lang); }
+  function stamp(inv, addMin) { var h = inv.time + (addMin || 0) / 60, hh = Math.floor(h), mm = Math.round((h - hh) * 60); return F.date(inv.date) + " " + hh + ":" + (mm < 10 ? "0" : "") + mm; }
+  function brShort(id) { var b = D.branch(id); return C.lang === "en" ? b.shortEn : b.shortAr; }
+  function multi() { return D.branchesOf(C.org).length > 1; }
+  function mname(id) { var m = D.member(id); return m ? D.memberName(m, C.lang) : ""; }
+  var CREDIT_LIMIT = 300;
+  var sel = null, sim = {};   /* sim[invoiceId] = credit note issued in this session (prototype only) */
+
+  function cnOf(inv) { return inv.creditNote || sim[inv.id] || null; }
+  function curState() { return $('main > [data-state="credited"]').hidden ? "issued" : "credited"; }
+  /* per-branch series (D39): credit note and replacement invoice follow the invoice's branch */
+  function simNos(key) { var out = []; for (var k in sim) if (sim[k][key]) out.push(sim[k][key]); return out; }
+  function nextCn(inv) { return D.nextNo(D.series("CN", (inv || sel).branch), simNos("no")); }
+  function nextInv(inv) { return D.nextInvoiceNo((inv || sel).branch, simNos("newInv")); }
+  function rows() {
+    return D.scoped("invoices", C).sort(function (a, b) { return a.date === b.date ? b.time - a.time : a.date < b.date ? 1 : -1; });
+  }
+  function pickDefault(list) {
+    var best = null;
+    list.forEach(function (i) { if (i.creditNote) return; var score = i.lines.length * 10 + (i.status === "paid" ? 5 : 0); if (!best || score > best.s) best = { i: i, s: score }; });
+    return best ? best.i : list[0] || null;
+  }
+  function chip(inv) {
+    var cn = cnOf(inv);
+    if (cn) { var full = cn.amount >= inv.total; return '<span class="t-chip credit">' + (full ? tx("عليها مرتجع", "Credited") : tx("مرتجع جزئي", "Part-credited")) + "</span>"; }
+    return '<span class="t-chip ' + inv.status + '">' + T(D.invoiceStatus[inv.status]) + "</span>";
+  }
+
+  function renderList() {
+    var list = rows(), q = ($("#iv-q").value || "").trim().toLowerCase(), st = $("#iv-status").value, html = [];
+    $("#iv-list-h").textContent = tx("آخر ٣٠ يوم", "Last 30 days") + (multi() ? " · " + (C.all ? tx("كل الفروع", "All branches") : brShort(C.branch)) : "");
+    list.forEach(function (inv) {
+      var p = D.patient(inv.patient), cn = cnOf(inv);
+      var hay = (inv.no + " " + p.ar + " " + p.en + " " + p.phone.replace(/\s/g, "") + " " + (cn ? cn.no : "")).toLowerCase();
+      if (q && hay.indexOf(q.replace(/\s/g, "")) === -1 && hay.indexOf(q) === -1) return;
+      if (st && (st === "credit" ? !cn : inv.status !== st || cn)) return;
+      var tag = C.all ? ' <span class="t-branch-tag">' + brShort(inv.branch) + "</span>" : "";
+      var left = inv.total - inv.paid;
+      if (cn) html.push('<a class="iv-item" href="#" data-inv="' + inv.id + '"><span class="iv-no">' + cn.no + '</span><span class="t-chip credit">' + tx("إشعار مرتجع", "Credit note") + "</span>" +
+        '<span class="iv-who">' + T(p) + " · −" + money(cn.amount) + " " + tx("ج.م", "EGP") + tag + "</span></a>");
+      html.push('<a class="iv-item" href="#" data-inv="' + inv.id + '"' + (sel && sel.id === inv.id ? ' aria-current="true"' : "") + '><span class="iv-no">' + inv.no + "</span>" + chip(inv) +
+        '<span class="iv-who">' + T(p) + " · " + money(inv.total) + " " + tx("ج.م", "EGP") + " · " + when(inv) + (left > 0 ? " · " + tx("باقي ", "owes ") + money(left) : "") + tag + "</span></a>");
+    });
+    $("#iv-list").innerHTML = html.join("");
+    $("#iv-empty").hidden = html.length > 0;
+  }
+
+  function renderDetail() {
+    var inv = sel; if (!inv) return;
+    var p = D.patient(inv.patient), d = D.doctor(inv.doctor), b = D.branch(inv.branch), a = inv.appointment ? D.by("appointments", inv.appointment) : null;
+    var cn = cnOf(inv) || (curState() === "credited" ? preview(inv) : null);
+    $("#iv-no").textContent = inv.no;
+    $("#iv-reprint").setAttribute("href", "receipt-print.html?inv=" + inv.id + "#state=reprint");
+    $("#iv-chip").innerHTML = cn ? '<span class="t-chip credit">' + (cn.amount >= inv.total ? tx("عليها مرتجع", "Credited") : tx("مرتجع جزئي", "Part-credited")) + " (" + '<span class="t-ltr">' + cn.no + "</span>)</span>" : chip(inv);
+    $("#cn-open").hidden = !!cn;
+    var spTags = d.sp.map(function (k) { var s = D.specialties[k]; return '<span class="t-spec-tag ' + s.cls + '">' + T(s) + "</span>"; }).join(" ");
+    $("#iv-dl").innerHTML =
+      "<dt>" + tx("المريض", "Patient") + '</dt><dd><a href="patient-file.html">' + T(p) + "</a> · " + tx("ملف", "File") + ' <span class="t-ltr">' + p.fileNo + '</span> · <span class="t-ltr">' + p.phone + "</span></dd>" +
+      "<dt>" + tx("الطبيب", "Doctor") + "</dt><dd>" + (C.lang === "en" ? d.shortEn : d.shortAr) + " " + spTags + (a ? " · " + tx("زيارة ", "visit ") + dm(a.date) + " " + F.hour(a.from, C.lang) + " · " + T(D.room(a.room)) : "") + "</dd>" +
+      (multi() ? "<dt>" + tx("الفرع", "Branch") + "</dt><dd>" + T(b) + " · " + (C.lang === "en" ? b.addressEn : b.addressAr) + "</dd>" : "") +
+      "<dt>" + tx("صدرت", "Issued") + '</dt><dd><span class="t-ltr">' + stamp(inv) + "</span> · " + tx("بواسطة ", "by ") + mname(inv.cashier) + " (" + tx("كاشير", "cashier") + ")</dd>";
+    $("#iv-lines").innerHTML = inv.lines.map(function (l, i) {
+      var credited = cn && cn.lines && cn.lines.indexOf(i) > -1, all = cn && !cn.lines;
+      return "<tr><td><span class=\"t-name\">" + T(l) + "</span>" + (credited || all ? '<span class="t-meta">' + tx("اتعمله مرتجع بـ ", "Credited by ") + '<span class="t-ltr">' + cn.no + "</span>" + (cn.reason ? " — " + T(cn.reason) : "") + "</span>" : "") +
+        '</td><td class="num">' + l.qty + '</td><td class="num">' + money(l.price) + '</td><td class="num">' + money(l.discount) + '</td><td class="num"><span class="t-money">' + money(l.qty * l.price - l.discount) + "</span></td></tr>";
+    }).join("");
+    $("#iv-total").textContent = money(inv.total);
+    $("#iv-pays").innerHTML = (inv.paid ? "<dt>" + T(D.payMethods[inv.method]) + ' · <span class="t-ltr">' + stamp(inv).slice(0, 5) + " " + stamp(inv).split(" ")[1] + "</span> · " + mname(inv.cashier).split(" ")[0] + '</dt><dd><span class="t-money">' + money(inv.paid) + "</span></dd>" : "") +
+      '<dt class="grand">' + tx("المدفوع", "Paid") + '</dt><dd class="grand"><span class="t-money">' + money(inv.paid) + "</span></dd>";
+    $("#iv-bal").innerHTML = "<dt>" + tx("الباقي على الفاتورة", "Remaining on invoice") + '</dt><dd><span class="t-money' + (inv.total > inv.paid ? " debt" : "") + '">' + money(inv.total - inv.paid) + "</span></dd>" +
+      (cn ? "<dt>" + tx("المرتجع", "Credited") + '</dt><dd><span class="t-money">− ' + money(cn.amount) + "</span></dd>" : "") +
+      '<dt class="grand">' + tx("صافي الإيراد", "Net revenue") + '</dt><dd class="grand"><span class="t-money">' + money(inv.total - (cn ? cn.amount : 0)) + "</span></dd>";
+    /* chain */
+    var arrow = '<span class="iv-arrow"><svg class="t-icon flip"><use href="#i-arrow"/></svg></span>';
+    var chain = '<a class="iv-doc is-here" href="#"><b>' + inv.no + "</b><small>" + tx("فاتورة · ", "Invoice · ") + money(inv.total) + " · " + dm(inv.date) + (multi() ? " · " + brShort(inv.branch) : "") + "</small></a>";
+    if (cn) {
+      chain += arrow + '<a class="iv-doc" href="#"><b>' + cn.no + "</b><small>" + tx("إشعار مرتجع · −", "Credit note · −") + money(cn.amount) + " · " + (cn.to === "cash" ? tx("كاش من الدرج", "cash from drawer") : tx("للرصيد", "to deposit")) + "</small></a>";
+      if (cn.newInv) chain += arrow + '<a class="iv-doc" href="cashier-checkout.html"><b>' + cn.newInv + "</b><small>" + tx("فاتورة جديدة · مسودة في الخزنة", "New invoice · draft at the cashier") + "</small></a>";
+      $("#iv-chain-note").textContent = cn.to === "cash" ? tx("المبلغ خرج من درج فرع " + brShort(inv.branch) + " وهيظهر في تقفيل الخزنة.", "The amount left the " + brShort(inv.branch) + " drawer and shows in its cash close.")
+        : tx("المبلغ اتضاف لرصيد المريض المقدم (على مستوى المنشأة، يتصرف في أي فرع).", "The amount went to the patient's deposit (org-wide, usable in any branch).");
+    } else {
+      chain += '<p class="t-small t-muted mb-0">' + tx("مفيش تصحيحات. لو في غلط اعمل إشعار مرتجع: البنود بتتنسخ من الفاتورة دي، من غير كتابة تاني.", "No corrections. If something is wrong, create a credit note: the lines are copied from this invoice, nothing is retyped.") + "</p>";
+      $("#iv-chain-note").textContent = "";
+    }
+    $("#iv-chain").innerHTML = chain;
+    /* activity log */
+    var log = [];
+    if (cn) log.push('<li><b>' + tx("صدر إشعار مرتجع ", "Credit note ") + '<span class="t-ltr">' + cn.no + "</span>" + tx(" — ", " issued — ") + money(cn.amount) + "</b>" +
+      (cn.reason ? '<div class="t-small t-muted">' + tx("السبب: ", "Reason: ") + T(cn.reason) + "</div>" : "") +
+      '<div class="t-when">' + (cn.at || F.date(D.today) + " " + "17:30") + " · " + (cn.by ? cn.by : mname(inv.cashier)) + "</div></li>");
+    log.push('<li class="muted"><b>' + tx("اتطبعت (أول مرة)", "Printed (1st)") + '</b><div class="t-when"><span class="t-ltr">' + stamp(inv, 1) + "</span> · " + mname(inv.cashier) + "</div></li>");
+    log.push('<li class="muted"><b>' + tx("اتحصّل " + money(inv.paid) + " " + T(D.payMethods[inv.method]) + " · صدرت", "Collected " + money(inv.paid) + " " + T(D.payMethods[inv.method]).toLowerCase() + " · issued") + '</b><div class="t-when"><span class="t-ltr">' + stamp(inv) + "</span> · " + mname(inv.cashier) + (multi() ? " · " + brShort(inv.branch) : "") + "</div></li>");
+    $("#iv-log").innerHTML = log.join("");
+    renderDrawer(inv);
+  }
+  /* what the "credited" state shows before a real credit note exists: the last line, to deposit */
+  function preview(inv) {
+    var i = inv.lines.length - 1, l = inv.lines[i];
+    return { no: nextCn(inv), amount: l.qty * l.price - l.discount, lines: [i], to: "dep", newInv: nextInv(inv), reason: { ar: "خدمة غلط في الفاتورة", en: "Wrong service billed" } };
+  }
+
+  function renderDrawer(inv) {
+    $("#cn-h").innerHTML = tx("إشعار مرتجع من ", "Credit note from ") + '<span class="t-ltr">' + inv.no + "</span>";
+    var who = D.member(inv.cashier);
+    $("#cn-who").textContent = tx("داخل باسم " + D.memberName(who, "ar") + " (كاشير — فرع " + D.branch(inv.branch).shortAr + "). الحد اليومي للمرتجع " + N(CREDIT_LIMIT) + " ج.م؛ المستخدم النهارده: ٠. بيتسجل بالاسم.",
+      "Signed in as " + D.memberName(who, "en") + " (cashier — " + D.branch(inv.branch).shortEn + "). Daily credit limit " + CREDIT_LIMIT + " EGP; used today: 0. Logged under this name.");
+    var last = inv.lines.length - 1;
+    $("#cn-lines").innerHTML = inv.lines.map(function (l, i) {
+      var amt = l.price - (l.qty ? l.discount / l.qty : 0), on = i === last;
+      return '<label class="cn-line"><input type="checkbox" data-i="' + i + '" data-amt="' + amt + '"' + (on ? " checked" : "") + "> <span>" + T(l) + " · " + money(l.qty * l.price - l.discount) + "</span>" +
+        '<input class="t-input" value="' + l.qty + '" aria-label="Qty"' + (on ? "" : " disabled") + '><span class="t-money">' + money(l.qty * l.price - l.discount) + "</span></label>";
+    }).join("");
+    if (!$("#cn-text").value || $("#cn-text").getAttribute("data-auto")) {
+      $("#cn-text").value = tx("البند «" + inv.lines[last].ar + "» اتسجل بالغلط.", "Line “" + inv.lines[last].en + "” was billed by mistake."); $("#cn-text").setAttribute("data-auto", "1");
+    }
+    total();
+  }
   function total() {
     var t = 0;
     $$("#cn-lines .cn-line").forEach(function (l) {
       var c = $('input[type="checkbox"]', l), q = $(".t-input", l);
       q.disabled = !c.checked; if (c.checked) t += (+c.getAttribute("data-amt")) * (parseInt(q.value, 10) || 0);
     });
-    $("#cn-total").textContent = t; return t;
+    $("#cn-total").textContent = money(t); return t;
   }
+
+  function render(ctx, reason) {
+    var list = rows();
+    if (!sel || !D.inScope(sel, C) || reason === "org") sel = pickDefault(list);
+    renderList(); renderDetail();
+    Tamargi.setState(curState());
+  }
+
   function seg(groupSel, attr, val) { $$(groupSel + " [" + attr + "]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute(attr) === val)); }); }
-  document.addEventListener("change", function (e) { if (e.target.closest("#cn-lines")) { seg("#cn-mode", "data-mode", "part"); total(); } });
+  document.addEventListener("change", function (e) {
+    if (e.target.closest("#cn-lines")) { seg("#cn-mode", "data-mode", "part"); total(); }
+    if (e.target.id === "iv-status") renderList();
+  });
   document.addEventListener("input", function (e) {
     if (e.target.closest("#cn-lines")) total();
-    if (e.target.id === "iv-q") {
-      var q = e.target.value.trim().toLowerCase(), any = false;
-      $$("#iv-list .iv-item").forEach(function (a) {
-        var hit = !q || (a.getAttribute("data-s") + " " + a.textContent).toLowerCase().indexOf(q) > -1;
-        a.style.display = hit ? "" : "none"; if (hit && !a.hidden) any = true;
-      });
-      $("#iv-empty").hidden = any;
-    }
+    if (e.target.id === "iv-q") renderList();
+    if (e.target.id === "cn-text") e.target.removeAttribute("data-auto");
   });
   document.addEventListener("click", function (e) {
     var b;
+    if (e.target.closest("[data-set-state],[data-show-state]")) { setTimeout(function () { renderDetail(); }, 0); return; }
     if ((b = e.target.closest("#cn-mode [data-mode]"))) {
       var m = b.getAttribute("data-mode"); seg("#cn-mode", "data-mode", m);
       if (m === "full") $$('#cn-lines input[type="checkbox"]').forEach(function (c) { c.checked = true; });
       total(); return;
     }
     if ((b = e.target.closest("#cn-ref [data-ref]"))) { seg("#cn-ref", "data-ref", b.getAttribute("data-ref")); return; }
-    if ((b = e.target.closest(".iv-doc"))) { e.preventDefault(); if (!b.classList.contains("is-here")) Tamargi.toast((en() ? "Opens " : "بيفتح ") + $("b", b).textContent); return; }
-    if ((b = e.target.closest(".iv-item"))) { e.preventDefault(); $$(".iv-item").forEach(function (a) { a.removeAttribute("aria-current"); }); b.setAttribute("aria-current", "true"); return; }
+    if ((b = e.target.closest(".iv-doc"))) { e.preventDefault(); if (!b.classList.contains("is-here")) Tamargi.toast(tx("بيفتح ", "Opens ") + $("b", b).textContent); return; }
+    if ((b = e.target.closest(".iv-item"))) {
+      e.preventDefault(); sel = D.by("invoices", b.getAttribute("data-inv"));
+      Tamargi.setState(cnOf(sel) ? "credited" : "issued"); renderList(); renderDetail(); return;
+    }
     if (e.target.closest("#cn-issue")) {
-      if (!total() || !$("#cn-code").value || !$("#cn-text").value.trim()) { $("#cn-err").hidden = false; return; }
+      var t = total();
+      if (!t || !$("#cn-code").value || !$("#cn-text").value.trim()) { $("#cn-err").hidden = false; return; }
+      $("#cn-err").hidden = true;
+      var picked = $$('#cn-lines input[type="checkbox"]').filter(function (c) { return c.checked; }).map(function (c) { return +c.getAttribute("data-i"); });
+      var code = $("#cn-code"), opt = code.options[code.selectedIndex];
+      var to = $('#cn-ref [aria-pressed="true"]').getAttribute("data-ref");
+      var cn = { org: sel.org, no: nextCn(), amount: t, lines: picked.length === sel.lines.length ? null : picked, to: to, newInv: $(".cn-panel .t-check input").checked ? nextInv() : null,
+        reason: { ar: opt.getAttribute("data-ar") || opt.textContent, en: opt.getAttribute("data-en") }, at: F.date(D.today) + " 17:30", by: mname(sel.cashier) };
+      sim[sel.id] = cn;
       $("#cn-drawer").hidden = true;
-      Tamargi.setState("credited");
-      Tamargi.toast(en() ? "Credit note CN-000037 issued — 250 EGP to deposit" : "صدر المرتجع CN-000037 — ٢٥٠ ج.م للرصيد");
+      Tamargi.setState("credited"); renderList(); renderDetail();
+      Tamargi.toast(tx("صدر المرتجع " + cn.no + " — " + money(t) + " ج.م " + (to === "cash" ? "كاش" : "للرصيد"), "Credit note " + cn.no + " issued — " + money(t) + " EGP " + (to === "cash" ? "in cash" : "to deposit")));
     }
   });
   document.addEventListener("keydown", function (e) {
     if (e.altKey && (e.key === "r" || e.key === "R")) { var o = $("#cn-open"); if (o && !o.hidden) { e.preventDefault(); o.click(); } }
   });
+  Tamargi.onCtx(render); render(C, "init");
 })();
 </script>
 </body>

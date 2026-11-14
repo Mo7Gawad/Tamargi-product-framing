@@ -32,44 +32,40 @@
     .pf-qr rect { fill: var(--n-900); }
     .pf-cond-row { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1.3fr) minmax(0, 1.2fr) auto; gap: var(--s-2); align-items: end; }
     @media (max-width: 640px) { .pf-cond-row { grid-template-columns: 1fr 1fr; } }
+    .pf-item-head h3 { min-width: 0; }
+    .pf-where { display: flex; flex-wrap: wrap; gap: 4px; margin-block-start: var(--s-1); }
+    .pf-locked { display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--text-3); }
+    .pf-empty-k { padding-inline-start: 28px; font-size: var(--fs-sm); color: var(--text-3); }
   </style>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
-<body data-screen="patient-file">
+<body data-screen="patient-file" data-org-default="selim">
 <main id="screen">
 
   <section class="t-banner" aria-label="المريض" data-en-aria-label="Patient"
            data-note="Pinned patient banner on every clinical screen: name, age/sex, file no., phone, allergy (solid red, icon + word), chronic conditions, debt, free follow-up window. NITCO v94 spreads this over 3 header cards and 15 grey boxes; here it is one line that stays visible while scrolling."
            data-note-ar="شريط المريض الثابت: الاسم والسن ورقم الملف والموبايل والحساسية والأمراض المزمنة والمديونية ومدة الاستشارة المجانية في سطر واحد ثابت.">
     <div class="t-banner-id">
-      <span class="t-avatar">م ش</span>
+      <span class="t-avatar" id="pf-av"></span>
       <div>
-        <div class="t-banner-name">منى عبد الرحمن السيد الشناوي</div>
-        <div class="t-banner-facts">
-          <span><b>٣٤</b> <span data-en="yrs · F">سنة · أنثى</span></span>
-          <span><span data-en="File">ملف</span> <b class="t-ltr">1043</b></span>
-          <span class="t-ltr">0100 234 5678</span>
-          <span data-en="Patient since Mar 2024">مريضة من مارس ٢٠٢٤</span>
-        </div>
+        <div class="t-banner-name" id="pf-name"></div>
+        <div class="t-banner-facts" id="pf-facts"></div>
       </div>
     </div>
-    <div class="t-banner-alerts">
-      <span class="t-allergy"><svg class="t-icon sm"><use href="#i-alert"/></svg><span data-en="Allergy: Penicillin (severe)">حساسية: بنسلين (شديدة)</span></span>
-      <span class="t-flag" data-en="Hypertension · Hypothyroidism">ضغط · غدة درقية</span>
-      <a class="t-balance debt" href="patient-account.html" style="text-decoration:none" data-en="Owes 40 EGP">عليها ٤٠ ج.م</a>
-      <span class="t-balance followup" data-en="Free follow-up until 16 Nov">استشارة مجانية حتى ١٦ نوفمبر</span>
-    </div>
+    <div class="t-banner-alerts" id="pf-alerts"></div>
   </section>
 
   <div class="t-container">
     <header class="t-screen-head">
       <div>
         <h1 data-en="Patient file">ملف المريض</h1>
-        <p class="t-sub mb-0" data-en="Everything about Mona on one page: one timeline, newest first.">كل حاجة عن منى في صفحة واحدة: خط زمني واحد، الأحدث فوق.</p>
+        <p class="t-sub mb-0" id="pf-sub"></p>
       </div>
       <div class="t-actions"
            data-note="Actions live on the patient, not in separate apps: New visit, Book, Collect, Statement. NITCO v94 hides these behind a toolbar of unlabelled icons and opens the statement in a new blank tab."
            data-note-ar="الإجراءات على ملف المريض نفسه بكلمات واضحة: كشف جديد، حجز، تحصيل، كشف حساب.">
-        <a class="t-btn" href="patient-account.html"><svg class="t-icon sm"><use href="#i-receipt"/></svg><span data-en="Statement">كشف حساب</span></a>
+        <a class="t-btn" href="patient-account.html" id="pf-acc-btn"><svg class="t-icon sm"><use href="#i-receipt"/></svg><span data-en="Statement">كشف حساب</span></a>
         <a class="t-btn" href="cashier-checkout.html"><svg class="t-icon sm"><use href="#i-cash"/></svg><span data-en="Collect">تحصيل</span><span class="t-kbd">F9</span></a>
         <a class="t-btn" href="appointment-book.html"><svg class="t-icon sm"><use href="#i-calendar"/></svg><span data-en="Book">حجز موعد</span></a>
         <a class="t-btn primary" href="visit-note.html"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="New visit">كشف جديد</span><span class="t-kbd">F2</span></a>
@@ -82,13 +78,7 @@
       <div class="t-stack">
         <section class="t-card">
           <div class="t-card-head"><h2 data-en="Details">البيانات</h2><div class="t-actions"><button class="t-btn sm ghost" type="button" data-toast="(نموذج) تعديل البيانات" data-toast-en="(prototype) edit details"><svg class="t-icon sm"><use href="#i-edit"/></svg><span data-en="Edit">تعديل</span></button></div></div>
-          <dl class="t-dl">
-            <dt data-en="Born">الميلاد</dt><dd><span class="t-ltr">12/03/1992</span></dd>
-            <dt data-en="National ID">الرقم القومي</dt><dd><span class="t-ltr">2920312••••••5</span></dd>
-            <dt data-en="Address">العنوان</dt><dd data-en="Talkha, El-Bahr St.">طلخا، شارع البحر</dd>
-            <dt data-en="Job">الوظيفة</dt><dd data-en="Teacher">مدرّسة</dd>
-            <dt data-en="Payer">الدفع</dt><dd data-en="Cash · no discount">كاش · بدون خصم</dd>
-            <dt data-en="Came via">عرفتنا من</dt><dd data-en="A neighbour">جارتها</dd>
+          <dl class="t-dl" id="pf-dl">
           </dl>
         </section>
 
@@ -99,14 +89,9 @@
             <div class="t-actions"><button class="t-btn sm" type="button" data-open="#clinEditor"><svg class="t-icon sm"><use href="#i-edit"/></svg><span data-en="Edit">تعديل</span></button></div>
           </div>
           <h4 class="t-small t-muted mb-2" data-en="Allergies">الحساسية</h4>
-          <ul class="pf-cond mb-4">
-            <li><span class="t-chip danger" data-en="Severe">شديدة</span><b>Penicillin</b><span class="t-faint" data-en="· rash, short breath · since 2015">· طفح وضيق نفس · من ٢٠١٥</span></li>
-          </ul>
+          <ul class="pf-cond mb-4" id="pf-allergies"></ul>
           <h4 class="t-small t-muted mb-2" data-en="Chronic conditions">أمراض مزمنة</h4>
-          <ul class="pf-cond">
-            <li><span class="t-chip plain" data-en="Active">نشط</span><span data-en="Essential hypertension">ضغط مرتفع</span><span class="t-faint t-ltr">I10 · 01/2024</span></li>
-            <li><span class="t-chip plain" data-en="Active">نشط</span><span data-en="Hypothyroidism">قصور الغدة الدرقية</span><span class="t-faint t-ltr">E03.9 · 06/2023</span></li>
-          </ul>
+          <ul class="pf-cond" id="pf-chronic"></ul>
         </section>
 
         <section class="t-card" aria-labelledby="altT"
@@ -114,8 +99,7 @@
                  data-note-ar="تنبيهات وتعليقات على الملف وكل واحد مكتوب مين بيشوفه (الدكتور، الحسابات، الاستقبال) ومين كتبه.">
           <div class="t-card-head"><h2 id="altT" data-en="Alerts & comments">تنبيهات وتعليقات</h2></div>
           <div class="t-stack">
-            <div class="pf-comment"><span data-en="Prefers appointments after 7 pm (school).">بتفضّل المواعيد بعد ٧ م (عندها مدرسة).</span><small data-en="Reception · Mai · 3 Nov · seen by everyone">الاستقبال · مي · ٣ نوفمبر · للكل</small></div>
-            <div class="pf-comment"><span data-en="Pays the rest next visit — agreed with doctor.">هتدفع الباقي الزيارة الجاية — باتفاق مع الدكتور.</span><small data-en="Dr. Ahmed · 2 Nov · billing + reception">د. أحمد · ٢ نوفمبر · الحسابات والاستقبال</small></div>
+            <div class="t-stack" id="pf-comments"></div>
             <div class="t-field">
               <label class="t-sr" for="newC" data-en="New comment">تعليق جديد</label>
               <input id="newC" class="t-input" placeholder="اكتب تنبيه…" data-en-placeholder="Write an alert…">
@@ -127,6 +111,12 @@
               </div>
             </div>
           </div>
+        </section>
+        <section class="t-card sunk" aria-labelledby="visT"
+                 data-note="Tenancy: the patient file belongs to the organization, not to a branch (ADR-017). Visits, payments and files from every branch land on the same timeline, each tagged with its branch and room. Clinical visibility is an org setting (default: every doctor of the org sees the whole file); a doctor membership can be limited to own patients (e.g. a dentist renting a shift), and front-desk roles see visits and money but never clinical notes."
+                 data-note-ar="الملف تبع المنشأة مش الفرع: زيارات ومدفوعات ومرفقات كل الفروع على نفس الخط الزمني، وكل عنصر عليه الفرع والغرفة. رؤية البيانات الطبية إعداد للمنشأة (الافتراضي: كل أطباء المنشأة يشوفوا الملف كله)، وممكن طبيب يتحدد بمرضاه بس (زي دكتور أسنان مأجّر وردية)، والاستقبال والخزنة يشوفوا الزيارات والفلوس من غير الملاحظات الطبية.">
+          <div class="t-card-head"><h3 id="visT" data-en="File scope &amp; who sees it">نطاق الملف ومين يشوفه</h3></div>
+          <div class="t-small t-muted t-stack" id="pf-scope"></div>
         </section>
       </div>
 
@@ -147,85 +137,8 @@
         </div>
 
         <div data-state="default">
-          <p class="pf-day" data-en="Today · Sat 14 Nov">النهارده · السبت ١٤ نوفمبر</p>
-          <ol class="t-timeline" id="tl">
-            <li class="k-now" data-k="visit">
-              <div class="pf-item" style="border-color:var(--primary-line)">
-                <div class="pf-item-head"><span class="t-chip called" data-en="Waiting for doctor">مستنية الدكتور</span><h3 data-en="Visit — free follow-up">زيارة — استشارة مجانية</h3>
-                  <span class="t-end"><a class="t-btn sm soft" href="visit-note.html" data-en="Open visit">فتح الزيارة</a></span></div>
-                <p data-en="Dr. Ahmed · ticket A-16 · consult fee 0 EGP (inside 14-day window from 2 Nov)">د. أحمد · تذكرة A-16 · الكشف ٠ ج.م (جوه مدة ١٤ يوم من ٢ نوفمبر)</p>
-              </div>
-            </li>
-            <li class="k-now" data-k="visit">
-              <div class="pf-item">
-                <div class="pf-item-head"><span class="t-chip plain" data-en="Vitals">قياسات</span><h3 class="t-ltr">BP 150/95 · P 88 · T 37.1 · SpO₂ 98 · 72 kg</h3><span class="t-chip danger plain" data-en="BP high">ضغط عالي</span></div>
-                <p data-en="Nurse Samar · 7:18 pm · 'Headache 3 days, missed Concor twice'">الممرضة سمر · ٧:١٨ م · «صداع ٣ أيام، نسيت الكونكور مرتين»</p>
-              </div>
-            </li>
-          </ol>
-
-          <p class="pf-day" data-en="Mon 2 Nov">الاتنين ٢ نوفمبر</p>
-          <ol class="t-timeline">
-            <li data-k="visit">
-              <div class="pf-item">
-                <div class="pf-item-head"><span class="t-chip done" data-en="Visit">زيارة</span><h3 data-en="Essential hypertension">ضغط مرتفع</h3><span class="t-faint t-small t-ltr">I10</span>
-                  <span class="t-end"><a class="t-btn sm ghost" href="visit-note.html" data-en="View">عرض</a></span></div>
-                <p data-en="S: headaches on waking. O: BP 160/100, ECG normal sinus rhythm. A: uncontrolled HTN. P: start Concor 5, low-salt diet, follow-up in 2 weeks.">ش: صداع أول ما تصحى. ف: ضغط ١٦٠/١٠٠، رسم القلب طبيعي. ت: ضغط غير منتظم. خ: كونكور ٥، تقليل الملح، متابعة بعد أسبوعين.</p>
-              </div>
-            </li>
-            <li class="k-rx" data-k="rx">
-              <div class="pf-item">
-                <div class="pf-item-head"><span class="t-chip info" data-en="Prescription">روشتة</span><h3 class="t-ltr">Concor 5 mg · Panadol 500 mg</h3>
-                  <span class="t-end"><a class="t-btn sm ghost" href="prescription-print.html"><svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Reprint">إعادة طباعة</span></a><a class="t-btn sm ghost" href="prescription-builder.html"><svg class="t-icon sm"><use href="#i-copy"/></svg><span data-en="Repeat">تكرار</span></a></span></div>
-                <p data-en="1 tab once daily after breakfast · 30 days | 1 tab when needed for headache, max 3/day">قرص مرة يوميًا بعد الفطار · ٣٠ يوم | قرص عند اللزوم للصداع، أقصى ٣ يوميًا</p>
-              </div>
-            </li>
-            <li class="k-pay" data-k="pay">
-              <div class="pf-item">
-                <div class="pf-item-head"><span class="t-chip partial" data-en="Part paid">دفع جزء</span><h3 data-en="Invoice INV-00412 · 400 EGP">فاتورة INV-00412 · ٤٠٠ ج.م</h3>
-                  <span class="t-end"><a class="t-btn sm ghost" href="invoice-detail.html" data-en="Open invoice">فتح الفاتورة</a></span></div>
-                <p data-en="Consult 250 + ECG 150 · paid 360 cash (Mai) · 40 EGP left as debt">كشف ٢٥٠ + رسم قلب ١٥٠ · دفعت ٣٦٠ كاش (مي) · ٤٠ ج.م مديونية</p>
-              </div>
-            </li>
-            <li class="k-att" data-k="att">
-              <div class="pf-item">
-                <div class="pf-item-head"><span class="t-chip plain" data-en="Imaging">أشعة / رسم</span><h3 data-en="ECG tracing (photo)">رسم قلب (صورة)</h3>
-                  <span class="t-end"><button class="t-btn sm ghost" type="button" data-toast="(نموذج) فتح الصورة" data-toast-en="(prototype) open image"><svg class="t-icon sm"><use href="#i-eye"/></svg><span data-en="View">عرض</span></button></span></div>
-                <p data-en="Uploaded from the clinic phone by Mai">اترفعت من موبايل العيادة بواسطة مي</p>
-              </div>
-            </li>
-          </ol>
-
-          <p class="pf-day" data-en="Sun 20 Sep">الأحد ٢٠ سبتمبر</p>
-          <ol class="t-timeline">
-            <li data-k="visit">
-              <div class="pf-item">
-                <div class="pf-item-head"><span class="t-chip done" data-en="Visit">زيارة</span><h3 data-en="Hypothyroidism — review">قصور الغدة — متابعة</h3><span class="t-faint t-small t-ltr">E03.9</span></div>
-                <p data-en="TSH 6.2 mIU/L. Euthyrox raised from 25 to 50 mcg. Repeat TSH in 6 weeks.">TSH ٦٫٢. زيادة يوثيروكس من ٢٥ لـ ٥٠ ميكروجرام. تحليل TSH بعد ٦ أسابيع.</p>
-              </div>
-            </li>
-            <li class="k-cert" data-k="cert">
-              <div class="pf-item">
-                <div class="pf-item-head"><span class="t-chip plain" data-en="Certificate">شهادة</span><h3 data-en="Sick leave · 2 days (20–21 Sep)">إجازة مرضية · يومين (٢٠–٢١ سبتمبر)</h3>
-                  <span class="t-end"><a class="t-btn sm ghost" href="prescription-print.html#state=certificate"><svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Reprint">إعادة طباعة</span></a></span></div>
-                <p data-en="For the school administration · Arabic">لإدارة المدرسة · عربي</p>
-              </div>
-            </li>
-            <li class="k-pay" data-k="pay">
-              <div class="pf-item">
-                <div class="pf-item-head"><span class="t-chip paid" data-en="Paid">مدفوع</span><h3 data-en="Receipt RC-00311 · 250 EGP">إيصال RC-00311 · ٢٥٠ ج.م</h3></div>
-                <p data-en="Consult · cash">كشف · كاش</p>
-              </div>
-            </li>
-            <li class="k-att" data-k="att">
-              <div class="pf-item">
-                <div class="pf-item-head"><span class="t-chip plain" data-en="Lab">تحاليل</span><h3 data-en="Thyroid profile — outside lab">وظائف غدة — معمل خارجي</h3>
-                  <span class="t-end"><button class="t-btn sm ghost" type="button" data-toast="(نموذج) فتح ملف PDF" data-toast-en="(prototype) open PDF"><svg class="t-icon sm"><use href="#i-eye"/></svg><span data-en="View">عرض</span></button></span></div>
-                <p class="t-ltr" style="display:block">PDF · 18/09/2026</p>
-              </div>
-            </li>
-          </ol>
-          <div class="t-row mt-2" style="padding-inline-start:28px"><button class="t-btn sm" type="button" data-toast="(نموذج) تحميل الأقدم" data-toast-en="(prototype) load older"><span data-en="Show 6 older items (2024–2025)">عرض ٦ أقدم (٢٠٢٤–٢٠٢٥)</span></button></div>
+          <div id="pf-tl"></div>
+          <div class="t-row mt-2" style="padding-inline-start:28px"><button class="t-btn sm" type="button" data-toast="(نموذج) تحميل الأقدم" data-toast-en="(prototype) load older"><span data-en="Show older items">عرض الأقدم</span></button></div>
         </div>
 
         <div data-state="new-file">
@@ -243,7 +156,7 @@
         <section class="t-card" aria-labelledby="attT"
                  data-note="Attachments: drag-drop on desktop, or scan a QR to shoot with the phone camera; each file gets a type (lab, imaging, ID, report). Beats NITCO v94's native 'Browse… / Upload' page that leaves the patient file."
                  data-note-ar="المرفقات: اسحب وأفلت أو صوّر بالموبايل عن طريق كود QR، وكل ملف له نوع (تحاليل، أشعة، بطاقة، تقرير).">
-          <div class="t-card-head"><h2 id="attT" data-en="Attachments">المرفقات</h2><span class="t-badge muted">3</span></div>
+          <div class="t-card-head"><h2 id="attT" data-en="Attachments">المرفقات</h2><span class="t-badge muted" id="pf-att-n">0</span></div>
           <div class="t-field mb-2">
             <label class="t-label" for="attType" data-en="Type of the next upload">نوع الملف اللي هيترفع</label>
             <select id="attType" class="t-select">
@@ -260,20 +173,13 @@
             <div class="t-hint" data-en="or click to choose · photo, PDF · up to 10 MB">أو اضغط للاختيار · صورة أو PDF · لحد ١٠ ميجا</div>
           </div>
           <button class="t-btn block" type="button" data-open="#phoneCam"><svg class="t-icon sm"><use href="#i-phone"/></svg><span data-en="Take photo with phone">صوّر بالموبايل</span></button>
-          <ul class="pf-files mt-4">
-            <li><span class="pf-thumb"><svg class="t-icon"><use href="#i-heart"/></svg></span><span class="t-grow"><span style="display:block" data-en="ECG tracing">رسم قلب</span><span class="t-hint t-ltr">02/11/2026 · JPG</span></span><span class="t-chip plain" data-en="Imaging">أشعة</span></li>
-            <li><span class="pf-thumb"><svg class="t-icon"><use href="#i-file"/></svg></span><span class="t-grow"><span style="display:block" data-en="Thyroid profile">وظائف غدة</span><span class="t-hint t-ltr">18/09/2026 · PDF</span></span><span class="t-chip plain" data-en="Lab">تحاليل</span></li>
-            <li><span class="pf-thumb"><svg class="t-icon"><use href="#i-card"/></svg></span><span class="t-grow"><span style="display:block" data-en="National ID (front)">البطاقة (وش)</span><span class="t-hint t-ltr">11/03/2024 · JPG</span></span><span class="t-chip plain" data-en="ID">بطاقة</span></li>
+          <ul class="pf-files mt-4" id="pf-files">
           </ul>
         </section>
 
         <section class="t-card sunk">
-          <div class="t-card-head"><h3 data-en="Account">الحساب</h3><a class="t-end t-small" href="patient-account.html" data-en="Open account">فتح الحساب</a></div>
-          <dl class="t-totals">
-            <dt data-en="Debt">مديونية</dt><dd><span class="t-money debt">40<span class="cur">ج.م</span></span></dd>
-            <dt data-en="Deposit">رصيد مقدم</dt><dd><span class="t-money">0<span class="cur">ج.م</span></span></dd>
-            <dt data-en="Free follow-up">استشارة مجانية</dt><dd data-en="until 16 Nov (2 days)">حتى ١٦ نوفمبر (يومين)</dd>
-            <dt data-en="Next booking">الحجز الجاي</dt><dd data-en="none">مفيش</dd>
+          <div class="t-card-head"><h3 data-en="Account">الحساب</h3><a class="t-end t-small" href="patient-account.html" id="pf-acc-link" data-en="Open account">فتح الحساب</a></div>
+          <dl class="t-totals" id="pf-acc">
           </dl>
         </section>
       </aside>
@@ -341,37 +247,203 @@
           <rect x="0" y="14" width="7" height="1"/><rect x="0" y="20" width="7" height="1"/><rect x="0" y="14" width="1" height="7"/><rect x="6" y="14" width="1" height="7"/><rect x="2" y="16" width="3" height="3"/>
           <rect x="9" y="1" width="2" height="2"/><rect x="8" y="5" width="1" height="3"/><rect x="10" y="8" width="3" height="1"/><rect x="9" y="11" width="2" height="2"/><rect x="13" y="10" width="2" height="1"/><rect x="16" y="9" width="3" height="2"/><rect x="8" y="15" width="2" height="1"/><rect x="11" y="14" width="1" height="4"/><rect x="14" y="15" width="3" height="2"/><rect x="18" y="13" width="2" height="2"/><rect x="9" y="19" width="4" height="1"/><rect x="15" y="18" width="1" height="3"/><rect x="18" y="18" width="3" height="1"/><rect x="1" y="9" width="3" height="1"/><rect x="4" y="11" width="2" height="2"/>
         </svg>
-        <p class="mb-0" data-en="Scan with the clinic phone's camera. Photos go straight into Mona's file as 'Lab result'. The link works for 10 minutes.">امسح الكود بكاميرا موبايل العيادة. الصور هتنزل على ملف منى كـ«تحاليل». اللينك شغال ١٠ دقايق.</p>
+        <p class="mb-0" id="pf-cam-p"></p>
         <div class="t-alert info"><svg class="t-icon"><use href="#i-info"/></svg><span data-en="No app to install. Works on any phone browser.">مش محتاج تنزّل أي برنامج. شغال من متصفح أي موبايل.</span></div>
       </div>
       <div class="t-modal-foot"><button class="t-btn" type="button" data-close data-en="Done">تمام</button></div>
     </div>
   </div>
 </main>
+<script src="../assets/demo-data.js"></script>
 <script src="../assets/shell.js"></script>
 <script>
 (function () {
-  /* timeline filter tabs */
-  var tabs = document.querySelectorAll("[data-tl]");
-  tabs.forEach(function (t) {
-    t.addEventListener("click", function () {
-      var k = t.getAttribute("data-tl");
-      tabs.forEach(function (x) { x.setAttribute("aria-selected", String(x === t)); });
-      document.querySelectorAll("[data-k]").forEach(function (li) { li.hidden = !(k === "all" || li.getAttribute("data-k") === k); });
-      document.querySelectorAll(".pf-day").forEach(function (d) {
-        var list = d.nextElementSibling; if (!list) return;
-        var any = Array.prototype.some.call(list.querySelectorAll("[data-k]"), function (li) { return !li.hidden; });
-        d.hidden = !any; list.hidden = !any;
+  "use strict";
+  /* The file is rendered from assets/demo-data.js: ?p=<patient id>, else the org's demo patient.
+     One file per organization: visits and payments from every branch, each tagged with branch + room. */
+  var T = window.Tamargi, D = T.data, C = T.ctx, F = D.fmt;
+  var $ = function (id) { return document.getElementById(id); };
+  function L() { return C.lang === "en"; }
+  function tx(ar, e) { return L() ? e : ar; }
+  function t(r) { return F.t(r, C.lang); }
+  function n(x) { return F.num(x, C.lang); }
+  function cur() { return '<span class="cur">' + t(D.currency) + "</span>"; }
+  var MON = [["يناير", "Jan"], ["فبراير", "Feb"], ["مارس", "Mar"], ["أبريل", "Apr"], ["مايو", "May"], ["يونيو", "Jun"], ["يوليو", "Jul"], ["أغسطس", "Aug"], ["سبتمبر", "Sep"], ["أكتوبر", "Oct"], ["نوفمبر", "Nov"], ["ديسمبر", "Dec"]];
+  function dShort(iso) { var p = iso.split("-"); return L() ? +p[2] + " " + MON[+p[1] - 1][1] : n(+p[2]) + " " + MON[+p[1] - 1][0]; }
+  function dLong(iso) { return t(D.days[D.dayIndex(iso)]) + " " + dShort(iso); }
+  function daysTo(iso) { return D.daysTo(iso); }
+  function multi() { return D.branchesOf(C.org).length > 1; }
+  function brTag(id) { var b = D.branch(id); return b ? '<span class="t-branch-tag"><svg class="t-icon"><use href="#i-pin"/></svg>' + tx(b.shortAr, b.shortEn) + "</span>" : ""; }
+  function roomTag(id) { var r = D.room(id); return r ? '<span class="t-branch-tag"><svg class="t-icon"><use href="#i-door"/></svg>' + t(r) + "</span>" : ""; }
+  function spTag(sp) { var s = D.specialties[sp]; return s ? '<span class="t-spec-tag ' + s.cls + '">' + t(s) + "</span>" : ""; }
+  function docShort(id) { var d = D.doctor(id); return d ? tx(d.shortAr, d.shortEn) : ""; }
+  function first(p) { return t(p).split(" ")[0]; }
+  var DEF = { selim: "s-p3", nile: "n-p12" };
+  var urlP = (location.search.match(/[?&]p=([\w-]+)/) || [])[1];
+
+  function current() {
+    var u = urlP && D.patient(urlP);
+    if (u && u.org === C.org) { T.clearNotice("pt"); return u; }
+    if (u) T.scopeNotice({ org: u.org, what: { ar: "ملف " + u.ar, en: u.en + "'s file" }, key: "pt" }); else T.clearNotice("pt");
+    return D.patient(DEF[C.org]) || D.scoped("patients", C)[0];
+  }
+  /* clinical visibility: front desk never sees clinical notes; a doctor limited to "own" sees only own visits */
+  function viewerDoctor() { return D.doctors.filter(function (d) { return d.org === C.org && d.person === D.me; })[0] || null; }
+  function canSeeClinical(a) {
+    if (C.role === "reception") return false;
+    if (C.role === "doctor") { var me = viewerDoctor(); if (me && D.visibilityOf(me.id) === "own" && a.doctor !== me.id) return false; }
+    return true;
+  }
+  function spOf(a) { var s = D.service(a.service); return (s && s.sp) || D.doctor(a.doctor).sp[0]; }
+
+  function render() {
+    var p = current(), o = C.orgRec, appts = D.patientAppointments(p.id), invs = D.patientInvoices(p.id).slice().sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : b.time - a.time; });
+    var past = appts.filter(function (a) { return a.date <= D.today; }), next = appts.filter(function (a) { return a.date > D.today || (a.date === D.today && (a.status === "booked" || a.status === "confirmed")); }).sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : a.from - b.from; })[0];
+    var free = p.followupUntil && p.followupUntil >= D.today;
+
+    /* banner */
+    $("pf-av").textContent = (L() ? p.en : p.ar).split(" ").slice(0, 2).map(function (w) { return w[0]; }).join(" ");
+    $("pf-name").textContent = t(p);
+    $("pf-facts").innerHTML = "<span><b>" + n(p.age) + "</b> " + tx("سنة · " + (p.sex === "F" ? "أنثى" : "ذكر"), "yrs · " + p.sex) + "</span><span>" + tx("ملف", "File") + ' <b class="t-ltr">' + p.fileNo + '</b></span><span class="t-ltr">' + p.phone + "</span>" +
+      (multi() ? "<span>" + tx("ملف واحد في " + o.ar + " · اتفتح في " + D.branch(p.regBranch).shortAr, "One " + o.en + " file · opened in " + D.branch(p.regBranch).shortEn) + "</span>" : "");
+    var al = p.allergies.length ? '<span class="t-allergy"><svg class="t-icon sm"><use href="#i-alert"/></svg>' + tx("حساسية: ", "Allergy: ") + p.allergies.map(t).join(tx("، ", ", ")) + "</span>" : '<span class="t-allergy none">' + tx("لا حساسية معروفة", "No known allergies") + "</span>";
+    if (p.chronic.length) al += '<span class="t-flag">' + p.chronic.map(t).join(" · ") + "</span>";
+    if (p.debt) al += '<a class="t-balance debt" href="patient-account.html?p=' + p.id + '" style="text-decoration:none">' + tx((p.sex === "F" ? "عليها " : "عليه ") + F.money(p.debt) + " ج.م", "Owes " + F.money(p.debt) + " EGP") + "</a>";
+    if (p.deposit) al += '<span class="t-balance deposit">' + tx("رصيد مقدم " + F.money(p.deposit) + " ج.م", "Deposit " + F.money(p.deposit) + " EGP") + "</span>";
+    if (free) al += '<span class="t-balance followup">' + tx("متابعة مجانية حتى " + dShort(p.followupUntil), "Free follow-up until " + dShort(p.followupUntil)) + "</span>";
+    $("pf-alerts").innerHTML = al;
+    var visitBranches = []; past.forEach(function (a) { if (visitBranches.indexOf(a.branch) === -1) visitBranches.push(a.branch); });
+    $("pf-sub").textContent = multi()
+      ? tx("كل حاجة عن " + first(p) + " في صفحة واحدة: خط زمني واحد لكل فروع " + o.ar + "، الأحدث فوق.", "Everything about " + first(p) + " on one page: one timeline for every " + o.en + " branch, newest first.")
+      : tx("كل حاجة عن " + first(p) + " في صفحة واحدة: خط زمني واحد، الأحدث فوق.", "Everything about " + first(p) + " on one page: one timeline, newest first.");
+    $("pf-acc-btn").href = $("pf-acc-link").href = "patient-account.html?p=" + p.id;
+
+    /* details */
+    var dl = "<dt>" + tx("السن", "Age") + "</dt><dd>" + n(p.age) + " " + tx("سنة", "yrs") + "</dd>" +
+      "<dt>" + tx("الموبايل", "Mobile") + '</dt><dd><span class="t-ltr">' + p.phone + "</span>" + (p.child ? ' <span class="t-faint t-small">' + tx("(ولي الأمر)", "(guardian)") + "</span>" : "") + "</dd>";
+    if (p.guardian) dl += "<dt>" + tx("ولي الأمر", "Guardian") + "</dt><dd>" + t(p.guardian) + "</dd>";
+    dl += "<dt>" + tx("اتفتح في", "Opened in") + "</dt><dd>" + t(D.branch(p.regBranch)) + "</dd>" +
+      "<dt>" + tx("الدفع", "Payer") + "</dt><dd>" + tx("كاش · بدون خصم", "Cash · no discount") + "</dd>";
+    $("pf-dl").innerHTML = dl;
+
+    /* allergies + chronic */
+    $("pf-allergies").innerHTML = p.allergies.length ? p.allergies.map(function (a) { return '<li><span class="t-chip danger">' + tx("حساسية", "Allergy") + "</span><b>" + t(a) + "</b></li>"; }).join("")
+      : '<li><span class="t-chip plain">' + tx("اتسألت", "Asked") + "</span>" + tx("لا توجد حساسية معروفة", "No known allergies") + "</li>";
+    $("pf-chronic").innerHTML = p.chronic.length ? p.chronic.map(function (c) { return '<li><span class="t-chip plain">' + tx("نشط", "Active") + "</span><span>" + t(c) + "</span></li>"; }).join("")
+      : '<li class="t-faint">' + tx("مفيش أمراض مزمنة متسجلة", "No chronic conditions recorded") + "</li>";
+    $("alSub").value = p.allergies[0] ? p.allergies[0].en : ""; $("alRx").value = "";
+    var ci = document.querySelectorAll("#clinEditor .pf-cond-row input:not([type=month])");
+    /* rows: [alSub, alRx] [cnd1, cnd1c] [row2 name, row2 icd] */
+    if (ci.length >= 6) { ci[2].value = p.chronic[0] ? t(p.chronic[0]) : ""; ci[3].value = ""; ci[4].value = p.chronic[1] ? t(p.chronic[1]) : ""; ci[5].value = ""; }
+
+    /* comments (file alerts) */
+    var reception = D.staff.filter(function (m) { return m.org === C.org && D.rolesIn(m, p.regBranch).indexOf("reception") > -1; })[0];
+    var com = "";
+    if (p.note) com += '<div class="pf-comment"><span>' + t(p.note) + "</span><small>" + tx("الاستقبال", "Reception") + (reception ? " · " + D.memberName(reception, C.lang).split(" ")[0] : "") + (multi() ? " · " + tx(D.branch(p.regBranch).shortAr, D.branch(p.regBranch).shortEn) : "") + " · " + tx("للكل", "seen by everyone") + "</small></div>";
+    if (p.debt) com += '<div class="pf-comment"><span>' + tx((p.sex === "F" ? "عليها" : "عليه") + " باقي " + F.money(p.debt) + " ج.م — يتحصّل في الزيارة الجاية في أي فرع.", "Balance of " + F.money(p.debt) + " EGP — collect at the next visit, any branch.") + "</span><small>" + tx("الحسابات · الحسابات والاستقبال", "Billing · billing + reception") + "</small></div>";
+    $("pf-comments").innerHTML = com || '<p class="t-small t-muted mb-0">' + tx("مفيش تنبيهات على الملف.", "No alerts on this file.") + "</p>";
+
+    /* scope + visibility */
+    var own = D.doctors.filter(function (d) { return d.org === C.org && D.visibilityOf(d.id) === "own"; });
+    var sc = "<div>" + (multi()
+      ? tx("ملف واحد لـ" + t(o) + ". زيارات من: ", "One file for " + o.en + ". Visits from: ") + (visitBranches.length ? visitBranches.map(brTag).join(" ") : tx("لسه مفيش", "none yet"))
+      : tx("ملف " + t(o) + " (فرع واحد).", o.en + " file (one branch).")) + "</div>" +
+      "<div>" + tx("الرؤية الطبية: ", "Clinical visibility: ") + "<b>" + (o.clinicalVisibility === "org" ? tx("كل أطباء المنشأة", "every doctor in the org") : tx("كل طبيب مرضاه بس", "each doctor, own patients only")) + "</b>" +
+        (own.length ? tx(" · ما عدا ", " · except ") + own.map(function (d) { return docShort(d.id) + tx(" (مرضاه بس)", " (own patients only)"); }).join(tx("، ", ", ")) : "") + "</div>" +
+      "<div>" + (C.role === "reception" ? '<span class="pf-locked"><svg class="t-icon sm"><use href="#i-lock"/></svg>' + tx("إنت شايف الملف كاستقبال: الزيارات والفلوس من غير الملاحظات الطبية.", "Viewing as reception: visits and money, no clinical notes.") + "</span>"
+        : tx("إنت شايف الملف كامل.", "You see the full file.")) + "</div>";
+    $("pf-scope").innerHTML = sc;
+
+    /* timeline: appointments + invoices, grouped by day, newest first */
+    var items = [];
+    past.concat(appts.filter(function (a) { return a.date === D.today && (a.status === "booked" || a.status === "confirmed"); })).forEach(function (a) {
+      if (a.status === "cancelled") return;
+      if (items.some(function (x) { return x.id === a.id; })) return;
+      var s = D.service(a.service), live = a.date === D.today && a.status !== "done" && a.status !== "left" && a.status !== "noshow";
+      var chip = '<span class="t-chip ' + (a.status === "done" ? "done" : a.status) + '">' + (a.status === "done" ? tx("زيارة", "Visit") : t(D.apptStatus[a.status])) + "</span>";
+      var clin = "";
+      if (a.status === "done") clin = canSeeClinical(a)
+        ? "<p>" + tx("ملاحظة الكشف (SOAP) والتشخيص والروشتة في صفحة الزيارة.", "Visit note (SOAP), diagnosis and prescription are on the visit page.") + "</p>"
+        : '<p class="pf-locked"><svg class="t-icon sm"><use href="#i-lock"/></svg>' + tx("الملاحظات الطبية للأطباء والتمريض بس", "Clinical notes: doctors and nurses only") + "</p>";
+      var btn = a.status === "done" || live ? '<span class="t-end"><a class="t-btn sm ' + (live ? "soft" : "ghost") + '" href="visit-note.html">' + (live ? tx("فتح الزيارة", "Open visit") : tx("عرض", "View")) + "</a></span>" : "";
+      var tk = a.queueNo ? ' · <span class="t-ltr">' + tx("رقم ", "ticket ") + a.queueNo + "</span>" : "";
+      items.push({ id: a.id, date: a.date, time: a.from, k: "visit", now: live, html:
+        '<div class="pf-item"' + (live ? ' style="border-color:var(--primary-line)"' : "") + '><div class="pf-item-head">' + chip + "<h3>" + t(s) + (s.kind === "followup" && a.date <= (p.followupUntil || "") ? tx(" — متابعة", " — follow-up") : "") + "</h3>" + btn + "</div>" +
+        "<p>" + docShort(a.doctor) + " · " + F.hour(a.from, C.lang) + tk + "</p>" +
+        '<div class="pf-where">' + spTag(spOf(a)) + (multi() ? brTag(a.branch) : "") + roomTag(a.room) + "</div>" + clin + "</div>" });
+    });
+    invs.forEach(function (i) {
+      var st = D.invoiceStatus[i.status], due = i.total - i.paid, cashier = D.member(i.cashier);
+      var lines = i.lines.map(function (l) { return t(l) + " " + F.money(l.qty * l.price - l.discount); }).join(" + ");
+      var paid = i.status === "credit" ? tx("اتعمل مرتجع " + i.creditNote.no + " — " + t(i.creditNote.reason), "Credit note " + i.creditNote.no + " — " + t(i.creditNote.reason))
+        : tx("دفع " + F.money(i.paid) + " " + t(D.payMethods[i.method]) + (cashier ? " (" + D.memberName(cashier, "ar").split(" ")[0] + ")" : "") + (due > 0 ? " · " + F.money(due) + " ج.م مديونية" : ""),
+             "paid " + F.money(i.paid) + " " + t(D.payMethods[i.method]) + (cashier ? " (" + D.memberName(cashier, "en").split(" ")[0] + ")" : "") + (due > 0 ? " · " + F.money(due) + " EGP left as debt" : ""));
+      items.push({ id: i.id, date: i.date, time: i.time, k: "pay", html:
+        '<div class="pf-item"><div class="pf-item-head"><span class="t-chip ' + (i.status === "credit" ? "credit" : i.status) + '">' + t(st) + '</span><h3><span class="t-ltr">' + i.no + "</span> · " + F.money(i.total) + " " + t(D.currency) + "</h3>" +
+        '<span class="t-end"><a class="t-btn sm ghost" href="invoice-detail.html">' + tx("فتح الفاتورة", "Open invoice") + "</a></span></div>" +
+        "<p>" + lines + " · " + paid + "</p>" + (multi() ? '<div class="pf-where">' + brTag(i.branch) + "</div>" : "") + "</div>" });
+      /* tests on the invoice become an attachment slot on the timeline */
+      i.lines.forEach(function (l) {
+        var sv = D.service(l.service);
+        if (sv && sv.kind === "test") items.push({ id: i.id + l.service, date: i.date, time: i.time + 0.01, k: "att", att: { name: t(l), date: i.date, branch: i.branch }, html:
+          '<div class="pf-item"><div class="pf-item-head"><span class="t-chip plain">' + tx("أشعة / رسم", "Imaging") + "</span><h3>" + t(l) + tx(" (صورة)", " (photo)") + "</h3>" +
+          '<span class="t-end"><button class="t-btn sm ghost" type="button" data-toast="(نموذج) فتح الصورة" data-toast-en="(prototype) open image"><svg class="t-icon sm"><use href="#i-eye"/></svg>' + tx("عرض", "View") + "</button></span></div>" +
+          "<p>" + tx("اترفعت من موبايل العيادة", "Uploaded from the clinic phone") + (multi() ? " · " + tx(D.branch(i.branch).shortAr, D.branch(i.branch).shortEn) : "") + "</p></div>" });
       });
+    });
+    items.sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : b.time - a.time; });
+    var html = "", day = null;
+    items.forEach(function (it) {
+      if (it.date !== day) { if (day) html += "</ol>"; day = it.date; html += '<p class="pf-day">' + (it.date === D.today ? tx("النهارده · ", "Today · ") : "") + dLong(it.date) + '</p><ol class="t-timeline">'; }
+      html += '<li class="' + (it.now ? "k-now" : it.k === "pay" ? "k-pay" : it.k === "att" ? "k-att" : "") + '" data-k="' + it.k + '">' + it.html + "</li>";
+    });
+    if (day) html += "</ol>";
+    $("pf-tl").innerHTML = (html || "") + '<p class="pf-empty-k" id="pf-none" hidden>' + tx("مفيش عناصر من النوع ده في الملف.", "Nothing of this type in the file yet.") + "</p>";
+    applyTab();
+
+    /* attachments */
+    var att = items.filter(function (x) { return x.att; });
+    $("pf-att-n").textContent = n(att.length);
+    $("pf-files").innerHTML = att.length ? att.map(function (x) {
+      return '<li><span class="pf-thumb"><svg class="t-icon"><use href="#i-heart"/></svg></span><span class="t-grow"><span style="display:block">' + x.att.name + '</span><span class="t-hint t-ltr">' + F.date(x.att.date) + " · JPG</span></span>" + (multi() ? brTag(x.att.branch) : '<span class="t-chip plain">' + tx("أشعة", "Imaging") + "</span>") + "</li>";
+    }).join("") : '<li class="t-faint">' + tx("لسه مفيش مرفقات.", "No attachments yet.") + "</li>";
+    $("pf-cam-p").textContent = tx("امسح الكود بكاميرا موبايل العيادة. الصور هتنزل على ملف " + first(p) + " كـ«تحاليل». اللينك شغال ١٠ دقايق.", "Scan with the clinic phone's camera. Photos go straight into " + first(p) + "'s file as 'Lab result'. The link works for 10 minutes.");
+
+    /* account */
+    var fuLeft = free ? daysTo(p.followupUntil) : 0;
+    $("pf-acc").innerHTML = "<dt>" + tx("مديونية", "Debt") + '</dt><dd><span class="t-money' + (p.debt ? " debt" : "") + '">' + F.money(p.debt) + cur() + "</span></dd>" +
+      "<dt>" + tx("رصيد مقدم", "Deposit") + '</dt><dd><span class="t-money">' + F.money(p.deposit) + cur() + "</span></dd>" +
+      "<dt>" + tx("متابعة مجانية", "Free follow-up") + "</dt><dd>" + (free ? tx("حتى " + dShort(p.followupUntil) + " (" + n(fuLeft) + " يوم)", "until " + dShort(p.followupUntil) + " (" + fuLeft + " days)") : tx("مفيش", "none")) + "</dd>" +
+      "<dt>" + tx("الحجز الجاي", "Next booking") + "</dt><dd>" + (next ? (next.date === D.today ? tx("النهارده", "Today") : dShort(next.date)) + " " + F.hour(next.from, C.lang) + " · " + docShort(next.doctor) + (multi() ? " · " + tx(D.branch(next.branch).shortAr, D.branch(next.branch).shortEn) : "") : tx("مفيش", "none")) + "</dd>";
+  }
+
+  /* timeline filter tabs */
+  var tab = "all";
+  function applyTab() {
+    var any = false;
+    document.querySelectorAll("#pf-tl [data-k]").forEach(function (li) { li.hidden = !(tab === "all" || li.getAttribute("data-k") === tab); if (!li.hidden) any = true; });
+    document.querySelectorAll("#pf-tl .pf-day").forEach(function (d) {
+      var list = d.nextElementSibling; if (!list) return;
+      var some = Array.prototype.some.call(list.querySelectorAll("[data-k]"), function (li) { return !li.hidden; });
+      d.hidden = !some; list.hidden = !some;
+    });
+    var none = $("pf-none"); if (none) none.hidden = any;
+  }
+  var tabs = document.querySelectorAll("[data-tl]");
+  tabs.forEach(function (tb) {
+    tb.addEventListener("click", function () {
+      tab = tb.getAttribute("data-tl");
+      tabs.forEach(function (x) { x.setAttribute("aria-selected", String(x === tb)); });
+      applyTab();
     });
   });
   /* drag & drop demo */
-  var drop = document.getElementById("drop");
+  var drop = $("drop");
   ["dragenter", "dragover"].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("is-over"); }); });
   ["dragleave", "drop"].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove("is-over"); }); });
   function uploaded() {
-    var sel = document.getElementById("attType"); var type = sel.options[sel.selectedIndex].textContent;
-    Tamargi.toast(Tamargi.lang() === "en" ? "Uploaded as " + type : "اترفع كـ" + type);
+    var sel = $("attType"); var type = sel.options[sel.selectedIndex].textContent;
+    T.toast(tx("اترفع كـ" + type, "Uploaded as " + type));
   }
   drop.addEventListener("drop", uploaded);
   drop.addEventListener("click", uploaded);
@@ -380,12 +452,15 @@
   document.querySelectorAll(".t-modal .t-seg").forEach(function (g) {
     g.addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; g.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); });
   });
-  document.querySelectorAll(".t-modal .t-pick").forEach(function (p) { p.addEventListener("click", function () { p.classList.toggle("is-on"); }); });
+  document.querySelectorAll(".t-modal .t-pick").forEach(function (pk) { pk.addEventListener("click", function () { pk.classList.toggle("is-on"); }); });
   document.addEventListener("keydown", function (e) {
     if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
     if (e.key === "F2") { e.preventDefault(); location.href = "visit-note.html"; }
     if (e.key === "F9") { e.preventDefault(); location.href = "cashier-checkout.html"; }
   });
+
+  T.onCtx(render);
+  render();
 })();
 </script>
 </body>

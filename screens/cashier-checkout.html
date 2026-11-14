@@ -6,6 +6,7 @@
   <title data-en="Cashier checkout — Tamargi">الخزنة — تحصيل — تمرجي</title>
   <link rel="stylesheet" href="../assets/tamargi.css">
   <style>
+    /* scope notice: let its branch buttons wrap at phone width (shared fix requested for tamargi.css) */
     /* back arrow: the sprite arrow points right, which is already "back" in RTL; mirror only in LTR */
     [dir="ltr"] .co-back { transform: scaleX(-1); }
     .co-num { width: 88px; height: 32px; font-size: var(--fs-sm); text-align: end; }
@@ -28,33 +29,19 @@
     @media (max-width: 860px) { .co-done { grid-template-columns: 1fr; } .co-pay-card { position: static; } }
     .co-big-check { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: var(--success-bg); color: var(--success-fg); }
     .co-big-check .t-icon { width: 28px; height: 28px; }
+    #co-from { flex-wrap: wrap; min-width: 0; }
+    #co-from .t-branch-tag .t-icon { width: 13px; height: 13px; }
   </style>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
-<body data-screen="cashier-checkout">
+<body data-screen="cashier-checkout" data-org-default="nile">
 <main id="screen">
 
   <!-- Patient banner -->
-  <section class="t-banner" aria-label="Patient" data-en-aria-label="Patient">
-    <div class="t-banner-id">
-      <span class="t-avatar">ك ع</span>
-      <div>
-        <div class="t-banner-name">كريم محمود عبد العزيز</div>
-        <div class="t-banner-facts">
-          <span><b>67</b> <span data-en="yrs · M">سنة · ذكر</span></span>
-          <span><span data-en="File">ملف</span> <b class="t-ltr">0872</b></span>
-          <span class="t-ltr">0122 870 4411</span>
-          <span data-en="Last visit 4 Nov (consult)">آخر زيارة ٤ نوفمبر (كشف)</span>
-        </div>
-      </div>
-    </div>
-    <div class="t-banner-alerts">
-      <span class="t-allergy none" data-en="No known allergies">لا حساسية معروفة</span>
-      <span class="t-flag" data-en="Diabetic · Hypertensive">سكر · ضغط</span>
-      <a class="t-balance debt" href="patient-account.html" data-en="Owes 60 EGP">عليه ٦٠ ج.م</a>
-      <a class="t-balance deposit" href="patient-account.html" data-en="Deposit 200 EGP">رصيد مقدم ٢٠٠ ج.م</a>
-      <span class="t-balance followup" data-en="Free follow-up until 18 Nov">متابعة مجانية حتى ١٨ نوفمبر</span>
-    </div>
-  </section>
+  <section class="t-banner" aria-label="Patient" data-en-aria-label="Patient" id="co-banner"
+           data-note="Patient banner from the org-wide patient file: the same file in every branch of the organization (one file per org, ADR-017). Debt, deposit and the free follow-up window are org-wide, so a patient who owes money in one branch is reminded in the other too."
+           data-note-ar="شريط المريض من ملف المنشأة: نفس الملف في كل الفروع. المديونية والرصيد ومدة المتابعة على مستوى المنشأة كلها."></section>
 
   <div class="t-container">
 
@@ -80,24 +67,21 @@
             <div class="t-card-head">
               <h2 data-en="New invoice">فاتورة جديدة</h2>
               <span class="t-chip unpaid" data-en="Not collected">لم يُحصَّل</span>
-              <div class="t-actions t-small t-muted">
-                <span data-en="From queue">من الدور</span> <span class="t-ticket done" style="min-width:auto;padding:2px 8px"><b style="font-size:var(--fs-sm)">A-14</b></span>
-              </div>
+              <div class="t-actions t-small t-muted" id="co-from"
+                   data-note="Checkout belongs to one branch: the visit's branch, room and queue number are shown, the invoice takes that branch's number series and counts in that branch's cash close. Under 'All branches' the cashier is asked to pick one."
+                   data-note-ar="التحصيل تبع فرع واحد: الفرع والغرفة ورقم الدور ظاهرين، والفاتورة بتاخد رقم من سلسلة الفرع وبتتحسب في تقفيل خزنة الفرع ده."></div>
             </div>
             <div class="t-card-body">
               <div class="t-form-grid mb-4">
                 <div class="t-field">
                   <label class="t-label" for="co-doc"><span data-en="Doctor">الطبيب</span><span class="req">*</span></label>
-                  <select id="co-doc" class="t-select">
-                    <option data-en="Dr. Ahmed Selim — Internal medicine &amp; cardiology">د. أحمد سليم — باطنة وقلب</option>
-                    <option data-en="Dr. Heba El-Sherbiny — Paediatrics">د. هبة الشربيني — أطفال</option>
-                  </select>
-                  <span class="t-hint" data-en="Pre-filled from the visit. Consult 300 · follow-up free within 14 days.">متعبّي من الزيارة. الكشف ٣٠٠ · المتابعة مجانية خلال ١٤ يوم.</span>
+                  <select id="co-doc" class="t-select"></select>
+                  <span class="t-hint" id="co-doc-hint"></span>
                 </div>
                 <div class="t-field">
                   <span class="t-label" data-en="Visit">الزيارة</span>
                   <a class="t-input" href="visit-note.html" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--text)">
-                    <svg class="t-icon sm"><use href="#i-file"/></svg><span data-en="Today 7:10 pm · Follow-up · Dr. Ahmed">النهارده ٧:١٠ م · متابعة · د. أحمد</span>
+                    <svg class="t-icon sm"><use href="#i-file"/></svg><span id="co-visit"></span>
                   </a>
                   <span class="t-hint" data-en="Invoice is linked to this visit and its appointment (no double entry).">الفاتورة مربوطة بالزيارة والموعد (من غير إدخال مرتين).</span>
                 </div>
@@ -106,8 +90,8 @@
               <div class="co-quick mb-4"
                    data-note="Quick buttons come from the doctor's default consult and follow-up services (NITCO v1, v89, v97). The type-ahead replaces NITCO's 1,600-row service grid paged 20 at a time: type 2 letters, Enter adds the first match."
                    data-note-ar="أزرار سريعة من خدمات الكشف والمتابعة الافتراضية للطبيب. البحث بالكتابة بدل جدول ١٦٠٠ خدمة في NITCO: حرفين وEnter.">
-                <button class="t-pick" type="button" data-add="consult"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="Consult · 300">كشف · ٣٠٠</span></button>
-                <button class="t-pick" type="button" data-add="followup"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="Follow-up · free now">متابعة · مجانية الآن</span></button>
+                <button class="t-pick" type="button" data-add="consult"><svg class="t-icon sm"><use href="#i-plus"/></svg><span id="co-q-consult"></span></button>
+                <button class="t-pick" type="button" data-add="followup"><svg class="t-icon sm"><use href="#i-plus"/></svg><span id="co-q-fu"></span></button>
                 <div class="co-ta">
                   <div class="t-input-wrap">
                     <svg class="t-icon"><use href="#i-search"/></svg>
@@ -118,7 +102,9 @@
                 </div>
               </div>
 
-              <div class="t-table-wrap">
+              <div class="t-table-wrap"
+                   data-note="Free follow-up is priced 0 automatically and the reason is shown on the line (NITCO v13, v62, v106: 'visit days'); the window length is the org setting. Charging it anyway needs a reason, which is logged. No silent overrides, no hard block. Prices resolve doctor + branch first, so the same doctor can cost less in another branch."
+                   data-note-ar="المتابعة المجانية سعرها صفر تلقائيًا والسبب ظاهر على البند، ومدتها من إعدادات المنشأة. لو هتتحاسب لازم سبب ويتسجل. الأسعار بتتحسب حسب الطبيب والفرع.">
                 <table class="t-table" id="co-lines">
                   <thead><tr>
                     <th data-en="Service">الخدمة</th>
@@ -128,41 +114,7 @@
                     <th class="num" data-en="Total">الإجمالي</th>
                     <th><span class="t-sr" data-en="Actions">إجراءات</span></th>
                   </tr></thead>
-                  <tbody>
-                    <tr data-line="followup">
-                      <td>
-                        <span class="t-name" data-en="Follow-up consultation">كشف متابعة</span>
-                        <span class="co-reason" id="co-free-reason"
-                              data-note="Free follow-up is priced 0 automatically and the reason is shown on the line (NITCO v13, v62, v106: 'visit days'). Charging it anyway needs a reason, which is logged. No silent overrides; no hard block either."
-                              data-note-ar="المتابعة المجانية سعرها صفر تلقائيًا والسبب ظاهر على البند. لو هتتحاسب لازم سبب ويتسجل في السجل.">
-                          <span class="t-chip free" data-en="Free follow-up">متابعة مجانية</span>
-                          <span id="co-free-text" data-en="Within 14 days of the 4 Nov consult (until 18 Nov). List price 300.">خلال ١٤ يوم من كشف ٤ نوفمبر (حتى ١٨ نوفمبر). السعر الأصلي ٣٠٠.</span>
-                          <button type="button" data-open="#co-override" data-en="Charge anyway…">حاسبه برضه…</button>
-                        </span>
-                      </td>
-                      <td class="num"><input class="t-input co-num" data-k="price" value="0" inputmode="decimal" aria-label="Price" readonly></td>
-                      <td class="num"><input class="t-input co-qty" data-k="qty" value="1" inputmode="numeric" aria-label="Qty" readonly></td>
-                      <td class="num"><input class="t-input co-num" data-k="disc" value="0" inputmode="decimal" aria-label="Line discount" readonly></td>
-                      <td class="num"><span class="t-money" data-k="total">0</span></td>
-                      <td class="actions"></td>
-                    </tr>
-                    <tr data-line="ecg">
-                      <td><span class="t-name" data-en="ECG (resting)">رسم قلب</span><span class="co-src" data-en="Added by Dr. Ahmed in the visit, 7:24 pm">أضافها د. أحمد في الكشف ٧:٢٤ م</span></td>
-                      <td class="num"><input class="t-input co-num" data-k="price" value="150" inputmode="decimal" aria-label="Price" readonly title="Price is fixed for this service" data-en-title="Price is fixed for this service"></td>
-                      <td class="num"><input class="t-input co-qty" data-k="qty" value="1" inputmode="numeric" aria-label="Qty"></td>
-                      <td class="num"><input class="t-input co-num" data-k="disc" value="0" inputmode="decimal" aria-label="Line discount"></td>
-                      <td class="num"><span class="t-money" data-k="total">150</span></td>
-                      <td class="actions"><button class="t-btn sm ghost" type="button" data-remove><svg class="t-icon sm"><use href="#i-trash"/></svg><span data-en="Remove">حذف</span></button></td>
-                    </tr>
-                    <tr data-line="neb">
-                      <td><span class="t-name" data-en="Nebuliser session">جلسة نيبولايزر</span><span class="co-src" data-en="Added by Dr. Ahmed in the visit, 7:26 pm">أضافها د. أحمد في الكشف ٧:٢٦ م</span></td>
-                      <td class="num"><input class="t-input co-num" data-k="price" value="50" inputmode="decimal" aria-label="Price"></td>
-                      <td class="num"><input class="t-input co-qty" data-k="qty" value="1" inputmode="numeric" aria-label="Qty"></td>
-                      <td class="num"><input class="t-input co-num" data-k="disc" value="0" inputmode="decimal" aria-label="Line discount"></td>
-                      <td class="num"><span class="t-money" data-k="total">50</span></td>
-                      <td class="actions"><button class="t-btn sm ghost" type="button" data-remove><svg class="t-icon sm"><use href="#i-trash"/></svg><span data-en="Remove">حذف</span></button></td>
-                    </tr>
-                  </tbody>
+                  <tbody id="co-body"></tbody>
                 </table>
               </div>
               <p class="t-hint mt-2 mb-0" data-en="Services the doctor adds during the visit land here automatically (charge capture). No “send cash invoice” round-trip.">الخدمات اللي الدكتور بيضيفها في الكشف بتنزل هنا لوحدها. من غير «إرسال فاتورة نقدي» زي NITCO.</p>
@@ -175,7 +127,7 @@
                    data-note-ar="خصم على الفاتورة بالمبلغ أو النسبة مع شريحة وسبب إجباري. لكل مستخدم حد أقصى يحدده المالك؛ فوق الحد بيطلب موافقة المالك بالرقم السري.">
             <div class="t-card-head">
               <h3 data-en="Invoice discount">خصم على الفاتورة</h3>
-              <div class="t-actions"><span class="t-small t-muted" data-en="Your cap: 10% · set by the owner">حدك الأقصى: ١٠٪ · يحدده المالك</span></div>
+              <div class="t-actions"><span class="t-small t-muted" id="co-captxt"></span></div>
             </div>
             <div class="co-disc">
               <div class="t-field">
@@ -187,13 +139,13 @@
               </div>
               <div class="t-field">
                 <label class="t-label" for="co-dval" data-en="Value">القيمة</label>
-                <input id="co-dval" class="t-input ltr" value="10" inputmode="decimal">
+                <input id="co-dval" class="t-input ltr" value="0" inputmode="decimal">
               </div>
               <div class="t-field">
                 <label class="t-label" for="co-tier" data-en="Discount tier">شريحة الخصم</label>
                 <select id="co-tier" class="t-select">
                   <option value="" data-en="No tier">بدون شريحة</option>
-                  <option value="10" selected data-en="Seniors 65+ · 10%">كبار السن +٦٥ · ١٠٪</option>
+                  <option value="10" data-en="Seniors 65+ · 10%">كبار السن +٦٥ · ١٠٪</option>
                   <option value="20" data-en="Medical colleagues · 20%">زملاء المهنة · ٢٠٪</option>
                   <option value="50" data-en="Clinic staff family · 50%">أسر العاملين · ٥٠٪</option>
                 </select>
@@ -202,7 +154,7 @@
                 <label class="t-label" for="co-dreason"><span data-en="Reason">السبب</span><span class="req">*</span></label>
                 <select id="co-dreason" class="t-select">
                   <option value="" data-en="Choose a reason…">اختار السبب…</option>
-                  <option value="tier" selected data-en="Patient's tier (on file)">شريحة المريض (مسجلة في الملف)</option>
+                  <option value="tier" data-en="Patient's tier (on file)">شريحة المريض (مسجلة في الملف)</option>
                   <option value="doctor" data-en="Doctor asked">طلب الدكتور</option>
                   <option value="hardship" data-en="Financial hardship">ظروف مادية</option>
                   <option value="other" data-en="Other (write it)">سبب آخر (اكتبه)</option>
@@ -211,7 +163,7 @@
             </div>
             <div id="co-cap" class="t-alert warning mt-4" hidden>
               <svg class="t-icon"><use href="#i-lock"/></svg>
-              <div class="t-grow"><b data-en="Above your 10% cap.">الخصم أكبر من حدك (١٠٪).</b> <span data-en="The owner can approve it here with their PIN, or lower the discount.">المالك يقدر يوافق هنا برقمه السري، أو قلّل الخصم.</span></div>
+              <div class="t-grow" id="co-cap-msg"></div>
               <div class="t-actions"><button class="t-btn sm" type="button" data-open="#co-pin" data-en="Ask owner (PIN)">موافقة المالك</button></div>
             </div>
             <div id="co-noreason" class="t-error mt-2" hidden data-en="Pick a reason: every discount appears in the owner's report.">اختار سبب: كل خصم بيظهر في تقرير المالك.</div>
@@ -225,8 +177,8 @@
             <dl class="t-totals mb-4">
               <dt data-en="Services">الخدمات</dt><dd><span class="t-money"><span id="co-sub">200</span><span class="cur" data-en="EGP">ج.م</span></span></dd>
               <dt data-en="Line discounts">خصم البنود</dt><dd><span class="t-money">− <span id="co-ldisc">0</span></span></dd>
-              <dt data-en="Invoice discount (Seniors 10%)" id="co-idisc-l">خصم الفاتورة (كبار السن ١٠٪)</dt><dd><span class="t-money">− <span id="co-idisc">20</span></span></dd>
-              <dt id="co-old-l" hidden data-en="Old debt (28 Oct)">مديونية قديمة (٢٨ أكتوبر)</dt><dd id="co-old-v" hidden><span class="t-money debt">+ 60</span></dd>
+              <dt data-en="Invoice discount" id="co-idisc-l">خصم الفاتورة</dt><dd><span class="t-money">− <span id="co-idisc">20</span></span></dd>
+              <dt id="co-old-l" hidden></dt><dd id="co-old-v" hidden><span class="t-money debt">+ <span id="co-old-amt">0</span></span></dd>
               <dt class="grand" data-en="Due now">المطلوب الآن</dt><dd class="grand"><span class="t-money lg"><span id="co-total">180</span><span class="cur" data-en="EGP">ج.م</span></span></dd>
             </dl>
 
@@ -235,16 +187,11 @@
                  data-note-ar="دفع مقسّم: سطر لكل طريقة (كاش، كارت، إنستاباي، من الرصيد). الافتراضي كاش بالكامل. «من الرصيد» ما يزيدش عن الرصيد المتاح.">
               <div class="t-payline" data-method="cash">
                 <span class="co-method"><svg class="t-icon sm"><use href="#i-cash"/></svg><span data-en="Cash">كاش</span></span>
-                <input class="t-input ltr" value="100" inputmode="decimal" aria-label="Cash amount" data-en-aria-label="Cash amount">
+                <input class="t-input ltr" value="0" inputmode="decimal" aria-label="Cash amount" data-en-aria-label="Cash amount">
                 <span></span>
               </div>
-              <div class="t-payline" data-method="deposit">
-                <span class="co-method"><svg class="t-icon sm"><use href="#i-wallet"/></svg><span><span data-en="From deposit">من الرصيد المقدم</span><small data-en="Available 200">المتاح ٢٠٠</small></span></span>
-                <input class="t-input ltr" value="50" inputmode="decimal" aria-label="From deposit" data-en-aria-label="From deposit">
-                <button class="t-btn sm ghost" type="button" data-remove-pay><svg class="t-icon sm"><use href="#i-close"/></svg><span data-en="Remove">إزالة</span></button>
-              </div>
             </div>
-            <div id="co-deperr" class="t-error mt-2" hidden data-en="Deposit can't go below zero: only 200 available.">الرصيد ما ينفعش يبقى بالسالب: المتاح ٢٠٠ بس.</div>
+            <div id="co-deperr" class="t-error mt-2" hidden></div>
             <div class="t-row tight mt-2">
               <button class="t-pick" type="button" data-addpay="card"><svg class="t-icon sm"><use href="#i-card"/></svg><span data-en="+ Card">+ كارت</span></button>
               <button class="t-pick" type="button" data-addpay="instapay"><svg class="t-icon sm"><use href="#i-phone"/></svg><span data-en="+ InstaPay">+ إنستاباي</span></button>
@@ -255,12 +202,12 @@
                  data-note="Remainder row: whatever is not paid becomes 'debt on patient' automatically and posts to the patient account (NITCO v32, v34, v89). Overpaid cash shows the change to hand back. The colour always comes with words."
                  data-note-ar="الباقي بيتحول لمديونية على المريض تلقائيًا ويتسجل في حسابه. لو دفع كاش زيادة بيظهر الباقي اللي يرجعله.">
               <span id="co-rem-l" data-en="Debt on patient">مديونية على المريض</span>
-              <span class="t-money"><span id="co-rem-v">30</span> <span data-en="EGP">ج.م</span></span>
+              <span class="t-money"><span id="co-rem-v">0</span> <span data-en="EGP">ج.م</span></span>
             </div>
 
-            <div class="t-card sunk mt-4" style="padding:var(--s-3)">
+            <div class="t-card sunk mt-4" style="padding:var(--s-3)" id="co-oldbox" hidden>
               <div class="co-olddebt">
-                <span class="t-small"><b data-en="Owes 60 from 28 Oct.">عليه ٦٠ من ٢٨ أكتوبر.</b> <span data-en="Collect it now too?">تحصّلها معاها؟</span></span>
+                <span class="t-small" id="co-oldtxt"></span>
                 <button class="t-btn sm" type="button" id="co-old-btn" aria-pressed="false"><span data-en="Add old debt">ضيف المديونية</span></button>
               </div>
             </div>
@@ -268,7 +215,7 @@
             <button class="t-btn primary block co-collect mt-4" type="button" id="co-collect"
                     data-note="Collect (F9) is the action that marks the invoice paid, not printing. NITCO marks paid only on 'Save & Print' and its trainers warn about it in five videos (v34, v36, v88, v89, v91). After Collect the receipt preview is offered, never forced."
                     data-note-ar="«تحصيل» (F9) هو اللي بيعلّم الفاتورة مدفوعة، مش الطباعة. في NITCO الدفع مربوط بالطباعة والمدربين بيحذروا منه في ٥ فيديوهات.">
-              <svg class="t-icon"><use href="#i-check"/></svg><span data-en="Collect">تحصيل</span> <span class="t-money" id="co-collect-amt">150</span> <span data-en="EGP">ج.م</span><span class="t-kbd">F9</span>
+              <svg class="t-icon"><use href="#i-check"/></svg><span data-en="Collect">تحصيل</span> <span class="t-money" id="co-collect-amt">0</span> <span data-en="EGP">ج.م</span><span class="t-kbd">F9</span>
             </button>
             <p class="t-hint mt-2 mb-0" style="text-align:center" data-en="The invoice is issued and locked when you collect. Corrections go through a credit note.">الفاتورة بتتقفل بعد التحصيل. أي تصحيح بيبقى بإشعار مرتجع.</p>
           </section>
@@ -282,19 +229,10 @@
         <section class="t-card">
           <div class="t-row mb-4">
             <span class="co-big-check"><svg class="t-icon"><use href="#i-check"/></svg></span>
-            <div class="t-grow">
-              <h2 data-en="Collected 150 EGP">تم تحصيل ١٥٠ ج.م</h2>
-              <p class="t-muted mb-0"><span data-en="Invoice">فاتورة</span> <b class="t-ltr">INV-004812</b> · <span data-en="Sara Ramadan · 14/11/2026 7:42 pm">سارة رمضان · 14/11/2026 7:42 م</span></p>
-            </div>
+            <div class="t-grow" id="co-done-head"></div>
             <span class="t-stamp" data-en="Issued">صادرة</span>
           </div>
-          <dl class="t-totals mb-4">
-            <dt data-en="Invoice total">إجمالي الفاتورة</dt><dd><span class="t-money">180 <span class="cur" data-en="EGP">ج.م</span></span></dd>
-            <dt data-en="Cash">كاش</dt><dd><span class="t-money">100</span></dd>
-            <dt data-en="From deposit">من الرصيد المقدم</dt><dd><span class="t-money">50</span></dd>
-            <dt data-en="Added to patient debt">اتضاف لمديونية المريض</dt><dd><span class="t-money debt">30</span></dd>
-            <dt class="grand" data-en="Patient now owes · deposit left">المريض عليه الآن · رصيده</dt><dd class="grand"><span class="t-money debt">90</span> · <span class="t-money deposit">150</span></dd>
-          </dl>
+          <dl class="t-totals mb-4" id="co-done-tot"></dl>
           <div class="t-row">
             <a class="t-btn primary" href="receipt-print.html"><svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Print receipt">طباعة الإيصال</span><span class="t-kbd">Ctrl P</span></a>
             <a class="t-btn" href="reception-queue.html"><span data-en="Next patient">المريض اللي بعده</span></a>
@@ -304,13 +242,7 @@
         </section>
         <aside class="t-card sunk">
           <h3 class="mb-2" data-en="What happened">اللي حصل</h3>
-          <ul class="t-small t-muted" style="margin:0;padding-inline-start:18px">
-            <li data-en="Visit marked “paid” in the live queue">الزيارة بقت «مدفوعة» في الدور</li>
-            <li data-en="30 EGP added to patient debt (now 90)">٣٠ ج.م اتضافت للمديونية (بقت ٩٠)</li>
-            <li data-en="50 EGP taken from deposit (now 150)">٥٠ ج.م اتخصمت من الرصيد (بقى ١٥٠)</li>
-            <li data-en="Discount 20 EGP logged with reason “Seniors tier”">خصم ٢٠ ج.م اتسجل بسبب «شريحة كبار السن»</li>
-            <li data-en="Counted in tonight's shift close">محسوبة في تقفيل الخزنة الليلة</li>
-          </ul>
+          <ul class="t-small t-muted" style="margin:0;padding-inline-start:18px" id="co-done-log"></ul>
         </aside>
       </div>
     </div>
@@ -328,11 +260,7 @@
         <p class="t-muted mb-0" data-en="The patient is inside the free follow-up window. Charging needs a reason; it is logged and shown in the owner's report.">المريض جوه فترة المتابعة المجانية. المحاسبة محتاجة سبب، وبيتسجل ويظهر في تقرير المالك.</p>
         <div class="t-field">
           <label class="t-label" for="co-ov-r"><span data-en="Reason">السبب</span><span class="req">*</span></label>
-          <select id="co-ov-r" class="t-select">
-            <option value="" data-en="Choose…">اختار…</option>
-            <option value="new" data-en="New complaint — counts as a new consult (300)">شكوى جديدة — تتحسب كشف جديد (٣٠٠)</option>
-            <option value="paidfu" data-en="Doctor asked for the follow-up fee (150)">الدكتور طلب رسم المتابعة (١٥٠)</option>
-          </select>
+          <select id="co-ov-r" class="t-select"></select>
         </div>
         <div class="t-field">
           <label class="t-label" for="co-ov-n"><span data-en="Note">ملاحظة</span><span class="opt" data-en="(optional)">(اختياري)</span></label>
@@ -354,7 +282,7 @@
         <button class="t-btn icon ghost" type="button" data-close aria-label="Close" title="Close"><svg class="t-icon"><use href="#i-close"/></svg></button>
       </div>
       <div class="t-modal-body t-stack">
-        <p class="t-muted mb-0" data-en="Dr. Ahmed types his 4-digit PIN on this screen to approve this one discount. It is logged under his name.">د. أحمد يكتب رقمه السري (٤ أرقام) على الشاشة دي للموافقة على الخصم ده بس. بيتسجل باسمه.</p>
+        <p class="t-muted mb-0" id="co-pin-txt"></p>
         <div class="t-field">
           <label class="t-label" for="co-pin-v" data-en="Owner PIN">الرقم السري للمالك</label>
           <input id="co-pin-v" class="t-input ltr" type="password" inputmode="numeric" maxlength="4" placeholder="••••" style="max-width:140px;letter-spacing:.3em">
@@ -368,100 +296,252 @@
   </div>
 
 </main>
+<script src="../assets/demo-data.js"></script>
 <script src="../assets/shell.js"></script>
 <script>
 (function () {
-  var L = function () { return window.Tamargi && Tamargi.lang && Tamargi.lang() === "en"; };
+  "use strict";
+  /* Everything on this screen comes from assets/demo-data.js for the current org + branch:
+     the patient at the cashier = the visit now in the room (a follow-up first) in the picked branch. */
+  var D = Tamargi.data, C = Tamargi.ctx, F = D.fmt, tx = Tamargi.tx;
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   var num = function (v) { var n = parseFloat(String(v).replace(/[^\d.]/g, "")); return isNaN(n) ? 0 : n; };
   var fmt = function (n) { return (Math.round(n * 100) / 100).toLocaleString("en-US"); };
-  var CAP = 10, DEPOSIT = 200, OLD_DEBT = 60, approved = false, oldOn = false, dmode = "pct";
+  var MON = [["يناير", "Jan"], ["فبراير", "Feb"], ["مارس", "Mar"], ["أبريل", "Apr"], ["مايو", "May"], ["يونيو", "Jun"], ["يوليو", "Jul"], ["أغسطس", "Aug"], ["سبتمبر", "Sep"], ["أكتوبر", "Oct"], ["نوفمبر", "Nov"], ["ديسمبر", "Dec"]];
+  function T(rec) { return F.t(rec, C.lang); }
+  function N(n) { return F.num(n, C.lang); }
+  function dm(iso) { var p = iso.split("-"), m = MON[+p[1] - 1]; return C.lang === "en" ? +p[2] + " " + m[1] : F.num(+p[2], "ar") + " " + m[0]; }
+  function short(d) { return C.lang === "en" ? d.shortEn : d.shortAr; }
+  function spName(d) { return d.sp.map(function (k) { return T(D.specialties[k]); }).join(C.lang === "en" ? " & " : " و"); }
+  function memberWith(role, branch) { return D.staff.filter(function (m) { return m.org === C.org && m.status !== "inactive" && D.rolesIn(m, branch).indexOf(role) > -1; })[0] || null; }
 
-  var CATALOG = [
-    { k: "consult", ar: "كشف جديد", en: "New consultation", p: 300, t: "consult kashf كشف" },
-    { k: "pfu", ar: "متابعة (بعد الفترة المجانية)", en: "Follow-up (after free window)", p: 150, t: "follow متابعة" },
-    { k: "ecg", ar: "رسم قلب", en: "ECG (resting)", p: 150, t: "ecg رسم قلب" },
-    { k: "neb", ar: "جلسة نيبولايزر", en: "Nebuliser session", p: 50, t: "neb بخار نيبولايزر" },
-    { k: "rbs", ar: "قياس سكر عشوائي", en: "Random blood sugar", p: 30, t: "sugar سكر" },
-    { k: "im", ar: "حقنة عضل", en: "IM injection", p: 25, t: "injection حقنة" },
-    { k: "iv", ar: "تركيب كانيولا ومحلول", en: "Cannula + IV drip", p: 120, t: "iv محلول كانيولا" },
-    { k: "dress", ar: "غيار على جرح", en: "Wound dressing", p: 60, t: "dressing غيار جرح" },
-    { k: "us", ar: "سونار بطن", en: "Abdominal ultrasound", p: 250, t: "ultrasound سونار" },
-    { k: "echo", ar: "إيكو على القلب", en: "Echocardiogram", p: 400, t: "echo ايكو إيكو" }
-  ];
+  var S = { approved: false, oldOn: false, dmode: "pct", cashTouched: false, charged: null };
+
+  function pickBranch() {
+    var brs = D.scopeBranches(C), ok = brs.filter(function (b) { return C.allowed.indexOf(b) > -1; });
+    return C.all ? (ok[0] || brs[0]) : C.branch;
+  }
+  function pickVisit(br) {
+    var q = D.queue({ org: C.org, branch: br }, D.today);
+    var live = q.filter(function (a) { return a.status === "inroom" || a.status === "called"; });
+    var fu = live.filter(function (a) { return D.service(a.service).kind === "followup"; })[0];
+    return fu || live[0] || q.filter(function (a) { return a.status === "done"; }).slice(-1)[0] || q[0] || null;
+  }
+  function nextInvoiceNo() { return D.nextInvoiceNo(S.branch); }   /* per-branch series (D39) */
+
+  /* ---------- load the visit for the current scope ---------- */
+  function load() {
+    S.branch = pickBranch(); S.br = D.branch(S.branch); S.visit = pickVisit(S.branch);
+    S.approved = false; S.oldOn = false; S.dmode = "pct"; S.cashTouched = false; S.charged = null;
+    var a = S.visit; if (!a) return false;
+    S.pat = D.patient(a.patient); S.doc = D.doctor(a.doctor); S.svc = D.service(a.service);
+    S.cashier = memberWith("cashier", S.branch); S.owner = memberWith("owner", S.branch);
+    S.cap = S.cashier && S.cashier.discountCap != null ? S.cashier.discountCap : 0;
+    S.inv = nextInvoiceNo();
+    var main = D.mainService(C.org, S.doc.sp[0]);
+    S.fuSvc = D.services.filter(function (s) { return s.org === C.org && s.sp === S.doc.sp[0] && s.kind === "followup"; })[0] || null;
+    S.mainSvc = main;
+    /* old debt: the oldest unpaid / part-paid invoice in this org */
+    var owed = D.patientInvoices(S.pat.id).filter(function (i) { return i.paid < i.total && i.status !== "void"; }).sort(function (x, y) { return x.date < y.date ? -1 : 1; })[0];
+    S.debtDate = owed ? owed.date : null;
+    return true;
+  }
+
+  /* ---------- render ---------- */
+  function renderBanner() {
+    var p = S.pat, sexAr = p.sex === "F" ? "أنثى" : "ذكر", sexEn = p.sex === "F" ? "F" : "M";
+    var last = D.patientAppointments(p.id).filter(function (x) { return x.status === "done" && x.id !== S.visit.id; })[0];
+    var reg = D.branch(p.regBranch);
+    var alerts = (p.allergies.length ? '<span class="t-allergy">⚠ ' + tx("حساسية: ", "") + p.allergies.map(T).join(tx("، ", ", ")) + "</span>"
+                                      : '<span class="t-allergy none">' + tx("لا حساسية معروفة", "No known allergies") + "</span>") +
+      (p.chronic.length ? '<span class="t-flag">' + p.chronic.map(T).join(" · ") + "</span>" : "") +
+      (p.debt ? '<a class="t-balance debt" href="patient-account.html">' + tx(p.sex === "F" ? "عليها " : "عليه ", "Owes ") + fmt(p.debt) + " " + tx("ج.م", "EGP") + "</a>" : "") +
+      (p.deposit ? '<a class="t-balance deposit" href="patient-account.html">' + tx("رصيد مقدم ", "Deposit ") + fmt(p.deposit) + " " + tx("ج.م", "EGP") + "</a>" : "") +
+      (p.followupUntil && p.followupUntil >= D.today ? '<span class="t-balance followup">' + tx("متابعة مجانية حتى ", "Free follow-up until ") + dm(p.followupUntil) + "</span>" : "");
+    $("#co-banner").innerHTML = '<div class="t-banner-id"><span class="t-avatar">' + p.ar.split(" ").slice(0, 2).map(function (w) { return w.charAt(0); }).join(" ") + "</span><div>" +
+      '<div class="t-banner-name">' + T(p) + "</div><div class=\"t-banner-facts\">" +
+      "<span><b>" + N(p.age) + "</b> " + tx("سنة · " + sexAr, "yrs · " + sexEn) + "</span>" +
+      "<span>" + tx("ملف", "File") + ' <b class="t-ltr">' + p.fileNo + "</b></span>" +
+      '<span class="t-ltr">' + p.phone + "</span>" +
+      (last ? "<span>" + tx("آخر زيارة ", "Last visit ") + dm(last.date) + " · " + (C.lang === "en" ? D.branch(last.branch).shortEn : D.branch(last.branch).shortAr) + "</span>" : "") +
+      (D.branchesOf(C.org).length > 1 ? "<span>" + tx("اتسجل في ", "Registered at ") + (C.lang === "en" ? reg.shortEn : reg.shortAr) + "</span>" : "") +
+      "</div></div></div><div class=\"t-banner-alerts\">" + alerts + "</div>";
+  }
+
+  function lineRow(o) {
+    var lock = o.lockPrice ? " readonly" : "", lockAll = o.free ? " readonly" : "";
+    return '<tr data-line="' + o.key + '"' + (o.svc ? ' data-svc="' + o.svc + '"' : "") + "><td><span class=\"t-name\">" + o.name + "</span>" + (o.extra || "") + "</td>" +
+      '<td class="num"><input class="t-input co-num" data-k="price" value="' + o.price + '" inputmode="decimal" aria-label="Price"' + (lock || lockAll) + (o.lockPrice ? ' title="' + tx("سعر الخدمة دي ثابت", "Price is fixed for this service") + '"' : "") + "></td>" +
+      '<td class="num"><input class="t-input co-qty" data-k="qty" value="1" inputmode="numeric" aria-label="Qty"' + lockAll + "></td>" +
+      '<td class="num"><input class="t-input co-num" data-k="disc" value="0" inputmode="decimal" aria-label="Line discount"' + lockAll + "></td>" +
+      '<td class="num"><span class="t-money" data-k="total">' + fmt(o.price) + "</span></td>" +
+      '<td class="actions">' + (o.free ? "" : '<button class="t-btn sm ghost" type="button" data-remove><svg class="t-icon sm"><use href="#i-trash"/></svg><span>' + tx("حذف", "Remove") + "</span></button>") + "</td></tr>";
+  }
+  function freeReason() {
+    var p = S.pat, list = D.price(S.visit.service, S.doc.id, S.branch), days = S.svc.freeWithinDays || D.org(C.org).followupDays;
+    if (S.charged) return '<span class="co-reason is-override" id="co-free-reason"><span class="t-chip free">' + tx("متابعة مجانية", "Free follow-up") + "</span><span>" +
+      tx("اتحاسبت " + fmt(S.charged.price) + " — السبب: " + S.charged.ar + " (اتسجل باسم " + D.memberName(S.cashier, "ar") + ")",
+         "Charged " + fmt(S.charged.price) + " — reason: " + S.charged.en + " (logged under " + D.memberName(S.cashier, "en") + ")") + "</span></span>";
+    return '<span class="co-reason" id="co-free-reason"><span class="t-chip free">' + tx("متابعة مجانية", "Free follow-up") + "</span><span>" +
+      tx("خلال " + N(days) + " يوم من الكشف (حتى " + dm(p.followupUntil) + "). السعر الأصلي " + fmt(list) + ".",
+         "Within " + days + " days of the consult (until " + dm(p.followupUntil) + "). List price " + fmt(list) + ".") +
+      '</span><button type="button" data-open="#co-override">' + tx("حاسبه برضه…", "Charge anyway…") + "</button></span>";
+  }
+  function isFree() { return S.svc.kind === "followup" && S.pat.followupUntil && S.pat.followupUntil >= D.today; }
+
+  function renderLines() {
+    var a = S.visit, rows = [], free = isFree();
+    var t = F.hour(a.from + 0.4, C.lang);
+    rows.push(lineRow({ key: "visit", svc: a.service, name: T(S.svc), free: free && !S.charged, lockPrice: !free,
+      price: free ? (S.charged ? S.charged.price : 0) : D.price(a.service, S.doc.id, S.branch),
+      extra: free ? freeReason() : '<span class="co-src">' + tx("من الموعد · " + short(S.doc), "From the appointment · " + short(S.doc)) + "</span>" }));
+    /* one service the doctor added during the visit (charge capture) */
+    var extra = D.services.filter(function (s) { return s.org === C.org && !s.sp && (S.doc.sp[0] === "im" ? s.kind === "test" : s.id.slice(-3) === "inj"); })[0];
+    if (extra) rows.push(lineRow({ key: "x-" + extra.id, svc: extra.id, name: T(extra), price: D.price(extra.id, S.doc.id, S.branch), lockPrice: true,
+      extra: '<span class="co-src">' + tx("أضافها " + short(S.doc) + " في الكشف " + t, "Added by " + short(S.doc) + " in the visit, " + t) + "</span>" }));
+    $("#co-body").innerHTML = rows.join("");
+  }
+
+  function renderHead() {
+    var a = S.visit, room = D.room(a.room), multi = D.branchesOf(C.org).length > 1;
+    $("#co-from").innerHTML = (multi ? '<span class="t-branch-tag"><svg class="t-icon"><use href="#i-building"/></svg>' + (C.lang === "en" ? S.br.shortEn : S.br.shortAr) + "</span>" : "") +
+      "<span>" + T(room) + "</span><span>" + tx("من الدور", "From queue") + "</span>" +
+      (a.queueNo ? ' <span class="t-ticket done" style="min-width:auto;padding:2px 8px"><b style="font-size:var(--fs-sm)" class="t-ltr">#' + a.queueNo + "</b></span>" : "");
+    var docs = D.doctorsIn({ org: C.org, branch: S.branch });
+    $("#co-doc").innerHTML = docs.map(function (d) { return '<option value="' + d.id + '"' + (d.id === S.doc.id ? " selected" : "") + ">" + short(d) + " — " + spName(d) + "</option>"; }).join("");
+    renderDocHint();
+    $("#co-visit").textContent = tx("النهارده ", "Today ") + F.hour(a.from, C.lang) + " · " + T(S.svc) + " · " + short(S.doc) + " · " + T(room);
+    $("#co-captxt").textContent = tx("حدك الأقصى: " + N(S.cap) + "٪ · يحدده المالك", "Your cap: " + S.cap + "% · set by the owner");
+    var ownerAr = S.owner ? D.memberName(S.owner, "ar") : "المالك", ownerEn = S.owner ? D.memberName(S.owner, "en") : "The owner";
+    $("#co-cap-msg").innerHTML = "<b>" + tx("الخصم أكبر من حدك (" + N(S.cap) + "٪).", "Above your " + S.cap + "% cap.") + "</b> " +
+      tx(ownerAr + " يقدر يوافق هنا برقمه السري، أو قلّل الخصم.", ownerEn + " can approve it here with a PIN, or lower the discount.");
+    $("#co-pin-txt").textContent = tx(ownerAr + " يكتب رقمه السري (٤ أرقام) على الشاشة دي للموافقة على الخصم ده بس. بيتسجل باسمه.",
+      ownerEn + " types a 4-digit PIN on this screen to approve this one discount. It is logged under that name.");
+    var newP = S.mainSvc ? D.price(S.mainSvc.id, S.doc.id, S.branch) : 0, fuP = S.fuSvc ? D.price(S.fuSvc.id, S.doc.id, S.branch) : 0;
+    $("#co-ov-r").innerHTML = '<option value="">' + tx("اختار…", "Choose…") + "</option>" +
+      '<option value="new">' + tx("شكوى جديدة — تتحسب كشف جديد (" + fmt(newP) + ")", "New complaint — counts as a new consult (" + fmt(newP) + ")") + "</option>" +
+      '<option value="paidfu">' + tx("الدكتور طلب رسم المتابعة (" + fmt(fuP) + ")", "Doctor asked for the follow-up fee (" + fmt(fuP) + ")") + "</option>";
+    var p = S.pat;
+    $("#co-oldbox").hidden = !p.debt;
+    $("#co-oldtxt").innerHTML = "<b>" + tx((p.sex === "F" ? "عليها " : "عليه ") + fmt(p.debt) + (S.debtDate ? " من " + dm(S.debtDate) : "") + ".", "Owes " + fmt(p.debt) + (S.debtDate ? " from " + dm(S.debtDate) : "") + ".") + "</b> " + tx("تحصّلها معاها؟", "Collect it now too?");
+    $("#co-old-l").textContent = tx("مديونية قديمة", "Old debt") + (S.debtDate ? " (" + dm(S.debtDate) + ")" : "");
+    $("#co-old-amt").textContent = fmt(p.debt);
+    $("#co-deperr").textContent = tx("الرصيد ما ينفعش يبقى بالسالب: المتاح " + fmt(p.deposit) + " بس.", "Deposit can't go below zero: only " + fmt(p.deposit) + " available.");
+    var ob = $("#co-old-btn"); ob.setAttribute("aria-pressed", "false"); ob.classList.remove("soft");
+    /* discount defaults: seniors tier on file for 65+ */
+    var senior = p.age >= 65;
+    $("#co-tier").value = senior ? "10" : ""; $("#co-dreason").value = senior ? "tier" : ""; $("#co-dval").value = senior ? "10" : "0";
+    $$("#co-dmode button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-mode") === "pct")); });
+    /* payments: one cash line that follows the total; deposit offered only when the patient has one */
+    $$('#co-pays .t-payline:not([data-method="cash"])').forEach(function (n) { n.remove(); });
+  }
+  function renderDocHint() {
+    var id = $("#co-doc").value || S.doc.id, d = D.doctor(id), m = D.mainService(C.org, d.sp[0]);
+    var fu = D.services.filter(function (s) { return s.org === C.org && s.sp === d.sp[0] && s.kind === "followup"; })[0];
+    var days = fu ? (fu.freeWithinDays || D.org(C.org).followupDays) : 0;
+    var mp = m ? D.price(m.id, d.id, S.branch) : 0;
+    $("#co-doc-hint").textContent = tx("متعبّي من الزيارة. ", "Pre-filled from the visit. ") + (m ? T(m) + " " + fmt(mp) : "") +
+      (fu ? tx(" · المتابعة مجانية خلال " + N(days) + " يوم", " · follow-up free within " + days + " days") : "") +
+      (D.branchesOf(C.org).length > 1 ? tx(" · أسعار فرع " + S.br.shortAr, " · " + S.br.shortEn + " prices") : "") + ".";
+    $("#co-q-consult").textContent = (m ? T(m) : tx("كشف", "Consult")) + " · " + fmt(mp);
+    $("#co-q-fu").textContent = isFree() ? tx("متابعة · مجانية الآن", "Follow-up · free now") : tx("متابعة", "Follow-up") + (fu ? " · " + fmt(D.price(fu.id, d.id, S.branch)) : "");
+  }
+
+  function catalog() {
+    var id = $("#co-doc").value || S.doc.id;
+    return D.servicesFor(id, S.branch).map(function (x) { return { k: x.service.id, ar: x.service.ar, en: x.service.en, p: x.price }; });
+  }
 
   function recalc() {
+    if (!S.visit) return;
     var sub = 0, ld = 0;
     $$("#co-lines tbody tr").forEach(function (tr) {
       var p = num($('[data-k="price"]', tr).value), q = num($('[data-k="qty"]', tr).value) || 0, d = num($('[data-k="disc"]', tr).value);
       sub += p * q; ld += d;
       $('[data-k="total"]', tr).textContent = fmt(Math.max(0, p * q - d));
     });
-    var dv = num($("#co-dval").value);
-    var base = sub - ld;
-    var idisc = dmode === "pct" ? base * dv / 100 : dv;
+    var dv = num($("#co-dval").value), base = sub - ld;
+    var idisc = S.dmode === "pct" ? base * dv / 100 : dv;
     var pct = base > 0 ? (idisc / base) * 100 : 0;
-    var total = Math.max(0, base - idisc) + (oldOn ? OLD_DEBT : 0);
-    $("#co-sub").textContent = fmt(sub);
-    $("#co-ldisc").textContent = fmt(ld);
-    $("#co-idisc").textContent = fmt(idisc);
-    $("#co-total").textContent = fmt(total);
-    $("#co-old-l").hidden = $("#co-old-v").hidden = !oldOn;
+    var oldAmt = S.oldOn ? S.pat.debt : 0, total = Math.max(0, base - idisc) + oldAmt;
+    $("#co-sub").textContent = fmt(sub); $("#co-ldisc").textContent = fmt(ld); $("#co-idisc").textContent = fmt(idisc); $("#co-total").textContent = fmt(total);
+    $("#co-old-l").hidden = $("#co-old-v").hidden = !S.oldOn;
 
-    var paid = 0, dep = 0;
-    $$("#co-pays .t-payline").forEach(function (pl) { var v = num($("input", pl).value); paid += v; if (pl.getAttribute("data-method") === "deposit") dep += v; });
-    var depBad = dep > DEPOSIT;
+    var other = 0, dep = 0, cashIn = $('#co-pays [data-method="cash"] input');
+    $$('#co-pays .t-payline:not([data-method="cash"])').forEach(function (pl) { var v = num($("input", pl).value); other += v; if (pl.getAttribute("data-method") === "deposit") dep += v; });
+    if (!S.cashTouched && cashIn) cashIn.value = Math.max(0, Math.round((total - other) * 100) / 100);
+    var paid = other + (cashIn ? num(cashIn.value) : 0);
+    var depBad = dep > S.pat.deposit;
     $("#co-deperr").hidden = !depBad;
     $$('#co-pays [data-method="deposit"] input').forEach(function (i) { i.classList.toggle("is-invalid", depBad); });
 
-    var rem = total - paid, remEl = $("#co-rem"), remL = $("#co-rem-l");
-    remEl.classList.toggle("zero", rem <= 0);
-    var label;
-    if (rem > 0) label = L() ? "Debt on patient" : "مديونية على المريض";
-    else if (rem < 0) label = L() ? "Change to give back" : "الباقي للمريض (فكّة)";
-    else label = L() ? "Fully paid" : "مدفوعة بالكامل";
-    remL.setAttribute("data-ar", rem > 0 ? "مديونية على المريض" : rem < 0 ? "الباقي للمريض (فكّة)" : "مدفوعة بالكامل");
-    remL.setAttribute("data-en", rem > 0 ? "Debt on patient" : rem < 0 ? "Change to give back" : "Fully paid");
-    remL.innerHTML = label;
+    var rem = total - paid;
+    $("#co-rem").classList.toggle("zero", rem <= 0);
+    $("#co-rem-l").textContent = rem > 0 ? tx("مديونية على المريض", "Debt on patient") : rem < 0 ? tx("الباقي للمريض (فكّة)", "Change to give back") : tx("مدفوعة بالكامل", "Fully paid");
     $("#co-rem-v").textContent = fmt(Math.abs(rem));
 
-    var overCap = pct > CAP + 0.001 && !approved;
+    var overCap = pct > S.cap + 0.001 && !S.approved;
     $("#co-cap").hidden = !overCap;
     var needReason = idisc > 0 && !$("#co-dreason").value;
     $("#co-noreason").hidden = !needReason;
     $("#co-collect-amt").textContent = fmt(Math.min(paid, total));
-    var c = $("#co-collect");
-    c.disabled = overCap || needReason || depBad;
-    $("#co-add-dep").hidden = !!$('#co-pays [data-method="deposit"]');
+    $("#co-collect").disabled = overCap || needReason || depBad;
+    $("#co-add-dep").hidden = !S.pat.deposit || !!$('#co-pays [data-method="deposit"]');
+    S.sum = { total: total, paid: Math.min(paid, total), rem: Math.max(0, rem), change: Math.max(0, -rem), idisc: idisc, dep: dep, oldAmt: oldAmt, cash: cashIn ? num(cashIn.value) : 0,
+      pays: $$("#co-pays .t-payline").map(function (pl) { return { m: pl.getAttribute("data-method"), v: num($("input", pl).value) }; }) };
+    renderDone();
+  }
+
+  function payName(m) { return m === "deposit" ? tx("من الرصيد المقدم", "From deposit") : T(D.payMethods[m]); }
+  function renderDone() {
+    var s = S.sum, p = S.pat, cashierAr = S.cashier ? D.memberName(S.cashier, "ar") : "", cashierEn = S.cashier ? D.memberName(S.cashier, "en") : "";
+    var multi = D.branchesOf(C.org).length > 1, brName = C.lang === "en" ? S.br.shortEn : S.br.shortAr;
+    $("#co-done-head").innerHTML = "<h2>" + tx("تم تحصيل " + fmt(s.paid) + " ج.م", "Collected " + fmt(s.paid) + " EGP") + "</h2>" +
+      '<p class="t-muted mb-0">' + tx("فاتورة", "Invoice") + ' <b class="t-ltr">' + S.inv + "</b>" + (multi ? " · " + tx("فرع ", "") + brName : "") +
+      " · " + tx(cashierAr, cashierEn) + ' · <span class="t-ltr">' + F.date(D.today) + "</span> " + F.hour(D.now, C.lang) + "</p>";
+    var newDebt = p.debt - s.oldAmt + s.rem, depLeft = p.deposit - s.dep;
+    $("#co-done-tot").innerHTML = "<dt>" + tx("إجمالي الفاتورة", "Invoice total") + '</dt><dd><span class="t-money">' + fmt(s.total) + ' <span class="cur">' + tx("ج.م", "EGP") + "</span></span></dd>" +
+      s.pays.filter(function (x) { return x.v > 0; }).map(function (x) { return "<dt>" + payName(x.m) + '</dt><dd><span class="t-money">' + fmt(x.v) + "</span></dd>"; }).join("") +
+      (s.rem > 0 ? "<dt>" + tx("اتضاف لمديونية المريض", "Added to patient debt") + '</dt><dd><span class="t-money debt">' + fmt(s.rem) + "</span></dd>" : "") +
+      '<dt class="grand">' + tx("المريض عليه الآن · رصيده", "Patient now owes · deposit left") + '</dt><dd class="grand"><span class="t-money debt">' + fmt(newDebt) + '</span> · <span class="t-money deposit">' + fmt(depLeft) + "</span></dd>";
+    var log = [tx("الزيارة بقت «مدفوعة» في دور " + brName, "Visit marked “paid” in the " + brName + " queue")];
+    if (s.rem > 0) log.push(tx(fmt(s.rem) + " ج.م اتضافت للمديونية (بقت " + fmt(newDebt) + ")", fmt(s.rem) + " EGP added to patient debt (now " + fmt(newDebt) + ")"));
+    if (s.oldAmt) log.push(tx("المديونية القديمة " + fmt(s.oldAmt) + " ج.م اتحصلت", "Old debt of " + fmt(s.oldAmt) + " EGP collected"));
+    if (s.dep) log.push(tx(fmt(s.dep) + " ج.م اتخصمت من الرصيد (بقى " + fmt(depLeft) + ")", fmt(s.dep) + " EGP taken from deposit (now " + fmt(depLeft) + ")"));
+    if (s.idisc) log.push(tx("خصم " + fmt(s.idisc) + " ج.م اتسجل بالسبب", "Discount " + fmt(s.idisc) + " EGP logged with its reason"));
+    log.push(tx("محسوبة في تقفيل خزنة " + brName + " الليلة", "Counted in tonight's " + brName + " cash close"));
+    $("#co-done-log").innerHTML = log.map(function (l) { return "<li>" + l + "</li>"; }).join("");
+  }
+
+  function render(ctx, reason) {
+    Tamargi.scopeNotice({ needBranch: true, what: { ar: "التحصيل", en: "Checkout" } });
+    if (!load()) { $("#co-body").innerHTML = ""; return; }
+    renderBanner(); renderHead(); renderLines(); recalc();
   }
 
   function addLine(item) {
     var tr = document.createElement("tr");
-    var name = L() ? item.en : item.ar;
-    tr.innerHTML =
-      '<td><span class="t-name" data-ar="' + item.ar + '" data-en="' + item.en + '">' + name + '</span><span class="co-src" data-ar="أضافتها سارة الآن" data-en="Added by Sara just now">' + (L() ? "Added by Sara just now" : "أضافتها سارة الآن") + "</span></td>" +
+    tr.setAttribute("data-svc", item.k);
+    tr.innerHTML = '<td><span class="t-name">' + (C.lang === "en" ? item.en : item.ar) + '</span><span class="co-src">' + tx("أضافتها " + (S.cashier ? D.memberName(S.cashier, "ar") : "الخزنة") + " الآن", "Added by " + (S.cashier ? D.memberName(S.cashier, "en") : "the cashier") + " just now") + "</span></td>" +
       '<td class="num"><input class="t-input co-num" data-k="price" value="' + item.p + '" inputmode="decimal" aria-label="Price"></td>' +
       '<td class="num"><input class="t-input co-qty" data-k="qty" value="1" inputmode="numeric" aria-label="Qty"></td>' +
       '<td class="num"><input class="t-input co-num" data-k="disc" value="0" inputmode="decimal" aria-label="Line discount"></td>' +
-      '<td class="num"><span class="t-money" data-k="total">' + item.p + "</span></td>" +
-      '<td class="actions"><button class="t-btn sm ghost" type="button" data-remove><svg class="t-icon sm"><use href="#i-trash"/></svg><span data-ar="حذف" data-en="Remove">' + (L() ? "Remove" : "حذف") + "</span></button></td>";
-    $("#co-lines tbody").appendChild(tr);
+      '<td class="num"><span class="t-money" data-k="total">' + fmt(item.p) + "</span></td>" +
+      '<td class="actions"><button class="t-btn sm ghost" type="button" data-remove><svg class="t-icon sm"><use href="#i-trash"/></svg><span>' + tx("حذف", "Remove") + "</span></button></td>";
+    $("#co-body").appendChild(tr);
     recalc();
-    // default payment = full cash: top up cash line so the new service is paid unless changed
-    var cash = $('#co-pays [data-method="cash"] input'); if (cash) { cash.value = fmt(num(cash.value) + item.p * (dmode === "pct" ? (1 - num($("#co-dval").value) / 100) : 1)).replace(/,/g, ""); }
-    recalc();
-    if (window.Tamargi) Tamargi.toast(L() ? "Added: " + item.en : "اتضافت: " + item.ar);
+    Tamargi.toast(tx("اتضافت: " + item.ar, "Added: " + item.en));
   }
 
-  // type-ahead
+  /* type-ahead over the doctor's services, priced for this branch */
   var search = $("#co-search"), menu = $("#co-menu"), hits = [];
   function renderMenu() {
     var q = search.value.trim().toLowerCase();
-    hits = CATALOG.filter(function (c) { return !q || (c.ar + " " + c.en + " " + c.t).toLowerCase().indexOf(q) > -1; }).slice(0, 7);
+    hits = catalog().filter(function (c) { return !q || (c.ar + " " + c.en).toLowerCase().indexOf(q) > -1; }).slice(0, 7);
     menu.innerHTML = hits.map(function (c, i) {
-      return '<li role="option" data-i="' + i + '"' + (i === 0 ? ' class="is-active"' : "") + "><span>" + (L() ? c.en : c.ar) + '</span><span class="t-faint t-money">' + c.p + "</span></li>";
-    }).join("") || '<li class="t-faint">' + (L() ? "No service matches" : "مفيش خدمة بالاسم ده") + "</li>";
+      return '<li role="option" data-i="' + i + '"' + (i === 0 ? ' class="is-active"' : "") + "><span>" + (C.lang === "en" ? c.en : c.ar) + '</span><span class="t-faint t-money">' + fmt(c.p) + "</span></li>";
+    }).join("") || '<li class="t-faint">' + tx("مفيش خدمة بالاسم ده", "No service matches") + "</li>";
     menu.hidden = false;
   }
   search.addEventListener("focus", renderMenu);
@@ -476,61 +556,58 @@
   });
   search.addEventListener("blur", function () { setTimeout(function () { menu.hidden = true; }, 120); });
 
-  document.addEventListener("input", function (e) { if (e.target.closest("#co-lines, #co-pays, #co-dval")) recalc(); });
+  document.addEventListener("input", function (e) {
+    if (e.target.closest('#co-pays [data-method="cash"]')) S.cashTouched = true;
+    if (e.target.closest("#co-lines, #co-pays, #co-dval")) recalc();
+  });
   document.addEventListener("change", function (e) {
     if (e.target.id === "co-tier") {
-      var v = e.target.value; if (v) { dmode = "pct"; setMode(); $("#co-dval").value = v; $("#co-dreason").value = "tier"; approved = false; }
+      var v = e.target.value; if (v) { S.dmode = "pct"; setMode(); $("#co-dval").value = v; $("#co-dreason").value = "tier"; S.approved = false; }
       recalc();
     }
     if (e.target.id === "co-dreason") recalc();
+    if (e.target.id === "co-doc") renderDocHint();
   });
-  function setMode() { $$("#co-dmode button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-mode") === dmode)); }); }
+  function setMode() { $$("#co-dmode button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-mode") === S.dmode)); }); }
 
   document.addEventListener("click", function (e) {
     var b;
-    if ((b = e.target.closest("#co-dmode [data-mode]"))) { dmode = b.getAttribute("data-mode"); setMode(); recalc(); return; }
+    if ((b = e.target.closest("#co-dmode [data-mode]"))) { S.dmode = b.getAttribute("data-mode"); setMode(); recalc(); return; }
     if ((b = e.target.closest("[data-remove]"))) { b.closest("tr").remove(); recalc(); return; }
     if ((b = e.target.closest("[data-remove-pay]"))) { b.closest(".t-payline").remove(); recalc(); return; }
     if ((b = e.target.closest("[data-add]"))) {
-      var k = b.getAttribute("data-add");
-      if (k === "consult") addLine(CATALOG[0]);
-      else if (window.Tamargi) Tamargi.toast(L() ? "Follow-up is already on the invoice (free)" : "المتابعة موجودة في الفاتورة (مجانية)");
+      var k = b.getAttribute("data-add"), docId = $("#co-doc").value || S.doc.id, d = D.doctor(docId);
+      if (k === "consult") { var m = D.mainService(C.org, d.sp[0]); if (m) addLine({ k: m.id, ar: m.ar, en: m.en, p: D.price(m.id, docId, S.branch) }); }
+      else if (isFree() || S.svc.kind === "followup") Tamargi.toast(tx("المتابعة موجودة في الفاتورة", "Follow-up is already on the invoice"));
+      else { var fu = D.services.filter(function (s) { return s.org === C.org && s.sp === d.sp[0] && s.kind === "followup"; })[0]; if (fu) addLine({ k: fu.id, ar: fu.ar, en: fu.en, p: D.price(fu.id, docId, S.branch) }); }
       return;
     }
     if ((b = e.target.closest("[data-addpay]"))) {
-      var m = b.getAttribute("data-addpay");
-      var names = { card: ["كارت (ماكينة)", "Card (POS)", "card"], instapay: ["إنستاباي", "InstaPay", "phone"], deposit: ["من الرصيد المقدم", "From deposit", "wallet"] };
-      var n = names[m];
+      var mth = b.getAttribute("data-addpay"), ico = { card: "card", instapay: "phone", deposit: "wallet" }[mth];
       var row = document.createElement("div");
-      row.className = "t-payline"; row.setAttribute("data-method", m);
-      row.innerHTML = '<span class="co-method"><svg class="t-icon sm"><use href="#i-' + n[2] + '"/></svg><span data-ar="' + n[0] + '" data-en="' + n[1] + '">' + (L() ? n[1] : n[0]) + "</span></span>" +
-        '<input class="t-input ltr" value="0" inputmode="decimal" aria-label="' + n[1] + '">' +
-        '<button class="t-btn sm ghost" type="button" data-remove-pay><svg class="t-icon sm"><use href="#i-close"/></svg><span data-ar="إزالة" data-en="Remove">' + (L() ? "Remove" : "إزالة") + "</span></button>";
+      row.className = "t-payline"; row.setAttribute("data-method", mth);
+      row.innerHTML = '<span class="co-method"><svg class="t-icon sm"><use href="#i-' + ico + '"/></svg><span>' + payName(mth) +
+        (mth === "deposit" ? "<small>" + tx("المتاح ", "Available ") + fmt(S.pat.deposit) + "</small>" : "") + "</span></span>" +
+        '<input class="t-input ltr" value="0" inputmode="decimal" aria-label="' + mth + '">' +
+        '<button class="t-btn sm ghost" type="button" data-remove-pay><svg class="t-icon sm"><use href="#i-close"/></svg><span>' + tx("إزالة", "Remove") + "</span></button>";
       $("#co-pays").appendChild(row);
       var inp = $("input", row); inp.focus(); inp.select();
       recalc(); return;
     }
     if (e.target.closest("#co-old-btn")) {
-      oldOn = !oldOn; var ob = $("#co-old-btn"); ob.setAttribute("aria-pressed", String(oldOn)); ob.classList.toggle("soft", oldOn);
-      var cash = $('#co-pays [data-method="cash"] input'); if (cash) cash.value = Math.max(0, num(cash.value) + (oldOn ? OLD_DEBT : -OLD_DEBT));
+      S.oldOn = !S.oldOn; var ob = $("#co-old-btn"); ob.setAttribute("aria-pressed", String(S.oldOn)); ob.classList.toggle("soft", S.oldOn);
       recalc(); return;
     }
     if (e.target.closest("#co-ov-apply")) {
       var r = $("#co-ov-r").value; if (!r) { $("#co-ov-r").classList.add("is-invalid"); $("#co-ov-r").focus(); return; }
-      var price = r === "new" ? 300 : 150, tr = $('[data-line="followup"]');
-      $('[data-k="price"]', tr).value = price;
-      var box = $("#co-free-reason"); box.classList.add("is-override");
-      var txt = $("#co-free-text");
-      var ar = "اتحاسبت " + price + " — السبب: " + (r === "new" ? "شكوى جديدة" : "طلب الدكتور") + " (اتسجل باسم سارة)";
-      var en = "Charged " + price + " — reason: " + (r === "new" ? "new complaint" : "doctor asked") + " (logged under Sara)";
-      txt.setAttribute("data-ar", ar); txt.setAttribute("data-en", en); txt.innerHTML = L() ? en : ar;
-      var cash2 = $('#co-pays [data-method="cash"] input'); if (cash2) cash2.value = num(cash2.value) + price * (dmode === "pct" ? (1 - num($("#co-dval").value) / 100) : 1);
-      $("#co-override").hidden = true; recalc(); return;
+      var price = r === "new" ? D.price(S.mainSvc.id, S.doc.id, S.branch) : D.price(S.fuSvc.id, S.doc.id, S.branch);
+      S.charged = { price: price, ar: r === "new" ? "شكوى جديدة" : "طلب الدكتور", en: r === "new" ? "new complaint" : "doctor asked" };
+      $("#co-override").hidden = true; renderLines(); recalc(); return;
     }
     if (e.target.closest("#co-pin-ok")) {
       if (($("#co-pin-v").value || "").length < 4) { $("#co-pin-v").classList.add("is-invalid"); return; }
-      approved = true; $("#co-pin").hidden = true; recalc();
-      if (window.Tamargi) Tamargi.toast(L() ? "Discount approved by Dr. Ahmed" : "د. أحمد وافق على الخصم");
+      S.approved = true; $("#co-pin").hidden = true; recalc();
+      Tamargi.toast(tx((S.owner ? D.memberName(S.owner, "ar") : "المالك") + " وافق على الخصم", "Discount approved by " + (S.owner ? D.memberName(S.owner, "en") : "the owner")));
       return;
     }
     if (e.target.closest("#co-collect")) { collect(); return; }
@@ -538,7 +615,8 @@
 
   function collect() {
     var c = $("#co-collect"); if (c.disabled) return;
-    if (window.Tamargi) { Tamargi.setState("collected"); Tamargi.toast(L() ? "Collected — invoice INV-004812 issued" : "تم التحصيل — صدرت الفاتورة INV-004812"); }
+    if (C.all) { Tamargi.toast(tx("اختار فرع الأول — الفاتورة لازم تبقى على خزنة فرع", "Pick a branch first — the invoice must go to one branch's cash")); return; }
+    Tamargi.setState("collected"); Tamargi.toast(tx("تم التحصيل — صدرت الفاتورة " + S.inv, "Collected — invoice " + S.inv + " issued"));
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
   document.addEventListener("keydown", function (e) {
@@ -546,9 +624,7 @@
     var typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
     if (e.key === "/" && !typing) { e.preventDefault(); search.focus(); }
   });
-  // re-render language-dependent computed labels after the shell toggles AR/EN
-  document.addEventListener("click", function (e) { if (e.target.closest("[data-shell-lang]")) setTimeout(recalc, 0); });
-  recalc();
+  Tamargi.onCtx(render); render(C, "init");
 })();
 </script>
 </body>

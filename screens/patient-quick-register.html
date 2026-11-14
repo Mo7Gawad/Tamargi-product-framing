@@ -17,9 +17,15 @@
     .qr-tier2 { opacity: .75; }
     .t-card-foot.qr-foot { justify-content: flex-end; flex-wrap: wrap; }
     .qr-foot .t-hint { margin-inline-end: auto; }
+    .t-form-grid > * { min-width: 0; }
+    [data-state="duplicate"] .t-alert { flex-wrap: wrap; }
+    [data-state="duplicate"] .t-alert .t-grow { flex: 1 1 200px; min-width: 0; }
+    [data-state="duplicate"] .t-alert .t-actions { flex-wrap: wrap; }
   </style>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
-<body data-screen="patient-quick-register">
+<body data-screen="patient-quick-register" data-org-default="selim">
 <main id="screen">
   <div class="t-container" style="max-width:1120px">
 
@@ -40,7 +46,7 @@
              data-note="Five required fields (name, mobile, sex, age/DOB; NID optional) instead of NITCO's ≈40–45-field form with two languages × 4 name parts, nationality, ID type and Hijri dates (v37, v41, v94). Required = asterisk + word, never a red border alone."
              data-note-ar="خمس خانات مطلوبة بس (الاسم، الموبايل، النوع، السن أو تاريخ الميلاد؛ الرقم القومي اختياري) بدل ٤٠–٤٥ خانة في NITCO. المطلوب عليه نجمة وكلمة مش إطار أحمر بس.">
           <h2 data-en="New patient">مريض جديد</h2>
-          <span class="t-small t-faint" data-en="File no. is given on save">رقم الملف بيتعمل مع الحفظ</span>
+          <span class="t-small t-faint" id="qr-fileno"></span>
         </div>
         <div class="t-card-body">
           <div class="t-form-grid">
@@ -55,7 +61,7 @@
                  data-note="Live duplicate check on mobile and NID while typing: a match shows who it is and offers 'Open existing file'. Shared family phones are normal in Egypt, so it warns but never blocks. NITCO only offers 'merge files' after the duplicate exists (v41)."
                  data-note-ar="فحص التكرار لحظيًا على الموبايل والرقم القومي: لو فيه تطابق بيقول مين ويعرض «فتح الملف الموجود». موبايل العيلة المشترك طبيعي، فبننبّه ومش بنمنع. NITCO بيعرض دمج الملفات بعد ما التكرار يحصل.">
               <label class="t-label" for="qr-mob"><span data-en="Mobile">الموبايل</span><span class="req">*</span></label>
-              <input class="t-input ltr" id="qr-mob" inputmode="tel" maxlength="13" autocomplete="off" placeholder="01xxxxxxxxx" value="01098765432" aria-describedby="qr-mob-msg" required>
+              <input class="t-input ltr" id="qr-mob" inputmode="tel" maxlength="13" autocomplete="off" placeholder="01xxxxxxxxx" value="01000000299" aria-describedby="qr-mob-msg" required>
               <span class="t-hint" id="qr-mob-msg" data-en="11 digits starting 010, 011, 012 or 015.">11 رقم يبدأ بـ 010 أو 011 أو 012 أو 015.</span>
             </div>
 
@@ -63,7 +69,7 @@
                  data-note="Optional 14-digit Egyptian NID fills date of birth, age and sex for you (digit 1 = century, 2–7 = YYMMDD, 8–9 = governorate, 13 = odd male / even female). NITCO only infers the ID type from the first digit (v41, v94)."
                  data-note-ar="الرقم القومي (١٤ رقم، اختياري) بيملأ تاريخ الميلاد والسن والنوع لوحده (أول رقم القرن، ٢–٧ التاريخ، ٨–٩ المحافظة، ١٣ فردي ذكر وزوجي أنثى).">
               <label class="t-label" for="qr-nid"><span data-en="National ID">الرقم القومي</span><span class="opt" data-en="optional">اختياري</span></label>
-              <input class="t-input ltr" id="qr-nid" inputmode="numeric" maxlength="14" autocomplete="off" placeholder="14 digits" value="28911051201573" aria-describedby="qr-nid-msg">
+              <input class="t-input ltr" id="qr-nid" inputmode="numeric" maxlength="14" autocomplete="off" placeholder="14 digits" value="28911051200011" aria-describedby="qr-nid-msg">
               <span class="qr-derived" id="qr-nid-msg"></span>
             </div>
 
@@ -81,7 +87,7 @@
                 <input class="t-input ltr" id="qr-age" inputmode="numeric" value="37" aria-label="Age" data-en-aria-label="Age">
                 <select class="t-select" id="qr-unit" aria-label="Unit" data-en-aria-label="Unit"><option value="y" data-en="years">سنة</option><option value="m" data-en="months">شهر</option><option value="d" data-en="days">يوم</option></select>
               </div>
-              <span class="t-hint" id="qr-dob" data-en="Born 5 Nov 1989 (from NID)">مواليد 5 نوفمبر 1989 (من الرقم القومي)</span>
+              <span class="t-hint" id="qr-dob"></span>
             </div>
 
             <div class="span-2" data-state="new">
@@ -94,10 +100,10 @@
                 <svg class="t-icon"><use href="#i-alert"/></svg>
                 <div class="t-grow">
                   <b data-en="This mobile is already on file">الموبايل ده متسجل قبل كده</b><br>
-                  <span>منى عبد الرحمن السيد الشناوي · <span data-en="34 yrs · F · file">34 سنة · أنثى · ملف</span> <span class="t-ltr">1043</span> · <span data-en="last visit 5 Nov">آخر زيارة 5 نوفمبر</span></span>
+                  <span id="qr-dup-who"></span>
                 </div>
                 <div class="t-actions">
-                  <a class="t-btn sm" href="patient-file.html"><span data-en="Open existing file">فتح الملف الموجود</span></a>
+                  <a class="t-btn sm" href="patient-file.html" id="qr-dup-open"><span data-en="Open existing file">فتح الملف الموجود</span></a>
                   <button class="t-btn sm ghost" type="button" id="qr-not-dup"><span data-en="Different person, same phone">شخص تاني بنفس الموبايل</span></button>
                 </div>
               </div>
@@ -183,22 +189,20 @@
       <!-- Aside: what happens on save -->
       <aside class="t-stack">
         <section class="t-card"
-                 data-note="One save does three things: creates the file, puts the patient in the chosen doctor's lane with a ticket, and prices the visit (first visit = New consult at the doctor's default fee). No 'save, then search it back, then bill' like NITCO (v89, v90)."
-                 data-note-ar="حفظ واحد بيعمل ٣ حاجات: يفتح الملف، يدخّل المريض دور الطبيب برقم، ويسعّر الزيارة (أول زيارة = كشف جديد بسعر الطبيب). من غير «احفظ ودوّر عليه تاني وبعدين اعمل فاتورة».">
+                 data-note="One save does three things: creates the file, puts the patient in the chosen doctor's lane with a ticket, and prices the visit (first visit = New consult at the doctor's fee for this branch). The file is organization-wide (one file for every branch); the branch is recorded only as where it was opened, and the queue is the selected branch's. Under 'All branches' saving asks for one branch first. No 'save, then search it back, then bill' like NITCO (v89, v90)."
+                 data-note-ar="حفظ واحد بيعمل ٣ حاجات: يفتح الملف، يدخّل المريض دور الطبيب برقم، ويسعّر الزيارة (أول زيارة = كشف جديد بسعر الطبيب في الفرع ده). الملف للمنشأة كلها (ملف واحد لكل الفروع)، والفرع بيتسجل بس كمكان فتح الملف، والدور دور الفرع المختار. من غير «احفظ ودوّر عليه تاني وبعدين اعمل فاتورة».">
           <div class="t-card-head"><h2 data-en="On save">بعد الحفظ</h2></div>
           <div class="t-stack">
             <div class="t-field">
-              <span class="t-label" data-en="Add to queue of">يدخل دور</span>
-              <div class="t-seg" role="group" id="qr-doc">
-                <button type="button" aria-pressed="true" data-doc="A"><span data-en="Dr. Ahmed">د. أحمد</span></button>
-                <button type="button" aria-pressed="false" data-doc="B"><span data-en="Dr. Heba">د. هبة</span></button>
-              </div>
+              <span class="t-label" id="qr-doc-l"></span>
+              <div class="t-seg" role="group" id="qr-doc" style="flex-wrap:wrap"></div>
             </div>
             <dl class="qr-sum">
               <dt data-en="Visit">الزيارة</dt><dd><span class="t-chip info" data-en="New consult (first visit)">كشف جديد (أول زيارة)</span></dd>
-              <dt data-en="Fee">السعر</dt><dd><span class="t-money lg" id="qr-fee">300<span class="cur" data-en="EGP">ج.م</span></span> <span class="t-small t-faint" id="qr-fee-src" data-en="from 'Internal medicine consult'">من «كشف باطنة»</span></dd>
+              <dt data-en="Fee">السعر</dt><dd><span class="t-money lg" id="qr-fee">300<span class="cur" data-en="EGP">ج.م</span></span> <span class="t-small t-faint" id="qr-fee-src"></span></dd>
               <dt data-en="Discount">الخصم</dt><dd id="qr-disc-sum"><span class="t-faint" data-en="None">مفيش</span></dd>
-              <dt data-en="Ticket">الرقم</dt><dd><span class="t-ticket waiting"><b id="qr-ticket">A-19</b></span> <span class="t-small t-faint" data-en="2 waiting ahead">قبله 2</span></dd>
+              <dt data-en="Room">الغرفة</dt><dd id="qr-room"></dd>
+              <dt data-en="Ticket">الرقم</dt><dd><span class="t-ticket waiting"><b id="qr-ticket"></b></span> <span class="t-small t-faint" id="qr-ahead"></span></dd>
             </dl>
             <label class="t-switch"><input type="checkbox" id="qr-collect"><span data-en="Collect now (opens cashier)">تحصيل دلوقتي (يفتح الخزنة)</span></label>
           </div>
@@ -211,23 +215,46 @@
     </form>
   </div>
 </main>
+<script src="../assets/demo-data.js"></script>
 <script src="../assets/shell.js"></script>
 <script>
 (function () {
   "use strict";
-  var T = window.Tamargi;
-  function en() { return T.lang() === "en"; }
+  /* Duplicate check, doctors, fees and file numbers come from assets/demo-data.js for the selected org + branch. */
+  var T = window.Tamargi, D = T.data, C = T.ctx, F = D.fmt;
+  function en() { return C.lang === "en"; }
+  function tx(ar, e) { return en() ? e : ar; }
+  function t(r) { return F.t(r, C.lang); }
+  function n(x) { return F.num(x, C.lang); }
   function setTx(el, ar, e) { el.setAttribute("data-ar", ar); el.setAttribute("data-en", e); el.innerHTML = en() ? e : ar; }
   var $ = function (id) { return document.getElementById(id); };
-  var KNOWN = { mob: { "01002345678": 1 }, nid: { "29203121201882": 1 } };
   var GOV = { "01": ["القاهرة", "Cairo"], "02": ["الإسكندرية", "Alexandria"], "12": ["الدقهلية", "Dakahlia"], "13": ["الشرقية", "Sharqia"], "15": ["كفر الشيخ", "Kafr El-Sheikh"], "16": ["الغربية", "Gharbia"], "18": ["البحيرة", "Beheira"], "21": ["الجيزة", "Giza"], "11": ["دمياط", "Damietta"] };
   var MON = [["يناير", "Jan"], ["فبراير", "Feb"], ["مارس", "Mar"], ["أبريل", "Apr"], ["مايو", "May"], ["يونيو", "Jun"], ["يوليو", "Jul"], ["أغسطس", "Aug"], ["سبتمبر", "Sep"], ["أكتوبر", "Oct"], ["نوفمبر", "Nov"], ["ديسمبر", "Dec"]];
-  var TODAY = new Date(2026, 10, 14);
-  var DOC = { A: { fee: 300, ar: "كشف باطنة", en: "Internal medicine consult", tk: "A-19" }, B: { fee: 250, ar: "كشف أطفال", en: "Paediatric consult", tk: "B-10" } };
-  var state = { doc: "A", payer: "cash", sex: "M" };
+  var TP = D.today.split("-"), TODAY = new Date(+TP[0], +TP[1] - 1, +TP[2]), DAY = D.dayIndex(D.today);
+  /* fake demo inputs (0100 000 xxxx pattern; NID is synthetic) */
+  var NEW = { name: "حسن إبراهيم السيد عوض", mob: "01000000299", nid: "28911051200011" };
+  var DUP = { selim: "s-p3", nile: "n-p4" };
+  var state = { lane: null, payer: "cash", sex: "M", childPicked: false };
 
   function digits(v) { return v.replace(/[٠-٩]/g, function (d) { return String(d.charCodeAt(0) - 1632); }).replace(/\D/g, ""); }
   function press(groupId, attr, val) { Array.prototype.forEach.call(document.querySelectorAll("#" + groupId + " [" + attr + "]"), function (b) { b.setAttribute("aria-pressed", String(b.getAttribute(attr) === val)); }); }
+  function docShort(id) { var d = D.doctor(id); return d ? tx(d.shortAr, d.shortEn) : ""; }
+  function patients() { return D.scoped("patients", C); }
+  function nextFile() { var m = 0; patients().forEach(function (p) { if (+p.fileNo > m) m = +p.fileNo; }); return String(m + 1); }
+
+  /* doctors still working today in the selected branch, one lane per shift (same letters as the live queue) */
+  function lanes() {
+    if (C.all) return [];
+    var apps = D.appointmentsOn(C), order = [];
+    apps.forEach(function (a) { var k = a.doctor + "|" + a.room; if (order.indexOf(k) === -1) order.push(k); });
+    return D.shifts.filter(function (s) { return s.org === C.org && s.branch === C.branch && s.days.indexOf(DAY) > -1 && s.to > D.now; })
+      .map(function (s) {
+        var k = s.doctor + "|" + s.room, i = order.indexOf(k); if (i === -1) { order.push(k); i = order.length - 1; }
+        var ahead = apps.filter(function (a) { return a.doctor === s.doctor && a.room === s.room && (a.status === "waiting" || a.status === "arrived" || a.status === "called"); }).length;
+        return { id: s.id, doctor: s.doctor, room: s.room, sp: s.sp, letter: "ABCDEFGH"[i], ahead: ahead };
+      });
+  }
+  function nextNo() { var m = 0; D.appointmentsOn(C).forEach(function (a) { if (a.queueNo > m) m = a.queueNo; }); return m + 1; }
 
   function checkMobile() {
     var m = digits($("qr-mob").value), msg = $("qr-mob-msg"), f = $("qr-mob").closest(".t-field"), ok = /^01[0125]\d{8}$/.test(m);
@@ -239,42 +266,64 @@
     return ok;
   }
   function checkNid() {
-    var n = digits($("qr-nid").value), out = $("qr-nid-msg");
-    if (!n) { out.className = "t-hint"; setTx(out, "لو اتكتب، السن والنوع بيتملوا لوحدهم.", "If entered, age and sex fill in by themselves."); return true; }
-    if (n.length < 14) { out.className = "t-hint"; setTx(out, "باقي " + (14 - n.length) + " أرقام", (14 - n.length) + " digits to go"); return false; }
-    var c = n[0] === "2" ? 1900 : n[0] === "3" ? 2000 : 0, y = c + +n.slice(1, 3), mo = +n.slice(3, 5), d = +n.slice(5, 7), g = GOV[n.slice(7, 9)], male = +n[12] % 2 === 1;
+    var nn = digits($("qr-nid").value), out = $("qr-nid-msg");
+    if (!nn) { out.className = "t-hint"; setTx(out, "لو اتكتب، السن والنوع بيتملوا لوحدهم.", "If entered, age and sex fill in by themselves."); setTx($("qr-dob"), "", ""); return true; }
+    if (nn.length < 14) { out.className = "t-hint"; setTx(out, "باقي " + (14 - nn.length) + " أرقام", (14 - nn.length) + " digits to go"); return false; }
+    var c = nn[0] === "2" ? 1900 : nn[0] === "3" ? 2000 : 0, y = c + +nn.slice(1, 3), mo = +nn.slice(3, 5), d = +nn.slice(5, 7), g = GOV[nn.slice(7, 9)], male = +nn[12] % 2 === 1;
     var dt = new Date(y, mo - 1, d);
     if (!c || mo < 1 || mo > 12 || dt.getDate() !== d || dt > TODAY) { out.className = "t-error"; setTx(out, "الرقم القومي مش مظبوط: تاريخ الميلاد اللي جواه مش صحيح.", "This NID is not valid: the birth date inside it is wrong."); return false; }
     var age = TODAY.getFullYear() - y - ((TODAY.getMonth() < mo - 1 || (TODAY.getMonth() === mo - 1 && TODAY.getDate() < d)) ? 1 : 0);
     out.className = "qr-derived";
-    out.setAttribute("data-ar", '<span>✓ مواليد ' + d + " " + MON[mo - 1][0] + " " + y + "</span><span>" + (male ? "ذكر" : "أنثى") + "</span>" + (g ? "<span>" + g[0] + "</span>" : ""));
-    out.setAttribute("data-en", "<span>✓ Born " + d + " " + MON[mo - 1][1] + " " + y + "</span><span>" + (male ? "Male" : "Female") + "</span>" + (g ? "<span>" + g[1] + "</span>" : ""));
-    out.innerHTML = out.getAttribute(en() ? "data-en" : "data-ar");
+    setTx(out, '<span>✓ مواليد ' + d + " " + MON[mo - 1][0] + " " + y + "</span><span>" + (male ? "ذكر" : "أنثى") + "</span>" + (g ? "<span>" + g[0] + "</span>" : ""),
+      "<span>✓ Born " + d + " " + MON[mo - 1][1] + " " + y + "</span><span>" + (male ? "Male" : "Female") + "</span>" + (g ? "<span>" + g[1] + "</span>" : ""));
     $("qr-age").value = String(age); $("qr-unit").value = "y";
     setTx($("qr-dob"), "مواليد " + d + " " + MON[mo - 1][0] + " " + y + " (من الرقم القومي)", "Born " + d + " " + MON[mo - 1][1] + " " + y + " (from NID)");
     state.sex = male ? "M" : "F"; press("qr-sex", "data-sex", state.sex);
     childCheck();
     return true;
   }
+  /* live duplicate check against this organization's files (all branches) */
   function dupCheck() {
-    var dup = KNOWN.mob[digits($("qr-mob").value)] || KNOWN.nid[digits($("qr-nid").value)];
+    var m = digits($("qr-mob").value);
+    var dup = m.length >= 11 && patients().filter(function (p) { return p.phone.replace(/\s/g, "") === m; })[0];
+    if (dup) {
+      var multi = D.branchesOf(C.org).length > 1, rb = D.branch(dup.regBranch);
+      $("qr-dup-who").innerHTML = t(dup) + " · " + n(dup.age) + " " + tx("سنة · " + (dup.sex === "F" ? "أنثى" : "ذكر"), "yrs · " + dup.sex) + " · " + tx("ملف", "file") + ' <span class="t-ltr">' + dup.fileNo + "</span>" +
+        (multi ? " · " + tx("اتسجل في " + rb.shortAr + " — نفس الملف في كل الفروع", "registered in " + rb.shortEn + " — same file in every branch") : "");
+      $("qr-dup-open").href = "patient-file.html?p=" + dup.id;
+    }
     T.setState(dup ? "duplicate" : "new");
   }
   function childCheck() {
-    var a = +$("qr-age").value, u = $("qr-unit").value, child = u !== "y" || a < 16;
+    var a = +$("qr-age").value, u = $("qr-unit").value, child = !!$("qr-age").value && (u !== "y" || a < 16);
     if (child) { $("qr-more").open = true; setTx($("qr-guard-tag"), "مهم: طفل", "important: child"); $("qr-guard-tag").className = "req"; }
     else { setTx($("qr-guard-tag"), "للأطفال", "for children"); $("qr-guard-tag").className = "opt"; }
-    if (child && state.doc === "A") { state.doc = "B"; paintSum(); }
+    var peds = lanes().filter(function (l) { return l.sp === "peds"; })[0];
+    if (child && peds && state.lane !== peds.id && !state.childPicked) { state.lane = peds.id; state.childPicked = true; paintSum(); }
   }
   function paintSum() {
-    press("qr-doc", "data-doc", state.doc);
-    var D = DOC[state.doc], fee = D.fee, disc = $("qr-tier").selectedIndex;
+    var ls = lanes(), l = ls.filter(function (x) { return x.id === state.lane; })[0] || ls[0];
+    $("qr-fileno").textContent = tx("رقم الملف الجاي " + nextFile(), "Next file no. " + nextFile()) + (D.branchesOf(C.org).length > 1 ? tx(" · ملف واحد في كل فروع " + C.orgRec.ar, " · one file across all " + C.orgRec.en + " branches") : "");
+    $("qr-doc-l").textContent = C.all ? tx("يدخل دور", "Add to queue of") : tx("يدخل دور — " + C.branchRec.ar, "Add to queue of — " + C.branchRec.en);
+    if (!l) {
+      $("qr-doc").innerHTML = '<span class="t-small t-muted" style="padding:6px">' + (C.all ? tx("اختار فرع واحد من فوق", "Pick one branch at the top") : tx("مفيش طبيب شغال دلوقتي في الفرع ده", "No doctor working now in this branch")) + "</span>";
+      $("qr-fee").innerHTML = "—"; $("qr-fee-src").textContent = ""; $("qr-room").textContent = "—"; $("qr-ticket").textContent = "—"; $("qr-ahead").textContent = "";
+      $("qr-save").disabled = true; return;
+    }
+    $("qr-save").disabled = false;
+    state.lane = l.id;
+    $("qr-doc").innerHTML = ls.map(function (x) { return '<button type="button" aria-pressed="' + (x === l) + '" data-lane="' + x.id + '">' + docShort(x.doctor) + " · " + t(D.specialties[x.sp]) + "</button>"; }).join("");
+    var svc = D.mainService(C.org, l.sp), fee = svc ? D.price(svc.id, l.doctor, C.branch) : 0, disc = $("qr-tier").selectedIndex;
     var pct = state.payer === "disc" ? [50, 100, 20, 100][disc] : 0, net = Math.round(fee * (100 - pct) / 100);
-    $("qr-fee").innerHTML = net + '<span class="cur" data-en="EGP" data-ar="ج.م">' + (en() ? "EGP" : "ج.م") + "</span>";
-    setTx($("qr-fee-src"), "من «" + D.ar + "»" + (pct ? " بعد خصم " + pct + "٪" : ""), "from '" + D.en + "'" + (pct ? " after " + pct + "% off" : ""));
+    $("qr-fee").innerHTML = F.money(net) + '<span class="cur">' + t(D.currency) + "</span>";
+    setTx($("qr-fee-src"), "من «" + svc.ar + "»" + (fee !== svc.base ? " — سعر " + D.doctor(l.doctor).shortAr + " في " + C.branchRec.shortAr : "") + (pct ? " بعد خصم " + pct + "٪" : ""),
+      "from '" + svc.en + "'" + (fee !== svc.base ? " — " + D.doctor(l.doctor).shortEn + "'s price in " + C.branchRec.shortEn : "") + (pct ? " after " + pct + "% off" : ""));
     var o = $("qr-tier").options[disc];
-    $("qr-disc-sum").innerHTML = state.payer === "disc" ? '<span class="t-chip info plain" data-en="' + o.getAttribute("data-en") + '" data-ar="' + (o.getAttribute("data-ar") || o.textContent) + '">' + (en() ? o.getAttribute("data-en").replace("&amp;", "&") : (o.getAttribute("data-ar") || o.textContent)) + "</span>" : '<span class="t-faint" data-en="None" data-ar="مفيش">' + (en() ? "None" : "مفيش") + "</span>";
-    $("qr-ticket").textContent = D.tk;
+    $("qr-disc-sum").innerHTML = state.payer === "disc" ? '<span class="t-chip info plain">' + (en() ? o.getAttribute("data-en").replace("&amp;", "&") : (o.getAttribute("data-ar") || o.textContent)) + "</span>" : '<span class="t-faint">' + tx("مفيش", "None") + "</span>";
+    $("qr-room").textContent = t(D.room(l.room));
+    var no = nextNo();
+    $("qr-ticket").textContent = l.letter + "-" + (no < 10 ? "0" : "") + no;
+    $("qr-ahead").textContent = tx("قبله " + n(l.ahead), l.ahead + " waiting ahead");
   }
 
   $("qr-mob").addEventListener("input", function () { checkMobile(); dupCheck(); });
@@ -282,12 +331,17 @@
   $("qr-age").addEventListener("input", childCheck);
   $("qr-unit").addEventListener("change", childCheck);
   $("qr-tier").addEventListener("change", paintSum);
-  $("qr-not-dup").addEventListener("click", function () { T.setState("new"); T.toast(en() ? "OK — a new file will be created; the shared phone is noted" : "تمام — هيتعمل ملف جديد، والموبايل المشترك اتسجل"); });
+  $("qr-not-dup").addEventListener("click", function () { T.setState("new"); T.toast(tx("تمام — هيتعمل ملف جديد، والموبايل المشترك اتسجل", "OK — a new file will be created; the shared phone is noted")); });
 
+  function fillNew() { $("qr-name").value = NEW.name; $("qr-mob").value = NEW.mob; $("qr-nid").value = NEW.nid; state.childPicked = false; }
+  function fillDup() {
+    var p = D.patient(DUP[C.org]) || patients()[0];
+    $("qr-name").value = p.ar; $("qr-mob").value = p.phone.replace(/\s/g, ""); $("qr-nid").value = ""; state.sex = p.sex; press("qr-sex", "data-sex", p.sex); $("qr-age").value = String(p.age);
+  }
   document.addEventListener("click", function (e) {
     var b;
     if ((b = e.target.closest("#qr-sex [data-sex]"))) { state.sex = b.getAttribute("data-sex"); press("qr-sex", "data-sex", state.sex); }
-    if ((b = e.target.closest("#qr-doc [data-doc]"))) { state.doc = b.getAttribute("data-doc"); paintSum(); }
+    if ((b = e.target.closest("#qr-doc [data-lane]"))) { state.lane = b.getAttribute("data-lane"); paintSum(); }
     if ((b = e.target.closest("#qr-payer [data-payer]"))) {
       state.payer = b.getAttribute("data-payer");
       if (state.payer === "corp") { $("qr-corp").hidden = false; $("qr-disc").hidden = true; state.payer = "cash"; press("qr-payer", "data-payer", "cash"); }
@@ -295,25 +349,24 @@
       paintSum();
     }
     if ((b = e.target.closest("[data-set-state]"))) {
-      var s = b.getAttribute("data-set-state");
-      if (s === "duplicate") { $("qr-name").value = "منى عبدالرحمن الشناوي"; $("qr-mob").value = "01002345678"; $("qr-nid").value = ""; state.sex = "F"; press("qr-sex", "data-sex", "F"); $("qr-age").value = "34"; }
-      else { $("qr-name").value = "حسن إبراهيم السيد عوض"; $("qr-mob").value = "01098765432"; $("qr-nid").value = "28911051201573"; }
-      checkMobile(); checkNid();
+      if (b.getAttribute("data-set-state") === "duplicate") fillDup(); else fillNew();
+      checkMobile(); checkNid(); dupCheck();
     }
   });
 
   function save(addToQueue) {
     var errs = [];
-    if ($("qr-name").value.trim().split(/\s+/).length < 3) errs.push(en() ? "full name (at least 3 parts)" : "الاسم ثلاثي على الأقل");
-    if (!checkMobile()) errs.push(en() ? "a valid mobile" : "موبايل صحيح");
-    if (!checkNid()) errs.push(en() ? "a valid NID or leave it empty" : "رقم قومي صحيح أو سيبه فاضي");
-    if (!$("qr-age").value) errs.push(en() ? "age or DOB" : "السن أو تاريخ الميلاد");
+    if (C.all) { T.scopeNotice({ needBranch: true, key: "reg" }); return; }
+    if ($("qr-name").value.trim().split(/\s+/).length < 3) errs.push(tx("الاسم ثلاثي على الأقل", "full name (at least 3 parts)"));
+    if (!checkMobile()) errs.push(tx("موبايل صحيح", "a valid mobile"));
+    if (!checkNid()) errs.push(tx("رقم قومي صحيح أو سيبه فاضي", "a valid NID or leave it empty"));
+    if (!$("qr-age").value) errs.push(tx("السن أو تاريخ الميلاد", "age or DOB"));
     var err = $("qr-err");
-    if (errs.length) { err.className = "t-error"; err.textContent = (en() ? "Missing: " : "ناقص: ") + errs.join(en() ? ", " : "، "); return; }
+    if (errs.length) { err.className = "t-error"; err.textContent = tx("ناقص: ", "Missing: ") + errs.join(tx("، ", ", ")); return; }
     err.textContent = "";
-    var tk = DOC[state.doc].tk;
-    if (!addToQueue) { T.toast(en() ? "Saved — file 1622" : "اتحفظ — ملف 1622"); return; }
-    T.toast(en() ? "Saved as file 1622 and added to the queue — " + tk : "اتحفظ ملف 1622 واتضاف للدور — " + tk);
+    var f = nextFile(), tk = $("qr-ticket").textContent, br = tx(C.branchRec.shortAr, C.branchRec.shortEn);
+    if (!addToQueue) { T.toast(tx("اتحفظ — ملف " + f + " · اتسجل في " + br, "Saved — file " + f + " · registered in " + br)); return; }
+    T.toast(tx("اتحفظ ملف " + f + " واتضاف للدور — " + tk + " · " + br, "Saved as file " + f + " and added to the queue — " + tk + " · " + br));
     setTimeout(function () { location.href = $("qr-collect").checked ? "cashier-checkout.html" : "reception-queue.html"; }, 1100);
   }
   $("qr-form").addEventListener("submit", function (e) { e.preventDefault(); save(true); });
@@ -322,17 +375,23 @@
     if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); save(true); }
   });
 
+  function render() {
+    T.scopeNotice({ needBranch: true, key: "reg" });
+    checkMobile(); checkNid(); dupCheck(); paintSum();
+  }
+
   /* Prefill from search (?q=name or mobile) */
   var q = (location.search.match(/[?&]q=([^&]*)/) || [])[1];
   if (q) {
     q = decodeURIComponent(q);
     var d = digits(q);
-    if (d.length >= 6 && d.length === q.replace(/\s/g, "").length) { $("qr-mob").value = d; $("qr-name").value = ""; $("qr-name").focus(); }
+    if (d.length >= 6 && d.length === q.replace(/\s/g, "").length) { $("qr-mob").value = d; $("qr-name").value = ""; $("qr-nid").value = ""; $("qr-name").focus(); }
     else { $("qr-name").value = q; $("qr-mob").value = ""; $("qr-nid").value = ""; $("qr-age").value = ""; $("qr-mob").focus(); }
   }
   var h = (location.hash.match(/state=([\w-]+)/) || [])[1];
-  if (h === "duplicate") { $("qr-name").value = "منى عبدالرحمن الشناوي"; $("qr-mob").value = "01002345678"; $("qr-nid").value = ""; $("qr-age").value = "34"; state.sex = "F"; press("qr-sex", "data-sex", "F"); }
-  checkMobile(); checkNid(); dupCheck(); paintSum();
+  if (h === "duplicate") fillDup();
+  T.onCtx(function (c, reason) { if (reason === "org") { state.lane = null; if (h === "duplicate") fillDup(); } if (reason === "branch") state.lane = null; render(); });
+  render();
 })();
 </script>
 </body>

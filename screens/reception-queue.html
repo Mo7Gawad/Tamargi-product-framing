@@ -50,20 +50,26 @@
     .rq-fee { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) var(--s-4); border-radius: var(--r-md); border: 1px solid var(--line); }
     .rq-why { font-size: var(--fs-xs); color: var(--text-2); }
     @media (max-width: 560px) {
-      .t-qcard { grid-template-columns: auto 1fr; }
+      .t-qcard { grid-template-columns: auto minmax(0, 1fr); }
       .t-qcard .rq-actions { grid-column: 1 / -1; justify-content: flex-end; }
       .rq-omni { min-width: 100%; }
     }
+    .rq-lane-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-block-start: 4px; }
+    .t-lane-head { flex-wrap: wrap; }
+    .t-lane-head .rq-doc { min-width: 0; flex: 1 1 140px; }
+    .rq-lane-empty { padding: var(--s-3) var(--s-2); font-size: var(--fs-sm); color: var(--text-3); }
   </style>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
-<body data-screen="reception-queue">
+<body data-screen="reception-queue" data-org-default="nile">
 <main id="screen">
   <div class="t-container">
 
     <header class="t-screen-head">
       <div>
         <h1 data-en="Live queue">الدور المباشر</h1>
-        <p class="t-sub mb-0" data-en="Saturday 14 Nov · evening shift, 5 to 10 PM · 2 doctors working">السبت 14 نوفمبر · وردية المساء من 5 لـ 10 بالليل · 2 دكاترة شغالين</p>
+        <p class="t-sub mb-0" id="rq-sub"></p>
       </div>
       <div class="t-actions">
         <a class="t-btn" href="appointments-calendar.html"><svg class="t-icon sm"><use href="#i-calendar"/></svg><span data-en="Today's appointments">مواعيد النهارده</span></a>
@@ -77,8 +83,8 @@
     <!-- Omnibox + live counters -->
     <div class="rq-top">
       <div class="rq-omni"
-           data-note="Omnibox: Ctrl K, type a name, phone, NID or file no. (Arabic-normalised), Enter → the add-to-queue drawer opens with doctor, visit type and fee already filled → Enter. Walk-in to queued in 3 keystrokes. Replaces NITCO's 14-field search modal + separate invoice screen (v8, v90, v94)."
-           data-note-ar="بحث موحد: Ctrl K ثم اكتب الاسم أو الموبايل أو الرقم القومي ثم Enter، فيفتح درج الإضافة بالطبيب ونوع الزيارة والسعر جاهزين ثم Enter. بدل نافذة البحث ذات ١٤ خانة في NITCO.">
+           data-note="Omnibox: Ctrl K, type a name, phone, NID or file no. (Arabic-normalised), Enter → the add-to-queue drawer opens with doctor, visit type and fee already filled → Enter. Walk-in to queued in 3 keystrokes. Searches the organization's one patient file list, so a patient registered in another branch is found here too. Replaces NITCO's 14-field search modal + separate invoice screen (v8, v90, v94)."
+           data-note-ar="بحث موحد: Ctrl K ثم اكتب الاسم أو الموبايل أو الرقم القومي ثم Enter، فيفتح درج الإضافة بالطبيب ونوع الزيارة والسعر جاهزين ثم Enter. البحث في ملفات المنشأة كلها، فالمريض المسجل في فرع تاني بيظهر هنا. بدل نافذة البحث ذات ١٤ خانة في NITCO.">
         <div class="t-search-xl">
           <svg class="t-icon"><use href="#i-search"/></svg>
           <input class="t-input" id="rq-omni" type="search" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="rq-sugg"
@@ -88,12 +94,7 @@
         </div>
         <ul class="t-menu" id="rq-sugg" role="listbox" hidden></ul>
       </div>
-      <div class="rq-stats" aria-label="Today" data-en-aria-label="Today">
-        <span class="rq-stat"><b id="rq-c-wait">4</b><span data-en="waiting">منتظر</span></span>
-        <span class="rq-stat"><b>2</b><span data-en="in room">في الكشف</span></span>
-        <span class="rq-stat"><b>11</b><span data-en="done">انتهى</span></span>
-        <span class="rq-stat warn"><b>3</b><span data-en="to collect · 700 EGP">محتاجين تحصيل · 700 ج.م</span></span>
-      </div>
+      <div class="rq-stats" id="rq-stats" aria-label="Today" data-en-aria-label="Today"></div>
     </div>
 
     <!-- ===== STATE: live day ===== -->
@@ -105,243 +106,36 @@
           <section class="t-card flush" aria-labelledby="rq-book-h">
             <div class="t-card-head">
               <h2 id="rq-book-h" data-en="Coming up today">مواعيد جاية النهارده</h2>
-              <span class="t-badge muted">4</span>
+              <span class="t-badge muted" id="rq-book-n">0</span>
               <div class="t-actions"><a class="t-btn sm ghost" href="appointments-calendar.html"><span data-en="Open calendar">فتح الجدول</span><svg class="t-icon sm flip"><use href="#i-chevron"/></svg></a></div>
             </div>
-            <div class="rq-book-strip"
-                 data-note="Check in a booking with one click: the appointment becomes 'arrived', joins the doctor's lane with a ticket, and its visit + bill are created and linked. NITCO links appointment↔invoice too (v6, v90) but blocks the save with a 'link or cancel' dialog; we link automatically."
-                 data-note-ar="تسجيل حضور الحجز بضغطة: الموعد يبقى «حضر» ويدخل دور الطبيب برقم، والزيارة والفاتورة تتعمل مربوطة بالموعد تلقائيًا بدل سؤال «اربط ولا الغي» في NITCO.">
-              <div class="rq-book" data-book="1">
-                <div class="t-row tight between"><span class="rq-time">7:50 PM</span><span class="t-chip confirmed" data-en="Confirmed">مؤكد</span></div>
-                <div><b>رحاب سعيد عطية الحلواني</b><span class="rq-meta" style="display:block"><span data-en="Dr. Ahmed · new consult · 300 EGP">د. أحمد · كشف جديد · 300 ج.م</span></span></div>
-                <button class="t-btn sm soft" type="button" data-checkin="A" data-name="رحاب سعيد عطية الحلواني" data-type="new"><svg class="t-icon sm"><use href="#i-check"/></svg><span data-en="Check in">تسجيل حضور</span></button>
-              </div>
-              <div class="rq-book" data-book="2">
-                <div class="t-row tight between"><span class="rq-time">8:00 PM</span><span class="t-chip booked" data-en="Booked">محجوز</span></div>
-                <div><b>ملك إسلام زكي البنا</b><span class="rq-meta" style="display:block"><span data-en="Dr. Heba · 3 yrs · new consult · 250 EGP">د. هبة · 3 سنين · كشف جديد · 250 ج.م</span></span></div>
-                <button class="t-btn sm soft" type="button" data-checkin="B" data-name="ملك إسلام زكي البنا" data-type="new"><svg class="t-icon sm"><use href="#i-check"/></svg><span data-en="Check in">تسجيل حضور</span></button>
-              </div>
-              <div class="rq-book" data-book="3">
-                <div class="t-row tight between"><span class="rq-time">8:10 PM</span><span class="t-chip confirmed" data-en="Confirmed">مؤكد</span></div>
-                <div><b>عبد الله فتحي القط</b><span class="rq-meta" style="display:block"><span data-en="Dr. Ahmed · free follow-up · owes 150">د. أحمد · متابعة مجانية · عليه 150</span></span></div>
-                <button class="t-btn sm soft" type="button" data-checkin="A" data-name="عبد الله فتحي القط" data-type="fu"><svg class="t-icon sm"><use href="#i-check"/></svg><span data-en="Check in">تسجيل حضور</span></button>
-              </div>
-              <div class="rq-book" data-book="4">
-                <div class="t-row tight between"><span class="rq-time">8:30 PM</span><span class="t-chip booked" data-en="Booked">محجوز</span></div>
-                <div><b>نادية مصطفى الجمل</b><span class="rq-meta" style="display:block"><span data-en="Dr. Ahmed · new consult · from web chat">د. أحمد · كشف جديد · من الشات</span></span></div>
-                <button class="t-btn sm soft" type="button" data-checkin="A" data-name="نادية مصطفى الجمل" data-type="new"><svg class="t-icon sm"><use href="#i-check"/></svg><span data-en="Check in">تسجيل حضور</span></button>
-              </div>
+            <div data-note="Check in a booking with one click: the appointment becomes 'arrived', joins the doctor's lane in this branch with a ticket, and its visit + bill are created and linked. NITCO links appointment↔invoice too (v6, v90) but blocks the save with a 'link or cancel' dialog; we link automatically."
+                 data-note-ar="تسجيل حضور الحجز بضغطة: الموعد يبقى «حضر» ويدخل دور الطبيب في الفرع ده برقم، والزيارة والفاتورة تتعمل مربوطة بالموعد تلقائيًا بدل سؤال «اربط ولا الغي» في NITCO.">
+              <div class="rq-book-strip" id="rq-strip"></div>
             </div>
           </section>
 
-          <!-- Lanes per doctor -->
-          <div class="t-lanes" id="rq-lanes">
-
-            <!-- Lane A: Dr. Ahmed -->
-            <section class="t-lane" data-lane="A" aria-labelledby="lane-a-h">
-              <div class="t-lane-head">
-                <span class="t-avatar sm" data-en="AS">أس</span>
-                <h3 id="lane-a-h" class="rq-doc"><span data-en="Dr. Ahmed Selim">د. أحمد سليم</span><small data-en="Internal medicine · room 1">باطنة · غرفة 1</small></h3>
-                <div class="t-actions">
-                  <button class="t-btn sm" type="button" data-callnext="A"><svg class="t-icon sm"><use href="#i-call"/></svg><span data-en="Call next">نادِ على التالي</span></button>
-                </div>
-              </div>
-              <div class="t-lane-body" data-lane-body="A">
-
-                <article class="t-qcard is-owed" data-q="A-14"
-                         data-note="Charge capture: the doctor added an ECG during the visit, so the done card stays on top with a red 'Balance due' badge until reception collects. NITCO makes the doctor 'send a cash invoice' back to reception (v24, v34, v91); here it is automatic."
-                         data-note-ar="تحصيل تلقائي لما الطبيب يضيف خدمة: الكارت المنتهي يفضل فوق بعلامة «مطلوب تحصيل» لحد ما الاستقبال يحصّل، بدل «إرسال فاتورة كاش» يدوي في NITCO.">
-                  <span class="t-ticket done"><b>A-14</b></span>
-                  <div>
-                    <div class="t-qname">كريم محمود عبد العزيز</div>
-                    <div class="rq-line">
-                      <span class="t-chip done" data-en="Done">انتهى</span>
-                      <span class="t-chip debt plain" data-en="Balance due 150 · ECG added">مطلوب 150 · رسم قلب</span>
-                    </div>
-                  </div>
-                  <div class="rq-actions">
-                    <a class="t-btn sm primary" href="cashier-checkout.html"><svg class="t-icon sm"><use href="#i-cash"/></svg><span data-en="Collect 150">تحصيل 150</span></a>
-                    <div class="rq-more">
-                      <button class="t-btn sm icon ghost" type="button" data-more aria-label="More actions" title="More actions" data-en-aria-label="More actions" data-en-title="More actions"><svg class="t-icon sm"><use href="#i-more"/></svg></button>
-                    </div>
-                  </div>
-                </article>
-
-                <article class="t-qcard" data-q="A-15">
-                  <span class="t-ticket inroom"><b>A-15</b></span>
-                  <div>
-                    <div class="t-qname">سامية فؤاد البدراوي</div>
-                    <div class="rq-line">
-                      <span class="t-chip inroom" data-en="In room · 12 min">في الكشف · 12 د</span>
-                      <span class="t-chip paid plain" data-en="Paid 300">مدفوع 300</span>
-                    </div>
-                  </div>
-                  <div class="rq-actions">
-                    <a class="t-btn sm ghost" href="patient-file.html"><span data-en="Open file">فتح الملف</span></a>
-                    <div class="rq-more"><button class="t-btn sm icon ghost" type="button" data-more aria-label="More actions" title="More actions" data-en-aria-label="More actions" data-en-title="More actions"><svg class="t-icon sm"><use href="#i-more"/></svg></button></div>
-                  </div>
-                </article>
-
-                <article class="t-qcard" data-q="A-16"
-                         data-note="Every state is a word + colour + dot: waiting (saffron), called (ink, pulsing), in room (green), done (slate), left (brick). NITCO uses row colour with a 9–10 dot legend and no text (v6, v30, v90)."
-                         data-note-ar="كل حالة كلمة + لون + نقطة: منتظر، نودي عليه، في الكشف، انتهى، مشي. NITCO بيعتمد على لون الصف مع دليل ألوان من غير كلام.">
-                  <span class="t-ticket called"><b>A-16</b></span>
-                  <div>
-                    <div class="t-qname">منى عبد الرحمن الشناوي</div>
-                    <div class="rq-line">
-                      <span class="t-chip called" data-en="Called · 1 min">نودي عليها · 1 د</span>
-                      <span class="t-chip free" data-en="Free follow-up">متابعة مجانية</span>
-                    </div>
-                  </div>
-                  <div class="rq-actions">
-                    <button class="t-btn sm" type="button" data-toast="تم النداء تاني على A-16" data-toast-en="Called A-16 again"><span data-en="Call again">نادِ تاني</span></button>
-                    <div class="rq-more"><button class="t-btn sm icon ghost" type="button" data-more aria-label="More actions" title="More actions" data-en-aria-label="More actions" data-en-title="More actions"><svg class="t-icon sm"><use href="#i-more"/></svg></button></div>
-                  </div>
-                </article>
-
-                <article class="t-qcard is-next" data-q="A-17">
-                  <span class="t-ticket waiting"><b>A-17</b></span>
-                  <div>
-                    <div class="t-qname">يوسف إبراهيم حسن الصاوي</div>
-                    <div class="rq-line">
-                      <span class="t-chip waiting" data-en="Waiting · 8 min">منتظر · 8 د</span>
-                      <span class="t-chip plain" data-en="Booked 7:30 · consult 300 · paid">حجز 7:30 · كشف 300 · مدفوع</span>
-                    </div>
-                  </div>
-                  <div class="rq-actions">
-                    <button class="t-btn sm soft" type="button" data-call><svg class="t-icon sm"><use href="#i-call"/></svg><span data-en="Call">نادِ</span></button>
-                    <div class="rq-more"><button class="t-btn sm icon ghost" type="button" data-more aria-label="More actions" title="More actions" data-en-aria-label="More actions" data-en-title="More actions"><svg class="t-icon sm"><use href="#i-more"/></svg></button></div>
-                  </div>
-                </article>
-
-                <article class="t-qcard" data-q="A-18"
-                         data-note="One next-step button per row (Check in → Collect → Call), everything else in the '…' menu with labels. NITCO shows 9–11 unlabelled round icons on every row, even empty slots (v6–8, v90). Collecting before or after the visit is a clinic setting, never a hard block on the doctor (NITCO v30)."
-                         data-note-ar="زرار واحد للخطوة الجاية في كل صف (تسجيل حضور ← تحصيل ← نداء) والباقي في قائمة «…» بأسماء واضحة، بدل ٩–١١ أيقونة من غير اسم في NITCO. التحصيل قبل أو بعد الكشف إعداد للعيادة، مش قفل على الطبيب.">
-                  <span class="t-ticket waiting"><b>A-18</b></span>
-                  <div>
-                    <div class="t-qname">حمدي السيد المتولي</div>
-                    <div class="rq-line">
-                      <span class="t-chip waiting" data-en="Waiting · 3 min">منتظر · 3 د</span>
-                      <span class="t-chip unpaid plain" data-en="Walk-in · consult 300 · unpaid">بدون حجز · كشف 300 · لم يدفع</span>
-                    </div>
-                  </div>
-                  <div class="rq-actions">
-                    <a class="t-btn sm" href="cashier-checkout.html"><svg class="t-icon sm"><use href="#i-cash"/></svg><span data-en="Collect 300">تحصيل 300</span></a>
-                    <div class="rq-more"><button class="t-btn sm icon ghost" type="button" data-more aria-label="More actions" title="More actions" data-en-aria-label="More actions" data-en-title="More actions"><svg class="t-icon sm"><use href="#i-more"/></svg></button></div>
-                  </div>
-                </article>
-              </div>
-              <details class="rq-done">
-                <summary><span data-en="Show done (6) and left (0)">عرض المنتهي (6) واللي مشي (0)</span></summary>
-                <div class="t-lane-body">
-                  <article class="t-qcard"><span class="t-ticket done"><b>A-13</b></span><div><div class="t-qname">أسماء عبد العاطي المرسي</div><div class="rq-line"><span class="t-chip done" data-en="Done 7:05">انتهى 7:05</span><span class="t-chip paid plain" data-en="Paid 300">مدفوع 300</span></div></div><a class="t-btn sm ghost" href="patient-file.html"><span data-en="Open file">فتح الملف</span></a></article>
-                  <article class="t-qcard"><span class="t-ticket done"><b>A-12</b></span><div><div class="t-qname">إبراهيم مصطفى الشاذلي</div><div class="rq-line"><span class="t-chip done" data-en="Done 6:40">انتهى 6:40</span><span class="t-chip free" data-en="Free follow-up">متابعة مجانية</span></div></div><a class="t-btn sm ghost" href="patient-file.html"><span data-en="Open file">فتح الملف</span></a></article>
-                </div>
-              </details>
-            </section>
-
-            <!-- Lane B: Dr. Heba -->
-            <section class="t-lane" data-lane="B" aria-labelledby="lane-b-h">
-              <div class="t-lane-head">
-                <span class="t-avatar sm" data-en="HS">هش</span>
-                <h3 id="lane-b-h" class="rq-doc"><span data-en="Dr. Heba El-Shennawy">د. هبة الشناوي</span><small data-en="Paediatrics · room 2">أطفال · غرفة 2</small></h3>
-                <div class="t-actions">
-                  <button class="t-btn sm" type="button" data-callnext="B"><svg class="t-icon sm"><use href="#i-call"/></svg><span data-en="Call next">نادِ على التالي</span></button>
-                </div>
-              </div>
-              <div class="t-lane-body" data-lane-body="B">
-                <article class="t-qcard" data-q="B-07">
-                  <span class="t-ticket inroom"><b>B-07</b></span>
-                  <div>
-                    <div class="t-qname">آدم محمد الدسوقي <span class="t-faint t-small" data-en="· 7 yrs">· 7 سنين</span></div>
-                    <div class="rq-line"><span class="t-chip inroom" data-en="In room · 6 min">في الكشف · 6 د</span><span class="t-chip paid plain" data-en="Paid 250">مدفوع 250</span></div>
-                  </div>
-                  <div class="rq-actions">
-                    <a class="t-btn sm ghost" href="patient-file.html"><span data-en="Open file">فتح الملف</span></a>
-                    <div class="rq-more"><button class="t-btn sm icon ghost" type="button" data-more aria-label="More actions" title="More actions" data-en-aria-label="More actions" data-en-title="More actions"><svg class="t-icon sm"><use href="#i-more"/></svg></button></div>
-                  </div>
-                </article>
-
-                <article class="t-qcard is-next" data-q="B-08">
-                  <span class="t-ticket waiting"><b>B-08</b></span>
-                  <div>
-                    <div class="t-qname">جنى وليد عبد الحميد <span class="t-faint t-small" data-en="· 2 yrs">· سنتين</span></div>
-                    <div class="rq-line">
-                      <span class="t-chip waiting" data-en="Waiting · 14 min">منتظرة · 14 د</span>
-                      <span class="t-chip free"
-                            data-note="Visit type and fee are set for you. Last visit with Dr. Heba was 6 days ago and her free follow-up window is 10 days → 'Free follow-up', 0 EGP. Outside the window → 'New consult' at the doctor's default fee (250). Same rules as NITCO's per-doctor default consult/follow-up services and 'visit days' (v1, v89, v97, v13/v62), with the reason shown in plain words."
-                            data-note-ar="نوع الزيارة والسعر بيتحددوا لوحدهم: آخر كشف مع د. هبة من ٦ أيام والمتابعة المجانية ١٠ أيام ← «متابعة مجانية» صفر. بره المدة ← «كشف جديد» بسعر الطبيب الافتراضي. نفس قواعد NITCO (خدمة الكشف/المتابعة لكل طبيب وأيام المتابعة) مع سبب مكتوب."
-                            data-en="Free follow-up · until 18 Nov">متابعة مجانية · حتى 18 نوفمبر</span>
-                    </div>
-                  </div>
-                  <div class="rq-actions">
-                    <button class="t-btn sm soft" type="button" data-call><svg class="t-icon sm"><use href="#i-call"/></svg><span data-en="Call">نادِ</span></button>
-                    <div class="rq-more"><button class="t-btn sm icon ghost" type="button" data-more aria-label="More actions" title="More actions" data-en-aria-label="More actions" data-en-title="More actions"><svg class="t-icon sm"><use href="#i-more"/></svg></button></div>
-                  </div>
-                </article>
-
-                <article class="t-qcard" data-q="B-09">
-                  <span class="t-ticket waiting"><b>B-09</b></span>
-                  <div>
-                    <div class="t-qname">عمر هشام الغنام <span class="t-faint t-small" data-en="· 11 months">· 11 شهر</span></div>
-                    <div class="rq-line"><span class="t-chip waiting" data-en="Waiting · 5 min">منتظر · 5 د</span><span class="t-chip unpaid plain" data-en="Consult 250 · unpaid">كشف 250 · لم يدفع</span></div>
-                  </div>
-                  <div class="rq-actions">
-                    <a class="t-btn sm" href="cashier-checkout.html"><svg class="t-icon sm"><use href="#i-cash"/></svg><span data-en="Collect 250">تحصيل 250</span></a>
-                    <div class="rq-more"><button class="t-btn sm icon ghost" type="button" data-more aria-label="More actions" title="More actions" data-en-aria-label="More actions" data-en-title="More actions"><svg class="t-icon sm"><use href="#i-more"/></svg></button></div>
-                  </div>
-                </article>
-
-                <article class="t-qcard" data-q="B-05">
-                  <span class="t-ticket"><b>B-05</b></span>
-                  <div>
-                    <div class="t-qname">مالك أشرف عبد السلام <span class="t-faint t-small" data-en="· 4 yrs">· 4 سنين</span></div>
-                    <div class="rq-line"><span class="t-chip left" data-en="Left before visit · 7:12">مشي قبل الكشف · 7:12</span></div>
-                  </div>
-                  <div class="rq-actions">
-                    <button class="t-btn sm ghost" type="button" data-toast="رجع للدور كآخر واحد" data-toast-en="Back in the queue, last in line"><span data-en="Back to queue">رجّعه للدور</span></button>
-                  </div>
-                </article>
-              </div>
-              <details class="rq-done">
-                <summary><span data-en="Show done (5)">عرض المنتهي (5)</span></summary>
-                <div class="t-lane-body">
-                  <article class="t-qcard"><span class="t-ticket done"><b>B-06</b></span><div><div class="t-qname">سلمى طارق النجار</div><div class="rq-line"><span class="t-chip done" data-en="Done 7:20">انتهى 7:20</span><span class="t-chip paid plain" data-en="Paid 250">مدفوع 250</span></div></div><a class="t-btn sm ghost" href="patient-file.html"><span data-en="Open file">فتح الملف</span></a></article>
-                </div>
-              </details>
-            </section>
+          <!-- Lanes: one per doctor x room in the branch -->
+          <div data-note="One lane per doctor and room in the selected branch, with the specialty and room on the lane head; under 'All branches' (owner) each lane also shows its branch. Every state is a word + colour + dot: waiting (saffron), called (ink), in room (green), done (slate), left (brick). Charge capture: when the doctor adds a service, the done card stays on top with 'Balance due' until reception collects. One next-step button per row (Collect → Call), everything else in the '…' menu. NITCO uses row colour with a 9–10 dot legend and 9–11 unlabelled icons per row (v6–8, v24, v30, v34, v90, v91)."
+               data-note-ar="دور لكل طبيب وغرفة في الفرع المختار، والتخصص والغرفة على راس الدور؛ في «كل الفروع» (المالك) كل دور مكتوب عليه الفرع. كل حالة كلمة + لون + نقطة. لما الطبيب يضيف خدمة الكارت المنتهي يفضل فوق بعلامة «مطلوب تحصيل». زرار واحد للخطوة الجاية والباقي في «…»، بدل ألوان الصفوف و٩–١١ أيقونة من غير اسم في NITCO.">
+            <div class="t-lanes" id="rq-lanes"></div>
           </div>
         </div>
 
         <!-- Aside: who owes money, cash today, chat -->
         <aside class="t-stack">
-          <section class="t-card" aria-labelledby="rq-owe-h">
-            <div class="t-card-head"><h2 id="rq-owe-h" data-en="Waiting to pay">محتاجين تحصيل</h2><span class="t-badge">3</span></div>
-            <div>
-              <div class="rq-owe">
-                <div><b>كريم محمود عبد العزيز</b><small><span data-en="A-14 · ECG added by Dr. Ahmed">A-14 · رسم قلب من د. أحمد</span></small></div>
-                <a class="t-btn sm" href="cashier-checkout.html"><span class="t-money debt">150<span class="cur" data-en="EGP">ج.م</span></span></a>
-              </div>
-              <div class="rq-owe">
-                <div><b>حمدي السيد المتولي</b><small><span data-en="A-18 · consult">A-18 · كشف</span></small></div>
-                <a class="t-btn sm" href="cashier-checkout.html"><span class="t-money debt">300<span class="cur" data-en="EGP">ج.م</span></span></a>
-              </div>
-              <div class="rq-owe">
-                <div><b>عمر هشام الغنام</b><small><span data-en="B-09 · consult">B-09 · كشف</span></small></div>
-                <a class="t-btn sm" href="cashier-checkout.html"><span class="t-money debt">250<span class="cur" data-en="EGP">ج.م</span></span></a>
-              </div>
-            </div>
+          <section class="t-card" aria-labelledby="rq-owe-h"
+                   data-note="Visit type and fee are set for you: inside the patient's free follow-up window → 'Free follow-up', 0 EGP; otherwise the doctor's fee for this branch (a doctor can charge differently per branch). Same rules as NITCO's per-doctor default consult/follow-up services and 'visit days' (v1, v89, v97, v13/v62), with the reason shown in plain words. Collecting before or after the visit is a clinic setting, never a hard block on the doctor (NITCO v30)."
+                   data-note-ar="نوع الزيارة والسعر بيتحددوا لوحدهم: جوه مدة المتابعة المجانية ← «متابعة مجانية» صفر، غير كده سعر الطبيب في الفرع ده (الطبيب ممكن يكون سعره مختلف من فرع لفرع). التحصيل قبل أو بعد الكشف إعداد للعيادة، مش قفل على الطبيب.">
+            <div class="t-card-head"><h2 id="rq-owe-h" data-en="Waiting to pay">محتاجين تحصيل</h2><span class="t-badge" id="rq-owe-n">0</span></div>
+            <div id="rq-owe"></div>
             <p class="t-hint mt-2 mb-0" data-en="Old debts show on the patient's pill when they are queued, not here.">المديونيات القديمة بتظهر على المريض لما يدخل الدور، مش هنا.</p>
           </section>
 
           <section class="t-card" aria-labelledby="rq-cash-h">
-            <div class="t-card-head"><h2 id="rq-cash-h" data-en="Cash drawer today">الخزنة النهارده</h2><span class="t-chip inroom" data-en="Shift open">الوردية مفتوحة</span></div>
-            <dl class="t-totals">
-              <dt data-en="Cash">نقدي</dt><dd><span class="t-money">2,850<span class="cur" data-en="EGP">ج.م</span></span></dd>
-              <dt data-en="InstaPay / wallet">إنستاباي / محفظة</dt><dd><span class="t-money">600<span class="cur" data-en="EGP">ج.م</span></span></dd>
-              <dt data-en="Discounts given (2)">خصومات (2)</dt><dd><span class="t-money">-150<span class="cur" data-en="EGP">ج.م</span></span></dd>
-              <dt class="grand" data-en="Collected">المحصّل</dt><dd class="grand"><span class="t-money">3,450<span class="cur" data-en="EGP">ج.م</span></span></dd>
-            </dl>
+            <div class="t-card-head"><h2 id="rq-cash-h"><span data-en="Cash drawer today">الخزنة النهارده</span></h2><span class="t-chip inroom" data-en="Shift open">الوردية مفتوحة</span></div>
+            <p class="t-small t-muted mb-2" id="rq-cash-who"></p>
+            <dl class="t-totals" id="rq-cash"></dl>
             <a class="t-btn sm block mt-4" href="cash-close.html"><svg class="t-icon sm"><use href="#i-lock"/></svg><span data-en="Close shift">تقفيل الوردية</span></a>
           </section>
 
@@ -362,23 +156,21 @@
                data-note-ar="بداية اليوم: من غير رسومات، بس أول حاجتين الاستقبال بيعملهم. الحجوزات ظاهرة عشان أول تسجيل حضور يبقى بضغطة.">
             <div class="t-empty-art"><svg class="t-icon"><use href="#i-queue"/></svg></div>
             <h3 data-en="No one in the queue yet">مفيش حد في الدور لسه</h3>
-            <p data-en="Add the first patient who walks in, or check in a booked appointment. Dr. Ahmed starts at 5:00 PM, Dr. Heba at 6:00 PM.">ضيف أول مريض يوصل، أو سجّل حضور موعد محجوز. د. أحمد بيبدأ 5:00 م ود. هبة 6:00 م.</p>
+            <p id="rq-empty-p"></p>
             <div class="t-row tight">
               <button class="t-btn primary" type="button" data-focus-omni><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="Add walk-in">إضافة مريض</span><span class="t-kbd">F2</span></button>
-              <a class="t-btn" href="appointments-calendar.html"><svg class="t-icon sm"><use href="#i-calendar"/></svg><span data-en="Today's appointments (9)">مواعيد النهارده (9)</span></a>
+              <a class="t-btn" href="appointments-calendar.html" id="rq-empty-cal"></a>
             </div>
           </div>
         </section>
         <aside class="t-stack">
           <section class="t-card">
             <div class="t-card-head"><h2 data-en="First bookings">أول الحجوزات</h2></div>
-            <div class="rq-owe"><div><b>هبة محمود سرور</b><small><span data-en="5:00 PM · Dr. Ahmed · confirmed">5:00 م · د. أحمد · مؤكد</span></small></div><span class="t-chip confirmed" data-en="Confirmed">مؤكد</span></div>
-            <div class="rq-owe"><div><b>محمد عبد الله العشري</b><small><span data-en="5:20 PM · Dr. Ahmed">5:20 م · د. أحمد</span></small></div><span class="t-chip booked" data-en="Booked">محجوز</span></div>
-            <div class="rq-owe"><div><b>ريم أحمد عبد الفتاح</b><small><span data-en="6:00 PM · Dr. Heba · follow-up">6:00 م · د. هبة · متابعة</span></small></div><span class="t-chip booked" data-en="Booked">محجوز</span></div>
+            <div id="rq-empty-list"></div>
           </section>
           <section class="t-card sunk">
-            <div class="t-row tight"><svg class="t-icon"><use href="#i-cash"/></svg><b data-en="Shift opened at 4:45 PM">الوردية اتفتحت 4:45 م</b></div>
-            <p class="t-small t-muted mt-2 mb-0" data-en="Opening float: 500 EGP (counted by Sara).">رصيد أول المدة: 500 ج.م (عدّته سارة).</p>
+            <div class="t-row tight"><svg class="t-icon"><use href="#i-cash"/></svg><b id="rq-empty-shift"></b></div>
+            <p class="t-small t-muted mt-2 mb-0" id="rq-empty-float"></p>
           </section>
         </aside>
       </div>
@@ -387,9 +179,9 @@
 
   <!-- Overflow menu (one, moved next to the clicked "…") -->
   <ul class="t-menu" id="rq-more-menu" role="menu" hidden>
-    <li role="menuitem" data-href="patient-file.html"><svg class="t-icon sm"><use href="#i-file"/></svg><span data-en="Open patient file">فتح ملف المريض</span></li>
+    <li role="menuitem" data-href="patient-file.html" data-menu-file><svg class="t-icon sm"><use href="#i-file"/></svg><span data-en="Open patient file">فتح ملف المريض</span></li>
     <li role="menuitem" data-href="cashier-checkout.html"><svg class="t-icon sm"><use href="#i-cash"/></svg><span data-en="Collect / view bill">تحصيل / عرض الفاتورة</span><span class="t-kbd">F9</span></li>
-    <li role="menuitem" data-toast="اتنقل لد. هبة — نفس الرقم" data-toast-en="Moved to Dr. Heba — same ticket"><svg class="t-icon sm"><use href="#i-users"/></svg><span data-en="Move to another doctor">نقل لطبيب تاني</span></li>
+    <li role="menuitem" data-toast="اتنقل لطبيب تاني في نفس الفرع — نفس الرقم" data-toast-en="Moved to another doctor in this branch — same ticket"><svg class="t-icon sm"><use href="#i-users"/></svg><span data-en="Move to another doctor">نقل لطبيب تاني</span></li>
     <li role="menuitem" data-toast="اتنقل لآخر الدور" data-toast-en="Moved to the end of the line"><svg class="t-icon sm"><use href="#i-queue"/></svg><span data-en="Move to end of line">نقل لآخر الدور</span></li>
     <li role="menuitem" data-href="receipt-print.html"><svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Print receipt">طباعة الإيصال</span></li>
     <li class="t-menu-sep" role="separator"></li>
@@ -404,21 +196,18 @@
     </div>
     <div class="t-modal-body t-stack lg">
       <div class="rq-drawer-patient">
-        <span class="t-avatar" id="rq-d-av">م ع</span>
+        <span class="t-avatar" id="rq-d-av"></span>
         <div class="t-grow">
-          <div class="t-banner-name" id="rq-d-name">منى عبد الرحمن الشناوي</div>
+          <div class="t-banner-name" id="rq-d-name"></div>
           <div class="t-banner-facts" id="rq-d-facts"></div>
           <div class="t-row tight mt-2" id="rq-d-pills"></div>
         </div>
-        <a class="t-btn sm ghost" href="patient-file.html"><span data-en="File">الملف</span></a>
+        <a class="t-btn sm ghost" href="patient-file.html" id="rq-d-file"><span data-en="File">الملف</span></a>
       </div>
 
       <div class="t-field">
-        <span class="t-label" data-en="Doctor">الطبيب</span>
-        <div class="t-seg" role="group" id="rq-d-doc">
-          <button type="button" aria-pressed="true" data-doc="A"><span data-en="Dr. Ahmed · Internal med.">د. أحمد · باطنة</span></button>
-          <button type="button" aria-pressed="false" data-doc="B"><span data-en="Dr. Heba · Paediatrics">د. هبة · أطفال</span></button>
-        </div>
+        <span class="t-label" id="rq-d-doc-l"></span>
+        <div class="t-seg" role="group" id="rq-d-doc" style="flex-wrap:wrap"></div>
       </div>
 
       <div class="t-field">
@@ -451,58 +240,214 @@
     </div>
   </div>
 </main>
+<script src="../assets/demo-data.js"></script>
 <script src="../assets/shell.js"></script>
 <script>
 (function () {
   "use strict";
-  var T = window.Tamargi;
-  function en() { return T && T.lang() === "en"; }
-  function tx(ar, e) { return '<span data-ar="' + ar.replace(/"/g, "&quot;") + '" data-en="' + e.replace(/"/g, "&quot;") + '">' + (en() ? e : ar) + "</span>"; }
-  function setTx(el, ar, e) { el.setAttribute("data-ar", ar); el.setAttribute("data-en", e); el.innerHTML = en() ? e : ar; }
-
-  /* ---- Fake patients (no real people) ---- */
-  var DOCS = {
-    A: { ar: "د. أحمد", en: "Dr. Ahmed", fee: 300, win: 14, svcAr: "كشف باطنة", svcEn: "Internal medicine consult" },
-    B: { ar: "د. هبة", en: "Dr. Heba", fee: 250, win: 10, svcAr: "كشف أطفال", svcEn: "Paediatric consult" }
-  };
-  var P = [
-    { n: "منى عبد الرحمن السيد الشناوي", i: "م ع", age: "34", sexAr: "أنثى", sexEn: "F", file: "1043", mob: "01002345678", last: { d: "A", days: 9 }, debt: 40 },
-    { n: "محمد عبد الله إبراهيم العشري", i: "م ع", age: "52", sexAr: "ذكر", sexEn: "M", file: "0871", mob: "01227781190", last: { d: "A", days: 40 }, dep: 200 },
-    { n: "محمد عبدالله فوزي الجندي", i: "م ف", age: "29", sexAr: "ذكر", sexEn: "M", file: "1310", mob: "01114402233", last: { d: "A", days: 3 } },
-    { n: "ريم أحمد عبد الفتاح زكي", i: "ر أ", age: "5", sexAr: "أنثى", sexEn: "F", file: "2214", mob: "01093320145", last: { d: "B", days: 6 }, child: true },
-    { n: "هبة محمود عبد الله سرور", i: "ه م", age: "41", sexAr: "أنثى", sexEn: "F", file: "0655", mob: "01550093317", last: { d: "A", days: 62 } },
-    { n: "عبد الله فتحي القط", i: "ع ف", age: "63", sexAr: "ذكر", sexEn: "M", file: "0412", mob: "01006617742", last: { d: "A", days: 11 }, debt: 150 },
-    { n: "أسماء عبد العاطي المرسي", i: "أ ع", age: "27", sexAr: "أنثى", sexEn: "F", file: "1502", mob: "01282230456" }
-  ];
+  /* Everything below is rendered from assets/demo-data.js for the selected org + branch. */
+  var T = window.Tamargi, D = T.data, C = T.ctx, F = D.fmt;
+  var $ = function (id) { return document.getElementById(id); };
+  function L() { return C.lang === "en"; }
+  function tx(ar, e) { return L() ? e : ar; }
+  function t(r) { return F.t(r, C.lang); }
+  function n(x) { return F.num(x, C.lang); }
+  function hr(h) { return F.hour(h, C.lang); }
+  function cur() { return '<span class="cur">' + t(D.currency) + "</span>"; }
+  var MON = [["يناير", "Jan"], ["فبراير", "Feb"], ["مارس", "Mar"], ["أبريل", "Apr"], ["مايو", "May"], ["يونيو", "Jun"], ["يوليو", "Jul"], ["أغسطس", "Aug"], ["سبتمبر", "Sep"], ["أكتوبر", "Oct"], ["نوفمبر", "Nov"], ["ديسمبر", "Dec"]];
+  function dShort(iso) { var p = iso.split("-"); return L() ? +p[2] + " " + MON[+p[1] - 1][1] : n(+p[2]) + " " + MON[+p[1] - 1][0]; }
   function norm(s) {
     return String(s).replace(/[أإآٱ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").replace(/ؤ/g, "و").replace(/ئ/g, "ي")
-      .replace(/[٠-٩]/g, function (d) { return String(d.charCodeAt(0) - 1632); }).replace(/\s+/g, "");
+      .replace(/[٠-٩]/g, function (d) { return String(d.charCodeAt(0) - 1632); }).replace(/\s+/g, "").toLowerCase();
   }
-  function fmtMob(m) { return m.slice(0, 4) + " " + m.slice(4, 7) + " " + m.slice(7); }
+  function multi() { return D.branchesOf(C.org).length > 1; }
+  function brTag(id) { var b = D.branch(id); return b ? '<span class="t-branch-tag"><svg class="t-icon"><use href="#i-pin"/></svg>' + tx(b.shortAr, b.shortEn) + "</span>" : ""; }
+  function spTag(sp) { var s = D.specialties[sp]; return s ? '<span class="t-spec-tag ' + s.cls + '">' + t(s) + "</span>" : ""; }
+  function docShort(id) { var d = D.doctor(id); return d ? tx(d.shortAr, d.shortEn) : ""; }
+  var DAY = D.dayIndex(D.today);
+  var LIVE = { arrived: 1, waiting: 1, called: 1, inroom: 1 };
 
-  /* ---- Omnibox ---- */
-  var omni = document.getElementById("rq-omni"), sugg = document.getElementById("rq-sugg"), active = 0, results = [];
+  /* ---- helpers on the data ---- */
+  function shiftOf(a) { return D.shifts.filter(function (s) { return s.doctor === a.doctor && s.branch === a.branch && s.room === a.room && s.days.indexOf(DAY) > -1; })[0] || null; }
+  function invOf(a) { return D.invoices.filter(function (i) { return i.appointment === a.id; })[0] || null; }
+  function isFree(a) { var s = D.service(a.service), p = D.patient(a.patient); return !!(s && s.kind === "followup" && p.followupUntil && p.followupUntil >= D.today); }
+  function fee(a) { return isFree(a) ? 0 : D.price(a.service, a.doctor, a.branch); }
+  function unpaid(a) { return !!LIVE[a.status] && !isFree(a) && (a.unpaid != null ? a.unpaid : a.source === "walkin"); }
+  function owed(a) { var i = a.status === "done" && invOf(a); return i ? Math.max(0, i.total - i.paid) : 0; }
+  function nextNo(branch) { var m = 0; D.appointments.forEach(function (a) { if (a.org === C.org && a.branch === branch && a.date === D.today && a.queueNo > m) m = a.queueNo; }); return m + 1; }
+  function mins(a) { return Math.max(1, Math.round((D.now - (a.at != null ? a.at : a.from)) * 60)); }
+
+  /* lanes: one per branch x doctor x room that has appointments today; letter per branch */
+  function buildLanes(apps) {
+    var map = {}, list = [];
+    apps.forEach(function (a) {
+      var k = a.branch + "|" + a.doctor + "|" + a.room;
+      if (!map[k]) { var sh = shiftOf(a); map[k] = { key: k, branch: a.branch, doctor: a.doctor, room: a.room, sh: sh, sp: sh ? sh.sp : D.doctor(a.doctor).sp[0], first: a.from, items: [] }; list.push(map[k]); }
+      map[k].items.push(a);
+    });
+    var letters = {};
+    list.sort(function (x, y) { return x.branch < y.branch ? -1 : x.branch > y.branch ? 1 : x.first - y.first; });
+    list.forEach(function (l) { letters[l.branch] = (letters[l.branch] || 0); l.letter = "ABCDEFGH"[letters[l.branch]++]; });
+    /* lanes still working come first; a finished shift goes last */
+    list.sort(function (x, y) { var ax = x.items.some(function (a) { return LIVE[a.status] || owed(a); }) ? 0 : 1, ay = y.items.some(function (a) { return LIVE[a.status] || owed(a); }) ? 0 : 1; return ax - ay; });
+    return list;
+  }
+  var laneByKey = {};
+  function ticket(a) { var l = laneByKey[a.branch + "|" + a.doctor + "|" + a.room]; return (l ? l.letter : "A") + "-" + (a.queueNo < 10 ? "0" : "") + a.queueNo; }
+
+  /* ---- queue card ---- */
+  var ORD = { done: 0, inroom: 1, called: 2, arrived: 3, waiting: 3, left: 4 };
+  function card(a, next) {
+    var p = D.patient(a.patient), s = D.service(a.service), f = fee(a), i = invOf(a), due = owed(a), st, pay = "", act;
+    var age = p.child ? ' <span class="t-faint t-small">· ' + n(p.age) + " " + tx(p.age === 1 ? "سنة" : "سنين", "yrs") + "</span>" : "";
+    if (a.status === "inroom") st = '<span class="t-chip inroom">' + tx("في الكشف · " + n(mins(a)) + " د", "In room · " + mins(a) + " min") + "</span>";
+    else if (a.status === "called") st = '<span class="t-chip called">' + tx("اتنادى · " + n(1) + " د", "Called · 1 min") + "</span>";
+    else if (a.status === "waiting" || a.status === "arrived") st = '<span class="t-chip waiting">' + tx("منتظر · " + n(mins(a)) + " د", "Waiting · " + mins(a) + " min") + "</span>";
+    else if (a.status === "done") st = '<span class="t-chip done">' + tx("خلص " + hr(a.from + a.dur / 60), "Done " + hr(a.from + a.dur / 60)) + "</span>";
+    else if (a.status === "noshow") st = '<span class="t-chip noshow">' + tx("مجاش", "No-show") + "</span>";
+    else st = '<span class="t-chip left">' + tx("مشي قبل الكشف", "Left before visit") + "</span>";
+    if (a.status === "done" && i) {
+      var add = i.lines.length > 1 ? " · " + t(i.lines[i.lines.length - 1]) : "";
+      pay = due ? '<span class="t-chip debt plain">' + tx("مطلوب " + F.money(due) + add, "Balance due " + F.money(due) + add) + "</span>"
+                : i.total === 0 ? '<span class="t-chip free">' + tx("متابعة مجانية", "Free follow-up") + "</span>" : '<span class="t-chip paid plain">' + tx("مدفوع " + F.money(i.paid), "Paid " + F.money(i.paid)) + "</span>";
+    } else if (LIVE[a.status]) {
+      if (isFree(a)) pay = '<span class="t-chip free">' + tx("متابعة مجانية · حتى " + dShort(p.followupUntil), "Free follow-up · until " + dShort(p.followupUntil)) + "</span>";
+      else if (unpaid(a)) pay = '<span class="t-chip unpaid plain">' + tx((a.source === "walkin" ? "بدون حجز · " : "") + t(s) + " " + F.money(f) + " · لم يدفع", (a.source === "walkin" ? "Walk-in · " : "") + t(s) + " " + F.money(f) + " · unpaid") + "</span>";
+      else pay = '<span class="t-chip paid plain">' + tx((a.status === "waiting" ? "حجز " + hr(a.from) + " · " : "") + "مدفوع " + F.money(f), (a.status === "waiting" ? "Booked " + hr(a.from) + " · " : "") + "Paid " + F.money(f)) + "</span>";
+    }
+    if (p.debt && LIVE[a.status]) pay += '<span class="t-chip debt plain">' + tx("عليه " + F.money(p.debt) + " من قبل", "Owes " + F.money(p.debt) + " from before") + "</span>";
+    var file = "patient-file.html?p=" + p.id;
+    if (due) act = '<a class="t-btn sm primary" href="cashier-checkout.html"><svg class="t-icon sm"><use href="#i-cash"/></svg>' + tx("تحصيل " + F.money(due), "Collect " + F.money(due)) + "</a>";
+    else if (unpaid(a)) act = '<a class="t-btn sm" href="cashier-checkout.html"><svg class="t-icon sm"><use href="#i-cash"/></svg>' + tx("تحصيل " + F.money(f), "Collect " + F.money(f)) + "</a>";
+    else if (a.status === "waiting" || a.status === "arrived") act = '<button class="t-btn sm soft" type="button" data-call="' + a.id + '"><svg class="t-icon sm"><use href="#i-call"/></svg>' + tx("نادِ", "Call") + "</button>";
+    else if (a.status === "called") act = '<button class="t-btn sm" type="button" data-toast="تم النداء تاني على ' + ticket(a) + '" data-toast-en="Called ' + ticket(a) + ' again">' + tx("نادِ تاني", "Call again") + "</button>";
+    else if (a.status === "left") act = '<button class="t-btn sm ghost" type="button" data-back="' + a.id + '">' + tx("رجّعه للدور", "Back to queue") + "</button>";
+    else act = '<a class="t-btn sm ghost" href="' + file + '">' + tx("فتح الملف", "Open file") + "</a>";
+    var more = LIVE[a.status] || due ? '<div class="rq-more"><button class="t-btn sm icon ghost" type="button" data-more aria-label="' + tx("إجراءات أكتر", "More actions") + '" title="' + tx("إجراءات أكتر", "More actions") + '"><svg class="t-icon sm"><use href="#i-more"/></svg></button></div>' : "";
+    var tk = a.status === "done" ? "done" : a.status === "left" || a.status === "noshow" ? "" : a.status === "arrived" ? "waiting" : a.status;
+    return '<article class="t-qcard' + (due ? " is-owed" : "") + (next ? " is-next" : "") + '" data-q="' + ticket(a) + '" data-a="' + a.id + '">' +
+      '<span class="t-ticket ' + tk + '"><b>' + (a.queueNo ? ticket(a) : "—") + "</b></span>" +
+      '<div><div class="t-qname">' + t(p) + age + '</div><div class="rq-line">' + st + pay + "</div></div>" +
+      '<div class="rq-actions">' + act + more + "</div></article>";
+  }
+
+  function lane(l) {
+    var d = D.doctor(l.doctor), room = D.room(l.room);
+    var active = l.items.filter(function (a) { return (LIVE[a.status] || a.status === "left" || owed(a)) && a.queueNo; })
+      .sort(function (x, y) { var ox = owed(x) ? -1 : ORD[x.status], oy = owed(y) ? -1 : ORD[y.status]; return ox - oy || x.queueNo - y.queueNo; });
+    var past = l.items.filter(function (a) { return (a.status === "done" && !owed(a)) || a.status === "noshow"; });
+    var firstWait = active.filter(function (a) { return (a.status === "waiting" || a.status === "arrived") && !unpaid(a); })[0];
+    var body = active.map(function (a) { return card(a, a === firstWait); }).join("");
+    var ended = l.sh && l.sh.to <= D.now;
+    if (!body) body = '<p class="rq-lane-empty">' + (ended ? tx("الوردية خلصت " + hr(l.sh.to) + " · مفيش حد منتظر", "Shift ended " + hr(l.sh.to) + " · no one waiting") : tx("مفيش حد منتظر للطبيب ده", "No one waiting for this doctor")) + "</p>";
+    var nLeft = past.filter(function (a) { return a.status === "noshow"; }).length;
+    var det = past.length ? '<details class="rq-done"><summary>' + tx("عرض المنتهي (" + n(past.length - nLeft) + ")" + (nLeft ? " واللي مجاش (" + n(nLeft) + ")" : ""), "Show done (" + (past.length - nLeft) + ")" + (nLeft ? " and no-show (" + nLeft + ")" : "")) + '</summary><div class="t-lane-body">' +
+      past.map(function (a) { return card(a); }).join("") + "</div></details>" : "";
+    return '<section class="t-lane" data-lane="' + l.key + '" aria-label="' + docShort(l.doctor) + '">' +
+      '<div class="t-lane-head"><span class="t-avatar sm">' + (L() ? d.en.replace(/^Dr\.\s*/, "").split(" ").map(function (w) { return w[0]; }).slice(0, 2).join("") : d.ini) + "</span>" +
+      '<h3 class="rq-doc">' + docShort(l.doctor) + "<small>" + t(room) + (l.sh ? " · " + F.range(l.sh.from, l.sh.to, C.lang) : "") + '</small><span class="rq-lane-tags">' + spTag(l.sp) + (C.all ? brTag(l.branch) : "") + "</span></h3>" +
+      '<div class="t-actions"><button class="t-btn sm" type="button" data-callnext="' + l.key + '"><svg class="t-icon sm"><use href="#i-call"/></svg>' + tx("نادِ على التالي", "Call next") + "</button></div></div>" +
+      '<div class="t-lane-body">' + body + "</div>" + det + "</section>";
+  }
+
+  /* ---- main render ---- */
+  var lanes = [];
   function render() {
-    var q = norm(omni.value);
-    results = !q ? P.slice(0, 4) : P.filter(function (p) { return norm(p.n).indexOf(q) > -1 || p.mob.indexOf(q) > -1 || p.file.indexOf(q) > -1; });
+    T.scopeNotice({ needBranch: true, key: "queue" });
+    var apps = D.queue(C), b = C.branchRec, o = C.orgRec;
+    lanes = buildLanes(apps);   /* booked-only doctors (later shift) get a lane too */
+    laneByKey = {}; lanes.forEach(function (l) { laneByKey[l.key] = l; });
+    var docs = {}; lanes.forEach(function (l) { docs[l.doctor] = 1; });
+    var nDocs = Object.keys(docs).length;
+    var hrs = b ? " · " + tx("الفرع شغال ", "open ") + F.range(b.hours.from, b.hours.to, C.lang) : "";
+    $("rq-sub").innerHTML = t(D.days[DAY]) + " " + dShort(D.today) + " · " + (C.all ? tx("كل الفروع (" + n(D.branchesOf(C.org).length) + ")", "All branches (" + D.branchesOf(C.org).length + ")") : t(b)) + hrs + " · " + tx(n(nDocs) + " دكاترة شغالين النهارده", nDocs + " doctors working today");
+
+    /* counters */
+    var w = 0, r = 0, dn = 0, owe = [];
+    apps.forEach(function (a) {
+      if (a.status === "waiting" || a.status === "arrived" || a.status === "called") w++;
+      if (a.status === "inroom") r++;
+      if (a.status === "done") dn++;
+      var due = owed(a); if (due) owe.push({ a: a, amt: due, why: (function () { var i = invOf(a); return i.lines.length > 1 ? t(i.lines[i.lines.length - 1]) + tx(" من ", " added by ") + docShort(a.doctor) : tx("باقي الفاتورة", "rest of the bill"); })() });
+      else if (unpaid(a)) owe.push({ a: a, amt: fee(a), why: t(D.service(a.service)) });
+    });
+    var oweSum = owe.reduce(function (s, x) { return s + x.amt; }, 0);
+    $("rq-stats").innerHTML = '<span class="rq-stat"><b>' + n(w) + "</b><span>" + tx("منتظر", "waiting") + '</span></span><span class="rq-stat"><b>' + n(r) + "</b><span>" + tx("في الكشف", "in room") +
+      '</span></span><span class="rq-stat"><b>' + n(dn) + "</b><span>" + tx("انتهى", "done") + '</span></span><span class="rq-stat' + (owe.length ? " warn" : "") + '"><b>' + n(owe.length) + "</b><span>" + tx("محتاجين تحصيل · " + F.money(oweSum) + " ج.م", "to collect · " + F.money(oweSum) + " EGP") + "</span></span>";
+
+    /* bookings strip */
+    var books = apps.filter(function (a) { return (a.status === "booked" || a.status === "confirmed") && a.from >= D.now; });
+    $("rq-book-n").textContent = n(books.length);
+    $("rq-strip").innerHTML = books.length ? books.map(function (a) {
+      var p = D.patient(a.patient), s = D.service(a.service), f = fee(a);
+      var what = isFree(a) ? tx("متابعة مجانية", "free follow-up") : t(s) + " · " + F.money(f) + " " + t(D.currency);
+      var extra = p.debt ? tx(" · عليه " + F.money(p.debt), " · owes " + F.money(p.debt)) : a.source === "online" ? tx(" · حجز أونلاين", " · booked online") : a.source === "whatsapp" ? tx(" · من واتساب", " · via WhatsApp") : "";
+      return '<div class="rq-book"><div class="t-row tight between"><span class="rq-time">' + F.hour(a.from, "en").toUpperCase() + '</span><span class="t-chip ' + a.status + '">' + t(D.apptStatus[a.status]) + "</span></div>" +
+        "<div><b>" + t(p) + '</b><span class="rq-meta" style="display:block">' + docShort(a.doctor) + " · " + t(D.room(a.room)) + " · " + what + extra + "</span>" + (C.all ? '<span class="rq-lane-tags">' + brTag(a.branch) + "</span>" : "") + "</div>" +
+        '<button class="t-btn sm soft" type="button" data-checkin="' + a.id + '"><svg class="t-icon sm"><use href="#i-check"/></svg>' + tx("تسجيل حضور", "Check in") + "</button></div>";
+    }).join("") : '<p class="t-small t-muted mb-0">' + tx("مفيش حجوزات جاية النهارده.", "No more bookings today.") + "</p>";
+
+    /* lanes */
+    $("rq-lanes").innerHTML = lanes.length ? lanes.map(lane).join("") : '<p class="t-muted">' + tx("مفيش أطباء شغالين النهارده في الفرع ده.", "No doctors working today in this branch.") + "</p>";
+
+    /* waiting to pay */
+    $("rq-owe-n").textContent = n(owe.length);
+    $("rq-owe").innerHTML = owe.length ? owe.map(function (x) {
+      return '<div class="rq-owe"><div><b>' + t(D.patient(x.a.patient)) + '</b><small><span class="t-ltr">' + ticket(x.a) + "</span> · " + x.why + (C.all ? " · " + tx(D.branch(x.a.branch).shortAr, D.branch(x.a.branch).shortEn) : "") + "</small></div>" +
+        '<a class="t-btn sm" href="cashier-checkout.html"><span class="t-money debt">' + F.money(x.amt) + cur() + "</span></a></div>";
+    }).join("") : '<p class="t-small t-muted mb-0">' + tx("مفيش حد عليه فلوس دلوقتي.", "No one owes anything right now.") + "</p>";
+
+    /* cash drawer: today's invoices in scope */
+    var inv = D.scoped("invoices", C, function (i) { return i.date === D.today; }), by = { cash: 0, card: 0, instapay: 0, wallet: 0 }, disc = 0, nd = 0;
+    inv.forEach(function (i) { by[i.method] += i.paid; i.lines.forEach(function (ln) { if (ln.discount) { disc += ln.discount; nd++; } }); });
+    var tot = by.cash + by.card + by.instapay + by.wallet;
+    var cashiers = D.staff.filter(function (m) { return m.org === C.org && D.scopeBranches(C).some(function (bid) { return D.rolesIn(m, bid).indexOf("cashier") > -1; }); });
+    $("rq-cash-who").innerHTML = (C.all ? tx("خزنة لكل فرع", "One drawer per branch") : tx("خزنة ", "Drawer: ") + t(b)) + (cashiers.length ? " · " + cashiers.map(function (m) { return D.memberName(m, C.lang); }).join(tx("، ", ", ")) : "");
+    $("rq-cash").innerHTML = "<dt>" + tx("نقدي", "Cash") + "</dt><dd><span class=\"t-money\">" + F.money(by.cash) + cur() + "</span></dd>" +
+      "<dt>" + tx("فيزا", "Card") + "</dt><dd><span class=\"t-money\">" + F.money(by.card) + cur() + "</span></dd>" +
+      "<dt>" + tx("إنستاباي / محفظة", "InstaPay / wallet") + "</dt><dd><span class=\"t-money\">" + F.money(by.instapay + by.wallet) + cur() + "</span></dd>" +
+      "<dt>" + tx("خصومات (" + n(nd) + ")", "Discounts given (" + nd + ")") + "</dt><dd><span class=\"t-money\">" + (disc ? "-" : "") + F.money(disc) + cur() + "</span></dd>" +
+      '<dt class="grand">' + tx("المحصّل", "Collected") + '</dt><dd class="grand"><span class="t-money">' + F.money(tot) + cur() + "</span></dd>";
+
+    /* empty state (start of day) */
+    var first = apps.slice(0, 3);
+    var starts = lanes.map(function (l) { return l.sh ? docShort(l.doctor) + " " + tx("بيبدأ ", "starts at ") + hr(l.sh.from) : ""; }).filter(Boolean);
+    $("rq-empty-p").innerHTML = tx("ضيف أول مريض يوصل، أو سجّل حضور موعد محجوز. ", "Add the first patient who walks in, or check in a booked appointment. ") + starts.join(tx(" و", ", ")) + ".";
+    $("rq-empty-cal").innerHTML = '<svg class="t-icon sm"><use href="#i-calendar"/></svg><span>' + tx("مواعيد النهارده (" + n(apps.length) + ")", "Today's appointments (" + apps.length + ")") + "</span>";
+    $("rq-empty-list").innerHTML = first.map(function (a) {
+      return '<div class="rq-owe"><div><b>' + t(D.patient(a.patient)) + "</b><small>" + hr(a.from) + " · " + docShort(a.doctor) + " · " + t(D.room(a.room)) + '</small></div><span class="t-chip booked">' + t(D.apptStatus.booked) + "</span></div>";
+    }).join("");
+    var hb = b || D.branchesOf(C.org)[0];
+    $("rq-empty-shift").textContent = tx("الوردية اتفتحت ", "Shift opened at ") + hr(hb.hours.from - 0.25);
+    $("rq-empty-float").textContent = tx("رصيد أول المدة: ٥٠٠ ج.م", "Opening float: 500 EGP") + (cashiers[0] ? tx(" (عدّته ", " (counted by ") + D.memberName(cashiers[0], C.lang).split(" ")[0] + ")" : "") + ".";
+  }
+
+  /* ---- Omnibox (org-wide patient files) ---- */
+  var omni = $("rq-omni"), sugg = $("rq-sugg"), active = 0, results = [];
+  function pills(p) {
+    return p.debt ? '<span class="t-chip debt plain">' + tx("عليه " + F.money(p.debt), "Owes " + F.money(p.debt)) + "</span>" :
+      p.deposit ? '<span class="t-chip paid plain">' + tx("رصيد " + F.money(p.deposit), "Deposit " + F.money(p.deposit)) + "</span>" : "";
+  }
+  function renderSugg() {
+    var q = norm(omni.value), list = D.scoped("patients", C);
+    results = !q ? list.slice(0, 4) : list.filter(function (p) { return norm(p.ar).indexOf(q) > -1 || norm(p.en).indexOf(q) > -1 || p.phone.replace(/\s/g, "").indexOf(q) > -1 || p.fileNo.indexOf(q) > -1; }).slice(0, 8);
+    if (active >= results.length) active = Math.max(0, results.length - 1);
     var h = '<li class="t-faint" style="cursor:default;font-size:12px">' + (q ? tx("نتايج البحث", "Matches") : tx("آخر المرضى", "Recent patients")) + "</li>";
     results.forEach(function (p, i) {
-      var pill = p.debt ? '<span class="t-chip debt plain">' + tx("عليه " + p.debt, "Owes " + p.debt) + "</span>" :
-        p.dep ? '<span class="t-chip paid plain">' + tx("رصيد " + p.dep, "Deposit " + p.dep) + "</span>" : "";
-      h += '<li role="option" data-i="' + i + '"' + (i === active ? ' class="is-active"' : "") + '><span class="t-avatar sm">' + p.i + '</span><span class="t-grow"><span class="rq-sugg-name">' + p.n +
-        '</span><small><span class="t-ltr">' + fmtMob(p.mob) + "</span> · " + tx("ملف", "File") + ' <span class="t-ltr">' + p.file + "</span> · " + p.age + " " + tx("سنة", "yrs") + "</small></span>" + pill + "</li>";
+      h += '<li role="option" data-i="' + i + '"' + (i === active ? ' class="is-active"' : "") + '><span class="t-avatar sm">' + t(p).split(" ").slice(0, 2).map(function (w) { return w[0]; }).join(" ") + '</span><span class="t-grow"><span class="rq-sugg-name">' + t(p) +
+        '</span><small><span class="t-ltr">' + p.phone + "</span> · " + tx("ملف", "File") + ' <span class="t-ltr">' + p.fileNo + "</span> · " + n(p.age) + " " + tx("سنة", "yrs") + (multi() ? " · " + tx("اتسجل في ", "registered in ") + tx(D.branch(p.regBranch).shortAr, D.branch(p.regBranch).shortEn) : "") + "</small></span>" + pills(p) + "</li>";
     });
-    h += '<li class="t-menu-sep"></li><li data-new><svg class="t-icon sm"><use href="#i-plus"/></svg><span>' + (en() ? "Register new patient" : "تسجيل مريض جديد") + (omni.value ? " «" + omni.value + "»" : "") + '</span><span class="t-kbd">F4</span></li>';
+    h += '<li class="t-menu-sep"></li><li data-new><svg class="t-icon sm"><use href="#i-plus"/></svg><span>' + tx("تسجيل مريض جديد", "Register new patient") + (omni.value ? " «" + omni.value.replace(/</g, "&lt;") + "»" : "") + '</span><span class="t-kbd">F4</span></li>';
     sugg.innerHTML = h; sugg.hidden = false; omni.setAttribute("aria-expanded", "true");
   }
   function closeSugg() { sugg.hidden = true; omni.setAttribute("aria-expanded", "false"); }
-  omni.addEventListener("focus", function () { active = 0; render(); });
-  omni.addEventListener("input", function () { active = 0; render(); });
+  omni.addEventListener("focus", function () { active = 0; renderSugg(); });
+  omni.addEventListener("input", function () { active = 0; renderSugg(); });
   omni.addEventListener("keydown", function (e) {
-    if (e.key === "ArrowDown") { active = Math.min(active + 1, results.length - 1); render(); e.preventDefault(); }
-    else if (e.key === "ArrowUp") { active = Math.max(active - 1, 0); render(); e.preventDefault(); }
-    else if (e.key === "Enter") { if (results[active]) { openDrawer(results[active]); } e.preventDefault(); }
-    else if (e.key === "Escape") { closeSugg(); }
+    if (e.key === "ArrowDown") { active = Math.min(active + 1, results.length - 1); renderSugg(); e.preventDefault(); }
+    else if (e.key === "ArrowUp") { active = Math.max(active - 1, 0); renderSugg(); e.preventDefault(); }
+    else if (e.key === "Enter") { if (results[active]) openDrawer(results[active]); e.preventDefault(); }
+    else if (e.key === "Escape") closeSugg();
   });
   sugg.addEventListener("mousedown", function (e) {
     var li = e.target.closest("li"); if (!li) return; e.preventDefault();
@@ -511,106 +456,100 @@
   });
   omni.addEventListener("blur", function () { setTimeout(closeSugg, 120); });
 
-  /* ---- Drawer ---- */
-  var drawer = document.getElementById("rq-drawer"), cur = null, doc = "A", nextNo = { A: 19, B: 10 };
-  function visitFor(p, d) {
-    var D = DOCS[d];
-    if (p.last && p.last.d === d && p.last.days <= D.win) return { fu: true, fee: 0, left: D.win - p.last.days, days: p.last.days };
-    return { fu: false, fee: D.fee, days: p.last && p.last.d === d ? p.last.days : null };
+  /* ---- Drawer: doctors still working in THIS branch now ---- */
+  var drawer = $("rq-drawer"), curP = null, curLane = null;
+  function openLanes() { return lanes.filter(function (l) { return l.branch === C.branch && (!l.sh || l.sh.to > D.now); }); }
+  function visitFor(p, l) {
+    var main = D.mainService(C.org, l.sp), fu = D.services.filter(function (s) { return s.org === C.org && s.sp === l.sp && s.kind === "followup"; })[0];
+    if (p.followupUntil && p.followupUntil >= D.today && fu) return { fu: true, svc: fu, fee: 0 };
+    var svc = main || D.servicesFor(l.doctor, l.branch)[0].service;
+    return { fu: false, svc: svc, fee: D.price(svc.id, l.doctor, l.branch), base: svc.base };
   }
   function paintDrawer() {
-    var p = cur, D = DOCS[doc], v = visitFor(p, doc);
-    document.getElementById("rq-d-av").textContent = p.i;
-    document.getElementById("rq-d-name").textContent = p.n;
-    document.getElementById("rq-d-facts").innerHTML = "<span><b>" + p.age + "</b> " + tx("سنة · " + p.sexAr, "yrs · " + p.sexEn) + "</span><span>" + tx("ملف", "File") + ' <b class="t-ltr">' + p.file + '</b></span><span class="t-ltr">' + fmtMob(p.mob) + "</span>";
-    var pills = "";
-    if (p.debt) pills += '<span class="t-balance debt">' + tx("عليه " + p.debt + " ج.م من قبل", "Owes " + p.debt + " EGP from before") + "</span>";
-    if (p.dep) pills += '<span class="t-balance deposit">' + tx("رصيد مقدم " + p.dep + " ج.م", "Deposit " + p.dep + " EGP") + "</span>";
-    if (!p.debt && !p.dep) pills += '<span class="t-balance">' + tx("الحساب صفر", "Account clear") + "</span>";
-    document.getElementById("rq-d-pills").innerHTML = pills;
-    Array.prototype.forEach.call(document.querySelectorAll("#rq-d-doc [data-doc]"), function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-doc") === doc)); });
-    document.getElementById("rq-d-type").innerHTML = v.fu ? '<span class="t-chip free">' + tx("متابعة مجانية", "Free follow-up") + "</span>" : '<span class="t-chip info">' + tx("كشف جديد", "New consult") + "</span>";
-    document.getElementById("rq-d-why").innerHTML = v.fu
-      ? tx("آخر كشف مع " + D.ar + " من " + v.days + " أيام، والمتابعة المجانية " + D.win + " يوم (باقي " + v.left + ").", "Last visit with " + D.en + " " + v.days + " days ago; free follow-up window is " + D.win + " days (" + v.left + " left).")
-      : (v.days ? tx("آخر كشف من " + v.days + " يوم، بعد مدة المتابعة (" + D.win + " يوم). السعر من خدمة «" + D.svcAr + "».", "Last visit " + v.days + " days ago, past the " + D.win + "-day window. Fee from the '" + D.svcEn + "' service.")
-               : tx("أول زيارة مع " + D.ar + ". السعر من خدمة «" + D.svcAr + "» الافتراضية.", "First visit with " + D.en + ". Fee from the default '" + D.svcEn + "' service."));
-    document.getElementById("rq-d-fee").innerHTML = v.fee + '<span class="cur">' + (en() ? "EGP" : "ج.م") + "</span>";
-    document.getElementById("rq-d-ticket").innerHTML = tx("هياخد رقم ", "Ticket ") + '<b class="t-ltr">' + doc + "-" + nextNo[doc] + "</b>" + tx(" — قبله " + (doc === "A" ? 2 : 1) + " منتظرين (حوالي " + (doc === "A" ? 25 : 15) + " دقيقة).", " — " + (doc === "A" ? 2 : 1) + " waiting ahead (about " + (doc === "A" ? 25 : 15) + " min).");
+    var p = curP, l = curLane, v = visitFor(p, l), o = C.orgRec;
+    $("rq-d-av").textContent = p.ar.split(" ").slice(0, 2).map(function (w) { return w[0]; }).join(" ");
+    $("rq-d-name").textContent = t(p);
+    $("rq-d-file").href = "patient-file.html?p=" + p.id;
+    $("rq-d-facts").innerHTML = "<span><b>" + n(p.age) + "</b> " + tx("سنة · " + (p.sex === "F" ? "أنثى" : "ذكر"), "yrs · " + p.sex) + "</span><span>" + tx("ملف", "File") + ' <b class="t-ltr">' + p.fileNo + '</b></span><span class="t-ltr">' + p.phone + "</span>" +
+      (multi() ? "<span>" + tx("ملف واحد للمنشأة · اتسجل في ", "One org-wide file · registered in ") + tx(D.branch(p.regBranch).shortAr, D.branch(p.regBranch).shortEn) + "</span>" : "");
+    var pl = "";
+    if (p.allergies.length) pl += '<span class="t-allergy"><svg class="t-icon sm"><use href="#i-alert"/></svg>' + tx("حساسية: ", "Allergy: ") + p.allergies.map(t).join(tx("، ", ", ")) + "</span>";
+    if (p.debt) pl += '<span class="t-balance debt">' + tx("عليه " + F.money(p.debt) + " ج.م من قبل", "Owes " + F.money(p.debt) + " EGP from before") + "</span>";
+    if (p.deposit) pl += '<span class="t-balance deposit">' + tx("رصيد مقدم " + F.money(p.deposit) + " ج.م", "Deposit " + F.money(p.deposit) + " EGP") + "</span>";
+    if (!p.debt && !p.deposit) pl += '<span class="t-balance">' + tx("الحساب صفر", "Account clear") + "</span>";
+    $("rq-d-pills").innerHTML = pl;
+    $("rq-d-doc-l").textContent = tx("الطبيب — ", "Doctor — ") + t(C.branchRec);
+    $("rq-d-doc").innerHTML = openLanes().map(function (x) {
+      return '<button type="button" aria-pressed="' + (x === l) + '" data-doc="' + x.key + '">' + docShort(x.doctor) + " · " + t(D.specialties[x.sp]) + " · " + t(D.room(x.room)) + "</button>";
+    }).join("");
+    $("rq-d-type").innerHTML = v.fu ? '<span class="t-chip free">' + tx("متابعة مجانية", "Free follow-up") + "</span>" : '<span class="t-chip info">' + tx("كشف جديد", "New consult") + "</span>";
+    var over = !v.fu && v.fee !== v.base;
+    $("rq-d-why").innerHTML = v.fu
+      ? tx("جوه مدة المتابعة المجانية لحد " + dShort(p.followupUntil) + " (" + n(o.followupDays) + " يوم في " + o.ar + ").", "Inside the free follow-up window until " + dShort(p.followupUntil) + " (" + o.followupDays + " days at " + o.en + ").")
+      : tx("السعر من خدمة «" + v.svc.ar + "»" + (over ? " — سعر " + D.doctor(l.doctor).shortAr + " في " + C.branchRec.shortAr : "") + ".", "Fee from the '" + v.svc.en + "' service" + (over ? " — " + D.doctor(l.doctor).shortEn + "'s price in " + C.branchRec.shortEn : "") + ".");
+    $("rq-d-fee").innerHTML = F.money(v.fee) + cur();
+    var ahead = l.items.filter(function (a) { return a.status === "waiting" || a.status === "arrived" || a.status === "called"; }).length, nx = l.letter + "-" + (nextNo(l.branch) < 10 ? "0" : "") + nextNo(l.branch);
+    $("rq-d-ticket").innerHTML = tx("هياخد رقم ", "Ticket ") + '<b class="t-ltr">' + nx + "</b>" + tx(" — قبله " + n(ahead) + " منتظرين (حوالي " + n(ahead * v.svc.minutes) + " دقيقة) · " + t(D.room(l.room)), " — " + ahead + " waiting ahead (about " + ahead * v.svc.minutes + " min) · " + t(D.room(l.room)));
   }
   function openDrawer(p) {
-    cur = p || P[0]; doc = cur.child ? "B" : "A"; closeSugg(); omni.blur();
-    paintDrawer(); drawer.hidden = false; document.getElementById("rq-d-save").focus();
+    if (C.all) { T.toast(tx("اختار فرع واحد الأول عشان تضيف للدور", "Pick one branch first to add to the queue")); closeSugg(); return; }
+    var ls = openLanes();
+    if (!ls.length) { T.toast(tx("مفيش طبيب شغال دلوقتي في الفرع ده", "No doctor working now in this branch")); return; }
+    curP = p || D.scoped("patients", C)[0];
+    var mine = D.appointmentsOn(C).filter(function (a) { return a.patient === curP.id; })[0];
+    curLane = (mine && ls.filter(function (x) { return x.doctor === mine.doctor && x.room === mine.room; })[0]) ||
+      (curP.child && ls.filter(function (x) { return x.sp === "peds"; })[0]) ||
+      (!curP.child && ls.filter(function (x) { return x.sp !== "peds" && (x.sp !== "gyn" || curP.sex === "F"); })[0]) || ls[0];
+    closeSugg(); omni.blur(); paintDrawer(); drawer.hidden = false; $("rq-d-save").focus();
   }
-  document.getElementById("rq-d-doc").addEventListener("click", function (e) { var b = e.target.closest("[data-doc]"); if (b) { doc = b.getAttribute("data-doc"); paintDrawer(); } });
-
-  function qcard(ticket, name, chipAr, chipEn, extra) {
-    var a = document.createElement("article");
-    a.className = "t-qcard"; a.setAttribute("data-q", ticket);
-    a.innerHTML = '<span class="t-ticket waiting"><b>' + ticket + '</b></span><div><div class="t-qname">' + name + '</div><div class="rq-line"><span class="t-chip waiting">' + tx("منتظر · الآن", "Waiting · now") + "</span>" + extra + "</div></div>" +
-      '<div class="rq-actions"><button class="t-btn sm soft" type="button" data-call><svg class="t-icon sm"><use href="#i-call"/></svg>' + tx("نادِ", "Call") + '</button><div class="rq-more"><button class="t-btn sm icon ghost" type="button" data-more aria-label="More actions" title="More actions"><svg class="t-icon sm"><use href="#i-more"/></svg></button></div></div>';
-    return a;
-  }
-  function bumpWaiting() { var c = document.getElementById("rq-c-wait"); c.textContent = String(+c.textContent + 1); }
-  document.getElementById("rq-d-save").addEventListener("click", function () {
-    var v = visitFor(cur, doc), t = doc + "-" + nextNo[doc]++;
-    var extra = v.fu ? '<span class="t-chip free">' + tx("متابعة مجانية", "Free follow-up") + "</span>" : '<span class="t-chip unpaid plain">' + tx("كشف " + v.fee + " · لم يدفع", "Consult " + v.fee + " · unpaid") + "</span>";
-    var card = qcard(t, cur.n, "", "", extra);
-    document.querySelector('[data-lane-body="' + doc + '"]').appendChild(card);
-    bumpWaiting(); drawer.hidden = true; omni.value = "";
-    T.toast(en() ? "Added to queue — " + t : "اتضاف للدور — " + t);
-    card.scrollIntoView({ behavior: "smooth", block: "center" });
-    if (document.getElementById("rq-d-collect").checked) setTimeout(function () { location.href = "cashier-checkout.html"; }, 700);
+  $("rq-d-doc").addEventListener("click", function (e) { var b = e.target.closest("[data-doc]"); if (b) { curLane = laneByKey[b.getAttribute("data-doc")]; paintDrawer(); } });
+  $("rq-d-save").addEventListener("click", function () {
+    var l = curLane, v = visitFor(curP, l), no = nextNo(l.branch);
+    var a = { id: "x-" + Date.now(), org: C.org, branch: l.branch, room: l.room, doctor: l.doctor, patient: curP.id, date: D.today, from: D.now, at: D.now, dur: v.svc.minutes, service: v.svc.id, status: "waiting", source: "walkin", queueNo: no, unpaid: !v.fu };
+    D.appointments.push(a); drawer.hidden = true; omni.value = ""; render();
+    T.toast(tx("اتضاف للدور — " + ticket(a), "Added to queue — " + ticket(a)));
+    var c = document.querySelector('[data-a="' + a.id + '"]'); if (c) c.scrollIntoView({ behavior: "smooth", block: "center" });
+    if ($("rq-d-collect").checked) setTimeout(function () { location.href = "cashier-checkout.html"; }, 700);
   });
 
-  /* ---- Check in from bookings strip ---- */
+  /* ---- Clicks: check in, call, call next, overflow, left / back ---- */
+  var menu = $("rq-more-menu");
   document.addEventListener("click", function (e) {
-    var b = e.target.closest("[data-checkin]");
-    if (b) {
-      var d = b.getAttribute("data-checkin"), t = d + "-" + nextNo[d]++, fu = b.getAttribute("data-type") === "fu";
-      var extra = fu ? '<span class="t-chip free">' + tx("متابعة مجانية", "Free follow-up") + "</span>" : '<span class="t-chip plain">' + tx("حجز · كشف " + DOCS[d].fee, "Booked · consult " + DOCS[d].fee) + "</span>";
-      document.querySelector('[data-lane-body="' + d + '"]').appendChild(qcard(t, b.getAttribute("data-name"), "", "", extra));
-      var box = b.closest(".rq-book"); var chip = box.querySelector(".t-chip");
-      chip.className = "t-chip arrived"; setTx(chip, "حضر", "Arrived");
-      b.outerHTML = '<span class="t-small t-muted">' + tx("في الدور برقم ", "In queue as ") + '<b class="t-ltr">' + t + "</b></span>";
-      bumpWaiting();
-      T.toast(en() ? "Checked in — " + t + " · visit and bill linked to the booking" : "اتسجل الحضور — " + t + " · الزيارة والفاتورة اتربطوا بالحجز");
-      return;
+    var b, a;
+    if ((b = e.target.closest("[data-checkin]"))) {
+      a = D.appointments.filter(function (x) { return x.id === b.getAttribute("data-checkin"); })[0];
+      a.status = "waiting"; a.at = D.now; a.queueNo = nextNo(a.branch); render();
+      T.toast(tx("اتسجل الحضور — " + ticket(a) + " · الزيارة والفاتورة اتربطوا بالحجز", "Checked in — " + ticket(a) + " · visit and bill linked to the booking")); return;
     }
-    /* Call one patient */
-    var c = e.target.closest("[data-call]");
-    if (c) {
-      var card = c.closest(".t-qcard"), tk = card.querySelector(".t-ticket"), ch = card.querySelector(".t-chip");
-      tk.className = "t-ticket called"; ch.className = "t-chip called"; setTx(ch, "نودي عليه · الآن", "Called · now");
-      card.classList.remove("is-next");
-      c.outerHTML = '<button class="t-btn sm" type="button" data-toast="تم النداء تاني" data-toast-en="Called again">' + tx("نادِ تاني", "Call again") + "</button>";
-      T.toast(en() ? "Calling " + card.getAttribute("data-q") + " to the room" : "بننادي على " + card.getAttribute("data-q") + " للدخول");
-      return;
+    if ((b = e.target.closest("[data-call]"))) {
+      a = D.appointments.filter(function (x) { return x.id === b.getAttribute("data-call"); })[0];
+      a.status = "called"; render();
+      T.toast(tx("بننادي على " + ticket(a) + " لـ" + t(D.room(a.room)), "Calling " + ticket(a) + " to " + t(D.room(a.room)))); return;
     }
-    /* Call next in lane */
-    var n = e.target.closest("[data-callnext]");
-    if (n) {
-      var first = document.querySelector('[data-lane-body="' + n.getAttribute("data-callnext") + '"] .t-qcard [data-call]');
-      if (first) first.click(); else T.toast(en() ? "No one waiting for this doctor" : "مفيش حد منتظر للطبيب ده");
-      return;
+    if ((b = e.target.closest("[data-callnext]"))) {
+      var first = document.querySelector('[data-lane="' + b.getAttribute("data-callnext") + '"] > .t-lane-body [data-call]');
+      if (first) first.click(); else T.toast(tx("مفيش حد منتظر للطبيب ده", "No one waiting for this doctor")); return;
     }
-    /* Overflow menu */
-    var menu = document.getElementById("rq-more-menu");
-    var m = e.target.closest("[data-more]");
-    if (m) {
-      var host = m.parentNode;
+    if ((b = e.target.closest("[data-back]"))) {
+      a = D.appointments.filter(function (x) { return x.id === b.getAttribute("data-back"); })[0];
+      a.status = "waiting"; a.at = D.now; a.queueNo = nextNo(a.branch); render();
+      T.toast(tx("رجع للدور كآخر واحد", "Back in the queue, last in line")); return;
+    }
+    if ((b = e.target.closest("[data-more]"))) {
+      var host = b.parentNode;
       if (!menu.hidden && menu.parentNode === host) { menu.hidden = true; return; }
-      host.appendChild(menu); menu.hidden = false; menu._card = m.closest(".t-qcard"); return;
+      menu._a = b.closest(".t-qcard").getAttribute("data-a");
+      var ap = D.appointments.filter(function (x) { return x.id === menu._a; })[0];
+      menu.querySelector("[data-menu-file]").setAttribute("data-href", "patient-file.html?p=" + ap.patient);
+      host.appendChild(menu); menu.hidden = false; return;
     }
-    var left = e.target.closest("[data-mark-left]");
-    if (left && menu._card) {
-      var cc = menu._card, ch2 = cc.querySelector(".t-chip");
-      ch2.className = "t-chip left"; setTx(ch2, "مشي قبل الكشف", "Left before visit");
-      cc.querySelector(".t-ticket").className = "t-ticket";
-      menu.hidden = true; T.toast(en() ? "Marked as left — kept in the day log" : "اتسجل إنه مشي — محفوظ في سجل اليوم"); return;
+    if (e.target.closest("[data-mark-left]") && menu._a) {
+      a = D.appointments.filter(function (x) { return x.id === menu._a; })[0];
+      a.status = "left"; menu.hidden = true; document.body.appendChild(menu); render();
+      T.toast(tx("اتسجل إنه مشي — محفوظ في سجل اليوم", "Marked as left — kept in the day log")); return;
     }
-    menu.hidden = true;
-    if (e.target.closest("#rq-add-btn")) { omni.focus(); }
-    if (e.target.closest("[data-focus-omni]")) { omni.focus(); }
+    if (!menu.hidden && !e.target.closest("#rq-more-menu")) menu.hidden = true;
+    if (e.target.closest("#rq-add-btn") || e.target.closest("[data-focus-omni]")) omni.focus();
   });
 
   /* ---- Keys: Ctrl K focuses the queue omnibox; F2 add; Enter saves the drawer ---- */
@@ -618,8 +557,11 @@
     if ((e.ctrlKey || e.metaKey) && (e.key === "k" || e.key === "K")) { e.preventDefault(); e.stopPropagation(); omni.focus(); omni.select(); }
     else if (e.key === "F2") { e.preventDefault(); if (omni.value && results[active]) openDrawer(results[active]); else omni.focus(); }
     else if (e.key === "F4") { e.preventDefault(); location.href = "patient-quick-register.html"; }
-    else if (e.key === "Enter" && !drawer.hidden && !/^(INPUT|SELECT|TEXTAREA|A)$/.test(e.target.tagName) && e.target.id !== "rq-d-save") { e.preventDefault(); document.getElementById("rq-d-save").click(); }
+    else if (e.key === "Enter" && !drawer.hidden && !/^(INPUT|SELECT|TEXTAREA|A)$/.test(e.target.tagName) && e.target.id !== "rq-d-save") { e.preventDefault(); $("rq-d-save").click(); }
   }, true);
+
+  T.onCtx(function () { menu.hidden = true; document.body.appendChild(menu); drawer.hidden = true; render(); });
+  render();
 })();
 </script>
 </body>

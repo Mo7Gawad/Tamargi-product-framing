@@ -15,6 +15,7 @@
     .cw-hero h1 { font-family: var(--font-letterhead); font-size: var(--fs-3xl); color: var(--primary); font-weight: 700; }
     [dir="ltr"] .cw-hero h1 { font-family: var(--font-en); font-size: var(--fs-2xl); }
     .cw-open { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-sm); font-weight: var(--fw-m); color: var(--success-fg); }
+    .cw-open.is-closed { color: var(--text-3); }
     .cw-open::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
     .cw-cta { display: flex; flex-direction: column; gap: var(--s-2); max-width: 360px; margin: var(--s-5) auto 0; }
     .cw-doc { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: var(--s-3); align-items: start; }
@@ -38,54 +39,50 @@
     .cw-msg time { display: block; font-size: 10px; opacity: .7; margin-block-start: 2px; }
     .cw-quick { display: flex; flex-wrap: wrap; gap: var(--s-2); }
     .cw-chat-foot { display: flex; gap: var(--s-2); padding: var(--s-3); border-block-start: 1px solid var(--line); background: var(--surface); }
+    .cw-proto { align-items: center; flex-wrap: wrap; }
+    .cw-proto .t-seg { flex-wrap: wrap; }
+    .cw-br { display: flex; flex-wrap: wrap; justify-content: center; width: fit-content; margin: var(--s-3) auto var(--s-2); }
+    .cw-br button { min-height: 36px; }
+    .cw-day-docs { display: flex; flex-wrap: wrap; gap: 6px; }
+    .cw-day-docs .t-chip { white-space: normal; height: auto; min-height: 24px; }
     @media (max-width: 560px) { .cw-chat { inset: 0; width: 100%; height: 100%; border-radius: 0; border: 0; } .cw-hero h1 { font-size: var(--fs-2xl); } }
   </style>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
-<body data-screen="clinic-web-page" data-shell="bare">
+<body data-screen="clinic-web-page" data-shell="bare" data-org-default="selim">
 <main id="screen">
   <div class="t-container">
     <div class="cw">
 
+      <div class="t-alert info cw-proto" role="note"
+           data-note="Prototype only: the public page has no staff top bar, so this strip picks which organization's page you preview. One public page per organization; a polyclinic lists its branches on the same page."
+           data-note-ar="للنموذج بس: الصفحة العامة مفيهاش شريط الموظفين، فالشريط ده بيختار صفحة أنهي منشأة تتعرض. صفحة عامة واحدة لكل منشأة؛ المجمع بيعرض فروعه في نفس الصفحة.">
+        <span data-en="Preview the page of:">معاينة صفحة:</span>
+        <div class="t-seg" role="group" id="cw-orgs" aria-label="Organization" data-en-aria-label="Organization"></div>
+      </div>
+
       <section class="t-card cw-hero" aria-labelledby="cw-name"
                data-note="Public page generated from the clinic's own settings (profile, letterhead, schedules, fees). No extra setup. Mobile-first, Arabic default with an English toggle; most patients open it from a link on a phone."
                data-note-ar="الصفحة العامة بتتعمل من إعدادات العيادة نفسها (البيانات، الترويسة، المواعيد، الأسعار). من غير إعداد زيادة. مصممة للموبايل الأول، بالعربي ومعاها إنجليزي؛ أغلب المرضى بيفتحوها من لينك على الموبايل.">
-        <div class="cw-logo" aria-hidden="true">أ</div>
-        <h1 id="cw-name" data-en="Dr. Ahmed Selim Clinic">عيادة د. أحمد سليم</h1>
-        <p class="t-muted mb-2" data-en="Internal medicine & gastroenterology · Paediatrics">باطنة وجهاز هضمي · أطفال</p>
-        <span class="cw-open" id="cw-open" data-en="Open now · until 11 pm">مفتوح دلوقتي · لحد ١١ م</span>
+        <div class="cw-logo" aria-hidden="true" id="cw-logo"></div>
+        <h1 id="cw-name"></h1>
+        <p class="t-muted mb-2" id="cw-sp"></p>
+        <div class="t-seg cw-br" role="group" id="cw-br" aria-label="Branch" data-en-aria-label="Branch" hidden
+             data-note="Polyclinic: the visitor picks a branch. Address, phone, hours, doctors and fees below all follow that branch (a doctor who works in two branches shows each branch's own days and fee). A solo clinic has one branch, so no picker."
+             data-note-ar="المجمع: الزائر بيختار الفرع. العنوان والتليفون والمواعيد والأطباء والأسعار تحت بتتبع الفرع ده (الدكتور اللي شغال في فرعين بيظهر بأيامه وسعره في كل فرع). العيادة الفردية فرع واحد، فمفيش اختيار."></div>
+        <span class="cw-open" id="cw-open"></span>
         <div class="cw-cta">
           <button class="t-btn primary lg block" type="button" id="cw-start"
                   data-note="One clear action: start a web chat to book. The receptionist answers it in the chat inbox and books from the conversation. WhatsApp joins the same inbox later (founder decision: web chat first). No online self-booking in MVP."
                   data-note-ar="أكشن واحد واضح: ابدأ شات عشان تحجز. الاستقبال بترد من صندوق الرسائل وتحجز من المحادثة. واتساب هيدخل نفس الصندوق بعدين (قرار: الشات الأول). مفيش حجز ذاتي في النسخة الأولى."><svg class="t-icon"><use href="#i-chat"/></svg><span data-en="Chat with the clinic to book">كلّم العيادة واحجز</span></button>
-          <a class="t-btn lg block" href="tel:01001234567"><svg class="t-icon"><use href="#i-phone"/></svg><span data-en="Call">اتصل</span> <span class="t-ltr">0100 123 4567</span></a>
+          <a class="t-btn lg block" href="#" id="cw-call"><svg class="t-icon"><use href="#i-phone"/></svg><span data-en="Call">اتصل</span> <span class="t-ltr" id="cw-phone"></span></a>
         </div>
       </section>
 
       <section class="t-card" aria-labelledby="cw-docs-h">
         <div class="t-card-head"><h2 id="cw-docs-h" data-en="Doctors">الأطباء</h2></div>
-        <div class="cw-doc">
-          <span class="t-avatar" style="width:48px;height:48px">أس</span>
-          <div>
-            <b data-en="Dr. Ahmed Selim Abdelhamid">د. أحمد سليم عبد الحميد</b>
-            <div class="t-small t-muted" data-en="Consultant of internal medicine & gastroenterology · MD, Mansoura University">استشاري الباطنة والجهاز الهضمي · دكتوراه جامعة المنصورة</div>
-            <div class="t-row tight mt-2">
-              <span class="t-chip plain" data-en="Sat–Thu 5–11 pm">السبت–الخميس ٥–١١ م</span>
-              <span class="t-chip plain" data-fee data-en="Consult 300 EGP">الكشف ٣٠٠ ج.م</span>
-              <span class="t-chip free" data-fee data-en="Free follow-up within 14 days">استشارة مجانية خلال ١٤ يوم</span>
-            </div>
-          </div>
-        </div>
-        <div class="cw-doc">
-          <span class="t-avatar" style="width:48px;height:48px">نش</span>
-          <div>
-            <b data-en="Dr. Noha El-Sherbini">د. نهى الشربيني</b>
-            <div class="t-small t-muted" data-en="Paediatrics specialist">أخصائي طب الأطفال</div>
-            <div class="t-row tight mt-2">
-              <span class="t-chip plain" data-en="Sat, Mon, Wed 10 am–2 pm">السبت والاتنين والأربع ١٠ ص–٢ م</span>
-              <span class="t-chip plain" data-fee data-en="Consult 250 EGP">الكشف ٢٥٠ ج.م</span>
-            </div>
-          </div>
-        </div>
+        <div id="cw-docs"></div>
         <p class="t-hint mt-4 mb-0" data-fee data-en="Fees shown by the clinic's choice. Payment at the clinic, in cash.">الأسعار معروضة باختيار العيادة. الدفع في العيادة، كاش.</p>
       </section>
 
@@ -95,32 +92,24 @@
         <div class="t-card-head"><h2 id="cw-hours-h" data-en="Working hours">مواعيد العمل</h2></div>
         <div class="t-table-wrap" style="border:0;border-radius:0">
           <table class="t-table cw-hours">
-            <thead><tr><th data-en="Day">اليوم</th><th data-en="Dr. Ahmed">د. أحمد</th><th data-en="Dr. Noha">د. نهى</th></tr></thead>
-            <tbody>
-              <tr class="is-today"><td><span data-en="Saturday (today)">السبت (النهارده)</span></td><td>5:00 – 11:00 <span data-en="pm">م</span></td><td>10:00 – 2:00</td></tr>
-              <tr><td data-en="Sunday">الأحد</td><td>5:00 – 11:00 <span data-en="pm">م</span></td><td class="t-faint">—</td></tr>
-              <tr><td data-en="Monday">الاتنين</td><td>5:00 – 11:00 <span data-en="pm">م</span></td><td>10:00 – 2:00</td></tr>
-              <tr><td data-en="Tuesday">التلات</td><td>5:00 – 11:00 <span data-en="pm">م</span></td><td class="t-faint">—</td></tr>
-              <tr><td data-en="Wednesday">الأربع</td><td>5:00 – 11:00 <span data-en="pm">م</span></td><td><span class="t-chip plain" data-en="On leave 18 Nov">إجازة ١٨ نوفمبر</span></td></tr>
-              <tr><td data-en="Thursday">الخميس</td><td>5:00 – 11:00 <span data-en="pm">م</span></td><td class="t-faint">—</td></tr>
-              <tr class="is-muted"><td data-en="Friday">الجمعة</td><td colspan="2"><span data-en="Closed">مقفول</span></td></tr>
-            </tbody>
+            <thead><tr><th data-en="Day">اليوم</th><th data-en="Doctors">الأطباء</th></tr></thead>
+            <tbody id="cw-hours-body"></tbody>
           </table>
         </div>
       </section>
 
       <section class="t-card" aria-labelledby="cw-addr-h">
         <div class="t-card-head"><h2 id="cw-addr-h" data-en="Address">العنوان</h2></div>
-        <p class="mb-2" data-en="12 El-Gomhoreya St., El-Nour Tower, 3rd floor — opposite El-Shefaa Pharmacy, Mansoura">١٢ شارع الجمهورية، برج النور، الدور الثالث — أمام صيدلية الشفاء، المنصورة</p>
-        <a class="cw-map mb-4" href="https://www.google.com/maps/search/?api=1&amp;query=El-Gomhoreya+St+Mansoura" target="_blank" rel="noopener" aria-label="Open in maps" data-en-aria-label="Open in maps"><span class="cw-pin" aria-hidden="true"></span></a>
+        <p class="mb-2" id="cw-addr"></p>
+        <a class="cw-map mb-4" id="cw-map" href="#" target="_blank" rel="noopener" aria-label="Open in maps" data-en-aria-label="Open in maps"><span class="cw-pin" aria-hidden="true"></span></a>
         <div class="t-row tight">
-          <a class="t-btn" href="https://www.google.com/maps/search/?api=1&amp;query=El-Gomhoreya+St+Mansoura" target="_blank" rel="noopener"><svg class="t-icon sm"><use href="#i-globe"/></svg><span data-en="Directions in Google Maps">الاتجاهات على خرائط جوجل</span></a>
+          <a class="t-btn" id="cw-dir" href="#" target="_blank" rel="noopener"><svg class="t-icon sm"><use href="#i-globe"/></svg><span data-en="Directions in Google Maps">الاتجاهات على خرائط جوجل</span></a>
           <button class="t-btn ghost" type="button" data-toast="اتنسخ العنوان" data-toast-en="Address copied"><svg class="t-icon sm"><use href="#i-copy"/></svg><span data-en="Copy address">انسخ العنوان</span></button>
         </div>
       </section>
 
       <p class="cw-foot" data-note="Quiet footer: no ads, no other clinics, no marketplace. The page belongs to the clinic (product rule: Tamargi is a business tool, not a booking marketplace)."
-         data-note-ar="فوتر هادي: من غير إعلانات ولا عيادات تانية ولا سوق حجز. الصفحة ملك العيادة (قاعدة: تمرجي أداة شغل، مش منصة حجز)."><span data-en="Page by the clinic · made with Tamargi">صفحة العيادة · معمولة بتمرجي</span></p>
+         data-note-ar="فوتر هادي: من غير إعلانات ولا عيادات تانية ولا سوق حجز. الصفحة ملك العيادة (قاعدة: تمرجي أداة شغل، مش منصة حجز)."><span data-en="Page by the clinic · made with Tamargi">صفحة العيادة · معمولة بتمرجي</span> · <span class="t-ltr" id="cw-slug"></span></p>
     </div>
   </div>
 </main>
@@ -128,8 +117,8 @@
 <!-- Web chat -->
 <section class="cw-chat" id="cw-chat" hidden aria-label="Chat with the clinic" data-en-aria-label="Chat with the clinic" role="dialog">
   <header class="cw-chat-head">
-    <span class="t-avatar sm" style="background:var(--surface);color:var(--primary)">أ</span>
-    <div><b class="t-small" data-en="Dr. Ahmed Selim Clinic">عيادة د. أحمد سليم</b><div style="font-size:var(--fs-xs);opacity:.85" data-en="Usually replies in a few minutes">بترد عادة في دقايق</div></div>
+    <span class="t-avatar sm" style="background:var(--surface);color:var(--primary)" id="cw-chat-ini"></span>
+    <div><b class="t-small" id="cw-chat-name"></b><div style="font-size:var(--fs-xs);opacity:.85" data-en="Usually replies in a few minutes">بترد عادة في دقايق</div></div>
     <button class="t-btn icon ghost" type="button" id="cw-close" aria-label="Close chat" data-en-aria-label="Close chat" title="إغلاق" data-en-title="Close"><svg class="t-icon"><use href="#i-close"/></svg></button>
   </header>
   <div class="cw-chat-body" id="cw-body" aria-live="polite">
@@ -144,8 +133,8 @@
       <div class="t-stack">
         <div class="t-field"><label class="t-label" for="cw-n"><span data-en="Patient name">اسم المريض</span><span class="req">*</span></label><input id="cw-n" class="t-input" autocomplete="name"></div>
         <div class="t-field"><label class="t-label" for="cw-m"><span data-en="Mobile">الموبايل</span><span class="req">*</span></label><input id="cw-m" class="t-input ltr" inputmode="tel" placeholder="01xxxxxxxxx" aria-describedby="cw-m-msg"><span id="cw-m-msg" class="t-hint" data-en="The clinic confirms on this number.">العيادة هتأكد على الرقم ده.</span></div>
-        <div class="t-field"><span class="t-label" data-en="Doctor & preferred day">الدكتور واليوم المناسب</span>
-          <select class="t-select" id="cw-d" aria-label="Doctor" data-en-aria-label="Doctor"><option data-en="Dr. Ahmed — today (Sat)">د. أحمد — النهارده (السبت)</option><option data-en="Dr. Ahmed — tomorrow (Sun)">د. أحمد — بكرة (الأحد)</option><option data-en="Dr. Noha — Monday morning">د. نهى — الاتنين الصبح</option></select></div>
+        <div class="t-field"><label class="t-label" for="cw-d" data-en="Doctor &amp; preferred day">الدكتور واليوم المناسب</label>
+          <select class="t-select" id="cw-d"></select></div>
         <button class="t-btn primary block" type="button" id="cw-send-form"><span data-en="Send booking request">ابعت طلب الحجز</span></button>
       </div>
     </form>
@@ -157,11 +146,144 @@
   </div>
 </section>
 
+<script src="../assets/demo-data.js"></script>
 <script src="../assets/shell.js"></script>
 <script>
 (function () {
-  var L = function () { return window.Tamargi && Tamargi.lang() === "en"; };
+  "use strict";
+  var T = window.Tamargi, D = T.data, C = T.ctx, F = D.fmt;
   var $ = function (s, r) { return (r || document).querySelector(s); };
+  function L() { return C.lang === "en"; }
+  function tx(o) { return F.t(o, C.lang); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  var MON = { ar: ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"],
+              en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] };
+  var st = { branch: null };
+
+  /* ---------- date + schedule helpers ---------- */
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function toDate(iso) { var p = iso.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function addDays(iso, n) { var d = toDate(iso); d.setDate(d.getDate() + n); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function dayMonth(iso) { var d = toDate(iso); return L() ? d.getDate() + " " + MON.en[d.getMonth()] : F.num(d.getDate(), "ar") + " " + MON.ar[d.getMonth()]; }
+  function relDay(iso) {
+    if (iso === D.today) return L() ? "today" : "النهارده";
+    if (iso === addDays(D.today, 1)) return L() ? "tomorrow" : "بكرة";
+    return F.day(D.dayIndex(iso), C.lang) + " " + dayMonth(iso);
+  }
+  function daysText(days) {
+    days = days.slice().sort(); var run = days.length > 2 && days[days.length - 1] - days[0] === days.length - 1;
+    return run ? F.day(days[0], C.lang) + "–" + F.day(days[days.length - 1], C.lang) : days.map(function (d) { return F.day(d, C.lang); }).join(L() ? ", " : " و");
+  }
+  function curBranch() {
+    var bs = D.branchesOf(C.org);
+    if (!st.branch || !bs.some(function (b) { return b.id === st.branch; })) {
+      st.branch = C.branch !== "all" && bs.some(function (b) { return b.id === C.branch; }) ? C.branch : bs[0].id;
+    }
+    return D.branch(st.branch);
+  }
+  function docsIn(bId) { return D.doctors.filter(function (d) { return d.org === C.org && D.doctorBranches(d.id).indexOf(bId) > -1; }); }
+  function shiftsOn(docId, bId, day) { return D.shifts.filter(function (s) { return s.doctor === docId && s.branch === bId && s.days.indexOf(day) > -1; }).sort(function (a, b) { return a.from - b.from; }); }
+  function onLeave(docId, iso) { var l = D.leaveAt(docId, iso); return !!(l && !l.hours); }   /* full-day leaves from D.leaves */
+  /* one chip per distinct time window: "Sat–Thu 10 am–3 pm" */
+  function hoursChips(docId, bId) {
+    var g = {};
+    D.shifts.filter(function (s) { return s.doctor === docId && s.branch === bId; }).forEach(function (s) {
+      var k = s.from + "-" + s.to; (g[k] = g[k] || { from: s.from, to: s.to, days: [] }).days = g[k].days.concat(s.days);
+    });
+    return Object.keys(g).map(function (k) { return daysText(g[k].days) + " " + F.range(g[k].from, g[k].to, C.lang); });
+  }
+  function fuDays(doc) {
+    var f = D.services.filter(function (s) { return s.org === doc.org && s.kind === "followup" && doc.sp.indexOf(s.sp) > -1 && s.freeWithinDays; })[0];
+    return f ? f.freeWithinDays : null;
+  }
+  function money(n) { return F.money(n) + (L() ? " EGP" : " ج.م"); }
+  function fees(doc, bId) {
+    return doc.sp.map(function (sp) {
+      var s = D.mainService(doc.org, sp); if (!s) return null;
+      var p = D.price(s.id, doc.id, bId);
+      return { sp: sp, svc: s, price: p, txt: tx(s) + " " + (s.fromPrice ? (L() ? "from " : "من ") : "") + money(p) };
+    }).filter(Boolean);
+  }
+  function slug(o) { return o.en.toLowerCase().replace(/\b(clinic|centre|center)\b/g, "").replace(/^dr\.\s*/, "dr ").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
+  function shortDoc(d) { return L() ? d.shortEn : d.shortAr; }
+  function addrOf(b) { var a = L() ? b.addressEn : b.addressAr, c = tx(b.city); return a.indexOf(c) > -1 ? a : a + (L() ? ", " : "، ") + c; }
+
+  /* ---------- render ---------- */
+  function render() {
+    var o = D.org(C.org), b = curBranch(), bs = D.branchesOf(C.org), di = D.dayIndex(D.today), docs = docsIn(b.id);
+    document.title = tx(o) + " — " + tx(b.city);
+
+    $("#cw-orgs").innerHTML = D.orgs.map(function (x) { return '<button type="button" data-cw-org="' + x.id + '" aria-pressed="' + (x.id === C.org) + '">' + esc(tx(x)) + "</button>"; }).join("");
+
+    var ini = L() ? o.en.replace(/^Dr\.\s*/, "").charAt(0) : o.ini.charAt(0);
+    $("#cw-logo").textContent = ini; $("#cw-chat-ini").textContent = ini;
+    $("#cw-name").textContent = tx(o); $("#cw-chat-name").textContent = tx(o);
+    var sps = []; docs.forEach(function (d) { d.sp.forEach(function (s) { if (sps.indexOf(s) === -1) sps.push(s); }); });
+    $("#cw-sp").textContent = sps.map(function (s) { return tx(D.specialties[s]); }).join(" · ") + (bs.length > 1 ? " · " + (L() ? bs.length + " branches" : bs.length === 2 ? "فرعين" : F.num(bs.length, "ar") + " فروع") : "");
+
+    var br = $("#cw-br"); br.hidden = bs.length < 2;
+    br.innerHTML = bs.length < 2 ? "" : bs.map(function (x) { return '<button type="button" data-cw-branch="' + x.id + '" aria-pressed="' + (x.id === b.id) + '">' + esc(L() ? x.shortEn : x.shortAr) + "</button>"; }).join("");
+
+    /* open now, from branch hours (demo clock D.now) */
+    var open = $("#cw-open"), closedToday = b.closedDays.indexOf(di) > -1, msg;
+    if (closedToday) msg = L() ? "Closed today" : "مقفول النهارده";
+    else if (D.now >= b.hours.from && D.now < b.hours.to) msg = (L() ? "Open now · until " : "مفتوح دلوقتي · لحد ") + F.hour(b.hours.to, C.lang);
+    else if (D.now < b.hours.from) msg = (L() ? "Opens at " : "بيفتح الساعة ") + F.hour(b.hours.from, C.lang);
+    else msg = (L() ? "Closed now · opens tomorrow " : "مقفول دلوقتي · بيفتح بكرة ") + F.hour(b.hours.from, C.lang);
+    open.textContent = msg; open.classList.toggle("is-closed", closedToday || D.now < b.hours.from || D.now >= b.hours.to);
+
+    $("#cw-phone").textContent = b.phone; $("#cw-call").href = "tel:" + b.phone.replace(/\s/g, "");
+
+    /* doctors in this branch */
+    $("#cw-docs").innerHTML = docs.length ? docs.map(function (d) {
+      var other = D.doctorBranches(d.id).filter(function (x) { return x !== b.id; }).map(function (x) { var r = D.branch(x); return L() ? r.shortEn : r.shortAr; });
+      var fu = fuDays(d);
+      return '<div class="cw-doc"><span class="t-avatar" style="width:48px;height:48px">' + esc(d.ini) + "</span><div>" +
+        "<b>" + esc(tx(d)) + "</b>" +
+        '<div class="t-row tight mt-1">' + d.sp.map(function (s) { return '<span class="t-spec-tag ' + D.specialties[s].cls + '">' + esc(tx(D.specialties[s])) + "</span>"; }).join("") + "</div>" +
+        '<div class="t-row tight mt-2">' +
+          hoursChips(d.id, b.id).map(function (h) { return '<span class="t-chip plain">' + esc(h) + "</span>"; }).join("") +
+          fees(d, b.id).map(function (f) { return '<span class="t-chip plain" data-fee>' + esc(f.txt) + "</span>"; }).join("") +
+          (fu ? '<span class="t-chip free" data-fee>' + (L() ? "Free follow-up within " + fu + " days" : "استشارة مجانية خلال " + F.num(fu, "ar") + " يوم") + "</span>" : "") +
+        "</div>" +
+        (other.length ? '<div class="t-small t-muted mt-1">' + (L() ? "Also at our " + other.join(", ") + " branch" : "كمان في فرع " + other.join(" و")) + "</div>" : "") +
+        "</div></div>";
+    }).join("") : '<p class="t-muted mb-0">' + (L() ? "No doctors scheduled in this branch yet." : "مفيش أطباء في جدول الفرع ده لسه.") + "</p>";
+
+    /* next 7 days, from today */
+    var rows = "";
+    for (var i = 0; i < 7; i++) {
+      var iso = addDays(D.today, i), d = D.dayIndex(iso);
+      var label = F.day(d, C.lang) + " " + dayMonth(iso) + (i === 0 ? (L() ? " (today)" : " (النهارده)") : "");
+      if (b.closedDays.indexOf(d) > -1) { rows += '<tr class="is-muted"><td>' + esc(label) + "</td><td>" + (L() ? "Closed" : "مقفول") + "</td></tr>"; continue; }
+      var chips = docs.map(function (doc) {
+        var sh = shiftsOn(doc.id, b.id, d); if (!sh.length) return "";
+        if (onLeave(doc.id, iso)) return '<span class="t-chip left">' + esc(shortDoc(doc)) + " · " + (L() ? "on leave" : "إجازة") + "</span>";
+        return '<span class="t-chip plain">' + esc(shortDoc(doc)) + " " + sh.map(function (s) { return F.range(s.from, s.to, C.lang); }).join(L() ? ", " : "، ") + "</span>";
+      }).join("");
+      rows += "<tr" + (i === 0 ? ' class="is-today"' : "") + "><td>" + esc(label) + '</td><td><div class="cw-day-docs">' + (chips || '<span class="t-faint">—</span>') + "</div></td></tr>";
+    }
+    $("#cw-hours-body").innerHTML = rows;
+
+    $("#cw-addr").textContent = addrOf(b);
+    var q = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(b.addressEn + ", " + b.city.en);
+    $("#cw-map").href = q; $("#cw-dir").href = q;
+    $("#cw-slug").textContent = "tamargi.app/" + slug(o) + (bs.length > 1 ? "/" + b.shortEn.toLowerCase() : "");
+
+    /* booking-request choices: each doctor's next 2 working days in this branch */
+    var opts = [];
+    docs.forEach(function (doc) {
+      var n = 0;
+      for (var k = 0; k < 8 && n < 2; k++) {
+        var iso2 = addDays(D.today, k), sh = shiftsOn(doc.id, b.id, D.dayIndex(iso2));
+        if (!sh.length || onLeave(doc.id, iso2) || (k === 0 && D.now >= sh[sh.length - 1].to)) continue;
+        n++; opts.push(shortDoc(doc) + " — " + relDay(iso2) + (k < 2 ? " (" + F.day(D.dayIndex(iso2), C.lang) + ")" : ""));
+      }
+    });
+    $("#cw-d").innerHTML = opts.map(function (t) { return "<option>" + esc(t) + "</option>"; }).join("");
+  }
+
+  /* ---------- chat ---------- */
   var chat = $("#cw-chat"), body = $("#cw-body");
   function now() { var d = new Date(); return d.getHours() + ":" + ("0" + d.getMinutes()).slice(-2); }
   function msg(dir, ar, en) {
@@ -174,15 +296,27 @@
   $("#cw-start").addEventListener("click", open);
   $("#cw-close").addEventListener("click", function () { chat.hidden = true; $("#cw-start").focus(); });
 
-  var REPLIES = {
-    book: [["عايز أحجز كشف", "I'd like to book a consult"], ["تمام ابعتلنا الاسم والموبايل واليوم اللي يناسبك، والاستقبال هتأكد معاك.", "Sure. Send the name, mobile and a day that suits you; reception will confirm."], true],
-    fu: [["عايز أحجز استشارة", "I'd like a follow-up"], ["لو الكشف كان من أقل من ١٤ يوم، الاستشارة مجانية. ابعتلنا الاسم والموبايل.", "If the consult was less than 14 days ago, the follow-up is free. Send the name and mobile."], true],
-    hours: [["مواعيد النهارده إيه؟", "What are today's hours?"], ["النهارده السبت: د. أحمد من ٥ لـ ١١ م، ود. نهى من ١٠ ص لـ ٢ م.", "Today (Saturday): Dr. Ahmed 5–11 pm, Dr. Noha 10 am–2 pm."], false],
-    fee: [["الكشف بكام؟", "How much is a consult?"], ["كشف د. أحمد ٣٠٠ ج.م، وكشف د. نهى ٢٥٠ ج.م. الاستشارة مجانية خلال ١٤ يوم.", "Dr. Ahmed's consult is 300 EGP, Dr. Noha's 250 EGP. Follow-up free within 14 days."], false]
-  };
+  /* replies are built from the branch's schedule and price list, in both languages */
+  function both(fn) { var keep = C.lang, out = []; C.lang = "ar"; out[0] = fn(); C.lang = "en"; out[1] = fn(); C.lang = keep; return out; }
+  function reply(kind) {
+    var b = curBranch(), docs = docsIn(b.id), di = D.dayIndex(D.today);
+    if (kind === "book") return [["عايز أحجز كشف", "I'd like to book a consult"], ["تمام ابعتلنا الاسم والموبايل واليوم اللي يناسبك، والاستقبال هتأكد معاك.", "Sure. Send the name, mobile and a day that suits you; reception will confirm."], true];
+    if (kind === "fu") {
+      var fd = docs.map(fuDays).filter(Boolean), n = fd.length ? Math.min.apply(null, fd) : D.org(C.org).followupDays;
+      return [["عايز أحجز استشارة", "I'd like a follow-up"], ["لو الكشف كان من أقل من " + F.num(n, "ar") + " يوم، الاستشارة مجانية. ابعتلنا الاسم والموبايل.", "If the consult was less than " + n + " days ago, the follow-up is free. Send the name and mobile."], true];
+    }
+    if (kind === "hours") return [["مواعيد النهارده إيه؟", "What are today's hours?"], both(function () {
+      var list = docs.map(function (d) { var sh = shiftsOn(d.id, b.id, di); return sh.length ? shortDoc(d) + " " + sh.map(function (s) { return F.range(s.from, s.to, C.lang); }).join(" / ") : null; }).filter(Boolean);
+      var head = (L() ? "Today (" : "النهارده ") + F.day(di, C.lang) + (L() ? ")" : "") + (D.branchesOf(C.org).length > 1 ? (L() ? " at " + b.shortEn : " في فرع " + b.shortAr) : "") + ": ";
+      return head + (list.length ? list.join(L() ? ", " : "، ") + "." : (L() ? "no doctors today." : "مفيش أطباء النهارده."));
+    }), false];
+    return [["الكشف بكام؟", "How much is a consult?"], both(function () {
+      return docs.map(function (d) { return shortDoc(d) + ": " + fees(d, b.id).map(function (f) { return f.txt; }).join(L() ? ", " : "، "); }).join(L() ? "; " : " · ") + ".";
+    }), false];
+  }
   $("#cw-quick").addEventListener("click", function (e) {
     var b = e.target.closest("[data-q]"); if (!b) return;
-    var r = REPLIES[b.getAttribute("data-q")];
+    var r = reply(b.getAttribute("data-q"));
     msg("out", r[0][0], r[0][1]);
     setTimeout(function () { msg("in", r[1][0], r[1][1]); if (r[2]) { $("#cw-form").hidden = false; body.appendChild($("#cw-form")); body.scrollTop = body.scrollHeight; $("#cw-n").focus(); } }, 500);
   });
@@ -192,10 +326,11 @@
     $("#cw-m").classList.toggle("is-invalid", !okM); $("#cw-n").classList.toggle("is-invalid", !n);
     if (!okM) { hint.className = "t-error"; hint.setAttribute("data-ar", "اكتب موبايل مصري ١١ رقم يبدأ بـ 01."); hint.setAttribute("data-en", "Enter an 11-digit Egyptian mobile starting with 01."); hint.textContent = L() ? hint.getAttribute("data-en") : hint.getAttribute("data-ar"); return; }
     if (!n) return;
-    var d = $("#cw-d").options[$("#cw-d").selectedIndex].textContent;
+    var d = $("#cw-d").options[$("#cw-d").selectedIndex], b = curBranch();
     $("#cw-form").hidden = true;
-    msg("out", n + " · " + m + " · " + d);
-    setTimeout(function () { msg("in", "وصلنا طلبك الاستقبال هتكلمك على " + m + " تأكد الميعاد.", "Request received. Reception will call " + m + " to confirm the time."); }, 500);
+    msg("out", n + " · " + m + " · " + (d ? d.textContent : ""));
+    var bn = D.branchesOf(C.org).length > 1;
+    setTimeout(function () { msg("in", "وصلنا طلبك" + (bn ? " لفرع " + b.shortAr : "") + ". الاستقبال هتكلمك على " + m + " تأكد الميعاد.", "Request received" + (bn ? " for our " + b.shortEn + " branch" : "") + ". Reception will call " + m + " to confirm the time."); }, 500);
   });
   function sendText() {
     var v = $("#cw-text").value.trim(); if (!v) return;
@@ -204,6 +339,19 @@
   }
   $("#cw-send").addEventListener("click", sendText);
   $("#cw-text").addEventListener("keydown", function (e) { if (e.key === "Enter") sendText(); });
+
+  /* a different org/branch page = a fresh conversation */
+  function resetChat() {
+    Array.prototype.slice.call(body.querySelectorAll(".cw-msg")).slice(1).forEach(function (n) { n.remove(); });
+    $("#cw-form").hidden = true; body.insertBefore($("#cw-form"), null);
+  }
+  document.addEventListener("click", function (e) {
+    var b;
+    if ((b = e.target.closest("[data-cw-org]"))) { var id = b.getAttribute("data-cw-org"); if (id !== C.org) { st.branch = null; T.setCtx({ org: id }); } return; }
+    if ((b = e.target.closest("[data-cw-branch]"))) { st.branch = b.getAttribute("data-cw-branch"); resetChat(); render(); }
+  });
+  T.onCtx(function (c, reason) { if (reason === "org") resetChat(); render(); });
+  render();
 })();
 </script>
 </body>

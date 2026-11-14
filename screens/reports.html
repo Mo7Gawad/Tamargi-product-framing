@@ -24,19 +24,21 @@
       .t-table-wrap { overflow: visible; border: 0; }
     }
   </style>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
-<body data-screen="reports">
+<body data-screen="reports" data-org-default="nile">
 <main id="screen">
   <div class="t-container">
 
     <header class="t-screen-head">
       <div>
         <h1 data-en="Reports & activity log">التقارير وسجل النشاط</h1>
-        <p class="t-sub mb-0" data-en="Pick a report, set the dates, read it right here. Export only if your accountant needs a file.">اختار التقرير وحدد التاريخ واقرأه هنا على طول. صدّر ملف بس لو المحاسب محتاجه.</p>
+        <p class="t-sub mb-0"><span data-en="Pick a report, set the dates, read it right here. Export only if your accountant needs a file.">اختار التقرير وحدد التاريخ واقرأه هنا على طول. صدّر ملف بس لو المحاسب محتاجه.</span> <span id="rp-scope" class="t-small"></span></p>
       </div>
       <div class="t-actions"
-           data-note="Export inline: PDF uses the browser's print-to-PDF of exactly what is on screen (clinic letterhead on top); Excel downloads the same rows. No popup Crystal-style viewer with an English toolbar and parameters in the URL (NITCO v42/v103)."
-           data-note-ar="التصدير من نفس الصفحة: PDF بيطبع اللي على الشاشة بالظبط بترويسة العيادة، وExcel بينزّل نفس الصفوف. مفيش نافذة منبثقة إنجليزي والبيانات في الرابط زي NITCO.">
+           data-note="Export inline: PDF uses the browser's print-to-PDF of exactly what is on screen (letterhead of the branch on top, or the organization under All branches); Excel downloads the same rows. No popup Crystal-style viewer with an English toolbar and parameters in the URL (NITCO v42/v103)."
+           data-note-ar="التصدير من نفس الصفحة: PDF بيطبع اللي على الشاشة بالظبط بترويسة الفرع (أو المنشأة في «كل الفروع»)، وExcel بينزّل نفس الصفوف. مفيش نافذة منبثقة إنجليزي والبيانات في الرابط زي NITCO.">
         <a class="t-btn ghost" href="owner-dashboard.html"><svg class="t-icon sm flip"><use href="#i-arrow"/></svg><span data-en="Dashboard">لوحة المالك</span></a>
         <button class="t-btn" type="button" data-toast="تم تنزيل ملف Excel" data-toast-en="Excel file downloaded"><svg class="t-icon sm"><use href="#i-download"/></svg><span data-en="Excel">Excel</span></button>
         <button class="t-btn primary" type="button" id="rp-pdf"><svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Print / PDF">طباعة / PDF</span><span class="t-kbd">Ctrl P</span></button>
@@ -45,8 +47,8 @@
 
     <!-- Tabs -->
     <div class="t-tabs" role="tablist" aria-label="Reports" data-en-aria-label="Reports"
-         data-note="Six reports, not 50 in four dropdowns. They answer the owner's real questions: how much came in, who still owes, what was given away (discounts, credit notes), and who did what. Commission is Tier 2 (polyclinics)."
-         data-note-ar="ست تقارير بس مش 50 في 4 قوايم. بترد على أسئلة المالك الحقيقية: دخل كام، مين لسه عليه، إيه اللي اتخصم أو اترجع، ومين عمل إيه. العمولة للمجمعات (المرحلة 2).">
+         data-note="Six reports, not 50 in four dropdowns. They answer the owner's real questions: how much came in, who still owes, what was given away (discounts, credit notes), and who did what. Commission is Tier 2 (polyclinics). Every report follows the branch picked in the top bar; owners also get All branches with a By-branch view."
+         data-note-ar="ست تقارير بس مش 50 في 4 قوايم. بترد على أسئلة المالك الحقيقية: دخل كام، مين لسه عليه، إيه اللي اتخصم أو اترجع، ومين عمل إيه. العمولة للمجمعات (المرحلة 2). كل تقرير ماشي على الفرع المختار فوق، والمالك عنده كمان «كل الفروع» وعرض حسب الفرع.">
       <button class="t-tab" role="tab" aria-selected="true" data-tab="income" data-en="Daily income">الدخل اليومي</button>
       <button class="t-tab" role="tab" aria-selected="false" data-tab="debt" data-en="Unpaid & debt">غير المدفوع والمديونية</button>
       <button class="t-tab" role="tab" aria-selected="false" data-tab="credits" data-en="Credit notes">المرتجعات</button>
@@ -57,14 +59,14 @@
 
     <!-- Filters (shared by all tabs) -->
     <form class="t-card sunk mb-4 rp-filters" onsubmit="return false"
-          data-note="One filter row, same for every report: quick periods (today, yesterday, this week, this month) instead of 12:00:00 AM date-time spinners; doctor and payment method default to 'All'. Results update as you change a filter, no 'Show' button."
-          data-note-ar="صف فلاتر واحد لكل التقارير: فترات سريعة بدل منتقي الوقت 12:00:00 ص، والطبيب وطريقة الدفع افتراضيًا «الكل». النتايج بتتحدّث أول ما تغيّر الفلتر من غير زرار «عرض».">
+          data-note="One filter row, same for every report: quick periods (today, yesterday, 7 days, this month) instead of 12:00:00 AM date-time spinners; doctor and payment method default to 'All'. The branch comes from the top bar, so a report never mixes branches by accident. Results update as you change a filter, no 'Show' button."
+          data-note-ar="صف فلاتر واحد لكل التقارير: فترات سريعة بدل منتقي الوقت 12:00:00 ص، والطبيب وطريقة الدفع افتراضيًا «الكل». الفرع جاي من الشريط اللي فوق، فالتقرير مايخلطش الفروع بالغلط. النتايج بتتحدّث أول ما تغيّر الفلتر من غير زرار «عرض».">
       <div class="t-field">
         <span class="t-label" data-en="Period">الفترة</span>
         <div class="t-seg" role="group" id="rp-period" aria-label="Period" data-en-aria-label="Period">
           <button type="button" aria-pressed="true" data-from="2026-11-14" data-to="2026-11-14" data-en="Today">النهارده</button>
           <button type="button" aria-pressed="false" data-from="2026-11-13" data-to="2026-11-13" data-en="Yesterday">أمس</button>
-          <button type="button" aria-pressed="false" data-from="2026-11-14" data-to="2026-11-14" data-en="This week">الأسبوع</button>
+          <button type="button" aria-pressed="false" data-from="2026-11-08" data-to="2026-11-14" data-en="7 days">٧ أيام</button>
           <button type="button" aria-pressed="false" data-from="2026-11-01" data-to="2026-11-14" data-en="This month">الشهر</button>
         </div>
       </div>
@@ -78,38 +80,20 @@
       </div>
       <div class="t-field">
         <label class="t-label" for="rp-doc" data-en="Doctor">الطبيب</label>
-        <select id="rp-doc" class="t-select">
-          <option data-en="All doctors">كل الأطباء</option>
-          <option data-en="Dr. Ahmed Selim">د. أحمد سليم</option>
-          <option data-en="Dr. Noha El-Sherbini">د. نهى الشربيني</option>
-        </select>
+        <select id="rp-doc" class="t-select"></select>
       </div>
       <div class="t-field">
         <label class="t-label" for="rp-method" data-en="Payment method">طريقة الدفع</label>
-        <select id="rp-method" class="t-select">
-          <option data-en="All methods">كل الطرق</option>
-          <option data-en="Cash">نقدي</option>
-          <option data-en="InstaPay">إنستاباي</option>
-          <option data-en="Vodafone Cash">فودافون كاش</option>
-          <option data-en="From deposit">من الرصيد المقدّم</option>
-        </select>
+        <select id="rp-method" class="t-select"></select>
       </div>
     </form>
 
-    <!-- Print header -->
-    <div class="rp-print-only">
-      <b data-en="Dr. Ahmed Selim Clinic — Mansoura">عيادة د. أحمد سليم — المنصورة</b><br>
-      <span class="t-small" data-en="Report printed 14/11/2026 21:40 by Dr. Ahmed Selim">طُبع 14/11/2026 21:40 بواسطة د. أحمد سليم</span> · <span id="rp-printperiod" class="t-small t-ltr">14/11/2026</span>
-    </div>
+    <!-- Print header: branch letterhead (or the organization under All branches) -->
+    <div class="rp-print-only" id="rp-print"></div>
 
     <!-- ============ INCOME ============ -->
     <section data-panel="income" role="tabpanel">
-      <div class="rp-summary mb-4">
-        <div class="t-card t-stat"><span class="t-stat-label" data-en="Billed (after discount)">المطلوب (بعد الخصم)</span><span class="t-stat-value t-num">7,300<small data-en="EGP">ج.م</small></span></div>
-        <div class="t-card t-stat"><span class="t-stat-label" data-en="Collected">المحصّل</span><span class="t-stat-value t-num">6,850<small data-en="EGP">ج.م</small></span></div>
-        <div class="t-card t-stat"><span class="t-stat-label" data-en="Left as debt">اتساب مديونية</span><span class="t-stat-value"><span class="t-money debt">450<span class="cur" data-en="EGP">ج.م</span></span></span></div>
-        <div class="t-card t-stat"><span class="t-stat-label" data-en="Discounts given">خصومات</span><span class="t-stat-value t-num">330<small data-en="EGP">ج.م</small></span></div>
-      </div>
+      <div class="rp-summary mb-4" id="rp-inc-sum"></div>
 
       <div class="rp-head">
         <h2 data-en="Income by">الدخل حسب</h2>
@@ -118,77 +102,26 @@
           <button type="button" aria-pressed="true" data-group="service" data-en="Service">الخدمة</button>
           <button type="button" aria-pressed="false" data-group="user" data-en="User">المستخدم</button>
           <button type="button" aria-pressed="false" data-group="method" data-en="Payment method">طريقة الدفع</button>
+          <button type="button" aria-pressed="false" data-group="branch" data-en="Branch" id="rp-g-branch"
+                  data-note="By branch (multi-branch organizations): one row per branch with its own invoice series, so the accountant can match each branch's receipts book. Shown to owners under All branches."
+                  data-note-ar="حسب الفرع (للمنشآت متعددة الفروع): صف لكل فرع بسلسلة فواتيره، عشان المحاسب يطابق دفتر إيصالات كل فرع. بيظهر للمالك في «كل الفروع».">الفرع</button>
         </div>
       </div>
 
-      <div class="t-table-wrap">
-        <!-- by service -->
-        <table class="t-table" data-grouped="service">
-          <thead><tr><th data-en="Service">الخدمة</th><th class="rp-hide-sm" data-en="Doctor">الطبيب</th><th class="num" data-en="Count">العدد</th><th class="num rp-hide-sm" data-en="Gross">الإجمالي</th><th class="num rp-hide-sm" data-en="Discount">الخصم</th><th class="num" data-en="Collected">المحصّل</th><th class="num" data-en="Debt">مديونية</th></tr></thead>
-          <tbody>
-            <tr><td><span class="t-name" data-en="Internal medicine consult">كشف باطنة</span></td><td class="rp-hide-sm" data-en="Dr. Ahmed">د. أحمد</td><td class="num">11</td><td class="num rp-hide-sm">3,300</td><td class="num rp-hide-sm">130</td><td class="num">3,170</td><td class="num">0</td></tr>
-            <tr><td><span class="t-name" data-en="Paid follow-up">إعادة كشف (مدفوعة)</span></td><td class="rp-hide-sm" data-en="Dr. Ahmed">د. أحمد</td><td class="num">4</td><td class="num rp-hide-sm">600</td><td class="num rp-hide-sm">0</td><td class="num">600</td><td class="num">0</td></tr>
-            <tr><td><span class="t-name" data-en="ECG">رسم قلب</span></td><td class="rp-hide-sm" data-en="Dr. Ahmed">د. أحمد</td><td class="num">3</td><td class="num rp-hide-sm">600</td><td class="num rp-hide-sm">100</td><td class="num">300</td><td class="num"><span class="t-money debt">200</span></td></tr>
-            <tr><td><span class="t-name" data-en="Wound dressing">غيار وتنظيف جرح</span></td><td class="rp-hide-sm" data-en="Dr. Ahmed">د. أحمد</td><td class="num">1</td><td class="num rp-hide-sm">280</td><td class="num rp-hide-sm">0</td><td class="num">280</td><td class="num">0</td></tr>
-            <tr><td><span class="t-name" data-en="Paediatrics consult">كشف أطفال</span></td><td class="rp-hide-sm" data-en="Dr. Noha">د. نهى</td><td class="num">10</td><td class="num rp-hide-sm">2,500</td><td class="num rp-hide-sm">100</td><td class="num">2,150</td><td class="num"><span class="t-money debt">250</span></td></tr>
-            <tr><td><span class="t-name" data-en="Nebuliser session">جلسة نيبولايزر</span></td><td class="rp-hide-sm" data-en="Dr. Noha">د. نهى</td><td class="num">2</td><td class="num rp-hide-sm">350</td><td class="num rp-hide-sm">0</td><td class="num">350</td><td class="num">0</td></tr>
-            <tr class="is-muted"><td><span class="t-name"><span class="t-chip free" data-en="Free">مجاني</span> <span data-en="Follow-up within 14 days">إعادة خلال 14 يوم</span></span></td><td class="rp-hide-sm" data-en="Both">الاتنين</td><td class="num">6</td><td class="num rp-hide-sm">0</td><td class="num rp-hide-sm">0</td><td class="num">0</td><td class="num">0</td></tr>
-          </tbody>
-          <tfoot><tr><td data-en="Total">الإجمالي</td><td class="rp-hide-sm"></td><td class="num">37</td><td class="num rp-hide-sm">7,630</td><td class="num rp-hide-sm">330</td><td class="num">6,850</td><td class="num">450</td></tr></tfoot>
-        </table>
-        <!-- by doctor -->
-        <table class="t-table" data-grouped="doctor" hidden>
-          <thead><tr><th data-en="Doctor">الطبيب</th><th class="num" data-en="Visits">الزيارات</th><th class="num rp-hide-sm" data-en="Free follow-ups">إعادة مجانية</th><th class="num rp-hide-sm" data-en="Gross">الإجمالي</th><th class="num rp-hide-sm" data-en="Discount">الخصم</th><th class="num" data-en="Collected">المحصّل</th><th class="num" data-en="Debt">مديونية</th></tr></thead>
-          <tbody>
-            <tr><td><span class="t-name" data-en="Dr. Ahmed Selim">د. أحمد سليم</span><span class="t-meta" data-en="Internal medicine">باطنة</span></td><td class="num">19</td><td class="num rp-hide-sm">4</td><td class="num rp-hide-sm">4,780</td><td class="num rp-hide-sm">230</td><td class="num">4,350</td><td class="num"><span class="t-money debt">200</span></td></tr>
-            <tr><td><span class="t-name" data-en="Dr. Noha El-Sherbini">د. نهى الشربيني</span><span class="t-meta" data-en="Paediatrics">أطفال</span></td><td class="num">12</td><td class="num rp-hide-sm">2</td><td class="num rp-hide-sm">2,850</td><td class="num rp-hide-sm">100</td><td class="num">2,500</td><td class="num"><span class="t-money debt">250</span></td></tr>
-          </tbody>
-          <tfoot><tr><td data-en="Total">الإجمالي</td><td class="num">31</td><td class="num rp-hide-sm">6</td><td class="num rp-hide-sm">7,630</td><td class="num rp-hide-sm">330</td><td class="num">6,850</td><td class="num">450</td></tr></tfoot>
-        </table>
-        <!-- by user -->
-        <table class="t-table" data-grouped="user" hidden>
-          <thead><tr><th data-en="Collected by">حصّل بواسطة</th><th class="rp-hide-sm" data-en="Shift">الوردية</th><th class="num" data-en="Receipts">إيصالات</th><th class="num" data-en="Cash">نقدي</th><th class="num rp-hide-sm" data-en="Other methods">طرق أخرى</th><th class="num" data-en="Total">الإجمالي</th><th data-en="Close">التقفيل</th></tr></thead>
-          <tbody>
-            <tr><td><span class="t-name" data-en="Sara Ramadan">سارة رمضان</span><span class="t-meta" data-en="Receptionist">استقبال</span></td><td class="rp-hide-sm t-ltr">09:00–13:05</td><td class="num">16</td><td class="num">3,120</td><td class="num rp-hide-sm">800</td><td class="num">3,920</td><td><a href="cash-close.html" class="t-chip done" data-en="Closed · −20">مقفولة · −20</a></td></tr>
-            <tr><td><span class="t-name" data-en="Menna Khaled">منة خالد</span><span class="t-meta" data-en="Receptionist">استقبال</span></td><td class="rp-hide-sm t-ltr">16:00–</td><td class="num">12</td><td class="num">2,630</td><td class="num rp-hide-sm">300</td><td class="num">2,930</td><td><span class="t-chip waiting" data-en="Open">مفتوحة</span></td></tr>
-          </tbody>
-          <tfoot><tr><td data-en="Total">الإجمالي</td><td class="rp-hide-sm"></td><td class="num">28</td><td class="num">5,750</td><td class="num rp-hide-sm">1,100</td><td class="num">6,850</td><td></td></tr></tfoot>
-        </table>
-        <!-- by method -->
-        <table class="t-table" data-grouped="method" hidden>
-          <thead><tr><th data-en="Payment method">طريقة الدفع</th><th class="num" data-en="Payments">عدد المدفوعات</th><th class="num" data-en="Amount">المبلغ</th><th class="num rp-hide-sm" data-en="Share">النسبة</th></tr></thead>
-          <tbody>
-            <tr><td data-en="Cash">نقدي</td><td class="num">24</td><td class="num">5,750</td><td class="num rp-hide-sm">84%</td></tr>
-            <tr><td data-en="InstaPay">إنستاباي</td><td class="num">2</td><td class="num">600</td><td class="num rp-hide-sm">9%</td></tr>
-            <tr><td data-en="Vodafone Cash">فودافون كاش</td><td class="num">1</td><td class="num">300</td><td class="num rp-hide-sm">4%</td></tr>
-            <tr><td data-en="From patient deposit">من رصيد المريض المقدّم</td><td class="num">1</td><td class="num">200</td><td class="num rp-hide-sm">3%</td></tr>
-          </tbody>
-          <tfoot><tr><td data-en="Total">الإجمالي</td><td class="num">28</td><td class="num">6,850</td><td class="num rp-hide-sm">100%</td></tr></tfoot>
-        </table>
-      </div>
+      <div class="t-table-wrap"><table class="t-table" id="rp-inc"></table></div>
       <p class="t-small t-muted" style="margin-block-start:var(--s-2)" data-en="Amounts in EGP. Free follow-ups are counted as visits but not as revenue. Click a row in the full product to see its invoices.">المبالغ بالجنيه. الإعادة المجانية بتتحسب زيارة مش إيراد. في النسخة الكاملة اضغط على أي صف تشوف فواتيره.</p>
     </section>
 
     <!-- ============ DEBT & UNPAID ============ -->
     <section data-panel="debt" role="tabpanel" hidden>
-      <div class="rp-summary mb-4">
-        <div class="t-card t-stat"><span class="t-stat-label" data-en="Total owed">إجمالي المديونية</span><span class="t-stat-value"><span class="t-money debt">3,240<span class="cur" data-en="EGP">ج.م</span></span></span></div>
-        <div class="t-card t-stat"><span class="t-stat-label" data-en="Patients owing">مرضى عليهم</span><span class="t-stat-value t-num">14</span></div>
-        <div class="t-card t-stat"><span class="t-stat-label" data-en="Older than 60 days">أقدم من 60 يوم</span><span class="t-stat-value t-num">820<small data-en="EGP">ج.م</small></span></div>
-        <div class="t-card t-stat"><span class="t-stat-label" data-en="Deposits held">رصيد مقدّم محفوظ</span><span class="t-stat-value"><span class="t-money deposit">2,100<span class="cur" data-en="EGP">ج.م</span></span></span></div>
-      </div>
-      <div class="t-table-wrap">
+      <div class="rp-summary mb-4" id="rp-debt-sum"></div>
+      <div class="t-table-wrap"
+           data-note="Debt belongs to the patient, and the patient has one file per organization, so this list is org-wide in every branch. The branch of each open invoice is shown so the right cashier follows it up."
+           data-note-ar="المديونية على المريض، والمريض ليه ملف واحد في المنشأة، فالقايمة دي للمنشأة كلها في أي فرع. فرع كل فاتورة مفتوحة ظاهر عشان الكاشير الصح يتابعها.">
         <table class="t-table">
           <thead><tr><th data-en="Patient">المريض</th><th class="num" data-en="0–30 days">0–30 يوم</th><th class="num rp-hide-sm" data-en="31–60">31–60</th><th class="num rp-hide-sm" data-en="60+">+60</th><th class="num" data-en="Total owed">إجمالي عليه</th><th class="rp-hide-sm" data-en="Open invoices">فواتير مفتوحة</th><th></th></tr></thead>
-          <tbody>
-            <tr><td><span class="t-name">محمود عبد الفتاح السيد الجمال</span><span class="t-meta t-ltr">0106 552 1903</span></td><td class="num">250</td><td class="num rp-hide-sm">400</td><td class="num rp-hide-sm">0</td><td class="num"><span class="t-money debt">650</span></td><td class="rp-hide-sm"><span class="t-chip partial" data-en="2 partial">2 جزئي</span></td><td class="actions"><a class="t-btn sm ghost" href="patient-account.html" data-en="Account">الحساب</a></td></tr>
-            <tr><td><span class="t-name">هبة سمير عبد الله النجار</span><span class="t-meta t-ltr">0128 004 7715</span></td><td class="num">450</td><td class="num rp-hide-sm">0</td><td class="num rp-hide-sm">0</td><td class="num"><span class="t-money debt">450</span></td><td class="rp-hide-sm"><span class="t-chip partial" data-en="1 partial">1 جزئي</span></td><td class="actions"><a class="t-btn sm ghost" href="patient-account.html" data-en="Account">الحساب</a></td></tr>
-            <tr><td><span class="t-name">رضا إبراهيم محمد الدسوقي</span><span class="t-meta t-ltr">0111 930 2264</span></td><td class="num">400</td><td class="num rp-hide-sm">0</td><td class="num rp-hide-sm">0</td><td class="num"><span class="t-money debt">400</span></td><td class="rp-hide-sm"><span class="t-chip unpaid" data-en="1 unpaid">1 غير مدفوعة</span></td><td class="actions"><a class="t-btn sm ghost" href="patient-account.html" data-en="Account">الحساب</a></td></tr>
-            <tr><td><span class="t-name">سعاد فتحي عبد المنعم الشربيني</span><span class="t-meta t-ltr">0100 718 3346</span></td><td class="num">0</td><td class="num rp-hide-sm">0</td><td class="num rp-hide-sm">350</td><td class="num"><span class="t-money debt">350</span></td><td class="rp-hide-sm"><span class="t-chip partial" data-en="1 partial">1 جزئي</span></td><td class="actions"><a class="t-btn sm ghost" href="patient-account.html" data-en="Account">الحساب</a></td></tr>
-            <tr><td><span class="t-name">أحمد مصطفى حسن البدراوي</span><span class="t-meta t-ltr">0155 260 8812</span></td><td class="num">0</td><td class="num rp-hide-sm">0</td><td class="num rp-hide-sm">300</td><td class="num"><span class="t-money debt">300</span></td><td class="rp-hide-sm"><span class="t-chip unpaid" data-en="1 unpaid">1 غير مدفوعة</span></td><td class="actions"><a class="t-btn sm ghost" href="patient-account.html" data-en="Account">الحساب</a></td></tr>
-            <tr class="is-muted"><td colspan="7" data-en="+ 9 more patients owing 1,090 EGP in total">+ 9 مرضى تانيين عليهم 1,090 ج.م</td></tr>
-          </tbody>
-          <tfoot><tr><td data-en="Total">الإجمالي</td><td class="num">1,550</td><td class="num rp-hide-sm">870</td><td class="num rp-hide-sm">820</td><td class="num">3,240</td><td class="rp-hide-sm"></td><td></td></tr></tfoot>
+          <tbody id="rp-debt"></tbody>
+          <tfoot id="rp-debt-foot"></tfoot>
         </table>
       </div>
       <p class="t-small t-muted" style="margin-block-start:var(--s-2)" data-en="Debt is created only when an invoice is collected partly; the remainder is recorded on the patient (no 'save without paying' trap).">المديونية بتتسجّل بس لما الفاتورة تتحصّل جزئيًا؛ الباقي بيتسجّل على المريض (مفيش «حفظ من غير دفع» زي NITCO).</p>
@@ -198,20 +131,16 @@
     <section data-panel="credits" role="tabpanel" hidden>
       <div class="rp-head">
         <h2 data-en="Credit notes this month">مرتجعات الشهر ده</h2>
-        <span class="t-badge">3</span>
-        <span class="t-small t-muted t-end" data-en="Total credited: 550 EGP">إجمالي المرتجع: 550 ج.م</span>
+        <span class="t-badge" id="rp-cn-n">0</span>
+        <span class="t-small t-muted t-end" id="rp-cn-total"></span>
       </div>
       <div class="t-table-wrap">
         <table class="t-table">
           <thead><tr><th data-en="Credit note">المرتجع</th><th data-en="Original invoice">الفاتورة الأصلية</th><th class="rp-hide-sm" data-en="Patient">المريض</th><th data-en="Reason">السبب</th><th class="rp-hide-sm" data-en="By">بواسطة</th><th class="num" data-en="Amount">المبلغ</th></tr></thead>
-          <tbody>
-            <tr><td><span class="t-chip credit t-ltr">CN-2611-0007</span><span class="t-meta" data-en="Today 18:12">النهارده 18:12</span></td><td><a class="t-ltr" href="invoice-detail.html">INV-2611-0402</a></td><td class="rp-hide-sm">ياسمين علي عبد الحميد</td><td data-en="Lab test not done">التحليل ماتعملش</td><td class="rp-hide-sm" data-en="Menna">منة</td><td class="num"><span class="t-money debt">−150</span></td></tr>
-            <tr><td><span class="t-chip credit t-ltr">CN-2611-0006</span><span class="t-meta" data-en="10 Nov">10 نوفمبر</span></td><td><a class="t-ltr" href="invoice-detail.html">INV-2611-0311</a></td><td class="rp-hide-sm">عمرو حسني فاروق</td><td data-en="Wrong service — consult instead of follow-up">خدمة غلط — كشف بدل إعادة</td><td class="rp-hide-sm" data-en="Dr. Ahmed">د. أحمد</td><td class="num"><span class="t-money debt">−150</span></td></tr>
-            <tr><td><span class="t-chip credit t-ltr">CN-2611-0005</span><span class="t-meta" data-en="3 Nov">3 نوفمبر</span></td><td><a class="t-ltr" href="invoice-detail.html">INV-2611-0098</a></td><td class="rp-hide-sm">نادية محمد السعيد</td><td data-en="Patient left before the doctor saw her">المريضة مشيت قبل الكشف</td><td class="rp-hide-sm" data-en="Menna">منة</td><td class="num"><span class="t-money debt">−250</span></td></tr>
-          </tbody>
+          <tbody id="rp-cn"></tbody>
         </table>
       </div>
-      <p class="t-small t-muted" style="margin-block-start:var(--s-2)" data-en="Issued invoices are never edited or deleted. Every correction is a credit note with a reason, linked to the original (NITCO v48–50).">الفواتير المصدرة مابتتعدلش ولا تتمسح. أي تصحيح = مرتجع بسبب ومربوط بالفاتورة الأصلية.</p>
+      <p class="t-small t-muted" style="margin-block-start:var(--s-2)" data-en="Issued invoices are never edited or deleted. Every correction is a credit note with a reason, linked to the original, numbered in the same branch series (NITCO v48–50).">الفواتير المصدرة مابتتعدلش ولا تتمسح. أي تصحيح = مرتجع بسبب ومربوط بالفاتورة الأصلية، ورقمه من سلسلة نفس الفرع.</p>
     </section>
 
     <!-- ============ DISCOUNTS ============ -->
@@ -219,32 +148,17 @@
       <div class="t-grid c2 mb-4">
         <div class="t-card">
           <div class="t-card-head"><h3 data-en="By reason">حسب السبب</h3></div>
-          <dl class="t-totals">
-            <dt data-en="Syndicate member (25%)">عضو نقابة (25%)</dt><dd>100</dd>
-            <dt data-en="Relative of staff">قريب موظف</dt><dd>100</dd>
-            <dt data-en="Doctor's decision">قرار الطبيب</dt><dd>100</dd>
-            <dt data-en="Elderly (10%)">كبار السن (10%)</dt><dd>30</dd>
-            <dt class="grand" data-en="Total (EGP)">الإجمالي (ج.م)</dt><dd class="grand">330</dd>
-          </dl>
+          <dl class="t-totals" id="rp-dc-reason"></dl>
         </div>
         <div class="t-card">
           <div class="t-card-head"><h3 data-en="By user vs. their cap">حسب المستخدم مقابل الحد</h3></div>
-          <dl class="t-totals">
-            <dt data-en="Sara Ramadan · cap 15%">سارة رمضان · الحد 15%</dt><dd>130</dd>
-            <dt data-en="Menna Khaled · cap 20%">منة خالد · الحد 20%</dt><dd>100 <span class="t-chip danger" data-en="1 above cap">1 فوق الحد</span></dd>
-            <dt data-en="Dr. Ahmed Selim · no cap">د. أحمد سليم · بدون حد</dt><dd>100</dd>
-          </dl>
+          <dl class="t-totals" id="rp-dc-user"></dl>
         </div>
       </div>
       <div class="t-table-wrap">
         <table class="t-table">
           <thead><tr><th data-en="Time">الوقت</th><th data-en="Invoice">الفاتورة</th><th class="rp-hide-sm" data-en="Patient">المريض</th><th data-en="Reason">السبب</th><th class="rp-hide-sm" data-en="By">بواسطة</th><th class="num" data-en="Discount">الخصم</th></tr></thead>
-          <tbody>
-            <tr><td class="t-ltr">17:40</td><td><a class="t-ltr" href="invoice-detail.html">INV-2611-0418</a></td><td class="rp-hide-sm">خالد ممدوح عبد السلام</td><td><span data-en="Syndicate member 25%">عضو نقابة 25%</span><span class="rp-reason" data-en="⚠ Above Menna's 20% cap · approved by Dr. Ahmed">⚠ فوق حد منة 20% · بموافقة د. أحمد</span></td><td class="rp-hide-sm" data-en="Menna">منة</td><td class="num">100</td></tr>
-            <tr><td class="t-ltr">12:15</td><td><a class="t-ltr" href="invoice-detail.html">INV-2611-0409</a></td><td class="rp-hide-sm">إيمان شوقي المتولي</td><td data-en="Relative of staff">قريب موظف</td><td class="rp-hide-sm" data-en="Sara">سارة</td><td class="num">100</td></tr>
-            <tr><td class="t-ltr">11:02</td><td><a class="t-ltr" href="invoice-detail.html">INV-2611-0405</a></td><td class="rp-hide-sm">عبد الرحمن حامد زكي</td><td data-en="Doctor's decision">قرار الطبيب</td><td class="rp-hide-sm" data-en="Dr. Ahmed">د. أحمد</td><td class="num">100</td></tr>
-            <tr><td class="t-ltr">10:20</td><td><a class="t-ltr" href="invoice-detail.html">INV-2611-0403</a></td><td class="rp-hide-sm">فاطمة عبد العزيز رزق</td><td data-en="Elderly 10%">كبار السن 10%</td><td class="rp-hide-sm" data-en="Sara">سارة</td><td class="num">30</td></tr>
-          </tbody>
+          <tbody id="rp-dc"></tbody>
         </table>
       </div>
     </section>
@@ -252,16 +166,14 @@
     <!-- ============ COMMISSION (Tier 2) ============ -->
     <section data-panel="commission" role="tabpanel" hidden>
       <div class="t-card" data-tier="2"
-           data-note="Doctor commission is Tier 2 (polyclinic plan): % or fixed amount per service, set once in Services & fees (NITCO v98 has 4 shares per service; we start with one). A solo clinic owner-doctor does not need it, so the tab only explains and upsells."
-           data-note-ar="عمولة الأطباء للمجمعات (المرحلة 2): نسبة أو مبلغ ثابت لكل خدمة. العيادة الفردية مش محتاجاها، فالتبويب بيشرح بس.">
-        <div class="t-card-head"><h2 data-en="Doctor share — today">نصيب الأطباء — النهارده</h2><span class="t-tier" data-en="Tier 2 — polyclinic plan">المرحلة ٢ — باقة المجمعات</span></div>
+           data-note="Doctor commission is Tier 2 (polyclinic plan): % or fixed amount per service, set once in Services & fees (NITCO v98 has 4 shares per service; we start with one). A doctor who rents the shift keeps his fees and pays a fixed rent. A solo clinic owner-doctor does not need it, so on the Clinic plan the tab only explains and upsells."
+           data-note-ar="عمولة الأطباء للمجمعات (المرحلة 2): نسبة أو مبلغ ثابت لكل خدمة. الدكتور اللي مأجر الوردية بياخد فلوسه ويدفع إيجار ثابت. العيادة الفردية مش محتاجاها، فالتبويب في باقة العيادة بيشرح بس.">
+        <div class="t-card-head"><h2 id="rp-cm-h"></h2><span class="t-tier" data-en="Tier 2 — polyclinic plan">المرحلة ٢ — باقة المجمعات</span></div>
+        <div id="rp-cm-note"></div>
         <div class="t-table-wrap">
           <table class="t-table">
             <thead><tr><th data-en="Doctor">الطبيب</th><th class="rp-hide-sm" data-en="Rule">القاعدة</th><th class="num" data-en="Net collected">صافي المحصّل</th><th class="num" data-en="Doctor share">نصيب الطبيب</th><th class="num rp-hide-sm" data-en="Clinic share">نصيب العيادة</th></tr></thead>
-            <tbody>
-              <tr><td data-en="Dr. Ahmed Selim (owner)">د. أحمد سليم (المالك)</td><td class="rp-hide-sm" data-en="Owner — no commission">مالك — بدون عمولة</td><td class="num">4,350</td><td class="num">—</td><td class="num rp-hide-sm">4,350</td></tr>
-              <tr><td data-en="Dr. Noha El-Sherbini">د. نهى الشربيني</td><td class="rp-hide-sm" data-en="40% of consults · 50 EGP per nebuliser">40% من الكشف · 50 ج.م لكل نيبولايزر</td><td class="num">2,500</td><td class="num">960</td><td class="num rp-hide-sm">1,540</td></tr>
-            </tbody>
+            <tbody id="rp-cm"></tbody>
           </table>
         </div>
         <div class="t-card-foot"><a class="t-btn sm" href="subscription-plan.html" data-en="About the polyclinic plan">عن باقة المجمعات</a><a class="t-btn sm ghost" href="services-prices.html" data-en="Commission rules">قواعد العمولة</a></div>
@@ -280,112 +192,350 @@
         </div>
         <div class="t-field t-end" style="min-width:160px">
           <label class="t-sr" for="rp-loguser" data-en="User">المستخدم</label>
-          <select id="rp-loguser" class="t-select"><option value="all" data-en="All users">كل المستخدمين</option><option value="sara" data-en="Sara Ramadan">سارة رمضان</option><option value="menna" data-en="Menna Khaled">منة خالد</option><option value="ahmed" data-en="Dr. Ahmed Selim">د. أحمد سليم</option><option value="noha" data-en="Dr. Noha El-Sherbini">د. نهى الشربيني</option></select>
+          <select id="rp-loguser" class="t-select"></select>
         </div>
       </div>
       <div class="t-table-wrap"
-           data-note="Activity log in plain Arabic sentences (not raw permission or table names): time, user, action, the record (linked) and the reason when one was required. Read-only; nobody, including the owner, can delete entries (NITCO v2/v64 audit, made readable)."
-           data-note-ar="سجل النشاط بجمل عربي واضحة: الوقت والمستخدم والإجراء والسجل (برابط) والسبب لو كان مطلوب. للقراءة بس ومحدش يقدر يمسحه حتى المالك.">
+           data-note="Activity log in plain Arabic sentences (not raw permission or table names): time, user, branch, action, the record (linked) and the reason when one was required. Read-only; nobody, including the owner, can delete entries (NITCO v2/v64 audit, made readable)."
+           data-note-ar="سجل النشاط بجمل عربي واضحة: الوقت والمستخدم والفرع والإجراء والسجل (برابط) والسبب لو كان مطلوب. للقراءة بس ومحدش يقدر يمسحه حتى المالك.">
         <table class="t-table" id="rp-logtable">
           <thead><tr><th data-en="Time">الوقت</th><th data-en="User">المستخدم</th><th data-en="Action">الإجراء</th><th class="rp-hide-sm" data-en="Details">التفاصيل</th></tr></thead>
-          <tbody>
-            <tr data-kind="money" data-user="menna"><td class="t-ltr">18:20</td><td data-en="Menna Khaled">منة خالد</td><td><span class="t-chip paid" data-en="Collected">حصّلت</span></td><td class="rp-hide-sm"><span data-en="350 EGP cash on">350 ج.م نقدي على</span> <a class="t-ltr" href="invoice-detail.html">INV-2611-0421</a></td></tr>
-            <tr data-kind="discount" data-user="menna"><td class="t-ltr">18:12</td><td data-en="Menna Khaled">منة خالد</td><td><span class="t-chip credit" data-en="Issued credit note">أصدرت مرتجع</span></td><td class="rp-hide-sm"><span class="t-ltr">CN-2611-0007</span> <span data-en="−150 EGP · reason: lab test not done">−150 ج.م · السبب: التحليل ماتعملش</span></td></tr>
-            <tr data-kind="discount" data-user="menna"><td class="t-ltr">17:40</td><td data-en="Menna Khaled">منة خالد</td><td><span class="t-chip danger" data-en="Discount above cap">خصم فوق الحد</span></td><td class="rp-hide-sm"><a class="t-ltr" href="invoice-detail.html">INV-2611-0418</a> <span data-en="25% · syndicate member · approved by Dr. Ahmed (PIN)">25% · عضو نقابة · وافق د. أحمد (رمز سري)</span></td></tr>
-            <tr data-kind="money" data-user="menna"><td class="t-ltr">17:05</td><td data-en="Menna Khaled">منة خالد</td><td><span class="t-chip partial" data-en="Partial payment">دفع جزئي</span></td><td class="rp-hide-sm"><span data-en="Hiba El-Naggar paid 175 of 425 — 250 EGP recorded as debt">هبة النجار دفعت 175 من 425 — اتسجل 250 ج.م مديونية</span></td></tr>
-            <tr data-kind="money" data-user="menna"><td class="t-ltr">16:00</td><td data-en="Menna Khaled">منة خالد</td><td><span class="t-chip waiting" data-en="Opened shift">فتحت الوردية</span></td><td class="rp-hide-sm" data-en="Opening float 200 EGP">عهدة البداية 200 ج.م</td></tr>
-            <tr data-kind="money" data-user="sara"><td class="t-ltr">13:05</td><td data-en="Sara Ramadan">سارة رمضان</td><td><span class="t-chip done" data-en="Closed shift">قفلت الوردية</span></td><td class="rp-hide-sm"><span data-en="Counted 3,100 · expected 3,120 · short 20 · note: 'change for a 200 note'">معدود 3,100 · متوقع 3,120 · عجز 20 · ملاحظة: «فكّة 200»</span></td></tr>
-            <tr data-kind="edit" data-user="ahmed"><td class="t-ltr">11:30</td><td data-en="Dr. Ahmed Selim">د. أحمد سليم</td><td><span class="t-chip info" data-en="Changed price">غيّر سعر</span></td><td class="rp-hide-sm" data-en="ECG: 180 → 200 EGP (applies to new invoices only)">رسم قلب: 180 ← 200 ج.م (على الفواتير الجديدة بس)</td></tr>
-            <tr data-kind="edit" data-user="sara"><td class="t-ltr">10:48</td><td data-en="Sara Ramadan">سارة رمضان</td><td><span class="t-chip info" data-en="Edited patient">عدّلت بيانات مريض</span></td><td class="rp-hide-sm" data-en="File 1043: mobile changed">ملف 1043: تغيير رقم الموبايل</td></tr>
-            <tr data-kind="edit" data-user="sara"><td class="t-ltr">09:02</td><td data-en="Sara Ramadan">سارة رمضان</td><td><span class="t-chip plain" data-en="Signed in">دخلت</span></td><td class="rp-hide-sm" data-en="Reception PC · Chrome">جهاز الاستقبال · Chrome</td></tr>
-            <tr id="rp-logempty" class="is-muted" hidden><td colspan="4" data-en="No activity for this user and type in the selected period.">مفيش نشاط للمستخدم والنوع دول في الفترة دي.</td></tr>
-          </tbody>
+          <tbody id="rp-log"></tbody>
         </table>
       </div>
     </section>
 
   </div>
 </main>
+<script src="../assets/demo-data.js"></script>
 <script src="../assets/shell.js"></script>
 <script>
 (function () {
+  /* All report rows come from Tamargi.data, scoped by Tamargi.ctx (org + branch / "all") and the filter row. */
+  var D = Tamargi.data, C = Tamargi.ctx, F = D.fmt;
+  var MON = { ar: ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"],
+              en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] };
+  var group = "service";
+  function $(id) { return document.getElementById(id); }
+  function t(r) { return F.t(r, C.lang); }
+  function tx(a, e) { return C.lang === "en" ? e : a; }
+  function n(x) { return F.num(x, C.lang); }
+  function m(x) { return F.money(x); }
+  function pc(x) { return n(x) + tx("٪", "%"); }
+  function sum(a, f) { return a.reduce(function (s, x) { return s + f(x); }, 0); }
+  function cur() { return '<span class="cur">' + tx("ج.م", "EGP") + "</span>"; }
+  function multi() { return D.branchesOf(C.org).length > 1; }
+  function shortB(id) { var b = D.branch(id); return b ? (C.lang === "en" ? b.shortEn : b.shortAr) : ""; }
+  function brTag(id) { return '<span class="t-branch-tag"><svg class="t-icon"><use href="#i-pin"/></svg>' + shortB(id) + "</span>"; }
+  function brMeta(id) { return multi() ? " " + brTag(id) : ""; }
+  function spTag(sp) { var s = D.specialties[sp]; return s ? '<span class="t-spec-tag ' + s.cls + '">' + t(s) + "</span>" : ""; }
+  function docShort(id) { var d = D.doctor(id); return d ? (C.lang === "en" ? d.shortEn : d.shortAr) : ""; }
+  function who(id) { var x = D.member(id); return x ? D.memberName(x, C.lang) : "—"; }
+  function dShort(s) { var p = s.split("-"); return s === D.today ? tx("النهارده", "Today") : n(+p[2]) + " " + MON[C.lang][+p[1] - 1]; }
+  function hm(h) { var hh = Math.floor(h), mm = Math.round((h - hh) * 60); return ("0" + hh).slice(-2) + ":" + ("0" + mm).slice(-2); }
+  function owner() { return D.staff.filter(function (x) { return x.org === C.org && x.grants.some(function (g) { return g.role === "owner"; }); })[0]; }
+  function dmy(v) { var p = (v || "").split("-"); return p.length === 3 ? p[2] + "/" + p[1] + "/" + p[0] : v; }
+
+  /* ---------- filters ---------- */
+  function fv() {
+    return { from: $("rp-from").value || D.today, to: $("rp-to").value || D.today, doc: $("rp-doc").value || "all", method: $("rp-method").value || "all" };
+  }
+  function fillSelects() {
+    var keepD = $("rp-doc").value, keepM = $("rp-method").value;
+    var docs = D.doctorsIn(C);
+    $("rp-doc").innerHTML = '<option value="all">' + tx("كل الأطباء", "All doctors") + "</option>" + docs.map(function (d) {
+      return '<option value="' + d.id + '">' + docShort(d.id) + " — " + d.sp.map(function (s) { return t(D.specialties[s]); }).join(" + ") + "</option>";
+    }).join("");
+    $("rp-doc").value = docs.some(function (d) { return d.id === keepD; }) ? keepD : "all";
+    $("rp-method").innerHTML = '<option value="all">' + tx("كل الطرق", "All methods") + "</option>" + Object.keys(D.payMethods).map(function (k) { return '<option value="' + k + '">' + t(D.payMethods[k]) + "</option>"; }).join("");
+    $("rp-method").value = keepM && keepM !== "" ? keepM : "all";
+  }
+  function invoices(f, ignoreMethod) {
+    return D.scoped("invoices", C, function (i) {
+      return i.status !== "void" && i.date >= f.from && i.date <= f.to && (f.doc === "all" || i.doctor === f.doc) && (ignoreMethod || f.method === "all" || i.method === f.method);
+    });
+  }
+  function lineNet(l) { return l.qty * l.price - l.discount; }
+  /* split the invoice's payment across its lines, in proportion to each line's net */
+  function lineShare(i, l) { return i.total ? Math.round(i.paid * lineNet(l) / i.total) : 0; }
+
+  /* ---------- header + print ---------- */
+  function renderScope(f) {
+    var o = C.orgRec, b = C.branchRec;
+    $("rp-scope").innerHTML = "<b>" + t(o) + "</b>" + (multi() ? " · " + (C.all ? tx("كل الفروع", "All branches") : shortB(C.branch)) : "");
+    var me = owner();
+    $("rp-print").innerHTML = "<b>" + t(o) + (b ? " — " + t(b) : multi() ? " — " + tx("كل الفروع", "All branches") : "") + "</b><br>" +
+      (b ? '<span class="t-small">' + (C.lang === "en" ? b.addressEn : b.addressAr) + ' · <span class="t-ltr">' + b.phone + "</span></span><br>" : "") +
+      '<span class="t-small">' + tx("طُبع " + dmy(D.today) + " " + hm(D.now + 4) + " بواسطة " + (me ? D.memberName(me, "ar") : ""), "Report printed " + dmy(D.today) + " " + hm(D.now + 4) + " by " + (me ? D.memberName(me, "en") : "")) + '</span> · <span class="t-small t-ltr">' + (f.from === f.to ? dmy(f.from) : dmy(f.from) + " – " + dmy(f.to)) + "</span>";
+  }
+
+  /* ---------- income ---------- */
+  function stat(label, val) { return '<div class="t-card t-stat"><span class="t-stat-label">' + label + '</span><span class="t-stat-value">' + val + "</span></div>"; }
+  function renderIncome(f) {
+    var inv = invoices(f);
+    var billed = sum(inv, function (i) { return i.total; }), paid = sum(inv, function (i) { return i.paid; }), disc = sum(inv, function (i) { return sum(i.lines, function (l) { return l.discount; }); });
+    $("rp-inc-sum").innerHTML = stat(tx("المطلوب (بعد الخصم)", "Billed (after discount)"), '<span class="t-num">' + m(billed) + "<small>" + tx("ج.م", "EGP") + "</small></span>") +
+      stat(tx("المحصّل", "Collected"), '<span class="t-num">' + m(paid) + "<small>" + tx("ج.م", "EGP") + "</small></span>") +
+      stat(tx("اتساب مديونية", "Left as debt"), '<span class="t-money debt">' + m(billed - paid) + cur() + "</span>") +
+      stat(tx("خصومات", "Discounts given"), '<span class="t-num">' + m(disc) + "<small>" + tx("ج.م", "EGP") + "</small></span>");
+    $("rp-g-branch").hidden = !multi();
+    if (group === "branch" && !multi()) group = "service";
+    document.querySelectorAll("#rp-group button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-group") === group)); });
+    var showB = C.all && multi(), H = "", B = "", Ft = "", tot;
+    function debtCell(x) { return x ? '<span class="t-money debt">' + m(x) + "</span>" : n(0); }
+    if (group === "service") {
+      var rows = {}, order = [];
+      inv.forEach(function (i) { i.lines.forEach(function (l) {
+        var k = l.service + "|" + i.doctor + (showB ? "|" + i.branch : "") + (l.price ? "" : "|free");
+        if (!rows[k]) { rows[k] = { l: l, doc: i.doctor, br: i.branch, free: !l.price, count: 0, gross: 0, disc: 0, col: 0, debt: 0 }; order.push(k); }
+        var r = rows[k], share = lineShare(i, l); r.count += l.qty; r.gross += l.qty * l.price; r.disc += l.discount; r.col += share; r.debt += lineNet(l) - share;
+      }); });
+      tot = { count: 0, gross: 0, disc: 0, col: 0, debt: 0 };
+      H = "<tr><th>" + tx("الخدمة", "Service") + '</th><th class="rp-hide-sm">' + tx("الطبيب", "Doctor") + '</th><th class="num">' + tx("العدد", "Count") + '</th><th class="num rp-hide-sm">' + tx("الإجمالي", "Gross") + '</th><th class="num rp-hide-sm">' + tx("الخصم", "Discount") + '</th><th class="num">' + tx("المحصّل", "Collected") + '</th><th class="num">' + tx("مديونية", "Debt") + "</th></tr>";
+      B = order.map(function (k) {
+        var r = rows[k]; ["count", "gross", "disc", "col", "debt"].forEach(function (x) { tot[x] += r[x]; });
+        return "<tr" + (r.free ? ' class="is-muted"' : "") + '><td><span class="t-name">' + (r.free ? '<span class="t-chip free">' + tx("مجاني", "Free") + "</span> " : "") + t(r.l) + "</span>" + (showB ? " " + brTag(r.br) : "") + "</td>" +
+          '<td class="rp-hide-sm">' + docShort(r.doc) + '</td><td class="num">' + n(r.count) + '</td><td class="num rp-hide-sm">' + m(r.gross) + '</td><td class="num rp-hide-sm">' + m(r.disc) + '</td><td class="num">' + m(r.col) + '</td><td class="num">' + debtCell(r.debt) + "</td></tr>";
+      }).join("");
+      Ft = "<tr><td>" + tx("الإجمالي", "Total") + '</td><td class="rp-hide-sm"></td><td class="num">' + n(tot.count) + '</td><td class="num rp-hide-sm">' + m(tot.gross) + '</td><td class="num rp-hide-sm">' + m(tot.disc) + '</td><td class="num">' + m(tot.col) + '</td><td class="num">' + m(tot.debt) + "</td></tr>";
+    } else if (group === "doctor") {
+      var dr = {}, dOrder = [];
+      inv.forEach(function (i) {
+        var k = i.doctor + (showB ? "|" + i.branch : "");
+        if (!dr[k]) { dr[k] = { doc: i.doctor, br: i.branch, visits: 0, free: 0, gross: 0, disc: 0, col: 0, debt: 0 }; dOrder.push(k); }
+        var r = dr[k]; r.visits++; if (i.lines.some(function (l) { return !l.price; }) && i.total === 0) r.free++;
+        r.gross += sum(i.lines, function (l) { return l.qty * l.price; }); r.disc += sum(i.lines, function (l) { return l.discount; }); r.col += i.paid; r.debt += i.total - i.paid;
+      });
+      tot = { visits: 0, free: 0, gross: 0, disc: 0, col: 0, debt: 0 };
+      H = "<tr><th>" + tx("الطبيب", "Doctor") + '</th><th class="num">' + tx("الزيارات", "Visits") + '</th><th class="num rp-hide-sm">' + tx("إعادة مجانية", "Free follow-ups") + '</th><th class="num rp-hide-sm">' + tx("الإجمالي", "Gross") + '</th><th class="num rp-hide-sm">' + tx("الخصم", "Discount") + '</th><th class="num">' + tx("المحصّل", "Collected") + '</th><th class="num">' + tx("مديونية", "Debt") + "</th></tr>";
+      B = dOrder.map(function (k) {
+        var r = dr[k], d = D.doctor(r.doc); ["visits", "free", "gross", "disc", "col", "debt"].forEach(function (x) { tot[x] += r[x]; });
+        return '<tr><td><span class="t-name">' + docShort(r.doc) + '</span><span class="t-meta">' + d.sp.map(spTag).join(" ") + (showB ? " " + brTag(r.br) : "") + "</span></td>" +
+          '<td class="num">' + n(r.visits) + '</td><td class="num rp-hide-sm">' + n(r.free) + '</td><td class="num rp-hide-sm">' + m(r.gross) + '</td><td class="num rp-hide-sm">' + m(r.disc) + '</td><td class="num">' + m(r.col) + '</td><td class="num">' + debtCell(r.debt) + "</td></tr>";
+      }).join("");
+      Ft = "<tr><td>" + tx("الإجمالي", "Total") + '</td><td class="num">' + n(tot.visits) + '</td><td class="num rp-hide-sm">' + n(tot.free) + '</td><td class="num rp-hide-sm">' + m(tot.gross) + '</td><td class="num rp-hide-sm">' + m(tot.disc) + '</td><td class="num">' + m(tot.col) + '</td><td class="num">' + m(tot.debt) + "</td></tr>";
+    } else if (group === "user") {
+      var us = {}, uOrder = [];
+      inv.forEach(function (i) {
+        var k = i.cashier + "|" + i.branch;
+        if (!us[k]) { us[k] = { id: i.cashier, br: i.branch, n: 0, cash: 0, other: 0 }; uOrder.push(k); }
+        var r = us[k]; r.n++; if (i.method === "cash") r.cash += i.paid; else r.other += i.paid;
+      });
+      tot = { n: 0, cash: 0, other: 0 };
+      H = "<tr><th>" + tx("حصّل بواسطة", "Collected by") + '</th><th class="rp-hide-sm">' + tx("الفرع والوردية", "Branch & shift") + '</th><th class="num">' + tx("إيصالات", "Receipts") + '</th><th class="num">' + tx("نقدي", "Cash") + '</th><th class="num rp-hide-sm">' + tx("طرق أخرى", "Other methods") + '</th><th class="num">' + tx("الإجمالي", "Total") + "</th><th>" + tx("التقفيل", "Close") + "</th></tr>";
+      B = uOrder.map(function (k) {
+        var r = us[k], mem = D.member(r.id), b = D.branch(r.br); ["n", "cash", "other"].forEach(function (x) { tot[x] += r[x]; });
+        var roles = mem ? D.rolesIn(mem, r.br).map(function (x) { return t(D.roles[x]); }).join(" + ") : "";
+        return '<tr><td><span class="t-name">' + who(r.id) + '</span><span class="t-meta">' + roles + '</span></td><td class="rp-hide-sm">' + (multi() ? brTag(r.br) + " " : "") + '<span class="t-ltr">' + hm(b.hours.from) + "–</span></td>" +
+          '<td class="num">' + n(r.n) + '</td><td class="num">' + m(r.cash) + '</td><td class="num rp-hide-sm">' + m(r.other) + '</td><td class="num">' + m(r.cash + r.other) + '</td><td><span class="t-chip waiting">' + tx("مفتوحة", "Open") + "</span></td></tr>";
+      }).join("");
+      Ft = "<tr><td>" + tx("الإجمالي", "Total") + '</td><td class="rp-hide-sm"></td><td class="num">' + n(tot.n) + '</td><td class="num">' + m(tot.cash) + '</td><td class="num rp-hide-sm">' + m(tot.other) + '</td><td class="num">' + m(tot.cash + tot.other) + "</td><td></td></tr>";
+    } else if (group === "method") {
+      var all = sum(inv, function (i) { return i.paid; }) || 1, cnt = 0, amt = 0;
+      H = "<tr><th>" + tx("طريقة الدفع", "Payment method") + '</th><th class="num">' + tx("عدد المدفوعات", "Payments") + '</th><th class="num">' + tx("المبلغ", "Amount") + '</th><th class="num rp-hide-sm">' + tx("النسبة", "Share") + "</th></tr>";
+      B = Object.keys(D.payMethods).map(function (k) {
+        var list = inv.filter(function (i) { return i.method === k && i.paid > 0; }), a = sum(list, function (i) { return i.paid; });
+        if (!list.length) return ""; cnt += list.length; amt += a;
+        return "<tr><td>" + t(D.payMethods[k]) + '</td><td class="num">' + n(list.length) + '</td><td class="num">' + m(a) + '</td><td class="num rp-hide-sm">' + pc(Math.round(a / all * 100)) + "</td></tr>";
+      }).join("");
+      Ft = "<tr><td>" + tx("الإجمالي", "Total") + '</td><td class="num">' + n(cnt) + '</td><td class="num">' + m(amt) + '</td><td class="num rp-hide-sm">' + (amt ? pc(100) : "—") + "</td></tr>";
+    } else {
+      tot = { n: 0, gross: 0, disc: 0, col: 0, debt: 0 };
+      H = "<tr><th>" + tx("الفرع", "Branch") + '</th><th class="rp-hide-sm">' + tx("سلسلة الفواتير", "Invoice series") + '</th><th class="num">' + tx("فواتير", "Invoices") + '</th><th class="num rp-hide-sm">' + tx("الإجمالي", "Gross") + '</th><th class="num rp-hide-sm">' + tx("الخصم", "Discount") + '</th><th class="num">' + tx("المحصّل", "Collected") + '</th><th class="num">' + tx("مديونية", "Debt") + "</th></tr>";
+      B = D.scopeBranches(C).map(function (bid) {
+        var list = inv.filter(function (i) { return i.branch === bid; }).sort(function (a, b) { return a.no < b.no ? -1 : 1; });
+        var r = { n: list.length, gross: sum(list, function (i) { return sum(i.lines, function (l) { return l.qty * l.price; }); }), disc: sum(list, function (i) { return sum(i.lines, function (l) { return l.discount; }); }), col: sum(list, function (i) { return i.paid; }), debt: sum(list, function (i) { return i.total - i.paid; }) };
+        ["n", "gross", "disc", "col", "debt"].forEach(function (x) { tot[x] += r[x]; });
+        return "<tr><td>" + brTag(bid) + '</td><td class="rp-hide-sm"><span class="t-ltr">' + (list.length ? list[0].no + (list.length > 1 ? " … " + list[list.length - 1].no : "") : "—") + "</span></td>" +
+          '<td class="num">' + n(r.n) + '</td><td class="num rp-hide-sm">' + m(r.gross) + '</td><td class="num rp-hide-sm">' + m(r.disc) + '</td><td class="num">' + m(r.col) + '</td><td class="num">' + debtCell(r.debt) + "</td></tr>";
+      }).join("");
+      Ft = "<tr><td>" + tx("الإجمالي", "Total") + '</td><td class="rp-hide-sm"></td><td class="num">' + n(tot.n) + '</td><td class="num rp-hide-sm">' + m(tot.gross) + '</td><td class="num rp-hide-sm">' + m(tot.disc) + '</td><td class="num">' + m(tot.col) + '</td><td class="num">' + m(tot.debt) + "</td></tr>";
+    }
+    if (!B) B = '<tr class="is-muted"><td colspan="7">' + tx("مفيش فواتير في الفترة والفلاتر دي.", "No invoices for this period and filters.") + "</td></tr>";
+    $("rp-inc").innerHTML = "<thead>" + H + "</thead><tbody>" + B + "</tbody><tfoot>" + Ft + "</tfoot>";
+  }
+
+  /* ---------- debt (org-wide: one patient file per organization) ---------- */
+  function renderDebt() {
+    var pats = D.patients.filter(function (p) { return p.org === C.org; });
+    var owing = pats.filter(function (p) { return p.debt > 0; }).sort(function (a, b) { return b.debt - a.debt; });
+    var dep = pats.filter(function (p) { return p.deposit > 0; }), T = [0, 0, 0];
+    $("rp-debt").innerHTML = owing.map(function (p) {
+      var open = D.patientInvoices(p.id).filter(function (i) { return i.paid < i.total && i.status !== "credit" && i.status !== "void"; });
+      var b = [0, 0, 0], left = p.debt;
+      open.sort(function (a, c) { return a.date < c.date ? 1 : -1; }).forEach(function (i) {
+        var age = -D.daysTo(i.date), amt = Math.min(left, i.total - i.paid); left -= amt;
+        b[age <= 30 ? 0 : age <= 60 ? 1 : 2] += amt;
+      });
+      b[2] += left; /* balance carried from before the system = oldest bucket */
+      T[0] += b[0]; T[1] += b[1]; T[2] += b[2];
+      var chips = open.map(function (i) { return '<span class="t-chip ' + i.status + '">' + '<span class="t-ltr">' + i.no + "</span></span>" + brMeta(i.branch); }).join(" ") || '<span class="t-small t-muted">' + tx("رصيد قديم", "Carried balance") + "</span>";
+      return '<tr><td><span class="t-name">' + t(p) + '</span><span class="t-meta"><span class="t-ltr">' + p.phone + "</span> · " + tx("ملف", "File") + ' <span class="t-ltr">' + p.fileNo + "</span></span></td>" +
+        '<td class="num">' + m(b[0]) + '</td><td class="num rp-hide-sm">' + m(b[1]) + '</td><td class="num rp-hide-sm">' + m(b[2]) + '</td><td class="num"><span class="t-money debt">' + m(p.debt) + "</span></td>" +
+        '<td class="rp-hide-sm">' + chips + '</td><td class="actions"><a class="t-btn sm ghost" href="patient-account.html">' + tx("الحساب", "Account") + "</a></td></tr>";
+    }).join("") || '<tr class="is-muted"><td colspan="7">' + tx("مفيش مديونيات.", "No debts.") + "</td></tr>";
+    var total = sum(owing, function (p) { return p.debt; });
+    $("rp-debt-foot").innerHTML = "<tr><td>" + tx("الإجمالي", "Total") + '</td><td class="num">' + m(T[0]) + '</td><td class="num rp-hide-sm">' + m(T[1]) + '</td><td class="num rp-hide-sm">' + m(T[2]) + '</td><td class="num">' + m(total) + '</td><td class="rp-hide-sm"></td><td></td></tr>';
+    $("rp-debt-sum").innerHTML = stat(tx("إجمالي المديونية", "Total owed"), '<span class="t-money debt">' + m(total) + cur() + "</span>") +
+      stat(tx("مرضى عليهم", "Patients owing"), '<span class="t-num">' + n(owing.length) + "</span>") +
+      stat(tx("أقدم من 60 يوم", "Older than 60 days"), '<span class="t-num">' + m(T[2]) + "<small>" + tx("ج.م", "EGP") + "</small></span>") +
+      stat(tx("رصيد مقدّم محفوظ", "Deposits held"), '<span class="t-money deposit">' + m(sum(dep, function (p) { return p.deposit; })) + cur() + "</span>") +
+      (multi() ? '<p class="t-small t-muted mb-0" style="grid-column:1/-1">' + tx("المديونية على ملف المريض، والملف واحد لكل فروع " + t(C.orgRec) + "، فالقايمة دي هي هي في كل فرع.", "Debt sits on the patient's file, which is shared by every branch of " + t(C.orgRec) + ", so this list is the same in every branch.") + "</p>" : "");
+  }
+
+  /* ---------- credit notes (this month) ---------- */
+  function renderCredits() {
+    var list = D.scoped("invoices", C, function (i) { return i.creditNote && i.date >= "2026-11-01" && i.date <= D.today; });
+    $("rp-cn-n").textContent = n(list.length);
+    $("rp-cn-total").textContent = tx("إجمالي المرتجع: " + m(sum(list, function (i) { return i.creditNote.amount; })) + " ج.م", "Total credited: " + m(sum(list, function (i) { return i.creditNote.amount; })) + " EGP");
+    $("rp-cn").innerHTML = list.map(function (i) {
+      var p = D.patient(i.patient);
+      return '<tr><td><span class="t-chip credit t-ltr">' + i.creditNote.no + '</span><span class="t-meta">' + dShort(i.date) + "</span></td>" +
+        '<td><a class="t-ltr" href="invoice-detail.html">' + i.no + "</a>" + brMeta(i.branch) + '</td><td class="rp-hide-sm">' + t(p) + "</td><td>" + t(i.creditNote.reason) + '</td><td class="rp-hide-sm">' + who(i.cashier) + '</td><td class="num"><span class="t-money debt">−' + m(i.creditNote.amount) + "</span></td></tr>";
+    }).join("") || '<tr class="is-muted"><td colspan="6">' + tx("مفيش مرتجعات الشهر ده.", "No credit notes this month.") + "</td></tr>";
+  }
+
+  /* ---------- discounts ---------- */
+  function discRows(f) {
+    var out = [];
+    invoices(f).forEach(function (i) {
+      var mem = D.member(i.cashier), cap = mem && mem.discountCap != null ? mem.discountCap : 100;
+      i.lines.forEach(function (l) {
+        if (!l.discount) return;
+        var pct = Math.round(l.discount / (l.qty * l.price) * 100);
+        out.push({ i: i, l: l, pct: pct, cap: cap, above: pct > cap, reason: i.note ? t(i.note) : tx("قرار الطبيب", "Doctor's decision") });
+      });
+    });
+    return out.sort(function (a, b) { return a.i.date === b.i.date ? b.i.time - a.i.time : a.i.date < b.i.date ? 1 : -1; });
+  }
+  function renderDiscounts(f) {
+    var rows = discRows(f), own = owner(), byR = {}, byU = {};
+    rows.forEach(function (r) { byR[r.reason] = (byR[r.reason] || 0) + r.l.discount; var u = byU[r.i.cashier] = byU[r.i.cashier] || { v: 0, above: 0, cap: r.cap }; u.v += r.l.discount; if (r.above) u.above++; });
+    var total = sum(rows, function (r) { return r.l.discount; });
+    $("rp-dc-reason").innerHTML = Object.keys(byR).map(function (k) { return "<dt>" + k + "</dt><dd>" + m(byR[k]) + "</dd>"; }).join("") + '<dt class="grand">' + tx("الإجمالي (ج.م)", "Total (EGP)") + '</dt><dd class="grand">' + m(total) + "</dd>";
+    $("rp-dc-user").innerHTML = Object.keys(byU).map(function (k) { var u = byU[k]; return "<dt>" + who(k) + " · " + tx("الحد ", "cap ") + pc(u.cap) + "</dt><dd>" + m(u.v) + (u.above ? ' <span class="t-chip danger">' + tx(n(u.above) + " فوق الحد", u.above + " above cap") + "</span>" : "") + "</dd>"; }).join("") ||
+      '<dt class="t-muted">' + tx("مفيش خصومات", "No discounts") + "</dt><dd></dd>";
+    $("rp-dc").innerHTML = rows.map(function (r) {
+      return '<tr><td class="t-ltr">' + (r.i.date === D.today ? "" : F.date(r.i.date) + " ") + hm(r.i.time) + '</td><td><a class="t-ltr" href="invoice-detail.html">' + r.i.no + "</a>" + brMeta(r.i.branch) + '</td><td class="rp-hide-sm">' + t(D.patient(r.i.patient)) + "</td>" +
+        "<td><span>" + r.reason + " · " + t(r.l) + " " + pc(r.pct) + "</span>" + (r.above ? '<span class="rp-reason">' + tx("⚠ فوق حد " + who(r.i.cashier) + " " + pc(r.cap) + (own ? " · بموافقة " + D.memberName(own, "ar") : ""), "⚠ Above " + who(r.i.cashier) + "'s " + r.cap + "% cap" + (own ? " · approved by " + D.memberName(own, "en") : "")) + "</span>" : "") + "</td>" +
+        '<td class="rp-hide-sm">' + who(r.i.cashier) + '</td><td class="num">' + m(r.l.discount) + "</td></tr>";
+    }).join("") || '<tr class="is-muted"><td colspan="6">' + tx("مفيش خصومات في الفترة دي.", "No discounts in this period.") + "</td></tr>";
+  }
+
+  /* ---------- commission (Tier 2) ---------- */
+  var SHARE = 40; /* demo rule: % of net collected on the doctor's own services */
+  function renderCommission(f) {
+    var poly = C.orgRec.plan === "poly", inv = invoices(f), docs = {};
+    inv.forEach(function (i) { docs[i.doctor] = (docs[i.doctor] || 0) + i.paid; });
+    $("rp-cm-h").textContent = tx("نصيب الأطباء — ", "Doctor share — ") + (f.from === f.to ? dShort(f.from) : F.date(f.from) + " – " + F.date(f.to));
+    $("rp-cm-note").innerHTML = poly ? "" : '<div class="t-alert info mb-4"><svg class="t-icon"><use href="#i-info"/></svg><span>' + tx("العمولة جزء من باقة المجمعات. دي معاينة بأرقام عيادتك؛ " + t(C.orgRec) + " على " + C.orgRec.planAr + ".", "Commission is part of the polyclinic plan. This is a preview with your clinic's figures; " + t(C.orgRec) + " is on the " + C.orgRec.planEn + ".") + "</span></div>";
+    $("rp-cm").innerHTML = Object.keys(docs).map(function (id) {
+      var d = D.doctor(id), mem = D.memberOfDoctor(id), net = docs[id];
+      var isOwner = mem && mem.grants.some(function (g) { return g.role === "owner"; });
+      var rule, ds, cs;
+      if (isOwner) { rule = tx("مالك — بدون عمولة", "Owner — no commission"); ds = null; cs = net; }
+      else if (d.rentsShift) { rule = tx("مأجر الوردية — ياخد فلوسه ويدفع إيجار شهري", "Rents the shift — keeps his fees, pays a monthly rent"); ds = net; cs = 0; }
+      else { rule = tx(pc(SHARE) + " من صافي خدماته", SHARE + "% of his net services"); ds = Math.round(net * SHARE / 100); cs = net - ds; }
+      return '<tr><td><span class="t-name">' + docShort(id) + (isOwner ? tx(" (المالك)", " (owner)") : "") + '</span><span class="t-meta">' + d.sp.map(spTag).join(" ") + "</span></td>" +
+        '<td class="rp-hide-sm">' + rule + '</td><td class="num">' + m(net) + '</td><td class="num">' + (ds == null ? "—" : m(ds)) + '</td><td class="num rp-hide-sm">' + m(cs) + "</td></tr>";
+    }).join("") || '<tr class="is-muted"><td colspan="5">' + tx("مفيش تحصيل في الفترة دي.", "Nothing collected in this period.") + "</td></tr>";
+  }
+
+  /* ---------- activity log (generated from the same records) ---------- */
+  function logEntries(f) {
+    var out = [];
+    invoices(f, true).forEach(function (i) {
+      var p = D.patient(i.patient), meth = D.payMethods[i.method];
+      if (i.paid >= i.total) out.push({ d: i.date, h: i.time, u: i.cashier, br: i.branch, kind: "money", chip: "paid", act: tx("حصّل", "Collected"),
+        det: m(i.paid) + " " + tx("ج.م ", "EGP ") + t(meth) + tx(" على ", " on ") + '<a class="t-ltr" href="invoice-detail.html">' + i.no + "</a>" });
+      else out.push({ d: i.date, h: i.time, u: i.cashier, br: i.branch, kind: "money", chip: "partial", act: tx("دفع جزئي", "Partial payment"),
+        det: tx(p.ar + " دفع " + m(i.paid) + " من " + m(i.total) + " — اتسجل " + m(i.total - i.paid) + " ج.م مديونية", p.en + " paid " + m(i.paid) + " of " + m(i.total) + " — " + m(i.total - i.paid) + " EGP recorded as debt") + ' · <a class="t-ltr" href="invoice-detail.html">' + i.no + "</a>" });
+      i.lines.forEach(function (l) {
+        if (!l.discount) return;
+        var mem = D.member(i.cashier), cap = mem && mem.discountCap != null ? mem.discountCap : 100, pct = Math.round(l.discount / (l.qty * l.price) * 100);
+        out.push({ d: i.date, h: i.time - 0.02, u: i.cashier, br: i.branch, kind: "discount", chip: pct > cap ? "danger" : "info", act: pct > cap ? tx("خصم فوق الحد", "Discount above cap") : tx("خصم", "Discount"),
+          det: '<a class="t-ltr" href="invoice-detail.html">' + i.no + "</a> " + pc(pct) + " · " + t(l) + (pct > cap && owner() ? tx(" · وافق ", " · approved by ") + D.memberName(owner(), C.lang) + tx(" (رمز سري)", " (PIN)") : "") });
+      });
+      if (i.creditNote) out.push({ d: i.date, h: i.time + 0.3, u: i.cashier, br: i.branch, kind: "discount", chip: "credit", act: tx("أصدر مرتجع", "Issued credit note"),
+        det: '<span class="t-ltr">' + i.creditNote.no + "</span> −" + m(i.creditNote.amount) + tx(" ج.م · السبب: ", " EGP · reason: ") + t(i.creditNote.reason) });
+    });
+    /* shift openings + sign-ins for the cashiers seen above, per branch per day */
+    var seen = {};
+    out.slice().forEach(function (e) {
+      var k = e.u + "|" + e.br + "|" + e.d; if (seen[k]) return; seen[k] = 1;
+      var b = D.branch(e.br);
+      out.push({ d: e.d, h: b.hours.from, u: e.u, br: e.br, kind: "money", chip: "waiting", act: tx("فتح الوردية", "Opened shift"), det: tx("عهدة البداية ٢٠٠ ج.م", "Opening float 200 EGP") });
+      out.push({ d: e.d, h: b.hours.from - 0.05, u: e.u, br: e.br, kind: "edit", chip: "plain", act: tx("دخل", "Signed in"), det: tx("جهاز الاستقبال · Chrome", "Reception PC · Chrome") });
+    });
+    return out.sort(function (a, b) { return a.d === b.d ? b.h - a.h : a.d < b.d ? 1 : -1; });
+  }
+  function renderLog(f) {
+    var all = logEntries(f), keep = $("rp-loguser").value, users = [];
+    all.forEach(function (e) { if (users.indexOf(e.u) === -1) users.push(e.u); });
+    $("rp-loguser").innerHTML = '<option value="all">' + tx("كل المستخدمين", "All users") + "</option>" + users.map(function (u) { return '<option value="' + u + '">' + who(u) + "</option>"; }).join("");
+    $("rp-loguser").value = users.indexOf(keep) > -1 ? keep : "all";
+    var kb = document.querySelector("#rp-logfilter [aria-pressed='true']"), k = kb ? kb.getAttribute("data-log") : "all", u = $("rp-loguser").value;
+    var rows = all.filter(function (e) { return (k === "all" || e.kind === k) && (u === "all" || e.u === u); });
+    $("rp-log").innerHTML = rows.map(function (e) {
+      return '<tr><td class="t-ltr">' + (e.d === D.today ? "" : F.date(e.d) + " ") + hm(e.h) + "</td><td>" + who(e.u) + brMeta(e.br) + '</td><td><span class="t-chip ' + e.chip + '">' + e.act + '</span></td><td class="rp-hide-sm">' + e.det + "</td></tr>";
+    }).join("") || '<tr class="is-muted"><td colspan="4">' + tx("مفيش نشاط للمستخدم والنوع دول في الفترة دي.", "No activity for this user and type in the selected period.") + "</td></tr>";
+  }
+
+  function render() {
+    fillSelects();
+    var f = fv();
+    renderScope(f); renderIncome(f); renderDebt(); renderCredits(); renderDiscounts(f); renderCommission(f); renderLog(f);
+  }
+
+  /* ---------- tabs + filters ---------- */
   function refreshNotes() { if (window.Tamargi) Tamargi.setState(undefined); }
   function showTab(id) {
     var ok = document.querySelector('[data-panel="' + id + '"]'); if (!ok) return;
-    document.querySelectorAll("[data-tab]").forEach(function (t) { t.setAttribute("aria-selected", String(t.getAttribute("data-tab") === id)); });
+    document.querySelectorAll("[data-tab]").forEach(function (x) { x.setAttribute("aria-selected", String(x.getAttribute("data-tab") === id)); });
     document.querySelectorAll("[data-panel]").forEach(function (p) { p.hidden = p.getAttribute("data-panel") !== id; });
     try { history.replaceState(null, "", "#" + id); } catch (e) { /* file:// */ }
     if (tabs) syncTabIndex();
     refreshNotes();
   }
-  function pressIn(group, btn) { group.querySelectorAll("button").forEach(function (b) { b.setAttribute("aria-pressed", String(b === btn)); }); }
+  function pressIn(g, btn) { g.querySelectorAll("button").forEach(function (b) { b.setAttribute("aria-pressed", String(b === btn)); }); }
   document.addEventListener("click", function (e) {
     var b;
     if ((b = e.target.closest("[data-tab]"))) { showTab(b.getAttribute("data-tab")); return; }
-    if ((b = e.target.closest("[data-group]"))) {
-      pressIn(b.parentNode, b);
-      var g = b.getAttribute("data-group");
-      document.querySelectorAll("[data-grouped]").forEach(function (t) { t.hidden = t.getAttribute("data-grouped") !== g; });
-      return;
-    }
-    if ((b = e.target.closest("[data-log]"))) {
-      pressIn(b.parentNode, b);
-      filterLog();
-      return;
-    }
+    if ((b = e.target.closest("[data-group]"))) { group = b.getAttribute("data-group"); renderIncome(fv()); return; }
+    if ((b = e.target.closest("[data-log]"))) { pressIn(b.parentNode, b); renderLog(fv()); return; }
     if ((b = e.target.closest("#rp-period button"))) {
       pressIn(b.parentNode, b);
-      document.getElementById("rp-from").value = b.getAttribute("data-from");
-      document.getElementById("rp-to").value = b.getAttribute("data-to");
-      periodChanged();
-      return;
+      $("rp-from").value = b.getAttribute("data-from"); $("rp-to").value = b.getAttribute("data-to");
+      render(); return;
     }
     if (e.target.closest("#rp-pdf")) { window.print(); }
   });
-  function en() { return window.Tamargi && Tamargi.lang() === "en"; }
-  function dmy(v) { var p = (v || "").split("-"); return p.length === 3 ? p[2] + "/" + p[1] + "/" + p[0] : v; }
-  function periodChanged() {
-    var f = document.getElementById("rp-from").value, t = document.getElementById("rp-to").value;
-    document.getElementById("rp-printperiod").textContent = f === t ? dmy(f) : dmy(f) + " – " + dmy(t);
-    if (window.Tamargi) Tamargi.toast(en() ? "Period updated (prototype: sample figures)" : "تم تغيير الفترة (نموذج: أرقام تجريبية)");
-  }
-  function filterLog() {
-    var kb = document.querySelector("#rp-logfilter [aria-pressed='true']");
-    var k = kb ? kb.getAttribute("data-log") : "all", u = document.getElementById("rp-loguser").value, shown = 0;
-    document.querySelectorAll("#rp-logtable tbody tr[data-kind]").forEach(function (r) {
-      r.hidden = (k !== "all" && r.getAttribute("data-kind") !== k) || (u !== "all" && r.getAttribute("data-user") !== u);
-      if (!r.hidden) shown++;
-    });
-    document.getElementById("rp-logempty").hidden = shown > 0;
-  }
   document.addEventListener("change", function (e) {
     var id = e.target && e.target.id;
-    if (id === "rp-from" || id === "rp-to") {
-      document.querySelectorAll("#rp-period button").forEach(function (x) { x.setAttribute("aria-pressed", "false"); });
-      periodChanged();
-    } else if (id === "rp-doc" || id === "rp-method") {
-      if (window.Tamargi) Tamargi.toast(en() ? "Filter applied (prototype: sample figures)" : "تم تطبيق الفلتر (نموذج: أرقام تجريبية)");
-    } else if (id === "rp-loguser") { filterLog(); }
+    if (id === "rp-from" || id === "rp-to") { document.querySelectorAll("#rp-period button").forEach(function (x) { x.setAttribute("aria-pressed", "false"); }); render(); }
+    else if (id === "rp-doc" || id === "rp-method") render();
+    else if (id === "rp-loguser") renderLog(fv());
   });
-  // Tabs: roving tabindex + arrow keys (direction follows RTL/LTR)
   var tabs = Array.prototype.slice.call(document.querySelectorAll("[data-tab]"));
-  tabs.forEach(function (t) {
-    var id = t.getAttribute("data-tab"), p = document.querySelector('[data-panel="' + id + '"]');
-    t.id = "rp-tab-" + id; t.setAttribute("aria-controls", "rp-panel-" + id);
-    if (p) { p.id = "rp-panel-" + id; p.setAttribute("aria-labelledby", t.id); }
+  tabs.forEach(function (x) {
+    var id = x.getAttribute("data-tab"), p = document.querySelector('[data-panel="' + id + '"]');
+    x.id = "rp-tab-" + id; x.setAttribute("aria-controls", "rp-panel-" + id);
+    if (p) { p.id = "rp-panel-" + id; p.setAttribute("aria-labelledby", x.id); }
   });
-  function syncTabIndex() { tabs.forEach(function (t) { t.tabIndex = t.getAttribute("aria-selected") === "true" ? 0 : -1; }); }
+  function syncTabIndex() { tabs.forEach(function (x) { x.tabIndex = x.getAttribute("aria-selected") === "true" ? 0 : -1; }); }
   syncTabIndex();
   document.addEventListener("keydown", function (e) {
-    var t = e.target.closest && e.target.closest("[data-tab]"); if (!t) return;
-    var i = tabs.indexOf(t), rtl = document.documentElement.dir === "rtl", n = -1;
-    if (e.key === "ArrowRight") n = i + (rtl ? -1 : 1);
-    else if (e.key === "ArrowLeft") n = i + (rtl ? 1 : -1);
-    else if (e.key === "Home") n = 0; else if (e.key === "End") n = tabs.length - 1;
-    if (n < 0 && e.key !== "Home") { if (e.key.indexOf("Arrow") === 0) n = tabs.length - 1; else return; }
-    n = (n + tabs.length) % tabs.length;
-    e.preventDefault(); showTab(tabs[n].getAttribute("data-tab")); syncTabIndex(); tabs[n].focus();
+    var x = e.target.closest && e.target.closest("[data-tab]"); if (!x) return;
+    var i = tabs.indexOf(x), rtl = document.documentElement.dir === "rtl", nx = -1;
+    if (e.key === "ArrowRight") nx = i + (rtl ? -1 : 1);
+    else if (e.key === "ArrowLeft") nx = i + (rtl ? 1 : -1);
+    else if (e.key === "Home") nx = 0; else if (e.key === "End") nx = tabs.length - 1;
+    if (nx < 0 && e.key !== "Home") { if (e.key.indexOf("Arrow") === 0) nx = tabs.length - 1; else return; }
+    nx = (nx + tabs.length) % tabs.length;
+    e.preventDefault(); showTab(tabs[nx].getAttribute("data-tab")); syncTabIndex(); tabs[nx].focus();
   });
+  Tamargi.onCtx(render);
+  render();
   var h = (location.hash || "").replace("#", "");
   if (h && h.indexOf("state=") !== 0) showTab(h);
 })();

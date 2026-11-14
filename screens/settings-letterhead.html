@@ -8,6 +8,7 @@
   <style>
     /* page-specific CSS: tokens only (the printed sheet itself uses the shared .t-sheet / .t-letterhead styles) */
     .lh-layout { display: grid; grid-template-columns: minmax(320px, 440px) minmax(0, 1fr); gap: var(--s-5); align-items: start; }
+    .lh-layout > * { min-width: 0; }   /* grid items may shrink: the A5 sheet is zoomed to fit, never widens the page */
     .lh-preview { position: sticky; top: calc(var(--topbar-h) + var(--s-4)); }
     .lh-preview .t-print-stage { overflow: auto; max-height: calc(100vh - var(--topbar-h) - 140px); align-items: flex-start; }
     .lh-logo-row { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-3); border: 1.5px dashed var(--line-strong); border-radius: var(--r-md); background: var(--surface-sunk); }
@@ -34,8 +35,10 @@
       .lh-zoom { zoom: 1 !important; }
     }
   </style>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
-<body data-screen="settings-letterhead">
+<body data-screen="settings-letterhead" data-org-default="nile">
 <main id="screen">
   <div class="t-container">
 
@@ -57,36 +60,53 @@
         <section class="t-card">
           <div class="t-card-head"><h2 data-en="Doctor">الطبيب</h2></div>
           <div class="t-stack">
+            <div class="t-field"
+                 data-note="Letterhead belongs to the doctor (name, degrees, syndicate no.), not to the branch: a doctor who works in two branches keeps one letterhead and the footer switches to the branch the Rx is printed in. Reception and other doctors only see doctors in the branches they work in."
+                 data-note-ar="الترويسة بتاعة الدكتور (الاسم، الشهادات، رقم القيد) مش بتاعة الفرع: الدكتور اللي شغال في فرعين ليه ترويسة واحدة، وأسفل الورقة بيتغير حسب الفرع اللي الروشتة اتطبعت فيه. الاستقبال والأطباء بيشوفوا أطباء فروعهم بس.">
+              <label class="t-label" for="lh-doc" data-en="Letterhead of">ترويسة</label>
+              <select id="lh-doc" class="t-select"></select>
+            </div>
             <label class="lh-logo-row" for="lh-logo"
                    data-note="Logo by drag-drop or phone camera, with an initial-in-a-circle fallback. NITCO needs a native 'Browse… No file selected' plus a separate Upload, across 5 image slots in a settings tab (v62/106)."
                    data-note-ar="اللوجو بالسحب أو كاميرا الموبايل، ولو مفيش بنحط أول حرف في دايرة. NITCO محتاج 'Browse… No file selected' وزرار رفع لوحده، و٥ خانات صور في تبويب إعدادات.">
-              <span class="t-avatar" id="lh-logo-thumb" style="font-family:var(--font-letterhead)">أ</span>
+              <span class="t-avatar" id="lh-logo-thumb" style="font-family:var(--font-letterhead)"></span>
               <span class="t-grow"><b class="t-small" data-en="Logo">اللوجو</b><br><span class="t-hint" data-en="Drop an image or take a photo. Square, PNG/JPG.">اسحب صورة أو صوّر. مربعة، PNG أو JPG.</span></span>
               <span class="t-btn sm" data-en="Upload">رفع</span>
               <input id="lh-logo" type="file" accept="image/*" class="t-sr">
             </label>
             <div class="t-form-grid">
-              <div class="t-field"><label class="t-label" for="lh-name"><span data-en="Name (Arabic)">الاسم بالعربي</span><span class="req">*</span></label><input id="lh-name" class="t-input" data-bind="name" value="د. أحمد سليم عبد الحميد"></div>
-              <div class="t-field"><label class="t-label" for="lh-name-en"><span data-en="Name (English)">الاسم بالإنجليزي</span> <span class="opt" data-en="(optional)">(اختياري)</span></label><input id="lh-name-en" class="t-input ltr" data-bind="nameEn" value="Dr. Ahmed Selim"></div>
+              <div class="t-field"><label class="t-label" for="lh-name"><span data-en="Name (Arabic)">الاسم بالعربي</span><span class="req">*</span></label><input id="lh-name" class="t-input" data-bind="name" value=""></div>
+              <div class="t-field"><label class="t-label" for="lh-name-en"><span data-en="Name (English)">الاسم بالإنجليزي</span> <span class="opt" data-en="(optional)">(اختياري)</span></label><input id="lh-name-en" class="t-input ltr" data-bind="nameEn" value=""></div>
               <div class="t-field span-2"><label class="t-label" for="lh-title" data-en="Title and degrees (one per line)">اللقب والشهادات (كل واحدة في سطر)</label>
-                <textarea id="lh-title" class="t-textarea" style="min-height:72px" data-bind="title">استشاري الباطنة والجهاز الهضمي
-دكتوراه الباطنة — كلية الطب جامعة المنصورة</textarea></div>
+                <textarea id="lh-title" class="t-textarea" style="min-height:72px" data-bind="title"></textarea></div>
               <div class="t-field span-2"><label class="t-label" for="lh-title-en" data-en="Title in English">اللقب بالإنجليزي</label>
-                <textarea id="lh-title-en" class="t-textarea ltr" style="min-height:56px;direction:ltr" data-bind="titleEn">Consultant of Internal Medicine &amp; Gastroenterology
-MD, Faculty of Medicine — Mansoura University</textarea></div>
-              <div class="t-field" data-note="Syndicate number and degrees on every Rx: pharmacists in Mansoura check them, and they are what makes a printed Rx look as trusted as the doctor's handwritten pad." data-note-ar="رقم القيد والشهادات على كل روشتة: الصيادلة بيراجعوها، وهي اللي بتخلي الروشتة المطبوعة موثوقة زي دفتر الدكتور."><label class="t-label" for="lh-synd" data-en="Syndicate no.">رقم القيد بالنقابة</label><input id="lh-synd" class="t-input ltr" inputmode="numeric" data-bind="synd" value="148277"></div>
-              <div class="t-field"><label class="t-label" for="lh-spec" data-en="Specialty line">سطر التخصص</label><input id="lh-spec" class="t-input" data-bind="spec" value="باطنة — جهاز هضمي — كبد"></div>
+                <textarea id="lh-title-en" class="t-textarea ltr" style="min-height:56px;direction:ltr" data-bind="titleEn"></textarea></div>
+              <div class="t-field" data-note="Syndicate number and degrees on every Rx: pharmacists in Mansoura check them, and they are what makes a printed Rx look as trusted as the doctor's handwritten pad." data-note-ar="رقم القيد والشهادات على كل روشتة: الصيادلة بيراجعوها، وهي اللي بتخلي الروشتة المطبوعة موثوقة زي دفتر الدكتور."><label class="t-label" for="lh-synd" data-en="Syndicate no.">رقم القيد بالنقابة</label><input id="lh-synd" class="t-input ltr" inputmode="numeric" data-bind="synd" value=""></div>
+              <div class="t-field"><label class="t-label" for="lh-spec" data-en="Specialty line">سطر التخصص</label><input id="lh-spec" class="t-input" data-bind="spec" value=""></div>
             </div>
           </div>
         </section>
 
         <section class="t-card">
-          <div class="t-card-head"><h2 data-en="Clinic details (footer)">بيانات العيادة (أسفل الورقة)</h2><div class="t-actions"><a class="t-small" href="settings-clinic.html" data-en="From clinic profile">من بيانات العيادة</a></div></div>
+          <div class="t-card-head"><h2 data-en="Branch details (footer)">بيانات الفرع (أسفل الورقة)</h2><div class="t-actions"><a class="t-small" href="org-branches.html" id="lh-br-link" data-en="From branch profile">من بيانات الفرع</a></div></div>
           <div class="t-form-grid">
-            <div class="t-field span-2"><label class="t-label" for="lh-addr" data-en="Address">العنوان</label><input id="lh-addr" class="t-input" data-bind="addr" value="١٢ ش الجمهورية، برج النور، الدور ٣ — المنصورة"></div>
-            <div class="t-field"><label class="t-label" for="lh-phones" data-en="Phones">التليفونات</label><input id="lh-phones" class="t-input ltr" data-bind="phones" value="0100 123 4567 · 050 224 5566"></div>
-            <div class="t-field"><label class="t-label" for="lh-hours" data-en="Hours">المواعيد</label><input id="lh-hours" class="t-input" data-bind="hours" value="يوميًا ٥–١١ م ماعدا الجمعة"></div>
-            <div class="t-field span-2"><label class="t-label" for="lh-foot" data-en="Footer note">ملاحظة أسفل الروشتة</label><input id="lh-foot" class="t-input" data-bind="foot" value="الاستشارة مجانًا خلال ١٤ يوم من الكشف · برجاء إحضار الروشتة"></div>
+            <div class="t-field span-2" id="lh-br-field"
+                 data-note="Polyclinic: address, phone and receipt series come from the branch. The preview shows the footer of the branch picked here; when printing, Tamargi uses the branch of the visit automatically. Hidden for a one-branch clinic."
+                 data-note-ar="المجمع: العنوان والتليفون وتسلسل الإيصالات من الفرع. المعاينة بتبين أسفل الورقة للفرع اللي هنا؛ ووقت الطباعة تمرجي بياخد فرع الزيارة لوحده. مخفي في العيادة اللي ليها فرع واحد.">
+              <label class="t-label" for="lh-br" data-en="Preview footer for branch">معاينة أسفل الورقة لفرع</label>
+              <select id="lh-br" class="t-select"></select>
+            </div>
+            <div class="t-field span-2"><label class="t-label" for="lh-addr" data-en="Address">العنوان</label><input id="lh-addr" class="t-input" data-bind="addr" value=""></div>
+            <div class="t-field"><label class="t-label" for="lh-phones" data-en="Phones">التليفونات</label><input id="lh-phones" class="t-input ltr" data-bind="phones" value=""></div>
+            <div class="t-field"><label class="t-label" for="lh-hours" data-en="Hours">المواعيد</label><input id="lh-hours" class="t-input" data-bind="hours" value=""></div>
+            <div class="t-field span-2"><label class="t-label" for="lh-foot" data-en="Footer note">ملاحظة أسفل الروشتة</label><input id="lh-foot" class="t-input" data-bind="foot" value=""></div>
+            <div class="t-field span-2"
+                 data-note="Receipts and credit notes are numbered per branch (branch prefix + year + sequence), so two cashiers in two branches never collide and each branch's cash close lines up. Patient file numbers stay one series per organization."
+                 data-note-ar="الإيصالات وإشعارات المرتجع ليها تسلسل لكل فرع (بادئة الفرع + السنة + الرقم)، فكاشيرين في فرعين مايتلخبطوش، وتقفيل خزنة كل فرع يطابق. أرقام ملفات المرضى تسلسل واحد للمنشأة.">
+              <label class="t-label" for="lh-series" data-en="Receipt numbering (this branch)">ترقيم الإيصالات (الفرع ده)</label>
+              <input id="lh-series" class="t-input ltr" readonly>
+              <span class="t-hint" id="lh-series-hint"></span>
+            </div>
           </div>
         </section>
 
@@ -117,12 +137,12 @@ MD, Faculty of Medicine — Mansoura University</textarea></div>
 
       <!-- ============ LIVE PREVIEW ============ -->
       <section class="lh-preview" aria-label="Live preview" data-en-aria-label="Live preview">
-        <div class="t-row between mb-2">
+        <div class="t-row between mb-2" style="flex-wrap:wrap">
           <div class="t-tabs mb-0" role="tablist" style="border:0">
             <button class="t-tab" role="tab" aria-selected="true" data-sheet="rx" data-en="Prescription">الروشتة</button>
             <button class="t-tab" role="tab" aria-selected="false" data-sheet="rc" data-en="Receipt">الإيصال</button>
           </div>
-          <span class="t-small t-muted" data-en="Live preview · sample patient">معاينة مباشرة · مريض نموذج</span>
+          <span class="t-small t-muted" id="lh-prev-label"></span>
         </div>
         <div class="t-print-stage" data-note="Live A5 preview: every keystroke updates the sheet. The letterhead is Tamargi's 'one bold thing': Amiri serif, stamp-blue ink. No ads or pharma logos ever appear on the Rx (product rule)."
              data-note-ar="معاينة A5 مباشرة: كل حرف بيتغير على الورقة. الترويسة هي العنصر المميز في تمرجي: خط أميري وحبر أزرق الختم. مفيش إعلانات ولا لوجوهات شركات أدوية على الروشتة أبدًا.">
@@ -131,57 +151,35 @@ MD, Faculty of Medicine — Mansoura University</textarea></div>
             <article class="t-sheet a5" id="lh-rx" data-sheet-panel="rx">
               <header class="t-letterhead">
                 <div>
-                  <div class="lh-name" data-out="name">د. أحمد سليم عبد الحميد</div>
-                  <div class="lh-title" data-out="title" style="white-space:pre-line">استشاري الباطنة والجهاز الهضمي
-دكتوراه الباطنة — كلية الطب جامعة المنصورة</div>
-                  <div class="lh-title"><span data-out="spec">باطنة — جهاز هضمي — كبد</span> · <span data-en="Synd. no.">قيد</span> <span class="t-ltr" data-out="synd">148277</span></div>
+                  <div class="lh-name" data-out="name"></div>
+                  <div class="lh-title" data-out="title" style="white-space:pre-line"></div>
+                  <div class="lh-title"><span data-out="spec"></span> · <span data-en="Synd. no.">قيد</span> <span class="t-ltr" data-out="synd"></span></div>
                 </div>
-                <div class="lh-logo" id="lh-logo-mark">أ</div>
+                <div class="lh-logo" id="lh-logo-mark"></div>
                 <div class="lh-en" id="lh-en-block">
-                  <div class="lh-name" data-out="nameEn">Dr. Ahmed Selim</div>
-                  <div class="lh-title" data-out="titleEn" style="white-space:pre-line">Consultant of Internal Medicine &amp; Gastroenterology
-MD, Faculty of Medicine — Mansoura University</div>
+                  <div class="lh-name" data-out="nameEn"></div>
+                  <div class="lh-title" data-out="titleEn" style="white-space:pre-line"></div>
                 </div>
               </header>
               <div class="t-rx-patient">
-                <span><span data-en="Name:">الاسم:</span> <b>منى عبد الرحمن الشناوي</b></span>
-                <span><span data-en="Age:">السن:</span> <b>34</b></span>
-                <span><span data-en="Date:">التاريخ:</span> <b class="t-ltr">14/11/2026</b></span>
-                <span><span data-en="File:">ملف:</span> <b class="t-ltr">1043</b></span>
+                <span><span data-en="Name:">الاسم:</span> <b id="lh-pt-name"></b></span>
+                <span><span data-en="Age:">السن:</span> <b id="lh-pt-age"></b></span>
+                <span><span data-en="Date:">التاريخ:</span> <b class="t-ltr" id="lh-pt-date"></b></span>
+                <span><span data-en="File:">ملف:</span> <b class="t-ltr" id="lh-pt-file"></b></span>
               </div>
               <div class="t-rx-symbol">R/</div>
-              <ul class="t-rx-items">
-                <li><div class="rx-drug">Nexium 40 mg tab</div><div class="rx-sig">قرص واحد على الريق قبل الفطار بنص ساعة — لمدة ١٤ يوم</div></li>
-                <li><div class="rx-drug">Motilium 10 mg tab</div><div class="rx-sig">قرص قبل الأكل ٣ مرات يوميًا — لمدة ٧ أيام</div></li>
-                <li><div class="rx-drug">Gaviscon Advance susp.</div><div class="rx-sig">معلقة كبيرة بعد الأكل وقبل النوم — عند اللزوم</div></li>
-              </ul>
-              <div class="lh-rx-meta"><span data-en="Follow-up: 28/11/2026 (free)">الاستشارة: 28/11/2026 (مجانًا)</span><span class="t-ltr">RX-2611-0142</span></div>
-              <div class="lh-sign"><span data-en="Signature">التوقيع</span><b data-out="name">د. أحمد سليم عبد الحميد</b></div>
+              <ul class="t-rx-items" id="lh-rx-items"></ul>
+              <div class="lh-rx-meta"><span id="lh-rx-fu"></span><span class="t-ltr" id="lh-rx-no"></span></div>
+              <div class="lh-sign"><span data-en="Signature">التوقيع</span><b data-out="name"></b></div>
               <footer class="t-sheet-foot">
-                <span data-out="addr">١٢ ش الجمهورية، برج النور، الدور ٣ — المنصورة</span>
-                <span><span class="t-ltr" data-out="phones">0100 123 4567 · 050 224 5566</span><br><span data-out="hours">يوميًا ٥–١١ م ماعدا الجمعة</span></span>
+                <span data-out="addr"></span>
+                <span><span class="t-ltr" data-out="phones"></span><br><span data-out="hours"></span></span>
               </footer>
-              <div style="font-size:10px;color:#6B7588;text-align:center;margin-block-start:2mm" data-out="foot">الاستشارة مجانًا خلال ١٤ يوم من الكشف · برجاء إحضار الروشتة</div>
+              <div style="font-size:10px;color:#6B7588;text-align:center;margin-block-start:2mm" data-out="foot"></div>
             </article>
 
             <!-- Receipt (80 mm) -->
             <article class="t-sheet receipt" id="lh-rc" data-sheet-panel="rc" hidden>
-              <div class="lh-rc-head">
-                <b>عيادة د. أحمد سليم</b>
-                <span data-out="addr">١٢ ش الجمهورية، برج النور، الدور ٣ — المنصورة</span>
-                <span class="t-ltr" data-out="phones">0100 123 4567 · 050 224 5566</span>
-              </div>
-              <div class="t-receipt-row"><span data-en="Receipt">إيصال</span><span class="t-ltr">INV-2611-0431</span></div>
-              <div class="t-receipt-row"><span data-en="Date">التاريخ</span><span class="t-ltr">14/11/2026 · 21:12</span></div>
-              <div class="t-receipt-row"><span data-en="Patient">المريض</span><span>منى عبد الرحمن</span></div>
-              <div class="t-receipt-row"><span data-en="Doctor">الطبيب</span><span data-out="name">د. أحمد سليم عبد الحميد</span></div>
-              <div class="t-receipt-row" style="border-block-start:1px dashed #B9C2D1;margin-block-start:2mm;padding-block-start:2mm"><span data-en="Consult">كشف باطنة</span><span>300.00</span></div>
-              <div class="t-receipt-row"><span data-en="ECG">رسم قلب</span><span>150.00</span></div>
-              <div class="t-receipt-row"><span data-en="Discount (relatives 50%)">خصم (أقارب ٥٠٪)</span><span>−150.00</span></div>
-              <div class="t-receipt-row total"><span data-en="Total">الإجمالي</span><span>300.00 <span data-en="EGP">ج.م</span></span></div>
-              <div class="t-receipt-row"><span data-en="Paid cash">مدفوع كاش</span><span>300.00</span></div>
-              <div class="t-receipt-row"><span data-en="Cashier">الكاشير</span><span data-en="Sara R.">سارة ر.</span></div>
-              <div class="lh-rc-foot" data-out="foot">الاستشارة مجانًا خلال ١٤ يوم من الكشف · برجاء إحضار الروشتة</div>
             </article>
           </div>
         </div>
@@ -194,27 +192,162 @@ MD, Faculty of Medicine — Mansoura University</div>
 
   </div>
 </main>
+<script src="../assets/demo-data.js"></script>
 <script src="../assets/shell.js"></script>
 <script>
 (function () {
+  "use strict";
+  var T = window.Tamargi, D = T.data, C = T.ctx, F = D.fmt;
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  function L() { return C.lang === "en"; }
+  function tx(o) { return F.t(o, C.lang); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
 
-  /* live binding */
-  $$("[data-bind]").forEach(function (inp) {
-    var k = inp.getAttribute("data-bind");
-    function upd() {
-      $$('[data-out="' + k + '"]').forEach(function (o) { o.textContent = inp.value; });
-      if (k === "name") { var c = (inp.value.replace(/^د\.\s*/, "").trim()[0]) || "د"; $("#lh-logo-mark").textContent = c; $("#lh-logo-thumb").textContent = c; }
+  /* page-local sample wording per specialty (degrees and Rx examples are not part of demo-data.js) */
+  var TITLES = {
+    im:    ["استشاري الباطنة والجهاز الهضمي\nدكتوراه الباطنة — كلية الطب جامعة المنصورة", "Consultant of Internal Medicine & Gastroenterology\nMD, Faculty of Medicine — Mansoura University", "باطنة — جهاز هضمي — كبد"],
+    derma: ["أخصائي الأمراض الجلدية والتجميل والليزر\nماجستير الجلدية — جامعة المنصورة", "Dermatology, Cosmetics & Laser Specialist\nMSc Dermatology — Mansoura University", "جلدية — تجميل — ليزر"],
+    peds:  ["أخصائي طب الأطفال وحديثي الولادة\nماجستير طب الأطفال — جامعة المنصورة", "Paediatrics & Neonatology Specialist\nMSc Paediatrics — Mansoura University", "أطفال — حديثي الولادة"],
+    ent:   ["أخصائي الأنف والأذن والحنجرة\nماجستير الأنف والأذن — جامعة المنصورة", "ENT Specialist\nMSc Otolaryngology — Mansoura University", "أنف وأذن وحنجرة"],
+    dent:  ["طبيب أسنان — تجميل وعلاج جذور\nبكالوريوس طب الأسنان — جامعة المنصورة", "Dentist — Cosmetic & Endodontics\nBDS — Mansoura University", "أسنان — تجميل — جذور"],
+    gyn:   ["أخصائي النساء والتوليد\nماجستير النساء والتوليد — جامعة المنصورة", "OB/GYN Specialist\nMSc Obstetrics & Gynaecology — Mansoura University", "نسا وتوليد — متابعة حمل"]
+  };
+  var RX = {
+    im:    [["Nexium 40 mg tab", "قرص واحد على الريق قبل الفطار بنص ساعة — لمدة ١٤ يوم"], ["Motilium 10 mg tab", "قرص قبل الأكل ٣ مرات يوميًا — لمدة ٧ أيام"], ["Gaviscon Advance susp.", "معلقة كبيرة بعد الأكل وقبل النوم — عند اللزوم"]],
+    derma: [["Fucidin cream 2%", "دهان مرتين يوميًا على المكان — لمدة ٧ أيام"], ["Cetirizine 10 mg tab", "قرص قبل النوم — لمدة ١٠ أيام"], ["Sunscreen SPF 50", "دهان الصبح وكل ٣ ساعات في الشمس"]],
+    peds:  [["Paracetamol 120 mg/5 ml syrup", "٥ مل كل ٦ ساعات عند الحرارة — بحد أقصى ٤ مرات"], ["ORS sachets", "كيس على ٢٠٠ مل مية بعد كل مرة إسهال"]],
+    other: [["Ibuprofen 400 mg tab", "قرص بعد الأكل عند اللزوم — بحد أقصى ٣ مرات يوميًا"], ["Chlorhexidine mouthwash", "مضمضة مرتين يوميًا — لمدة ٥ أيام"]]
+  };
+  var st = { doc: null, br: null };
+
+  /* ---------- data helpers ---------- */
+  function pad(n, w) { n = String(n); while (n.length < w) n = "0" + n; return n; }
+  function toDate(iso) { var p = iso.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function addDays(iso, n) { var d = toDate(iso); d.setDate(d.getDate() + n); return d.getFullYear() + "-" + pad(d.getMonth() + 1, 2) + "-" + pad(d.getDate(), 2); }
+  function multi() { return D.branchesOf(C.org).length > 1; }
+  function docList() { return D.doctorsIn(C); }
+  function docBranches(docId) { return D.doctorBranches(docId).filter(function (b) { return C.branches.indexOf(b) > -1; }); }
+  /* numbering comes from the shared per-branch series (D39-A, demo-data.js) */
+  function series(b) { return D.invoiceSeries(b.id); }
+  function branchInvoices(bId) { return D.invoices.filter(function (i) { return i.branch === bId; }).sort(function (a, b) { return a.no < b.no ? -1 : 1; }); }
+  function fuDays(doc) {
+    var f = D.services.filter(function (s) { return s.org === doc.org && s.kind === "followup" && doc.sp.indexOf(s.sp) > -1 && s.freeWithinDays; })[0];
+    return f ? f.freeWithinDays : D.org(doc.org).followupDays;
+  }
+  function daysText(days) {
+    days = days.slice().sort(); var run = days.length > 2 && days[days.length - 1] - days[0] === days.length - 1;
+    return run ? F.day(days[0], "ar") + "–" + F.day(days[days.length - 1], "ar") : days.map(function (d) { return F.day(d, "ar"); }).join(" و");
+  }
+  function hoursAr(docId, bId) {
+    var g = {};
+    D.shifts.filter(function (s) { return s.doctor === docId && s.branch === bId; }).forEach(function (s) { var k = s.from + "-" + s.to; (g[k] = g[k] || { s: s, days: [] }).days = g[k].days.concat(s.days); });
+    return Object.keys(g).map(function (k) { return daysText(g[k].days) + " " + F.range(g[k].s.from, g[k].s.to, "ar"); }).join(" · ");
+  }
+  function addrAr(b) { return b.addressAr.indexOf(b.city.ar) > -1 ? b.addressAr : b.addressAr + "، " + b.city.ar; }
+  /* sample visit = the doctor's latest finished visit in that branch */
+  function sampleVisit(docId, bId) {
+    var a = D.appointments.filter(function (x) { return x.doctor === docId && x.branch === bId && x.status === "done"; }).sort(function (x, y) { return x.date < y.date ? 1 : x.date > y.date ? -1 : y.from - x.from; })[0];
+    return a ? { patient: D.patient(a.patient), date: a.date, appt: a } : { patient: D.patients.filter(function (p) { return p.org === C.org; })[0], date: D.today, appt: null };
+  }
+  function sampleInvoice(docId, bId) {
+    var list = branchInvoices(bId);
+    return list.filter(function (i) { return i.doctor === docId; }).pop() || list.pop() || null;
+  }
+
+  /* ---------- live binding ---------- */
+  function out(k, v) { $$('[data-out="' + k + '"]').forEach(function (o) { o.textContent = v; }); }
+  function sync(inp) {
+    var k = inp.getAttribute("data-bind"); out(k, inp.value);
+    if (k === "name") { var c = (inp.value.replace(/^(د\.|Dr\.)\s*/, "").trim()[0]) || "د"; if (!logoUrl) { $("#lh-logo-mark").textContent = c; $("#lh-logo-thumb").textContent = c; } }
+  }
+  function syncAll() { $$("[data-bind]").forEach(sync); }
+  $$("[data-bind]").forEach(function (inp) { inp.addEventListener("input", function () { sync(inp); }); });
+
+  /* fill the form from the selected doctor + branch (on load and on org/branch/doctor change; never on a language switch) */
+  function fill() {
+    var d = D.doctor(st.doc), b = D.branch(st.br); if (!d || !b) return;
+    var t = TITLES[d.sp[0]] || TITLES.im;
+    var v = { name: d.ar, nameEn: d.shortEn, title: t[0], titleEn: t[1], synd: d.licence || "", spec: t[2],
+      addr: addrAr(b), phones: b.phone, hours: hoursAr(d.id, b.id),
+      foot: "الاستشارة مجانًا خلال " + F.num(fuDays(d), "ar") + " يوم من الكشف · برجاء إحضار الروشتة" };
+    $$("[data-bind]").forEach(function (inp) { var k = inp.getAttribute("data-bind"); if (k in v) inp.value = v[k]; });
+  }
+
+  /* everything that is generated text (follows the UI language) */
+  function paint() {
+    var docs = docList(), d = D.doctor(st.doc), b = D.branch(st.br);
+    $("#lh-doc").innerHTML = docs.map(function (x) { return '<option value="' + x.id + '"' + (x.id === st.doc ? " selected" : "") + ">" + esc((L() ? x.shortEn : x.shortAr) + " · " + x.sp.map(function (s) { return tx(D.specialties[s]); }).join(" + ")) + "</option>"; }).join("");
+    var brs = d ? docBranches(d.id) : [];
+    $("#lh-br-field").hidden = !multi();
+    $("#lh-br").innerHTML = brs.map(function (id) { var x = D.branch(id); return '<option value="' + id + '"' + (id === st.br ? " selected" : "") + ">" + esc(tx(x)) + "</option>"; }).join("");
+    $("#lh-br").disabled = brs.length < 2;
+    if (!d || !b) return;
+
+    /* Rx sample */
+    var sv = sampleVisit(d.id, b.id), p = sv.patient;
+    $("#lh-pt-name").textContent = p.ar.split(" ").slice(0, 3).join(" ");
+    $("#lh-pt-age").textContent = p.age; $("#lh-pt-date").textContent = F.date(sv.date); $("#lh-pt-file").textContent = p.fileNo;
+    $("#lh-rx-items").innerHTML = (RX[d.sp[0]] || RX.other).map(function (r) { return '<li><div class="rx-drug">' + esc(r[0]) + '</div><div class="rx-sig">' + esc(r[1]) + "</div></li>"; }).join("");
+    var fu = F.date(addDays(sv.date, fuDays(d)));
+    $("#lh-rx-fu").textContent = L() ? "Follow-up: " + fu + " (free)" : "الاستشارة: " + fu + " (مجانًا)";
+    $("#lh-rx-no").textContent = "RX-" + D.branchCode(b.id) + "-" + sv.date.slice(2, 4) + sv.date.slice(5, 7) + "-0142";
+    $("#lh-prev-label").textContent = L() ? "Live preview · sample visit" + (multi() ? " at " + b.shortEn : "") : "معاينة مباشرة · زيارة نموذج" + (multi() ? " في فرع " + b.shortAr : "");
+
+    /* receipt sample: the doctor's latest invoice in this branch, numbered in the branch series */
+    var inv = sampleInvoice(d.id, b.id), o = D.org(C.org), h = "";
+    h += '<div class="lh-rc-head"><b>' + esc(o.ar) + "</b>" + (multi() ? "<span>" + esc(L() ? "Branch: " + b.shortEn : "فرع " + b.shortAr) + "</span>" : "") +
+      '<span data-out="addr"></span><span class="t-ltr" data-out="phones"></span></div>';
+    if (inv) {
+      var row = function (a, v, cls) { return '<div class="t-receipt-row' + (cls ? " " + cls : "") + '"><span>' + esc(a) + "</span><span>" + v + "</span></div>"; };
+      var cash = D.member(inv.cashier), cashName = cash ? D.memberName(cash, C.lang).split(" ") : [""];
+      h += row(L() ? "Receipt" : "إيصال", '<span class="t-ltr">' + esc(inv.no) + "</span>");
+      h += row(L() ? "Date" : "التاريخ", '<span class="t-ltr">' + esc(F.date(inv.date) + " · " + F.hour(inv.time, "en")) + "</span>");
+      h += row(L() ? "Patient" : "المريض", esc(tx(D.patient(inv.patient)).split(" ").slice(0, 2).join(" ")));
+      h += '<div class="t-receipt-row"><span>' + (L() ? "Doctor" : "الطبيب") + "</span>" + (inv.doctor === d.id ? '<span data-out="name"></span>' : "<span>" + esc(D.doctor(inv.doctor).ar) + "</span>") + "</div>";
+      inv.lines.forEach(function (l, i) {
+        h += '<div class="t-receipt-row"' + (i === 0 ? ' style="border-block-start:1px dashed #B9C2D1;margin-block-start:2mm;padding-block-start:2mm"' : "") + "><span>" + esc(tx(l) + (l.qty > 1 ? " ×" + l.qty : "")) + "</span><span>" + F.money(l.qty * l.price) + ".00</span></div>";
+        if (l.discount) h += row(L() ? "Discount" : "خصم", "−" + F.money(l.discount) + ".00");
+      });
+      h += row(L() ? "Total" : "الإجمالي", F.money(inv.total) + ".00 " + (L() ? "EGP" : "ج.م"), "total");
+      h += row((L() ? "Paid " : "مدفوع ") + tx(D.payMethods[inv.method]), F.money(inv.paid) + ".00");
+      if (inv.total > inv.paid) h += row(L() ? "Balance due" : "الباقي عليه", F.money(inv.total - inv.paid) + ".00");
+      h += row(L() ? "Cashier" : "الكاشير", esc(cashName[0] + (cashName[1] ? " " + cashName[1].charAt(0) + "." : "")));
+    } else {
+      h += '<p class="t-small" style="text-align:center">' + (L() ? "No receipts in this branch yet." : "مفيش إيصالات في الفرع ده لسه.") + "</p>";
     }
-    inp.addEventListener("input", upd);
-  });
+    h += '<div class="lh-rc-foot" data-out="foot"></div>';
+    $("#lh-rc").innerHTML = h;
+
+    /* numbering field */
+    $("#lh-series").value = series(b) + "…";
+    $("#lh-series-hint").textContent = (L() ? "Next receipt: " : "الإيصال الجاي: ") + D.nextInvoiceNo(b.id) + (multi() ? (L() ? " · each branch has its own series" : " · لكل فرع تسلسل لوحده") : "");
+    $("#lh-br-link").setAttribute("href", multi() ? "org-branches.html" : "settings-clinic.html");
+    syncAll();
+    if (logoUrl) applyLogo();
+    fit();
+  }
+
+  function resolve() {
+    var docs = docList();
+    if (!docs.some(function (x) { return x.id === st.doc; })) st.doc = docs[0] ? docs[0].id : null;
+    var brs = st.doc ? docBranches(st.doc) : [];
+    if (brs.indexOf(st.br) === -1) st.br = C.branch !== "all" && brs.indexOf(C.branch) > -1 ? C.branch : brs[0] || null;
+  }
+  function render(c, reason) {
+    resolve();
+    if (reason !== "lang") fill();
+    paint();
+  }
+  $("#lh-doc").addEventListener("change", function () { st.doc = this.value; st.br = null; resolve(); fill(); paint(); });
+  $("#lh-br").addEventListener("change", function () { st.br = this.value; fill(); paint(); });
 
   /* logo upload preview */
+  var logoUrl = null;
+  function applyLogo() { [$("#lh-logo-mark"), $("#lh-logo-thumb")].forEach(function (n) { n.textContent = ""; n.style.background = "center/cover no-repeat url(" + logoUrl + ")"; }); }
   $("#lh-logo").addEventListener("change", function (e) {
     var f = e.target.files && e.target.files[0]; if (!f) return;
-    var url = URL.createObjectURL(f);
-    [$("#lh-logo-mark"), $("#lh-logo-thumb")].forEach(function (n) { n.textContent = ""; n.style.background = "center/cover no-repeat url(" + url + ")"; });
+    logoUrl = URL.createObjectURL(f); applyLogo();
   });
 
   /* segmented helpers */
@@ -248,18 +381,22 @@ MD, Faculty of Medicine — Mansoura University</div>
   function fit() {
     var z = $("#lh-zoom"), stage = z.parentNode, sheet = $("[data-sheet-panel]:not([hidden])");
     z.style.zoom = 1;
-    var avail = stage.clientWidth - 48, w = sheet.offsetWidth;
+    var cs = getComputedStyle(stage), avail = stage.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight), w = sheet.offsetWidth;
     z.style.zoom = w > avail ? (avail / w).toFixed(3) : 1;
   }
-  window.addEventListener("resize", fit); setTimeout(fit, 50);
+  window.addEventListener("resize", fit);
 
   /* print */
   function doPrint() { $("#lh-zoom").style.zoom = 1; window.print(); setTimeout(fit, 300); }
   $("#lh-print").addEventListener("click", doPrint);
   document.addEventListener("keydown", function (e) {
     if ((e.ctrlKey || e.metaKey) && (e.key === "p" || e.key === "P")) { e.preventDefault(); doPrint(); }
-    if ((e.ctrlKey || e.metaKey) && (e.key === "s" || e.key === "S")) { e.preventDefault(); Tamargi.toast(Tamargi.lang() === "en" ? "Letterhead saved — new prescriptions use it" : "اتحفظت الترويسة — الروشتات الجديدة هتطلع بيها"); }
+    if ((e.ctrlKey || e.metaKey) && (e.key === "s" || e.key === "S")) { e.preventDefault(); T.toast(L() ? "Letterhead saved — new prescriptions use it" : "اتحفظت الترويسة — الروشتات الجديدة هتطلع بيها"); }
   });
+
+  T.onCtx(render);
+  render(C, "init");
+  setTimeout(fit, 50);
 })();
 </script>
 </body>

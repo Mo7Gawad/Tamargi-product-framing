@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="../assets/tamargi.css">
   <style id="rc-page">@page { size: 80mm auto; margin: 0; }</style>
   <style>
+    /* scope notice: let its branch buttons wrap at phone width (shared fix requested for tamargi.css) */
     /* back arrow: the sprite arrow points right, which is already "back" in RTL; mirror only in LTR */
     [dir="ltr"] .co-back { transform: scaleX(-1); }
     .rc-stage { min-height: 560px; align-items: flex-start; }
@@ -44,8 +45,10 @@
       .t-sheet.a5 { width: 148mm; min-height: 209mm; }
     }
   </style>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
-<body data-screen="receipt-print">
+<body data-screen="receipt-print" data-org-default="nile">
 <main id="screen">
   <span data-state="original"></span><!-- first state in DOM = default -->
   <div class="t-container">
@@ -53,7 +56,7 @@
     <header class="t-screen-head">
       <div>
         <h1 data-en="Receipt preview">معاينة الإيصال</h1>
-        <p class="t-sub mb-0" data-en="Invoice INV-004812 was already collected. This page only prints; it never changes payment status.">الفاتورة INV-004812 اتحصّلت خلاص. الصفحة دي للطباعة بس، ومش بتغيّر حالة الدفع.</p>
+        <p class="t-sub mb-0" id="rc-sub"></p>
       </div>
       <div class="t-actions">
         <a class="t-btn" href="cashier-checkout.html"><svg class="t-icon sm co-back"><use href="#i-arrow"/></svg><span data-en="Back to checkout">رجوع للتحصيل</span></a>
@@ -71,42 +74,18 @@
         <!-- 80 mm thermal -->
         <article class="t-sheet receipt rc-th" id="rc-80" aria-label="80 mm receipt">
           <div class="rc-copy" data-state="reprint"><span data-en="COPY">نسخة</span></div>
-          <div class="rc-copyline" data-state="reprint" data-en="COPY — reprinted 14/11/2026 9:15 pm by Sara">نسخة — أُعيدت طباعتها 14/11/2026 9:15 م بواسطة سارة</div>
-          <div class="rc-center"
-               data-note="Letterhead comes from the clinic's Letterhead settings: same name, specialty, address and phones as the prescription, in the receipt's narrow format."
-               data-note-ar="الترويسة من إعدادات الترويسة: نفس الاسم والتخصص والعنوان والتليفون زي الروشتة.">
-            <div class="rc-clinic" data-en="Dr. Ahmed Selim Clinic">عيادة د. أحمد سليم</div>
-            <div class="rc-small" data-en="Consultant of internal medicine &amp; cardiology">استشاري الباطنة والقلب</div>
-            <div class="rc-small" data-en="24 El-Gomhoreya St., El-Nour Tower, 3rd floor, Mansoura">٢٤ ش الجمهورية، برج النور، الدور الثالث، المنصورة</div>
-            <div class="rc-small"><span class="t-ltr">050 2234 567</span> · <span class="t-ltr">0109 555 0142</span></div>
-          </div>
+          <div class="rc-copyline rc-copytext" data-state="reprint"></div>
+          <div class="rc-center" id="rc-80-head"
+               data-note="Letterhead = the organization's name with the branch where the money was taken: that branch's address and phone are printed, so a patient of a 2-branch centre knows which desk to call. A solo clinic prints its one address."
+               data-note-ar="الترويسة = اسم المنشأة + الفرع اللي اتدفع فيه: عنوان وتليفون الفرع ده مطبوعين. العيادة الفردي بتطبع عنوانها الوحيد."></div>
           <hr class="rc-rule">
           <div class="rc-center rc-title" data-en="CASH RECEIPT">إيصال استلام نقدية</div>
-          <div class="t-receipt-row"><span data-en="Receipt no.">رقم الإيصال</span><b class="t-ltr">RC-004812</b></div>
-          <div class="t-receipt-row"><span data-en="Invoice">الفاتورة</span><span class="t-ltr">INV-004812</span></div>
-          <div class="t-receipt-row"><span data-en="Date">التاريخ</span><span class="t-ltr">14/11/2026 19:42</span></div>
-          <div class="t-receipt-row"><span data-en="Cashier">الكاشير</span><span data-en="Sara Ramadan">سارة رمضان</span></div>
-          <hr class="rc-rule">
-          <div class="t-receipt-row"><span data-en="Patient">المريض</span><b>كريم محمود عبد العزيز</b></div>
-          <div class="t-receipt-row"><span data-en="File">ملف</span><span class="t-ltr">0872</span></div>
-          <div class="t-receipt-row"><span data-en="Doctor">الطبيب</span><span data-en="Dr. Ahmed Selim">د. أحمد سليم</span></div>
-          <hr class="rc-rule">
-          <div class="t-receipt-row rc-line"><span><span data-en="Follow-up consultation">كشف متابعة</span><small data-en="Free follow-up (within 14 days)">متابعة مجانية (خلال ١٤ يوم)</small></span><span>0.00</span></div>
-          <div class="t-receipt-row rc-line"><span data-en="ECG (resting)">رسم قلب</span><span>150.00</span></div>
-          <div class="t-receipt-row rc-line"><span data-en="Nebuliser session">جلسة نيبولايزر</span><span>50.00</span></div>
-          <hr class="rc-rule">
-          <div class="t-receipt-row"><span data-en="Subtotal">الإجمالي قبل الخصم</span><span>200.00</span></div>
-          <div class="t-receipt-row"><span><span data-en="Discount 10%">خصم ١٠٪</span><small style="display:block;font-size:10px;color:#4E586C" data-en="Reason: Seniors 65+ tier">السبب: شريحة كبار السن +٦٥</small></span><span>− 20.00</span></div>
-          <div class="t-receipt-row total"><span data-en="Invoice total (EGP)">إجمالي الفاتورة (ج.م)</span><span>180.00</span></div>
-          <div class="t-receipt-row"><span data-en="Paid · cash">مدفوع · كاش</span><span>100.00</span></div>
-          <div class="t-receipt-row"><span data-en="Paid · from deposit">مدفوع · من الرصيد المقدم</span><span>50.00</span></div>
-          <div class="t-receipt-row" style="font-weight:700"><span data-en="Unpaid (added to account)">الباقي (على الحساب)</span><span>30.00</span></div>
-          <div class="rc-bal"
-               data-note="Balances after this payment are printed so the patient leaves knowing exactly what they owe and what is left in their deposit; this removes the usual 'how much do I owe?' argument at the next visit."
-               data-note-ar="الرصيد بعد الدفع مطبوع عشان المريض يعرف عليه كام وفاضله كام في الرصيد، ومفيش خناقة في الزيارة الجاية.">
-            <div class="t-receipt-row"><span data-en="Total owed now">إجمالي المديونية الآن</span><b>90.00</b></div>
-            <div class="t-receipt-row"><span data-en="Deposit balance">الرصيد المقدم المتبقي</span><b>150.00</b></div>
-          </div>
+          <div id="rc-80-body"
+               data-note="Receipt and invoice numbers come from the invoice; the branch is printed next to them, and the doctor is shown with the specialty that was billed."
+               data-note-ar="رقم الإيصال والفاتورة من الفاتورة نفسها، واسم الفرع مطبوع جنبهم، والطبيب بتخصصه."></div>
+          <div class="rc-bal" id="rc-80-bal"
+               data-note="Balances after this payment are printed so the patient leaves knowing exactly what they owe and what is left in their deposit; this removes the usual 'how much do I owe?' argument at the next visit. Balances are org-wide: the same in every branch."
+               data-note-ar="الرصيد بعد الدفع مطبوع عشان المريض يعرف عليه كام وفاضله كام في الرصيد. الرصيد على مستوى المنشأة كلها."></div>
           <hr class="rc-rule">
           <div class="rc-center rc-small" data-en="Issued electronically · cannot be edited. Corrections are made by credit note.">صادر إلكترونيًا ولا يُعدّل. التصحيح بإشعار مرتجع.</div>
           <div class="rc-center rc-small" data-en="Get well soon">ألف سلامة</div>
@@ -115,55 +94,26 @@
         <!-- A5 -->
         <article class="t-sheet a5 rc-a5" id="rc-a5" aria-label="A5 receipt" hidden>
           <div class="rc-copy" data-state="reprint"><span data-en="COPY">نسخة</span></div>
-          <header class="t-letterhead">
-            <div>
-              <div class="lh-name">د. أحمد سليم</div>
-              <div class="lh-title">استشاري الباطنة والقلب<br>دكتوراه الباطنة — جامعة المنصورة</div>
-            </div>
-            <div class="lh-logo">أ س</div>
-            <div class="lh-en">
-              <div class="lh-name">Dr. Ahmed Selim</div>
-              <div class="lh-title">Consultant, Internal Medicine &amp; Cardiology<br>MD, Mansoura University</div>
-            </div>
-          </header>
-          <div class="rc-copyline" data-state="reprint" style="margin-block-start:3mm" data-en="COPY — reprinted 14/11/2026 9:15 pm by Sara">نسخة — أُعيدت طباعتها 14/11/2026 9:15 م بواسطة سارة</div>
+          <header class="t-letterhead" id="rc-a5-lh"></header>
+          <div class="rc-copyline rc-copytext" data-state="reprint" style="margin-block-start:3mm"></div>
           <h2 data-en="Cash receipt">إيصال استلام نقدية</h2>
-          <div class="rc-meta">
-            <div><span data-en="Receipt no.">رقم الإيصال:</span> <b class="t-ltr">RC-004812</b></div>
-            <div><span data-en="Date">التاريخ:</span> <b class="t-ltr">14/11/2026 19:42</b></div>
-            <div><span data-en="Patient">المريض:</span> <b>كريم محمود عبد العزيز</b></div>
-            <div><span data-en="File">رقم الملف:</span> <b class="t-ltr">0872</b></div>
-            <div><span data-en="Doctor">الطبيب:</span> <b data-en="Dr. Ahmed Selim">د. أحمد سليم</b></div>
-            <div><span data-en="Cashier">الكاشير:</span> <b data-en="Sara Ramadan">سارة رمضان</b></div>
-          </div>
+          <div class="rc-meta" id="rc-a5-meta"></div>
           <table>
             <thead><tr><th data-en="Service">الخدمة</th><th class="n" data-en="Qty">العدد</th><th class="n" data-en="Price">السعر</th><th class="n" data-en="Total">الإجمالي</th></tr></thead>
-            <tbody>
-              <tr><td><span data-en="Follow-up consultation">كشف متابعة</span> <small style="color:#11684B" data-en="(free follow-up)">(متابعة مجانية)</small></td><td class="n">1</td><td class="n">0.00</td><td class="n">0.00</td></tr>
-              <tr><td data-en="ECG (resting)">رسم قلب</td><td class="n">1</td><td class="n">150.00</td><td class="n">150.00</td></tr>
-              <tr><td data-en="Nebuliser session">جلسة نيبولايزر</td><td class="n">1</td><td class="n">50.00</td><td class="n">50.00</td></tr>
-              <tr><td colspan="3"><span data-en="Discount 10% — reason: Seniors 65+ tier">خصم ١٠٪ — السبب: شريحة كبار السن +٦٥</span></td><td class="n">− 20.00</td></tr>
-              <tr><td colspan="3"><b data-en="Invoice total (EGP)">إجمالي الفاتورة (ج.م)</b></td><td class="n"><b>180.00</b></td></tr>
-            </tbody>
+            <tbody id="rc-a5-lines"></tbody>
           </table>
           <div class="rc-sum">
             <div class="rc-box">
               <h4 data-en="Paid by">طريقة الدفع</h4>
-              <div class="t-receipt-row"><span data-en="Cash">كاش</span><span>100.00</span></div>
-              <div class="t-receipt-row"><span data-en="From deposit">من الرصيد المقدم</span><span>50.00</span></div>
-              <div class="t-receipt-row" style="font-weight:700"><span data-en="Unpaid on this invoice">الباقي على الفاتورة</span><span>30.00</span></div>
+              <div id="rc-a5-paid"></div>
             </div>
             <div class="rc-box">
               <h4 data-en="Patient account after payment">حساب المريض بعد الدفع</h4>
-              <div class="t-receipt-row"><span data-en="Total owed">إجمالي المديونية</span><b>90.00</b></div>
-              <div class="t-receipt-row"><span data-en="Deposit balance">الرصيد المقدم</span><b>150.00</b></div>
+              <div id="rc-a5-bal"></div>
             </div>
           </div>
           <div class="rc-sign"><span data-en="Cashier">توقيع الكاشير</span><span data-en="Clinic stamp">ختم العيادة</span></div>
-          <footer class="t-sheet-foot">
-            <span data-en="24 El-Gomhoreya St., El-Nour Tower, 3rd floor, Mansoura">٢٤ ش الجمهورية، برج النور، الدور ٣، المنصورة</span>
-            <span class="t-ltr">050 2234 567 · 0109 555 0142</span>
-          </footer>
+          <footer class="t-sheet-foot" id="rc-a5-foot"></footer>
         </article>
       </div>
 
@@ -181,9 +131,9 @@
                 <button type="button" aria-pressed="false" data-paper="a5" data-en="A5 letterhead">A5 بالترويسة</button>
               </div>
             </div>
-            <label class="t-check"><input type="checkbox" checked> <span data-en="Print account balances">اطبع رصيد الحساب</span></label>
+            <label class="t-check"><input type="checkbox" id="rc-showbal" checked> <span data-en="Print account balances">اطبع رصيد الحساب</span></label>
             <div data-state="original">
-              <div class="t-alert success"><svg class="t-icon"><use href="#i-check"/></svg><span data-en="First print of this receipt. Already paid (collected 7:42 pm).">أول طباعة للإيصال ده. مدفوع (اتحصّل ٧:٤٢ م).</span></div>
+              <div class="t-alert success"><svg class="t-icon"><use href="#i-check"/></svg><span id="rc-first"></span></div>
             </div>
             <div data-state="reprint">
               <div class="t-alert warning"
@@ -199,8 +149,9 @@
         <section class="t-card sunk">
           <h3 class="mb-2" data-en="Document">المستند</h3>
           <dl class="t-dl">
-            <dt data-en="Invoice">الفاتورة</dt><dd><a href="invoice-detail.html" class="t-ltr">INV-004812</a> <span class="t-chip partial" data-en="Partial">جزئي</span></dd>
-            <dt data-en="Patient">المريض</dt><dd><a href="patient-account.html" data-en="Account: owes 90 · deposit 150">الحساب: عليه ٩٠ · رصيد ١٥٠</a></dd>
+            <dt data-en="Invoice">الفاتورة</dt><dd id="rc-doc-inv"></dd>
+            <dt data-en="Branch">الفرع</dt><dd id="rc-doc-br"></dd>
+            <dt data-en="Patient">المريض</dt><dd id="rc-doc-pat"></dd>
             <dt data-en="Prints">مرات الطباعة</dt><dd><span data-state="original">1</span><span data-state="reprint">2</span></dd>
           </dl>
         </section>
@@ -208,22 +159,110 @@
     </div>
   </div>
 </main>
+<script src="../assets/demo-data.js"></script>
 <script src="../assets/shell.js"></script>
 <script>
 (function () {
+  "use strict";
+  /* The receipt is built from one invoice in assets/demo-data.js: ?inv=<id> if given, else the latest one in the
+     current org + branch. Letterhead = org name + the invoice's branch address and phone. */
+  var D = Tamargi.data, C = Tamargi.ctx, F = D.fmt, tx = Tamargi.tx;
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var m2 = function (n) { return Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
   var page = document.getElementById("rc-page");
+  function T(rec) { return F.t(rec, C.lang); }
+  function hm(h) { var hh = Math.floor(h), mm = Math.round((h - hh) * 60); return hh + ":" + (mm < 10 ? "0" : "") + mm; }
+  function row(a, b, cls) { return '<div class="t-receipt-row' + (cls ? " " + cls : "") + '"><span>' + a + "</span><span>" + b + "</span></div>"; }
+  var asked = (location.search.match(/[?&]inv=([\w-]+)/) || [])[1];
+
+  function pick() {
+    var a = asked && D.by("invoices", asked);
+    if (a) {
+      var n = Tamargi.scopeNotice({ org: a.org, branch: a.branch, what: { ar: "الإيصال " + a.no, en: "Receipt " + a.no } });
+      if (n.ok || n.reason === "all") return a;
+    } else Tamargi.clearNotice("scope");
+    return D.scoped("invoices", C, function (i) { return i.date === D.today; }).sort(function (x, y) { return y.time - x.time; })[0] || D.scoped("invoices", C)[0] || null;
+  }
+
+  function render() {
+    var inv = pick(); if (!inv) return;
+    var o = D.org(inv.org), b = D.branch(inv.branch), p = D.patient(inv.patient), d = D.doctor(inv.doctor), cashier = D.member(inv.cashier);
+    var multi = D.branchesOf(o.id).length > 1, en = C.lang === "en";
+    var spAr = d.sp.map(function (k) { return D.specialties[k].ar; }).join(" و"), spEn = d.sp.map(function (k) { return D.specialties[k].en; }).join(" & ");
+    var docName = (en ? d.shortEn : d.shortAr) + " — " + (en ? spEn : spAr);
+    var when = F.date(inv.date) + " " + hm(inv.time), rcNo = "RC-" + inv.no, left = inv.total - inv.paid;
+    var addr = en ? b.addressEn + (b.addressEn.indexOf(b.city.en) > -1 ? "" : ", " + b.city.en) : b.addressAr + (b.addressAr.indexOf(b.city.ar) > -1 ? "" : "، " + b.city.ar);
+    var copy = tx("نسخة — أُعيدت طباعتها ", "COPY — reprinted ") + F.date(D.today) + " " + F.hour(D.now + 0.75, C.lang) + tx(" بواسطة ", " by ") + D.memberName(cashier, C.lang);
+    $$(".rc-copytext").forEach(function (n) { n.textContent = copy; });
+    $("#rc-sub").innerHTML = tx("الفاتورة ", "Invoice ") + '<span class="t-ltr">' + inv.no + "</span>" + tx(" اتحصّلت خلاص. الصفحة دي للطباعة بس، ومش بتغيّر حالة الدفع.", " was already collected. This page only prints; it never changes payment status.");
+
+    /* thermal */
+    $("#rc-80-head").innerHTML = '<div class="rc-clinic">' + T(o) + "</div>" +
+      (multi ? '<div class="rc-small"><b>' + tx("فرع ", "") + (en ? b.shortEn + " branch" : b.shortAr) + "</b></div>" : '<div class="rc-small">' + D.doctorsIn({ org: o.id, branch: b.id }).map(function (x) { return T(D.specialties[x.sp[0]]); }).join(" · ") + "</div>") +
+      '<div class="rc-small">' + addr + '</div><div class="rc-small"><span class="t-ltr">' + b.phone + "</span></div>";
+    var lines = inv.lines.map(function (l) {
+      var free = l.price === 0, sum = l.qty * l.price - l.discount;
+      return '<div class="t-receipt-row rc-line"><span>' + T(l) + (l.qty > 1 ? " × " + l.qty : "") +
+        (free ? "<small>" + tx("متابعة مجانية (خلال " + F.num(o.followupDays, "ar") + " يوم)", "Free follow-up (within " + o.followupDays + " days)") + "</small>" : "") +
+        (l.discount ? "<small>" + tx("خصم ", "Discount ") + m2(l.discount) + "</small>" : "") + "</span><span>" + m2(sum) + "</span></div>";
+    }).join("");
+    var sub = inv.lines.reduce(function (t, l) { return t + l.qty * l.price; }, 0), disc = sub - inv.total;
+    $("#rc-80-body").innerHTML =
+      row(tx("رقم الإيصال", "Receipt no."), '<b class="t-ltr">' + rcNo + "</b>") + row(tx("الفاتورة", "Invoice"), '<span class="t-ltr">' + inv.no + "</span>") +
+      (multi ? row(tx("الفرع", "Branch"), en ? b.shortEn : b.shortAr) : "") +
+      row(tx("التاريخ", "Date"), '<span class="t-ltr">' + when + "</span>") + row(tx("الكاشير", "Cashier"), D.memberName(cashier, C.lang)) +
+      '<hr class="rc-rule">' + row(tx("المريض", "Patient"), "<b>" + T(p) + "</b>") + row(tx("ملف", "File"), '<span class="t-ltr">' + p.fileNo + "</span>") + row(tx("الطبيب", "Doctor"), docName) +
+      '<hr class="rc-rule">' + lines + '<hr class="rc-rule">' +
+      (disc ? row(tx("الإجمالي قبل الخصم", "Subtotal"), m2(sub)) + row(tx("الخصم", "Discount"), "− " + m2(disc)) : "") +
+      row(tx("إجمالي الفاتورة (ج.م)", "Invoice total (EGP)"), m2(inv.total), "total") +
+      row(tx("مدفوع · ", "Paid · ") + T(D.payMethods[inv.method]), m2(inv.paid)) +
+      (left > 0 ? '<div class="t-receipt-row" style="font-weight:700"><span>' + tx("الباقي (على الحساب)", "Unpaid (added to account)") + "</span><span>" + m2(left) + "</span></div>" : "");
+    var bal = row(tx("إجمالي المديونية الآن", "Total owed now"), "<b>" + m2(p.debt) + "</b>") + row(tx("الرصيد المقدم المتبقي", "Deposit balance"), "<b>" + m2(p.deposit) + "</b>");
+    $("#rc-80-bal").innerHTML = bal;
+
+    /* A5 */
+    $("#rc-a5-lh").innerHTML = "<div><div class=\"lh-name\">" + o.ar + '</div><div class="lh-title">' + (multi ? b.ar : d.shortAr + " — " + spAr) + "</div></div>" +
+      '<div class="lh-logo">' + o.ini + "</div>" +
+      '<div class="lh-en"><div class="lh-name">' + o.en + '</div><div class="lh-title">' + (multi ? b.en : d.shortEn + " — " + spEn) + "</div></div>";
+    $("#rc-a5-meta").innerHTML =
+      "<div><span>" + tx("رقم الإيصال:", "Receipt no.") + '</span> <b class="t-ltr">' + rcNo + "</b></div>" +
+      "<div><span>" + tx("التاريخ:", "Date") + '</span> <b class="t-ltr">' + when + "</b></div>" +
+      "<div><span>" + tx("المريض:", "Patient") + "</span> <b>" + T(p) + "</b></div>" +
+      "<div><span>" + tx("رقم الملف:", "File") + '</span> <b class="t-ltr">' + p.fileNo + "</b></div>" +
+      "<div><span>" + tx("الطبيب:", "Doctor") + "</span> <b>" + docName + "</b></div>" +
+      "<div><span>" + tx("الكاشير:", "Cashier") + "</span> <b>" + D.memberName(cashier, C.lang) + "</b></div>" +
+      (multi ? "<div><span>" + tx("الفرع:", "Branch") + "</span> <b>" + T(b) + "</b></div><div><span>" + tx("الفاتورة:", "Invoice") + '</span> <b class="t-ltr">' + inv.no + "</b></div>" : "");
+    $("#rc-a5-lines").innerHTML = inv.lines.map(function (l) {
+      return "<tr><td>" + T(l) + (l.price === 0 ? ' <small style="color:#11684B">' + tx("(متابعة مجانية)", "(free follow-up)") + "</small>" : "") + (l.discount ? " <small>" + tx("(خصم ", "(discount ") + m2(l.discount) + ")</small>" : "") +
+        '</td><td class="n">' + l.qty + '</td><td class="n">' + m2(l.price) + '</td><td class="n">' + m2(l.qty * l.price - l.discount) + "</td></tr>";
+    }).join("") + '<tr><td colspan="3"><b>' + tx("إجمالي الفاتورة (ج.م)", "Invoice total (EGP)") + '</b></td><td class="n"><b>' + m2(inv.total) + "</b></td></tr>";
+    $("#rc-a5-paid").innerHTML = row(T(D.payMethods[inv.method]), m2(inv.paid)) + (left > 0 ? '<div class="t-receipt-row" style="font-weight:700"><span>' + tx("الباقي على الفاتورة", "Unpaid on this invoice") + "</span><span>" + m2(left) + "</span></div>" : "");
+    $("#rc-a5-bal").innerHTML = row(tx("إجمالي المديونية", "Total owed"), "<b>" + m2(p.debt) + "</b>") + row(tx("الرصيد المقدم", "Deposit balance"), "<b>" + m2(p.deposit) + "</b>");
+    $("#rc-a5-foot").innerHTML = "<span>" + addr + '</span><span class="t-ltr">' + b.phone + "</span>";
+
+    /* side panel */
+    $("#rc-first").textContent = tx("أول طباعة للإيصال ده. مدفوع (اتحصّل " + F.hour(inv.time, "ar") + ").", "First print of this receipt. Already paid (collected " + F.hour(inv.time, "en") + ").");
+    $("#rc-doc-inv").innerHTML = '<a href="invoice-detail.html" class="t-ltr">' + inv.no + '</a> <span class="t-chip ' + inv.status + '">' + T(D.invoiceStatus[inv.status]) + "</span>";
+    $("#rc-doc-br").textContent = T(b);
+    $("#rc-doc-pat").innerHTML = '<a href="patient-account.html">' + tx("الحساب: " + (p.sex === "F" ? "عليها " : "عليه ") + F.money(p.debt) + " · رصيد " + F.money(p.deposit), "Account: owes " + F.money(p.debt) + " · deposit " + F.money(p.deposit)) + "</a>";
+    showBal();
+  }
+  function showBal() { var on = $("#rc-showbal").checked; $("#rc-80-bal").hidden = !on; $$("#rc-a5 .rc-sum .rc-box")[1].hidden = !on; }
   function setPaper(p) {
     document.getElementById("rc-80").hidden = p !== "80";
     document.getElementById("rc-a5").hidden = p !== "a5";
     page.textContent = p === "a5" ? "@page { size: A5 portrait; margin: 0; }" : "@page { size: 80mm auto; margin: 0; }";
-    Array.prototype.forEach.call(document.querySelectorAll("#rc-paper [data-paper]"), function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-paper") === p)); });
+    $$("#rc-paper [data-paper]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-paper") === p)); });
   }
   document.addEventListener("click", function (e) {
     var b = e.target.closest("#rc-paper [data-paper]"); if (b) setPaper(b.getAttribute("data-paper"));
     if (e.target.closest("#rc-print")) window.print();
   });
+  document.addEventListener("change", function (e) { if (e.target.id === "rc-showbal") showBal(); });
   // data-state elements inside a hidden sheet stay governed by the sheet's own [hidden]
   setPaper("80");
+  Tamargi.onCtx(render); render();
 })();
 </script>
 </body>

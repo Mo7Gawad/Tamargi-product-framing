@@ -107,6 +107,8 @@
       .steps-row li { flex-basis: 170px; }
     }
   </style>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body data-shell="bare" data-screen="index">
 <main id="screen">
@@ -132,9 +134,9 @@
       <div class="t-card t-stat"><span class="t-stat-label" data-en="Screens built">شاشة جاهزة</span><span class="t-stat-value t-num">35</span></div>
       <div class="t-card t-stat"><span class="t-stat-label" data-en="Apps / groups">مجموعات</span><span class="t-stat-value t-num">8</span></div>
       <div class="t-card t-stat"><span class="t-stat-label" data-en="User journeys">رحلة مستخدم</span><span class="t-stat-value t-num">5</span></div>
-      <div class="t-card t-stat"><span class="t-stat-label" data-en="Screen states">حالة شاشة</span><span class="t-stat-value t-num">33</span></div>
-      <div class="t-card t-stat"><span class="t-stat-label" data-en="Design notes">ملاحظة تصميم</span><span class="t-stat-value t-num">168</span></div>
-      <div class="t-card t-stat"><span class="t-stat-label" data-en="Notes citing NITCO">ملاحظة من NITCO</span><span class="t-stat-value t-num">117</span></div>
+      <div class="t-card t-stat"><span class="t-stat-label" data-en="Screen states">حالة شاشة</span><span class="t-stat-value t-num">42</span></div>
+      <div class="t-card t-stat"><span class="t-stat-label" data-en="Design notes">ملاحظة تصميم</span><span class="t-stat-value t-num">217</span></div>
+      <div class="t-card t-stat"><span class="t-stat-label" data-en="Notes citing NITCO">ملاحظة من NITCO</span><span class="t-stat-value t-num">119</span></div>
     </div>
   </header>
 
@@ -164,23 +166,23 @@
   <!-- ===== Multi-branch & stock (tenancy round, 2026-11-14) ===== -->
   <section id="multi">
     <h2 class="sec"><svg class="t-icon"><use href="#i-building"/></svg><span data-en="Multi-branch, stock & equipment">تعدد الفروع والمخزون</span></h2>
-    <p class="sec-sub" data-en="Tamargi is multi-tenant: every customer is an organization with its own data. Inside it, branches and rooms organise daily work. The sample polyclinic (Nile Medical Centre, 2 branches, 8 rooms, 6 doctors) is fake data. Try the organization and branch switchers in the top bar of any screen.">تمرجي متعدد العملاء: كل عميل مؤسسة ليها بياناتها لوحدها. جواها، الفروع والغرف بتنظم الشغل اليومي. المجمع اللي في العينة (مجمع النيل الطبي، فرعين، ٨ غرف، ٦ أطباء) بيانات وهمية. جرّب مبدّل المؤسسة والفرع في الشريط اللي فوق في أي شاشة.</p>
+    <p class="sec-sub" data-en="Tamargi is multi-tenant: every customer is an organization with its own data. Inside it, branches and rooms organise daily work. The sample polyclinic (Nile Medical Centre, 2 branches, 8 rooms, 6 doctors) is fake data. Try the organization and branch switchers in the top bar of any screen.">تمرجي متعدد العملاء: كل عميل منشأة ليها بياناتها لوحدها. جواها، الفروع والغرف بتنظم الشغل اليومي. المجمع اللي في العينة (مجمع النيل الطبي، فرعين، ٨ غرف، ٦ أطباء) بيانات وهمية. جرّب مبدّل المنشأة والفرع في الشريط اللي فوق في أي شاشة.</p>
     <div class="mt-tree">
-      <div><span class="k" data-en="ORGANIZATION = the customer">المؤسسة = العميل</span><b data-en="Hard wall between organizations">حيطة صلبة بين المؤسسات</b><p data-en="Legal entity, subscription, data controller under PDPL. No data is ever shared between two organizations.">الكيان القانوني والاشتراك والمسؤول عن البيانات قانونًا. مفيش أي بيانات بتتشارك بين مؤسستين أبدًا.</p></div>
+      <div><span class="k" data-en="ORGANIZATION = the customer">المنشأة = العميل</span><b data-en="Hard wall between organizations">حيطة صلبة بين المنشآت</b><p data-en="Legal entity, subscription, data controller under PDPL. No data is ever shared between two organizations.">الكيان القانوني والاشتراك والمسؤول عن البيانات قانونًا. مفيش أي بيانات بتتشارك بين منشأتين أبدًا.</p></div>
       <span class="arr" aria-hidden="true">←</span>
-      <div><span class="k" data-en="BRANCH = an address">الفرع = عنوان</span><b data-en="Soft scope inside the organization">نطاق شغل جوه المؤسسة</b><p data-en="Own queue, cash drawer, stock store. The patient file stays one per organization.">دور وخزنة ومخزن لكل فرع. ملف المريض واحد للمؤسسة كلها.</p></div>
+      <div><span class="k" data-en="BRANCH = an address">الفرع = عنوان</span><b data-en="Soft scope inside the organization">نطاق شغل جوه المنشأة</b><p data-en="Own queue, cash drawer, stock store. The patient file stays one per organization.">دور وخزنة ومخزن لكل فرع. ملف المريض واحد للمنشأة كلها.</p></div>
       <span class="arr" aria-hidden="true">←</span>
       <div><span class="k" data-en="ROOM / CHAIR = bookable">الغرفة / الكرسي = بتتحجز</span><b data-en="Shared by time slot">بتتشارك بالميعاد</b><p data-en="Has a type, not a specialty. Specialty belongs to the doctor.">ليها نوع مش تخصص. التخصص بتاع الطبيب.</p></div>
     </div>
     <div class="mt-cards">
-      <a class="mt-card" href="screens/org-branches.html"><span class="ttl"><svg class="t-icon sm"><use href="#i-building"/></svg><span data-en="Organization & branches">المؤسسة والفروع</span><span class="t-tier">Tier 2</span></span><p data-en="Org profile, branch cards, plan usage (2 of 3 branches), what is shared vs per branch. Solo-clinic state included.">بيانات المؤسسة، كروت الفروع، استخدام الباقة (٢ من ٣ فروع)، إيه المشترك وإيه الخاص بكل فرع. فيها حالة العيادة الفردية.</p><span class="f">org-branches.html</span></a>
+      <a class="mt-card" href="screens/org-branches.html"><span class="ttl"><svg class="t-icon sm"><use href="#i-building"/></svg><span data-en="Organization & branches">المنشأة والفروع</span><span class="t-tier">Tier 2</span></span><p data-en="Org profile, branch cards, plan usage (2 of 3 branches), what is shared vs per branch. Solo-clinic state included.">بيانات المنشأة، كروت الفروع، استخدام الباقة (٢ من ٣ فروع)، إيه المشترك وإيه الخاص بكل فرع. فيها حالة العيادة الفردية.</p><span class="f">org-branches.html</span></a>
       <a class="mt-card" href="screens/rooms.html"><span class="ttl"><svg class="t-icon sm"><use href="#i-door"/></svg><span data-en="Rooms & chairs">الغرف والعيادات</span><span class="t-tier">Tier 2</span></span><p data-en="Rooms per branch by type, weekly occupancy grid, computed conflicts (room double-booked, doctor in two branches).">الغرف لكل فرع بالنوع، جدول إشغال الأسبوع، وتعارضات بتتحسب لوحدها (غرفة محجوزة مرتين، طبيب في فرعين).</p><span class="f">rooms.html</span></a>
       <a class="mt-card" href="screens/doctors-branches.html"><span class="ttl"><svg class="t-icon sm"><use href="#i-users"/></svg><span data-en="Doctors & branches">الأطباء والفروع</span><span class="t-tier">Tier 2</span></span><p data-en="Each doctor's specialties and pack, branches, rooms, hours and fee per branch. One doctor in 2 branches; one room shared by 3 specialties.">تخصصات كل طبيب وباقته، الفروع والغرف والمواعيد وسعر الكشف لكل فرع. طبيب في فرعين، وغرفة بـ٣ تخصصات.</p><span class="f">doctors-branches.html</span></a>
       <a class="mt-card" href="screens/stock.html"><span class="ttl"><svg class="t-icon sm"><use href="#i-box"/></svg><span data-en="Clinic stock">مخزون العيادة</span><span class="t-tier t-phase" data-en="Later phase">مرحلة لاحقة</span></span><p data-en="Items per branch store with batch and expiry, low-stock and expiry flags, receive from supplier, movements (issued in visit, linked to the invoice), stock count. Not a pharmacy.">الأصناف لكل مخزن فرع بالتشغيلة والانتهاء، تنبيه النقص والانتهاء، استلام من مورد، الحركة (صرف في زيارة مربوط بالفاتورة)، الجرد. مش صيدلية.</p><span class="f">stock.html</span></a>
       <a class="mt-card" href="screens/equipment.html"><span class="ttl"><svg class="t-icon sm"><use href="#i-device"/></svg><span data-en="Equipment register">سجل الأجهزة</span><span class="t-tier t-phase" data-en="Later phase">مرحلة لاحقة</span></span><p data-en="Devices per branch and room: in service / maintenance / out of service, next maintenance or calibration, warranty, log and files.">الأجهزة لكل فرع وغرفة: شغّال / في الصيانة / عطلان، الصيانة أو المعايرة الجاية، الضمان، السجل والملفات.</p><span class="f">equipment.html</span></a>
       <a class="mt-card" href="screens/settings-users-roles.html"><span class="ttl"><svg class="t-icon sm"><use href="#i-users"/></svg><span data-en="Users & roles (updated)">المستخدمون والصلاحيات (اتحدّثت)</span></span><p data-en="Branches column, and roles per branch inside each person's drawer.">عمود الفروع، والأدوار لكل فرع جوه بيانات كل شخص.</p><span class="f">settings-users-roles.html</span></a>
     </div>
-    <div class="t-alert info" style="margin-block-start:var(--s-4)"><svg class="t-icon"><use href="#i-info"/></svg><span data-en="Top bar on every screen: the organization switcher (for people who work in more than one organization, no sign-out) and the branch switcher (owner also gets All branches; a one-branch clinic shows the name only). The branch is never chosen at login.">الشريط اللي فوق في كل شاشة: مبدّل المؤسسة (للي بيشتغل في أكتر من مؤسسة، من غير تسجيل خروج) ومبدّل الفرع (المالك عنده كمان كل الفروع؛ العيادة بفرع واحد بيظهر اسمه بس). الفرع عمره ما بيتختار وقت الدخول.</span></div>
+    <div class="t-alert info" style="margin-block-start:var(--s-4)"><svg class="t-icon"><use href="#i-info"/></svg><span data-en="Top bar on every screen: the organization switcher (for people who work in more than one organization, no sign-out) and the branch switcher (owner also gets All branches; a one-branch clinic shows the name only). The branch is never chosen at login.">الشريط اللي فوق في كل شاشة: مبدّل المنشأة (للي بيشتغل في أكتر من منشأة، من غير تسجيل خروج) ومبدّل الفرع (المالك عنده كمان كل الفروع؛ العيادة بفرع واحد بيظهر اسمه بس). الفرع عمره ما بيتختار وقت الدخول.</span></div>
   </section>
 
   <!-- ===== Journeys ===== -->
@@ -203,7 +205,7 @@
   <!-- ===== NITCO ===== -->
   <section id="nitco">
     <h2 class="sec"><svg class="t-icon"><use href="#i-search"/></svg><span data-en="What we learned from NITCO and how we used it">اللي اتعلمناه من NITCO وإزاي استخدمناه</span></h2>
-    <p class="sec-sub" data-en="NITCO eCarePlus is the Saudi market leader (850+ facilities) with an Egypt branch in Mansoura. We watched all 112 of its demo videos. Rule: borrow its data and business rules, reject its UX. 117 of our 168 design notes cite a NITCO video.">NITCO eCarePlus هو الأول في السوق السعودي (أكتر من ٨٥٠ منشأة) وعنده فرع في المنصورة. اتفرجنا على الـ ١١٢ فيديو بتوعه كلهم. القاعدة: ناخد البيانات وقواعد الشغل، ونرفض طريقة الاستخدام. ١١٧ من ١٦٨ ملاحظة تصميم عندنا بتستشهد بفيديو من NITCO.</p>
+    <p class="sec-sub" data-en="NITCO eCarePlus is the Saudi market leader (850+ facilities) with an Egypt branch in Mansoura. We watched all 112 of its demo videos. Rule: borrow its data and business rules, reject its UX. 119 of our 217 design notes cite a NITCO video.">NITCO eCarePlus هو الأول في السوق السعودي (أكتر من ٨٥٠ منشأة) وعنده فرع في المنصورة. اتفرجنا على الـ ١١٢ فيديو بتوعه كلهم. القاعدة: ناخد البيانات وقواعد الشغل، ونرفض طريقة الاستخدام. ١١٩ من ٢١٧ ملاحظة تصميم عندنا بتستشهد بفيديو من NITCO.</p>
     <div class="two">
       <div class="t-card flush">
         <div class="t-card-head"><h3 data-en="Borrowed: data and rules">أخدنا: البيانات والقواعد</h3></div>
@@ -274,16 +276,16 @@
     <div class="t-card" style="margin-block-start:var(--s-4);padding:0;overflow:hidden">
       <section class="t-banner" style="position:static;margin:0" aria-label="Patient banner sample" data-en-aria-label="Patient banner sample">
         <div class="t-banner-id">
-          <span class="t-avatar">م ع</span>
+          <span class="t-avatar" data-en="MA">م ع</span>
           <div>
-            <div class="t-banner-name">منى عبد الرحمن السيد الشناوي</div>
-            <div class="t-banner-facts"><span><b>34</b> <span data-en="yrs · F">سنة · أنثى</span></span><span><span data-en="File">ملف</span> <b class="t-ltr">1043</b></span><span class="t-ltr">0100 234 5678</span></div>
+            <div class="t-banner-name" data-en="Mona Abdelrahman El-Sayed El-Shennawy">منى عبد الرحمن السيد الشناوي</div>
+            <div class="t-banner-facts"><span><b>34</b> <span data-en="yrs · F">سنة · أنثى</span></span><span><span data-en="File">ملف</span> <b class="t-ltr">1043</b></span><span class="t-ltr">0100 000 0103</span></div>
           </div>
         </div>
         <div class="t-banner-alerts">
-          <span class="t-allergy">⚠ <span data-en="Allergy: Penicillin (severe)">حساسية: بنسلين (شديدة)</span></span>
+          <span class="t-allergy">⚠ <span data-en="Allergy: Penicillin">حساسية: بنسلين</span></span>
           <span class="t-balance debt" data-en="Owes 40 EGP">عليها ٤٠ ج.م</span>
-          <span class="t-balance followup" data-en="Free follow-up until 16 Nov">استشارة مجانية حتى ١٦ نوفمبر</span>
+          <span class="t-balance followup" data-en="Free follow-up until 19 Nov">استشارة مجانية حتى ١٩ نوفمبر</span>
         </div>
       </section>
       <p class="t-muted" style="margin:0;padding:var(--s-3) var(--s-4);font-size:var(--fs-sm)" data-en="Patient banner: pinned on every clinical screen. Allergy is the only solid red in the product.">شريط المريض: ثابت في كل شاشة طبية. الحساسية هي اللون الأحمر المصمت الوحيد في المنتج.</p>
@@ -303,6 +305,7 @@
 
 </div>
 </main>
+<script src="assets/demo-data.js"></script>
 <script src="assets/shell.js"></script>
 <script>
 (function () {
@@ -452,7 +455,7 @@
       ["صلاحيات بالعربي البسيط؛ حد خصم لكل مستخدم", "Plain-Arabic capabilities; per-user discount cap", "M", "settings-users-roles"],
       ["الاشتراك والدفع (فوري، فودافون كاش، إنستاباي)", "Subscription and payment (Fawry, Vodafone Cash, InstaPay)", "M", "subscription-plan"],
       ["تبديل سريع بالـ PIN على جهاز الاستقبال", "PIN quick-switch on the reception PC", "S", ""],
-      ["مبدّل المؤسسة: حساب واحد في كذا مؤسسة", "Org switcher: one login, several organizations", "T", "org-branches"],
+      ["مبدّل المنشأة: حساب واحد في كذا منشأة", "Org switcher: one login, several organizations", "T", "org-branches"],
       ["فروع ومبدّل فرع ومدير فرع؛ أدوار لكل فرع", "Branches, branch switcher, branch manager; roles per branch", "T", "settings-users-roles"] ] },
     { ar: "المريض (patient)", en: "patient", items: [
       ["بحث واحد بالاسم والموبايل والرقم القومي", "One omnibox: name, phone, NID, file no.", "M", "patient-search"],
@@ -499,7 +502,7 @@
       ["صندوق رسائل للاستقبال والحجز منه", "Reception chat inbox, book from chat", "M", "chat-inbox"],
       ["حجز أونلاين ذاتي؛ واتساب في نفس الصندوق", "Online self-booking; WhatsApp in the inbox", "L", ""] ] },
     { ar: "الفروع والمخزون والأجهزة", en: "branches, stock & equipment", items: [
-      ["المؤسسة والفروع وحدود الباقة", "Organization, branches, plan limits", "T", "org-branches"],
+      ["المنشأة والفروع وحدود الباقة", "Organization, branches, plan limits", "T", "org-branches"],
       ["الغرف والكراسي وإشغالها والتعارضات", "Rooms and chairs, occupancy, conflicts", "T", "rooms"],
       ["الطبيب في أكتر من فرع بسعر لكل فرع", "Doctor in several branches, fee per branch", "T", "doctors-branches"],
       ["مخزون العيادة: تشغيلة وانتهاء وصرف في الزيارة", "Clinic stock: batch, expiry, issue in visit", "L", "stock"],
@@ -570,7 +573,6 @@
   /* ---------- Gaps ---------- */
   var GAPS = {
     gapShared: [
-      ["الشريط العلوي أعرض من الموبايل (٣٩٠ بكسل)", "Top bar overflows at 390px phone width"],
       ["تلميح Ctrl K بيغطي خانة البحث في العربي", "Ctrl K hint covers search placeholder in RTL"],
       ["أيقونة البحث مستخبية ورا الخانة", "Search icon hidden behind the input"],
       ["ناقص: شارات ready / warning / free", "Missing chips: ready, warning, free"],
@@ -580,13 +582,11 @@
       ["الرمادي الخفيف على الخلفية تحت ٤٫٥:١", "Muted grey on sunk background below 4.5:1"]
     ],
     gapData: [
-      ["ورديات الخزنة مختلفة بين ٣ شاشات", "Cashier shifts differ across 3 screens"],
-      ["كارت الدور ١٥٠ والتحصيل ١٨٠", "Queue card says 150, checkout says 180"],
-      ["رقم الإشعار الدائن بشكلين", "Credit-note number in two formats"],
-      ["فلاتر الفترة في التقارير مش بتغيّر الأرقام", "Report period filters don't change figures"],
+      ["الروشتات والشهادات والملاحظات الطبية مش في البيانات المشتركة لسه (تبويبات ملف المريض فاضية)", "Prescriptions, certificates and clinical notes are not in the shared data yet (patient-file tabs empty)"],
+      ["الأيام اللي فاتت في لوحة المالك والتقارير أرقام عينة متولّدة", "Past days on the owner dashboard and reports are generated sample figures"],
+      ["المحادثات والباقات ودرجات الأطباء لسه بيانات محلية في شاشاتها", "Chats, packages and doctor degree lines are still page-local sample data"],
       ["الشهادات من غير «إلغاء بسبب»", "Certificates lack cancel-with-reason"],
-      ["مفيش تبويب علامات حيوية في ملف المريض", "No Vitals tab in patient-file timeline"],
-      ["الشات بيخلط الأرقام العربي والإنجليزي", "Chat inbox mixes Arabic and Western digits"]
+      ["ملف المريض لسه مش بيعرض العلامات الحيوية (موجودة في البيانات)", "Patient file does not show vitals yet (they are in the data)"]
     ],
     gapTest: [
       ["بعض الشاشات ما اتفتحتش في متصفح حقيقي", "Some screens never opened in a real browser"],

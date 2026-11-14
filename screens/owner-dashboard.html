@@ -16,6 +16,7 @@
     /* Horizontal meter bars (single hue = magnitude) */
     .od-bars { display: flex; flex-direction: column; gap: var(--s-3); }
     .od-bar-row { display: grid; grid-template-columns: 120px minmax(0,1fr) auto; gap: var(--s-3); align-items: center; font-size: var(--fs-sm); }
+    .od-bar-row > span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .od-track { height: 10px; background: var(--surface-sunk); border: 1px solid var(--line); border-radius: var(--r-pill); overflow: hidden; }
     .od-fill { display: block; height: 100%; background: var(--primary); border-radius: var(--r-pill); }
     .od-fill.soft { background: var(--ink-400); }
@@ -32,23 +33,27 @@
     .od-avg { font-size: var(--fs-xs); color: var(--text-3); }
     .od-reason { font-size: var(--fs-xs); color: var(--text-2); display: block; }
     .od-over { color: var(--success-fg); } .od-short { color: var(--danger-fg); }
+    .od-docs { display: flex; flex-wrap: wrap; gap: 4px; }
     @media (max-width: 640px) {
       .od-bar-row { grid-template-columns: 90px minmax(0,1fr) auto; }
       .od-hide-sm { display: none; }
       .od-trend { height: 130px; gap: 3px; }
     }
   </style>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
-<body data-screen="owner-dashboard">
+<body data-screen="owner-dashboard" data-org-default="nile">
 <main id="screen">
   <div class="t-container">
 
     <header class="t-screen-head">
       <div>
-        <h1 data-en="Today at the clinic">النهارده في العيادة</h1>
-        <p class="t-sub mb-0"><span data-en="Saturday 14 Nov 2026 · updated live">السبت 14 نوفمبر 2026 · بيتحدّث لحظيًا</span> &nbsp;<span class="od-live" data-en="Live">مباشر</span></p>
+        <h1 id="od-title">النهارده في العيادة</h1>
+        <p class="t-sub mb-0"><span id="od-sub"></span> &nbsp;<span class="od-live" data-en="Live">مباشر</span></p>
       </div>
       <div class="t-actions">
+        <span id="od-cmp-btn"></span>
         <div class="t-seg" role="group" aria-label="Period" data-en-aria-label="Period">
           <button type="button" aria-pressed="true" data-en="Today">النهارده</button>
           <button type="button" aria-pressed="false" data-en="Yesterday" data-toast="عرض أمس (نموذج: الأرقام لسه بتاعة النهارده)" data-toast-en="Yesterday (prototype: figures still show today)">أمس</button>
@@ -62,58 +67,35 @@
 
     <div data-state="default">
 
-      <!-- Attention strip: only exceptions -->
-      <div class="t-alert warning mb-4" role="status"
-           data-note="Exceptions first: the owner sees only what needs a decision (cash short, discount above the user's cap, an open shift). Each line links to the record. Inline, never a blocking popup."
-           data-note-ar="الاستثناءات الأول: المالك يشوف بس اللي محتاج قرار (عجز خزنة، خصم فوق الحد، وردية مفتوحة). كل سطر بيفتح السجل. تنبيه داخل الصفحة مش نافذة بتوقف الشغل.">
-        <svg class="t-icon"><use href="#i-alert"/></svg>
-        <div class="t-grow">
-          <b data-en="2 things need a look">حاجتين محتاجين مراجعة</b>
-          <ul class="mb-0" style="margin-block-start:var(--s-1);padding-inline-start:var(--s-5)">
-            <li><span data-en="Morning shift (Sara Ramadan) closed <b>20 EGP short</b>.">وردية الصبح (سارة رمضان) اتقفلت <b>بعجز 20 ج.م</b>.</span> <a href="cash-close.html" data-en="View close">عرض التقفيل</a></li>
-            <li><span data-en="Discount of 25% on invoice <span class='t-ltr'>INV-2611-0418</span> — above Menna's 20% cap (approved by Dr. Ahmed).">خصم 25% على فاتورة <span class="t-ltr">INV-2611-0418</span> — أعلى من حد منة (20%)، بموافقة د. أحمد.</span> <a href="invoice-detail.html" data-en="Open invoice">فتح الفاتورة</a></li>
-          </ul>
+      <!-- Attention strip: only exceptions (rendered from the shared dataset) -->
+      <div id="od-attn" class="mb-4"
+           data-note="Exceptions first: the owner sees only what needs a decision (a discount above the user's cap, money left as debt today, a device out of service, a doctor booked in two branches at once). Each line links to the record. Inline, never a blocking popup."
+           data-note-ar="الاستثناءات الأول: المالك يشوف بس اللي محتاج قرار (خصم فوق حد المستخدم، فلوس اتسابت مديونية النهارده، جهاز عطلان، دكتور متجدول في فرعين في نفس الوقت). كل سطر بيفتح السجل. تنبيه داخل الصفحة مش نافذة بتوقف الشغل."></div>
+
+      <!-- Branch comparison: only under "All branches" (owner) -->
+      <section class="t-card flush mb-4" id="od-compare" hidden
+               data-note="All-branches view (owner, polyclinic plan): one row per branch so the owner compares like with like. Patients have one file per organization, so debt stays org-wide and is not split by branch. Pick a branch in the top bar to drill in."
+               data-note-ar="عرض كل الفروع (للمالك، باقة المجمعات): صف لكل فرع عشان المالك يقارن. ملف المريض واحد على مستوى المنشأة، فالمديونية بتفضل للمنشأة كلها ومش بتتقسم على الفروع. اختار فرع من فوق عشان تدخل على تفاصيله.">
+        <div class="t-card-head"><h2 data-en="Branches today">الفروع النهارده</h2></div>
+        <div class="t-table-wrap" style="border:0;border-radius:0">
+          <table class="t-table">
+            <thead><tr><th data-en="Branch">الفرع</th><th class="num" data-en="Visits done">كشوفات خلصت</th><th class="num od-hide-sm" data-en="In clinic now">موجودين دلوقتي</th><th class="num od-hide-sm" data-en="No-shows">لم يحضر</th><th class="num" data-en="Collected">المحصّل</th><th class="od-hide-sm" data-en="Doctors on shift today">أطباء النهارده</th><th></th></tr></thead>
+            <tbody id="od-cmp-body"></tbody>
+            <tfoot id="od-cmp-foot"></tfoot>
+          </table>
         </div>
-      </div>
+      </section>
 
       <!-- KPI row -->
       <section class="t-grid c4 mb-4" aria-label="Today's figures" data-en-aria-label="Today's figures">
-        <div class="t-card od-kpi">
-          <div class="t-stat">
-            <span class="t-stat-label" data-en="Collected today">المحصّل النهارده</span>
-            <span class="t-stat-value t-num">6,850<small data-en="EGP">ج.م</small></span>
-            <span class="t-delta up" data-en="▲ 12% vs. last Saturday">▲ 12% عن السبت اللي فات</span>
-          </div>
-          <span class="od-kpi-foot" data-en="Excludes 1,200 EGP of free follow-ups (not revenue)">لا يشمل 1,200 ج.م استشارات مجانية (مش إيراد)</span>
-        </div>
-        <div class="t-card od-kpi">
-          <div class="t-stat">
-            <span class="t-stat-label" data-en="Visits">الزيارات</span>
-            <span class="t-stat-value t-num">31<small data-en="done · 4 waiting">انتهت · 4 منتظرين</small></span>
-            <span class="t-delta" style="color:var(--text-3)" data-en="9 new patients · 6 free follow-ups">9 مرضى جدد · 6 استشارات مجانية</span>
-          </div>
-          <a class="od-link" href="reception-queue.html" data-en="See live queue">شوف الدور المباشر</a>
-        </div>
-        <div class="t-card od-kpi"
+        <div class="t-card od-kpi" id="od-k-cash"></div>
+        <div class="t-card od-kpi" id="od-k-visits"></div>
+        <div class="t-card od-kpi" id="od-k-noshow"
              data-note="No-shows counted automatically: a booked appointment not checked in by the end of the doctor's shift becomes a no-show (NITCO v6–8 status lifecycle, reduced to text chips)."
-             data-note-ar="الغياب بيتحسب لوحده: أي حجز ماتسجلش حضوره لحد آخر وردية الطبيب بيتحول «لم يحضر» (من دورة حالات المواعيد في NITCO لكن كحالات مكتوبة).">
-          <div class="t-stat">
-            <span class="t-stat-label" data-en="No-shows">لم يحضر</span>
-            <span class="t-stat-value t-num">3<small data-en="of 22 booked">من 22 حجز</small></span>
-            <span class="t-delta down" data-en="14% · clinic average 9%">14% · متوسط العيادة 9%</span>
-          </div>
-          <a class="od-link" href="appointments-calendar.html" data-en="Open calendar">فتح المواعيد</a>
-        </div>
-        <div class="t-card od-kpi"
-             data-note="Debt and deposits are two separate ledgers: debt = remainder the patient still owes (NITCO v32/89), deposit = money the clinic holds for the patient (wallet, v84/88). Both are liabilities the owner must see daily."
-             data-note-ar="المديونية والرصيد المقدّم دفترين منفصلين: المديونية = الباقي على المريض، والرصيد = فلوس محفوظة للمريض عند العيادة. الاتنين لازم المالك يشوفهم كل يوم.">
-          <div class="t-stat">
-            <span class="t-stat-label" data-en="Owed by patients">مديونية على المرضى</span>
-            <span class="t-stat-value"><span class="t-money debt">3,240<span class="cur" data-en="EGP">ج.م</span></span></span>
-            <span class="t-delta down" data-en="14 patients · +450 today">14 مريض · +450 النهارده</span>
-          </div>
-          <span class="od-kpi-foot"><span data-en="Deposits held:">رصيد مقدّم محفوظ:</span> <span class="t-money deposit">2,100<span class="cur" data-en="EGP">ج.م</span></span> <span data-en="(5 patients)">(5 مرضى)</span></span>
-        </div>
+             data-note-ar="الغياب بيتحسب لوحده: أي حجز ماتسجلش حضوره لحد آخر وردية الطبيب بيتحول «لم يحضر» (من دورة حالات المواعيد في NITCO لكن كحالات مكتوبة)."></div>
+        <div class="t-card od-kpi" id="od-k-debt"
+             data-note="Debt and deposits are two separate ledgers: debt = remainder the patient still owes (NITCO v32/89), deposit = money the clinic holds for the patient (wallet, v84/88). Both are liabilities the owner must see daily. One patient file per organization, so both are org-wide."
+             data-note-ar="المديونية والرصيد المقدّم دفترين منفصلين: المديونية = الباقي على المريض، والرصيد = فلوس محفوظة للمريض عند العيادة. الاتنين لازم المالك يشوفهم كل يوم. ملف المريض واحد للمنشأة، فالاتنين على مستوى المنشأة كلها."></div>
       </section>
 
       <div class="t-split aside-end mb-4">
@@ -123,55 +105,15 @@
             <h2 data-en="Where today's money came from">فلوس النهارده جت منين</h2>
             <div class="t-actions"><a class="t-btn sm ghost" href="reports.html" data-en="Details">التفاصيل</a></div>
           </div>
-          <div class="t-grid c2">
-            <div>
-              <h3 class="t-small t-muted mb-0" style="margin-block-end:var(--s-3)" data-en="By payment method">حسب طريقة الدفع</h3>
-              <div class="od-bars">
-                <div class="od-bar-row"><span data-en="Cash">نقدي</span><span class="od-track"><span class="od-fill" style="width:84%"></span></span><span class="t-money">5,750<span class="cur" data-en="EGP">ج.م</span></span></div>
-                <div class="od-bar-row"><span data-en="InstaPay">إنستاباي</span><span class="od-track"><span class="od-fill" style="width:9%"></span></span><span class="t-money">600<span class="cur" data-en="EGP">ج.م</span></span></div>
-                <div class="od-bar-row"><span data-en="Vodafone Cash">فودافون كاش</span><span class="od-track"><span class="od-fill" style="width:4.5%"></span></span><span class="t-money">300<span class="cur" data-en="EGP">ج.م</span></span></div>
-                <div class="od-bar-row"><span data-en="From deposit">من الرصيد المقدّم</span><span class="od-track"><span class="od-fill" style="width:3%"></span></span><span class="t-money">200<span class="cur" data-en="EGP">ج.م</span></span></div>
-              </div>
-            </div>
-            <div>
-              <h3 class="t-small t-muted mb-0" style="margin-block-end:var(--s-3)" data-en="By doctor">حسب الطبيب</h3>
-              <div class="od-bars">
-                <div class="od-bar-row"><span data-en="Dr. Ahmed Selim">د. أحمد سليم</span><span class="od-track"><span class="od-fill" style="width:63.5%"></span></span><span class="t-money">4,350<span class="cur" data-en="EGP">ج.م</span></span></div>
-                <div class="od-bar-row"><span data-en="Dr. Noha El-Sherbini">د. نهى الشربيني</span><span class="od-track"><span class="od-fill" style="width:36.5%"></span></span><span class="t-money">2,500<span class="cur" data-en="EGP">ج.م</span></span></div>
-              </div>
-              <dl class="t-dl" style="margin-block-start:var(--s-4)">
-                <dt data-en="Dr. Ahmed">د. أحمد</dt><dd data-en="19 visits · 4 free follow-ups · 1 procedure">19 زيارة · 4 استشارات مجانية · 1 إجراء</dd>
-                <dt data-en="Dr. Noha">د. نهى</dt><dd data-en="12 visits · 2 free follow-ups">12 زيارة · 2 استشارة مجانية</dd>
-              </dl>
-            </div>
-          </div>
+          <div class="t-grid c2" id="od-rev"></div>
         </section>
 
         <!-- Shift close -->
         <section class="t-card flush"
-                 data-note="Shift close per cashier with expected vs counted and over/short (NITCO v34/v91 handover report). A closed shift is stamped and locked; only the owner can reopen it."
-                 data-note-ar="تقفيل الوردية لكل كاشير: المتوقع مقابل المعدود والزيادة/العجز (من تقرير الاستلام والتسليم في NITCO). الوردية المقفولة مختومة ومتقفلة، والمالك بس يقدر يفتحها.">
+                 data-note="Cash sessions are per branch: each cashier has one open session in one branch, with expected cash and the over/short at close (NITCO v34/v91 handover report). A closed shift is stamped and locked; only the owner can reopen it."
+                 data-note-ar="الخزنة لكل فرع لوحده: كل كاشير ليه وردية مفتوحة في فرع واحد، بالمتوقع والزيادة/العجز عند التقفيل (من تقرير الاستلام والتسليم في NITCO). الوردية المقفولة مختومة ومتقفلة، والمالك بس يقدر يفتحها.">
           <div class="t-card-head"><h2 data-en="Cash shifts">ورديات الخزنة</h2></div>
-          <div class="t-card-body t-stack">
-            <div class="t-row between">
-              <div>
-                <span class="t-name" data-en="Sara Ramadan · morning">سارة رمضان · صباحي</span>
-                <span class="od-reason" data-en="9:00 – 13:05 · counted 3,100 of 3,120">9:00 – 13:05 · معدود 3,100 من 3,120</span>
-              </div>
-              <div class="t-row tight">
-                <span class="t-stamp" data-en="Closed">مقفولة</span>
-                <span class="t-money od-short">−20<span class="cur" data-en="EGP">ج.م</span></span>
-              </div>
-            </div>
-            <hr class="t-divider" style="margin:0">
-            <div class="t-row between">
-              <div>
-                <span class="t-name" data-en="Menna Khaled · evening">منة خالد · مسائي</span>
-                <span class="od-reason" data-en="Open since 16:00 · cash 2,630 + 200 float">مفتوحة من 16:00 · نقدي 2,630 + عهدة 200</span>
-              </div>
-              <span class="t-chip waiting" data-en="Open">مفتوحة</span>
-            </div>
-          </div>
+          <div class="t-card-body t-stack" id="od-shifts"></div>
           <div class="t-card-foot">
             <a class="t-btn sm" href="cash-close.html"><svg class="t-icon sm"><use href="#i-lock"/></svg><span data-en="Shift closes">تقفيلات الخزنة</span></a>
           </div>
@@ -191,49 +133,28 @@
             </div>
           </div>
           <div id="od-trend" class="od-trend" role="group" aria-label="Daily collected revenue" data-en-aria-label="Daily collected revenue"
-               data-note="7/30-day trend of collected money. Hover or focus a day for the exact figure; Friday is the clinic's day off so it shows as a gap, not a zero that drags the average."
-               data-note-ar="اتجاه التحصيل 7/30 يوم. مرّر أو ركّز على اليوم لتشوف الرقم بالظبط. الجمعة إجازة فبتظهر فراغ مش صفر يبوّظ المتوسط."></div>
+               data-note="7/30-day trend of collected money for the branch in the top bar, or the sum of all branches. Hover or focus a day for the exact figure and, under All branches, the split per branch. A closed day shows as a gap, not a zero that drags the average."
+               data-note-ar="اتجاه التحصيل 7/30 يوم للفرع المختار فوق أو مجموع كل الفروع. مرّر أو ركّز على اليوم لتشوف الرقم بالظبط، وفي «كل الفروع» نصيب كل فرع. يوم الإجازة بيظهر فراغ مش صفر يبوّظ المتوسط."></div>
           <div class="od-axis" id="od-axis"></div>
           <p class="od-avg mb-0" id="od-avg"></p>
           <details class="t-more" style="margin-block-start:var(--s-3)">
             <summary data-en="Show as table">عرض كجدول</summary>
-            <div class="t-table-wrap" style="margin-block-start:var(--s-2)"><table class="t-table"><thead><tr><th data-en="Day">اليوم</th><th class="num" data-en="Collected (EGP)">المحصّل (ج.م)</th></tr></thead><tbody id="od-table"></tbody></table></div>
+            <div class="t-table-wrap" style="margin-block-start:var(--s-2)"><table class="t-table"><thead id="od-table-head"></thead><tbody id="od-table"></tbody></table></div>
           </details>
         </section>
 
         <!-- Anti-leak -->
         <section class="t-card flush"
-                 data-note="Anti-leak list: every discount and credit note today, with who, how much and the mandatory reason (NITCO v50: corrections are credit notes with a reason, never edits). Discount above a user's cap is flagged."
-                 data-note-ar="قائمة منع التسريب: كل خصم ومرتجع النهارده، مين عمله وكام والسبب الإجباري. الخصم الأعلى من حد المستخدم بيتعلّم عليه.">
+                 data-note="Anti-leak list: every discount and credit note of the last 7 days, with who, how much, the branch and the mandatory reason (NITCO v50: corrections are credit notes with a reason, never edits). A discount above the user's cap is flagged."
+                 data-note-ar="قائمة منع التسريب: كل خصم ومرتجع آخر ٧ أيام، مين عمله وكام وفي أنهي فرع والسبب الإجباري. الخصم الأعلى من حد المستخدم بيتعلّم عليه.">
           <div class="t-card-head">
-            <h2 data-en="Discounts & credit notes">الخصومات والمرتجعات</h2>
-            <div class="t-actions"><span class="t-badge">5</span></div>
+            <h2 data-en="Discounts &amp; credit notes · 7 days">الخصومات والمرتجعات · ٧ أيام</h2>
+            <div class="t-actions"><span class="t-badge" id="od-leak-n">0</span></div>
           </div>
           <div class="t-table-wrap" style="border:0;border-radius:0">
             <table class="t-table">
-              <tbody>
-                <tr>
-                  <td><span class="t-chip info plain" data-en="Discount">خصم</span><span class="od-reason" data-en="Menna · Syndicate member 25% · ⚠ above cap">منة · عضو نقابة 25% · ⚠ فوق الحد</span></td>
-                  <td class="num"><span class="t-money">100<span class="cur" data-en="EGP">ج.م</span></span></td>
-                </tr>
-                <tr>
-                  <td><span class="t-chip info plain" data-en="Discount">خصم</span><span class="od-reason" data-en="Sara · Relative of staff">سارة · قريب موظف</span></td>
-                  <td class="num"><span class="t-money">100<span class="cur" data-en="EGP">ج.م</span></span></td>
-                </tr>
-                <tr>
-                  <td><span class="t-chip info plain" data-en="Discount">خصم</span><span class="od-reason" data-en="Sara · Elderly 10%">سارة · كبار السن 10%</span></td>
-                  <td class="num"><span class="t-money">30<span class="cur" data-en="EGP">ج.م</span></span></td>
-                </tr>
-                <tr>
-                  <td><span class="t-chip info plain" data-en="Discount">خصم</span><span class="od-reason" data-en="Dr. Ahmed · Doctor's decision">د. أحمد · قرار الطبيب</span></td>
-                  <td class="num"><span class="t-money">100<span class="cur" data-en="EGP">ج.م</span></span></td>
-                </tr>
-                <tr>
-                  <td><span class="t-chip credit" data-en="Credit note">مرتجع</span><span class="od-reason" data-en="Menna · Lab test not done · <span class='t-ltr'>CN-2611-0007</span>">منة · التحليل ماتعملش · <span class="t-ltr">CN-2611-0007</span></span></td>
-                  <td class="num"><span class="t-money debt">−150<span class="cur" data-en="EGP">ج.م</span></span></td>
-                </tr>
-              </tbody>
-              <tfoot><tr><td data-en="Total given away">إجمالي الخصم والمرتجع</td><td class="num"><span class="t-money">480<span class="cur" data-en="EGP">ج.م</span></span></td></tr></tfoot>
+              <tbody id="od-leak"></tbody>
+              <tfoot id="od-leak-foot"></tfoot>
             </table>
           </div>
           <div class="t-card-foot"><a class="t-btn sm ghost" href="reports.html#discounts" data-en="Discounts report">تقرير الخصومات</a></div>
@@ -244,31 +165,12 @@
       <section class="t-card flush mb-4">
         <div class="t-card-head">
           <h2 data-en="Biggest debts">أكبر المديونيات</h2>
-          <div class="t-actions"><a class="t-btn sm ghost" href="reports.html#debt" data-en="All 14 patients">كل الـ14 مريض</a></div>
+          <div class="t-actions"><a class="t-btn sm ghost" href="reports.html#debt" id="od-debt-all"></a></div>
         </div>
         <div class="t-table-wrap" style="border:0;border-radius:0">
           <table class="t-table">
             <thead><tr><th data-en="Patient">المريض</th><th class="od-hide-sm" data-en="Last visit">آخر زيارة</th><th class="num" data-en="Owes">عليه</th><th></th></tr></thead>
-            <tbody>
-              <tr>
-                <td><span class="t-name">محمود عبد الفتاح السيد الجمال</span><span class="t-meta t-ltr">0106 552 1903</span></td>
-                <td class="od-hide-sm" data-en="2 Nov · Dr. Ahmed">2 نوفمبر · د. أحمد</td>
-                <td class="num"><span class="t-money debt">650<span class="cur" data-en="EGP">ج.م</span></span></td>
-                <td class="actions"><a class="t-btn sm ghost" href="patient-account.html" data-en="Account">الحساب</a></td>
-              </tr>
-              <tr>
-                <td><span class="t-name">هبة سمير عبد الله النجار</span><span class="t-meta t-ltr">0128 004 7715</span></td>
-                <td class="od-hide-sm" data-en="Today · Dr. Noha">النهارده · د. نهى</td>
-                <td class="num"><span class="t-money debt">450<span class="cur" data-en="EGP">ج.م</span></span></td>
-                <td class="actions"><a class="t-btn sm ghost" href="patient-account.html" data-en="Account">الحساب</a></td>
-              </tr>
-              <tr>
-                <td><span class="t-name">رضا إبراهيم محمد الدسوقي</span><span class="t-meta t-ltr">0111 930 2264</span></td>
-                <td class="od-hide-sm" data-en="28 Oct · Dr. Ahmed">28 أكتوبر · د. أحمد</td>
-                <td class="num"><span class="t-money debt">400<span class="cur" data-en="EGP">ج.م</span></span></td>
-                <td class="actions"><a class="t-btn sm ghost" href="patient-account.html" data-en="Account">الحساب</a></td>
-              </tr>
-            </tbody>
+            <tbody id="od-debts"></tbody>
           </table>
         </div>
       </section>
@@ -291,49 +193,251 @@
 
   </div>
 </main>
+<script src="../assets/demo-data.js"></script>
 <script src="../assets/shell.js"></script>
 <script>
 (function () {
-  // Fake data: collected EGP per day, oldest first, ending today (Sat 14 Nov). null = Friday (closed).
-  var days30 = [null,5200,6100,5800,4300,5900,6400,null,5600,6000,6900,4800,5300,6200,null,5700,6600,7100,5100,5500,6300,null,6110,6100,6700,5400,5650,6400,null,6850];
-  var dayNamesAr = ["الأحد","الاتنين","التلات","الأربع","الخميس","الجمعة","السبت"];
-  var dayNamesEn = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-  var range = 7;
-  function lang() { return window.Tamargi ? Tamargi.lang() : "ar"; }
-  function fmt(n) { return n.toLocaleString("en-US"); }
-  function render() {
-    var en = lang() === "en";
-    var data = days30.slice(-range), max = 7500, html = "", rows = "", sum = 0, cnt = 0;
-    var today = new Date(2026, 10, 14);
-    data.forEach(function (v, i) {
-      var d = new Date(today); d.setDate(today.getDate() - (data.length - 1 - i));
-      var label = (en ? dayNamesEn[d.getDay()] : dayNamesAr[d.getDay()]) + " " + d.getDate() + "/" + (d.getMonth() + 1);
-      var tip = v === null ? (en ? "Closed" : "إجازة") : fmt(v) + (en ? " EGP" : " ج.م");
-      html += '<button type="button" class="od-col' + (i === data.length - 1 ? " is-today" : "") + '" aria-label="' + label + ": " + tip + '">' +
-        '<i style="height:' + (v === null ? 0 : (v / max * 100)) + '%"></i><span class="od-tip">' + label + " · <b>" + tip + "</b></span></button>";
-      rows += "<tr><td>" + label + '</td><td class="num">' + (v === null ? "—" : fmt(v)) + "</td></tr>";
-      if (v !== null) { sum += v; cnt++; }
-    });
-    document.getElementById("od-trend").innerHTML = html;
-    document.getElementById("od-table").innerHTML = rows;
-    document.getElementById("od-axis").innerHTML = "<span>" + (en ? range + " days ago" : "من " + range + " يوم") + "</span><span>" + (en ? "Today" : "النهارده") + "</span>";
-    document.getElementById("od-avg").textContent = (en ? "Average on open days: " : "المتوسط في أيام الشغل: ") + fmt(Math.round(sum / cnt)) + (en ? " EGP · total " : " ج.م · الإجمالي ") + fmt(sum) + (en ? " EGP" : " ج.م");
+  /* Everything below is rendered from Tamargi.data, scoped by Tamargi.ctx (org + branch / "all"). */
+  var D = Tamargi.data, C = Tamargi.ctx, F = D.fmt;
+  var MON = { ar: ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"],
+              en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] };
+  var WEEK_FROM = "2026-11-08", range = 7;
+  function $(id) { return document.getElementById(id); }
+  function t(r) { return F.t(r, C.lang); }
+  function tx(a, e) { return C.lang === "en" ? e : a; }
+  function n(x) { return F.num(x, C.lang); }
+  function cur() { return '<span class="cur">' + tx("ج.م", "EGP") + "</span>"; }
+  function money(x, cls) { return '<span class="t-money' + (cls ? " " + cls : "") + '">' + F.money(x) + cur() + "</span>"; }
+  function sum(a, f) { return a.reduce(function (s, x) { return s + f(x); }, 0); }
+  function shortB(id) { var b = D.branch(id); return b ? (C.lang === "en" ? b.shortEn : b.shortAr) : ""; }
+  function brTag(id) { return '<span class="t-branch-tag"><svg class="t-icon"><use href="#i-pin"/></svg>' + shortB(id) + "</span>"; }
+  function spTag(sp) { var s = D.specialties[sp]; return s ? '<span class="t-spec-tag ' + s.cls + '">' + t(s) + "</span>" : ""; }
+  function docShort(id) { var d = D.doctor(id); return d ? (C.lang === "en" ? d.shortEn : d.shortAr) : ""; }
+  function multi() { return D.branchesOf(C.org).length > 1; }
+  function iso(d) { return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
+  function dShort(s) { var p = s.split("-"); return n(+p[2]) + " " + MON[C.lang][+p[1] - 1]; }
+  function rnd(seed) { var h = 7; for (var i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) | 0; return ((h >>> 0) % 1000) / 1000; }
+  function owner() { return D.staff.filter(function (m) { return m.org === C.org && m.grants.some(function (g) { return g.role === "owner"; }); })[0]; }
+  function freeValue(i) { return sum(i.lines.filter(function (l) { return !l.price && D.service(l.service).kind === "followup"; }), function (l) { var s = D.service(l.service); return D.price(s.id, i.doctor, i.branch) || s.base; }); }
+
+  /* figures for one scope (ctx-like object) */
+  function figures(sc) {
+    var inv = D.scoped("invoices", sc, function (i) { return i.date === D.today && i.status !== "void"; });
+    var ap = D.appointmentsOn(sc, D.today);
+    var booked = ap.filter(function (a) { return a.source !== "walkin" && a.status !== "cancelled"; });
+    return {
+      inv: inv, ap: ap,
+      collected: sum(inv, function (i) { return i.paid; }),
+      billed: sum(inv, function (i) { return i.total; }),
+      leftDebt: sum(inv, function (i) { return Math.max(0, i.total - i.paid); }),
+      free: inv.filter(function (i) { return freeValue(i) > 0; }),
+      done: ap.filter(function (a) { return a.status === "done"; }).length,
+      live: ap.filter(D.isLive).length,
+      noshow: ap.filter(function (a) { return a.status === "noshow"; }).length,
+      booked: booked.length
+    };
   }
+  function scopeOf(b) { return { org: C.org, branch: b }; }
+
+  function renderHead() {
+    var o = C.orgRec, di = D.dayIndex(D.today);
+    $("od-title").textContent = !multi() ? tx("النهارده في العيادة", "Today at the clinic") : C.all ? tx("النهارده في كل الفروع", "Today in all branches") : tx("النهارده في فرع ", "Today at ") + shortB(C.branch);
+    $("od-sub").textContent = F.day(di, C.lang) + " " + dShort(D.today) + " " + n(2026) + " · " + t(o) + tx(" · بيتحدّث لحظيًا", " · updated live");
+    var canAll = multi() && (C.role === "all" || C.role === "owner");
+    $("od-cmp-btn").innerHTML = canAll && !C.all ? '<button class="t-btn" type="button" data-scope-branch="all"><svg class="t-icon sm"><use href="#i-chart"/></svg><span>' + tx("قارن الفروع", "Compare branches") + "</span></button>" : "";
+  }
+
+  function leakRows() {
+    var rows = [];
+    D.scoped("invoices", C, function (i) { return i.date >= WEEK_FROM; }).forEach(function (i) {
+      var m = D.member(i.cashier);
+      i.lines.forEach(function (l) {
+        if (!l.discount) return;
+        var pct = Math.round(l.discount / (l.qty * l.price) * 100), cap = m && m.discountCap != null ? m.discountCap : 100;
+        rows.push({ kind: "disc", inv: i, amount: l.discount, pct: pct, above: pct > cap, by: m, cap: cap, line: l });
+      });
+      if (i.creditNote) rows.push({ kind: "credit", inv: i, amount: i.creditNote.amount, by: m, cn: i.creditNote });
+    });
+    return rows.sort(function (a, b) { return a.inv.date < b.inv.date ? 1 : -1; });
+  }
+
+  function renderAttention(f, leaks) {
+    var items = [], own = owner();
+    leaks.filter(function (r) { return r.above; }).forEach(function (r) {
+      items.push(tx("خصم " + n(r.pct) + "٪ على فاتورة <span class='t-ltr'>" + r.inv.no + "</span> — أعلى من حد " + D.memberName(r.by, "ar") + " (" + n(r.cap) + "٪)" + (own ? "، بموافقة " + D.memberName(own, "ar") : "") + (multi() ? " · " + shortB(r.inv.branch) : "") + ".",
+                    "Discount of " + r.pct + "% on invoice <span class='t-ltr'>" + r.inv.no + "</span> — above " + D.memberName(r.by, "en") + "'s " + r.cap + "% cap" + (own ? " (approved by " + D.memberName(own, "en") + ")" : "") + (multi() ? " · " + shortB(r.inv.branch) : "") + ".") +
+        ' <a href="invoice-detail.html">' + tx("فتح الفاتورة", "Open invoice") + "</a>");
+    });
+    if (f.leftDebt) items.push(tx("اتساب <b>" + F.money(f.leftDebt) + " ج.م</b> مديونية النهارده على " + n(f.inv.filter(function (i) { return i.paid < i.total; }).length) + " فاتورة.",
+                                  "<b>" + F.money(f.leftDebt) + " EGP</b> left as debt today on " + f.inv.filter(function (i) { return i.paid < i.total; }).length + " invoice(s).") + ' <a href="reports.html#debt">' + tx("المديونية", "Debt report") + "</a>");
+    D.scoped("equipment", C, function (e) { return e.status === "oos"; }).forEach(function (e) {
+      items.push(tx("جهاز عطلان: " + e.ar + " · " + shortB(e.branch), "Out of service: " + e.en + " · " + shortB(e.branch)) + ' <a href="equipment.html">' + tx("الأجهزة", "Equipment") + "</a>");
+    });
+    D.conflicts(C.org).filter(function (c) { return c.type === "doctor" && (C.all || c.a.branch === C.branch || c.b.branch === C.branch); }).forEach(function (c) {
+      items.push(tx(docShort(c.a.doctor) + " متجدول في فرعين يوم " + F.day(c.a.day, "ar") + " " + F.range(c.from, c.to, "ar") + " (" + shortB(c.a.branch) + " و" + shortB(c.b.branch) + ").",
+                    docShort(c.a.doctor) + " is scheduled in two branches on " + F.day(c.a.day, "en") + " " + F.range(c.from, c.to, "en") + " (" + shortB(c.a.branch) + " and " + shortB(c.b.branch) + ").") + ' <a href="doctors-branches.html">' + tx("الأطباء والفروع", "Doctors & branches") + "</a>");
+    });
+    var low = D.scoped("stock", C, function (s) { return D.stockStatus(s).flags[0] !== "ok"; }).length;
+    if (low) items.push(tx(n(low) + " صنف في المخزن قرب يخلص أو قرب ينتهي أو منتهي.", low + " stock item(s) low, expiring or expired.") + ' <a href="stock.html">' + tx("المخزن", "Stock") + "</a>");
+    $("od-attn").innerHTML = items.length
+      ? '<div class="t-alert warning" role="status"><svg class="t-icon"><use href="#i-alert"/></svg><div class="t-grow"><b>' + tx(n(items.length) + " حاجات محتاجة مراجعة", items.length + " things need a look") + '</b><ul class="mb-0" style="margin-block-start:var(--s-1);padding-inline-start:var(--s-5)">' + items.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul></div></div>"
+      : '<div class="t-alert success" role="status"><svg class="t-icon"><use href="#i-check"/></svg><span>' + tx("مفيش حاجة محتاجاك النهارده.", "Nothing needs you today.") + "</span></div>";
+  }
+
+  function renderCompare() {
+    var box = $("od-compare");
+    box.hidden = !(C.all && multi());
+    if (box.hidden) return;
+    var di = D.dayIndex(D.today), tot = { done: 0, live: 0, noshow: 0, collected: 0 };
+    $("od-cmp-body").innerHTML = D.branchesOf(C.org).map(function (b) {
+      var f = figures(scopeOf(b.id));
+      tot.done += f.done; tot.live += f.live; tot.noshow += f.noshow; tot.collected += f.collected;
+      var seen = {}, docs = D.blocks(C.org).filter(function (k) { return k.branch === b.id && k.day === di; }).filter(function (k) { if (seen[k.doctor + k.sp]) return false; seen[k.doctor + k.sp] = 1; return true; });
+      return "<tr><td>" + brTag(b.id) + '<span class="t-meta">' + t(b.city) + " · " + F.range(b.hours.from, b.hours.to, C.lang) + "</span></td>" +
+        '<td class="num">' + n(f.done) + '</td><td class="num od-hide-sm">' + n(f.live) + '</td><td class="num od-hide-sm">' + n(f.noshow) + "</td>" +
+        '<td class="num">' + money(f.collected) + "</td>" +
+        '<td class="od-hide-sm"><div class="od-docs">' + (docs.length ? docs.map(function (k) { return '<span class="t-small">' + docShort(k.doctor) + "</span> " + spTag(k.sp); }).join(" ") : '<span class="t-muted t-small">' + tx("مفيش", "None") + "</span>") + "</div></td>" +
+        '<td class="actions"><button class="t-btn sm ghost" type="button" data-scope-branch="' + b.id + '">' + tx("افتح", "Open") + "</button></td></tr>";
+    }).join("");
+    $("od-cmp-foot").innerHTML = "<tr><td>" + tx("الإجمالي", "Total") + '</td><td class="num">' + n(tot.done) + '</td><td class="num od-hide-sm">' + n(tot.live) + '</td><td class="num od-hide-sm">' + n(tot.noshow) + '</td><td class="num">' + money(tot.collected) + '</td><td class="od-hide-sm"></td><td></td></tr>';
+  }
+
+  function renderKpis(f) {
+    var pats = D.patients.filter(function (p) { return p.org === C.org; });
+    var owing = pats.filter(function (p) { return p.debt > 0; }), dep = pats.filter(function (p) { return p.deposit > 0; });
+    var freeVal = sum(f.free, freeValue), rate = f.booked ? Math.round(f.noshow / f.booked * 100) : 0;
+    $("od-k-cash").innerHTML = '<div class="t-stat"><span class="t-stat-label">' + tx("المحصّل النهارده", "Collected today") + '</span><span class="t-stat-value t-num">' + F.money(f.collected) + "<small>" + tx("ج.م", "EGP") + "</small></span>" +
+      '<span class="t-delta" style="color:var(--text-3)">' + tx("من " + F.money(f.billed) + " مطلوب", "of " + F.money(f.billed) + " billed") + "</span></div>" +
+      '<span class="od-kpi-foot">' + (freeVal ? tx("لا يشمل " + F.money(freeVal) + " ج.م استشارات مجانية (مش إيراد)", "Excludes " + F.money(freeVal) + " EGP of free follow-ups (not revenue)") : tx("مفيش استشارات مجانية النهارده", "No free follow-ups today")) + "</span>";
+    $("od-k-visits").innerHTML = '<div class="t-stat"><span class="t-stat-label">' + tx("الزيارات", "Visits") + '</span><span class="t-stat-value t-num">' + n(f.done) + "<small>" + tx("انتهت · " + n(f.live) + " موجودين", "done · " + f.live + " in clinic") + "</small></span>" +
+      '<span class="t-delta" style="color:var(--text-3)">' + tx(n(f.ap.filter(function (a) { return a.status === "booked" || a.status === "confirmed"; }).length) + " لسه جايين · " + n(f.free.length) + " استشارة مجانية", f.ap.filter(function (a) { return a.status === "booked" || a.status === "confirmed"; }).length + " still to come · " + f.free.length + " free follow-ups") + "</span></div>" +
+      '<a class="od-link" href="reception-queue.html">' + tx("شوف الدور المباشر", "See live queue") + "</a>";
+    $("od-k-noshow").innerHTML = '<div class="t-stat"><span class="t-stat-label">' + tx("لم يحضر", "No-shows") + '</span><span class="t-stat-value t-num">' + n(f.noshow) + "<small>" + tx("من " + n(f.booked) + " حجز", "of " + f.booked + " booked") + "</small></span>" +
+      '<span class="t-delta' + (rate > 9 ? " down" : "") + '">' + tx(n(rate) + "٪ · المتوسط ٩٪", rate + "% · average 9%") + "</span></div>" +
+      '<a class="od-link" href="appointments-calendar.html">' + tx("فتح المواعيد", "Open calendar") + "</a>";
+    $("od-k-debt").innerHTML = '<div class="t-stat"><span class="t-stat-label">' + tx("مديونية على المرضى", "Owed by patients") + '</span><span class="t-stat-value">' + money(sum(owing, function (p) { return p.debt; }), "debt") + "</span>" +
+      '<span class="t-delta down">' + tx(n(owing.length) + " مريض" + (f.leftDebt ? " · +" + F.money(f.leftDebt) + " النهارده" : ""), owing.length + " patients" + (f.leftDebt ? " · +" + F.money(f.leftDebt) + " today" : "")) + "</span></div>" +
+      '<span class="od-kpi-foot">' + tx("رصيد مقدّم محفوظ:", "Deposits held:") + " " + money(sum(dep, function (p) { return p.deposit; }), "deposit") + " " + tx("(" + n(dep.length) + " مرضى)", "(" + dep.length + " patients)") + (multi() ? " · " + tx("على مستوى المنشأة", "org-wide") : "") + "</span>";
+  }
+
+  function bars(list) {
+    var max = Math.max.apply(null, list.map(function (x) { return x.v; }).concat([1]));
+    if (!list.length) return '<p class="t-small t-muted mb-0">' + tx("لسه مفيش تحصيل.", "Nothing collected yet.") + "</p>";
+    return '<div class="od-bars">' + list.map(function (x) {
+      return '<div class="od-bar-row"><span title="' + x.label.replace(/<[^>]+>/g, "") + '">' + x.label + '</span><span class="od-track"><span class="od-fill" style="width:' + (x.v / max * 100) + '%"></span></span>' + money(x.v) + "</div>";
+    }).join("") + "</div>";
+  }
+  function renderRevenue(f) {
+    var byM = Object.keys(D.payMethods).map(function (k) { return { label: t(D.payMethods[k]), v: sum(f.inv.filter(function (i) { return i.method === k; }), function (i) { return i.paid; }) }; }).filter(function (x) { return x.v; });
+    var docs = {}; f.inv.forEach(function (i) { var k = i.doctor + "|" + i.branch; (docs[k] = docs[k] || { doctor: i.doctor, branch: i.branch, v: 0 }).v += i.paid; });
+    var byD = Object.keys(docs).map(function (k) { return docs[k]; }).sort(function (a, b) { return b.v - a.v; });
+    var dl = byD.map(function (x) {
+      var d = D.doctor(x.doctor), visits = f.ap.filter(function (a) { return a.doctor === x.doctor && a.branch === x.branch && a.status === "done"; }).length;
+      var fr = f.free.filter(function (i) { return i.doctor === x.doctor && i.branch === x.branch; }).length;
+      return "<dt>" + docShort(x.doctor) + (C.all ? " · " + shortB(x.branch) : "") + "</dt><dd>" + spTag(d.sp[0]) + " " + tx(n(visits) + " زيارة" + (fr ? " · " + n(fr) + " استشارة مجانية" : ""), visits + " visits" + (fr ? " · " + fr + " free follow-ups" : "")) + "</dd>";
+    }).join("");
+    var html = '<div><h3 class="t-small t-muted mb-0" style="margin-block-end:var(--s-3)">' + tx("حسب طريقة الدفع", "By payment method") + "</h3>" + bars(byM) + "</div>" +
+      '<div><h3 class="t-small t-muted mb-0" style="margin-block-end:var(--s-3)">' + tx("حسب الطبيب", "By doctor") + "</h3>" +
+      bars(byD.map(function (x) { return { label: docShort(x.doctor) + (C.all ? " · " + shortB(x.branch) : ""), v: x.v }; })) +
+      (dl ? '<dl class="t-dl" style="margin-block-start:var(--s-4)">' + dl + "</dl>" : "") + "</div>";
+    if (C.all && multi()) {
+      html += '<div style="grid-column:1/-1"><h3 class="t-small t-muted mb-0" style="margin-block-end:var(--s-3)">' + tx("حسب الفرع", "By branch") + "</h3>" +
+        bars(D.branchesOf(C.org).map(function (b) { return { label: shortB(b.id), v: sum(f.inv.filter(function (i) { return i.branch === b.id; }), function (i) { return i.paid; }) }; })) + "</div>";
+    }
+    $("od-rev").innerHTML = html;
+  }
+
+  function renderShifts() {
+    var out = [];
+    D.scopeBranches(C).forEach(function (bid) {
+      var b = D.branch(bid), inv = D.scoped("invoices", scopeOf(bid), function (i) { return i.date === D.today; });
+      var ids = []; inv.forEach(function (i) { if (ids.indexOf(i.cashier) === -1) ids.push(i.cashier); });
+      if (!ids.length) D.staff.filter(function (m) { return m.org === C.org && D.rolesIn(m, bid).indexOf("cashier") > -1; }).forEach(function (m) { ids.push(m.id); });
+      ids.forEach(function (id) {
+        var m = D.member(id), mine = inv.filter(function (i) { return i.cashier === id; });
+        var cash = sum(mine.filter(function (i) { return i.method === "cash"; }), function (i) { return i.paid; }), other = sum(mine.filter(function (i) { return i.method !== "cash"; }), function (i) { return i.paid; });
+        out.push('<div class="t-row between"><div><span class="t-name">' + (m ? D.memberName(m, C.lang) : "—") + "</span>" +
+          '<span class="od-reason">' + (multi() ? brTag(bid) + " " : "") + tx("مفتوحة من " + F.hour(b.hours.from, "ar") + " · " + n(mine.length) + " إيصال · نقدي " + F.money(cash) + (other ? " + طرق تانية " + F.money(other) : ""),
+            "Open since " + F.hour(b.hours.from, "en") + " · " + mine.length + " receipts · cash " + F.money(cash) + (other ? " + other " + F.money(other) : "")) + "</span></div>" +
+          '<span class="t-chip waiting">' + tx("مفتوحة", "Open") + "</span></div>");
+      });
+    });
+    $("od-shifts").innerHTML = out.join('<hr class="t-divider" style="margin:0">') || '<p class="t-small t-muted mb-0">' + tx("مفيش ورديات مفتوحة.", "No open shifts.") + "</p>";
+  }
+
+  function series(bid, len, todayVal) {
+    var b = D.branch(bid), out = [], base = Math.max(900, todayVal || 0);
+    for (var i = len - 1; i >= 0; i--) {
+      var d = new Date(2026, 10, 14 - i), di = (d.getDay() + 1) % 7;
+      if (b.closedDays.indexOf(di) > -1) { out.push({ d: d, v: null }); continue; }
+      out.push({ d: d, v: i === 0 ? todayVal : Math.round(base * (0.7 + 0.5 * rnd(bid + iso(d))) / 10) * 10 });
+    }
+    return out;
+  }
+  function renderTrend() {
+    var brs = D.scopeBranches(C), per = {};
+    brs.forEach(function (bid) { per[bid] = series(bid, 30, figures(scopeOf(bid)).collected).slice(-range); });
+    var days = per[brs[0]].map(function (x, i) {
+      var parts = brs.map(function (bid) { return { b: bid, v: per[bid][i].v }; }), open = parts.filter(function (p) { return p.v !== null; });
+      return { d: x.d, v: open.length ? sum(open, function (p) { return p.v; }) : null, parts: parts };
+    });
+    var max = Math.max.apply(null, days.map(function (x) { return x.v || 0; }).concat([1])) * 1.1, html = "", rows = "", s = 0, c = 0, showParts = brs.length > 1;
+    days.forEach(function (x, i) {
+      var label = F.day((x.d.getDay() + 1) % 7, C.lang) + " " + n(x.d.getDate()) + "/" + n(x.d.getMonth() + 1);
+      var tip = x.v === null ? tx("إجازة", "Closed") : F.money(x.v) + " " + tx("ج.م", "EGP");
+      var split = showParts && x.v !== null ? " · " + x.parts.map(function (p) { return shortB(p.b) + " " + (p.v === null ? "—" : F.money(p.v)); }).join(" · ") : "";
+      html += '<button type="button" class="od-col' + (i === days.length - 1 ? " is-today" : "") + '" aria-label="' + label + ": " + tip + split + '"><i style="height:' + (x.v === null ? 0 : x.v / max * 100) + '%"></i><span class="od-tip">' + label + " · <b>" + tip + "</b>" + split + "</span></button>";
+      rows += "<tr><td>" + label + "</td>" + (showParts ? x.parts.map(function (p) { return '<td class="num">' + (p.v === null ? "—" : F.money(p.v)) + "</td>"; }).join("") : "") + '<td class="num">' + (x.v === null ? "—" : F.money(x.v)) + "</td></tr>";
+      if (x.v !== null) { s += x.v; c++; }
+    });
+    $("od-trend").innerHTML = html;
+    $("od-table-head").innerHTML = "<tr><th>" + tx("اليوم", "Day") + "</th>" + (showParts ? brs.map(function (b) { return '<th class="num">' + shortB(b) + "</th>"; }).join("") : "") + '<th class="num">' + tx("المحصّل (ج.م)", "Collected (EGP)") + "</th></tr>";
+    $("od-table").innerHTML = rows;
+    $("od-axis").innerHTML = "<span>" + tx("من " + n(range) + " يوم", range + " days ago") + "</span><span>" + tx("النهارده", "Today") + "</span>";
+    $("od-avg").textContent = tx("المتوسط في أيام الشغل: ", "Average on open days: ") + F.money(Math.round(s / (c || 1))) + tx(" ج.م · الإجمالي ", " EGP · total ") + F.money(s) + tx(" ج.م", " EGP") + tx(" (الأيام اللي فاتت أرقام تجريبية)", " (past days are sample figures)");
+  }
+
+  function renderLeaks(leaks) {
+    $("od-leak-n").textContent = n(leaks.length);
+    $("od-leak").innerHTML = leaks.length ? leaks.map(function (r) {
+      var who = r.by ? D.memberName(r.by, C.lang) : "—", br = multi() ? " · " + shortB(r.inv.branch) : "";
+      if (r.kind === "credit") return '<tr><td><span class="t-chip credit">' + tx("مرتجع", "Credit note") + '</span><span class="od-reason">' + who + " · " + t(r.cn.reason) + ' · <span class="t-ltr">' + r.cn.no + "</span>" + br + "</span></td>" + '<td class="num">' + money(-r.amount, "debt") + "</td></tr>";
+      return '<tr><td><span class="t-chip info plain">' + tx("خصم", "Discount") + '</span><span class="od-reason">' + who + " · " + (r.inv.note ? t(r.inv.note) : t(r.line)) + " " + n(r.pct) + tx("٪", "%") + (r.above ? tx(" · ⚠ فوق الحد", " · ⚠ above cap") : "") + br + "</span></td>" + '<td class="num">' + money(r.amount) + "</td></tr>";
+    }).join("") : '<tr class="is-muted"><td colspan="2">' + tx("مفيش خصومات ولا مرتجعات في آخر ٧ أيام.", "No discounts or credit notes in the last 7 days.") + "</td></tr>";
+    $("od-leak-foot").innerHTML = leaks.length ? "<tr><td>" + tx("إجمالي الخصم والمرتجع", "Total given away") + '</td><td class="num">' + money(sum(leaks, function (r) { return r.amount; })) + "</td></tr>" : "";
+  }
+
+  function renderDebts() {
+    var owing = D.patients.filter(function (p) { return p.org === C.org && p.debt > 0; }).sort(function (a, b) { return b.debt - a.debt; });
+    $("od-debt-all").textContent = tx("كل الـ" + n(owing.length) + " مريض", "All " + owing.length + " patients");
+    $("od-debts").innerHTML = owing.slice(0, 3).map(function (p) {
+      var last = D.patientAppointments(p.id).filter(function (a) { return a.date <= D.today && a.status !== "cancelled" && a.status !== "noshow"; })[0];
+      var lastTxt = last ? (last.date === D.today ? tx("النهارده", "Today") : dShort(last.date)) + " · " + docShort(last.doctor) + (multi() ? " " + brTag(last.branch) : "") : "—";
+      return '<tr><td><span class="t-name">' + t(p) + '</span><span class="t-meta t-ltr">' + p.phone + "</span></td>" +
+        '<td class="od-hide-sm">' + lastTxt + '</td><td class="num">' + money(p.debt, "debt") + '</td><td class="actions"><a class="t-btn sm ghost" href="patient-account.html">' + tx("الحساب", "Account") + "</a></td></tr>";
+    }).join("") || '<tr class="is-muted"><td colspan="4">' + tx("مفيش مديونيات.", "No debts.") + "</td></tr>";
+  }
+
+  function render() {
+    var f = figures(C), leaks = leakRows();
+    renderHead(); renderAttention(f, leaks); renderCompare(); renderKpis(f); renderRevenue(f); renderShifts(); renderTrend(); renderLeaks(leaks); renderDebts();
+  }
+
   document.addEventListener("click", function (e) {
     var b = e.target.closest("[data-range]");
     if (b) {
       range = +b.getAttribute("data-range");
       b.parentNode.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
-      render(); return;
+      renderTrend(); return;
     }
     var p = e.target.closest(".t-screen-head .t-seg button");
     if (p) p.parentNode.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === p)); });
-    if (e.target.closest("[data-shell-lang]")) setTimeout(render, 0);
   });
   document.addEventListener("keydown", function (e) {
     var typing = /^(INPUT|TEXTAREA|SELECT)$/.test((e.target || {}).tagName || "");
     if (!typing && !e.ctrlKey && !e.metaKey && !e.altKey && (e.key === "r" || e.key === "R")) location.href = "reports.html";
   });
+  Tamargi.onCtx(render);
   render();
 })();
 </script>

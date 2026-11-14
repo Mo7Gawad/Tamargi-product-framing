@@ -35,9 +35,17 @@
     .ob-days { font-size: var(--fs-4xl); font-weight: var(--fw-b); line-height: 1; font-variant-numeric: tabular-nums; }
     .ob-loaded li { display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); padding-block: 4px; }
     .ob-loaded .t-icon { color: var(--success-fg); }
+    .ob-kind { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-3); }
+    .ob-kind .t-pick { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; height: auto; padding: var(--s-3) var(--s-4); text-align: start; white-space: normal; }
+    .ob-kind .t-pick small { font-size: var(--fs-xs); color: var(--text-3); font-weight: var(--fw-r); }
+    .ob-br { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 140px) auto; gap: var(--s-2); align-items: center; }
+    .ob-br + .ob-br { margin-block-start: var(--s-2); }
+    @media (max-width: 640px) { .ob-kind { grid-template-columns: 1fr; } .ob-br { grid-template-columns: minmax(0, 1fr) auto; } .ob-br .ob-br-city { grid-column: 1 / -1; grid-row: 2; } }
   </style>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
-<body data-screen="onboarding-wizard" data-shell="bare">
+<body data-screen="onboarding-wizard" data-shell="bare" data-org-default="selim">
 <main id="screen">
   <div class="t-container">
 
@@ -67,7 +75,7 @@
             <div class="t-field" data-note="Sign-up is one field: the Egyptian mobile (11 digits, starts with 010/011/012/015). The OTP proves the number. No email, no password, no 40-field doctor form (NITCO v1/v97 needs 17 steps across 2 apps to create one doctor)."
                  data-note-ar="التسجيل خانة واحدة: موبايل مصري ١١ رقم يبدأ بـ 010/011/012/015، والكود بيأكد الرقم. من غير إيميل ولا باسورد ولا فورم ٤٠ خانة (NITCO بيحتاج ١٧ خطوة في برنامجين عشان يعمل دكتور واحد).">
               <label class="t-label" for="ob-mobile"><span data-en="Mobile number">رقم الموبايل</span><span class="req">*</span></label>
-              <input id="ob-mobile" class="t-input ltr" inputmode="tel" autocomplete="tel" maxlength="11" value="01001234567" placeholder="01xxxxxxxxx" aria-describedby="ob-mobile-hint">
+              <input id="ob-mobile" class="t-input ltr" inputmode="tel" autocomplete="tel" maxlength="11" value="" placeholder="01xxxxxxxxx" aria-describedby="ob-mobile-hint">
               <span id="ob-mobile-hint" class="t-hint" data-en="We send a 6-digit code by SMS. 11 digits, starts with 010, 011, 012 or 015.">هنبعتلك كود من ٦ أرقام في رسالة. ١١ رقم يبدأ بـ 010 أو 011 أو 012 أو 015.</span>
             </div>
             <button class="t-btn primary lg block" type="button" id="ob-send"><span data-en="Send code">ابعت الكود</span><span class="t-kbd">Enter</span></button>
@@ -76,7 +84,7 @@
 
           <!-- Step B: OTP -->
           <div id="ob-b" class="t-stack lg" hidden>
-            <p class="mb-0"><span data-en="Enter the code we sent to">اكتب الكود اللي وصلك على</span> <b class="t-ltr">0100 123 4567</b> · <button type="button" class="t-btn sm ghost" id="ob-change" data-en="Change number">غيّر الرقم</button></p>
+            <p class="mb-0"><span data-en="Enter the code we sent to">اكتب الكود اللي وصلك على</span> <b class="t-ltr" id="ob-mob-show"></b> · <button type="button" class="t-btn sm ghost" id="ob-change" data-en="Change number">غيّر الرقم</button></p>
             <div class="ob-otp" role="group" aria-label="6-digit code" data-en-aria-label="6-digit code">
               <input class="t-input" inputmode="numeric" maxlength="1" value="4" aria-label="1">
               <input class="t-input" inputmode="numeric" maxlength="1" value="8" aria-label="2">
@@ -96,11 +104,27 @@
             <div class="t-form-grid">
               <div class="t-field span-2">
                 <label class="t-label" for="ob-doc"><span data-en="Your name as on the prescription">اسمك زي ما هيتكتب على الروشتة</span><span class="req">*</span></label>
-                <input id="ob-doc" class="t-input" value="د. أحمد سليم عبد الحميد">
+                <input id="ob-doc" class="t-input" value="">
               </div>
               <div class="t-field span-2">
                 <label class="t-label" for="ob-clinic"><span data-en="Clinic name">اسم العيادة</span><span class="req">*</span></label>
-                <input id="ob-clinic" class="t-input" value="عيادة د. أحمد سليم">
+                <input id="ob-clinic" class="t-input" value="">
+              </div>
+              <div class="t-field span-2" data-note="The one tenancy question at sign-up: one clinic or several branches. A solo clinic is simply an organization with one branch, so nothing changes later if it opens a second one; the multi-branch path only adds the branch list (name, city) and points to the polyclinic plan. Rooms, shifts and specialties per branch come in the checklist, not here."
+                   data-note-ar="سؤال التعدد الوحيد في التسجيل: عيادة واحدة ولا فروع. العيادة الفردية هي منشأة بفرع واحد، فمفيش حاجة بتتغير لو فتحت فرع تاني بعدين؛ مسار الفروع بيضيف بس قايمة الفروع (الاسم والمدينة) ويشاور على باقة المجمعات. الغرف والورديات والتخصصات لكل فرع في قايمة التجهيز مش هنا.">
+                <span class="t-label" data-en="How is your practice set up?">شغلك عامل إزاي؟</span>
+                <div class="ob-kind" role="group" id="ob-kind">
+                  <button type="button" class="t-pick" data-kind="solo"><b data-en="One clinic">عيادة واحدة</b><small data-en="One place, 1–3 doctors">مكان واحد، ١–٣ أطباء</small></button>
+                  <button type="button" class="t-pick" data-kind="multi"><b data-en="Medical centre or branches">مركز طبي أو فروع</b><small data-en="Several doctors, specialties or addresses">أطباء وتخصصات أو عناوين كتير</small></button>
+                </div>
+              </div>
+              <div class="t-field span-2" id="ob-branches" hidden>
+                <span class="t-label" data-en="Branches">الفروع</span>
+                <div id="ob-br-list"></div>
+                <div class="t-row tight" style="margin-block-start:var(--s-2)">
+                  <button type="button" class="t-btn sm" id="ob-br-add"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="Add branch">ضيف فرع</span></button>
+                  <span class="t-hint" id="ob-br-hint"></span>
+                </div>
               </div>
               <div class="t-field">
                 <label class="t-label" for="ob-city"><span data-en="City">المدينة</span><span class="req">*</span></label>
@@ -113,32 +137,32 @@
                 </select>
               </div>
               <div class="t-field">
-                <span class="t-label" data-en="Doctors in the clinic">عدد الأطباء</span>
-                <div class="t-seg" role="group">
-                  <button type="button" aria-pressed="true" data-en="Just me">أنا بس</button>
-                  <button type="button" aria-pressed="false" data-en="2 doctors">دكتورين</button>
-                  <button type="button" aria-pressed="false" data-en="3+">٣ أو أكتر</button>
+                <span class="t-label" data-en="Doctors">عدد الأطباء</span>
+                <div class="t-seg" role="group" id="ob-ndoc">
+                  <button type="button" aria-pressed="true" data-n="1" data-en="Just me">أنا بس</button>
+                  <button type="button" aria-pressed="false" data-n="2" data-en="2 doctors">دكتورين</button>
+                  <button type="button" aria-pressed="false" data-n="3" data-en="3+">٣ أو أكتر</button>
                 </div>
               </div>
             </div>
             <div class="t-field" data-note="Specialty is the one choice that does real work: it pre-loads the specialty pack (visit templates, Rx favourites, text shortcuts, common services with typical Mansoura prices). The doctor starts with a useful system, not an empty one."
                  data-note-ar="التخصص هو الاختيار اللي بيعمل شغل حقيقي: بيحمّل باقة التخصص (قوالب الكشف، الروشتات المفضلة، الاختصارات، الخدمات بأسعار المنصورة المعتادة). الدكتور يبدأ بسيستم جاهز مش فاضي.">
-              <span class="t-label"><span data-en="Specialty">التخصص</span><span class="req">*</span></span>
+              <span class="t-label"><span id="ob-spec-l">التخصص</span><span class="req">*</span></span>
               <div class="ob-specs" id="ob-specs" role="group">
                 <button type="button" class="t-pick is-on" data-spec="im" data-en="Internal medicine">باطنة</button>
-                <button type="button" class="t-pick" data-spec="ped" data-en="Paediatrics">أطفال</button>
-                <button type="button" class="t-pick" data-spec="obg" data-en="OB/GYN">نسا وتوليد</button>
-                <button type="button" class="t-pick" data-spec="derm" data-en="Dermatology">جلدية</button>
+                <button type="button" class="t-pick" data-spec="peds" data-en="Paediatrics">أطفال</button>
+                <button type="button" class="t-pick" data-spec="gyn" data-en="OB/GYN">نسا وتوليد</button>
+                <button type="button" class="t-pick" data-spec="derma" data-en="Dermatology">جلدية</button>
                 <button type="button" class="t-pick" data-spec="ent" data-en="ENT">أنف وأذن</button>
                 <button type="button" class="t-pick" data-spec="ortho" data-en="Orthopaedics">عظام</button>
                 <button type="button" class="t-pick" data-spec="dent" data-en="Dentistry">أسنان</button>
                 <button type="button" class="t-pick" data-spec="oph" data-en="Ophthalmology">رمد</button>
                 <button type="button" class="t-pick" data-spec="other" data-en="Other">تخصص تاني</button>
               </div>
-              <span class="t-hint" id="ob-spec-hint" data-en="Loads 14 visit templates, 38 Rx favourites, 22 shortcuts and 9 services. You can edit or delete any of them.">هيتحمّل ١٤ قالب كشف، ٣٨ روشتة مفضلة، ٢٢ اختصار و٩ خدمات. تقدر تعدّل أو تمسح أي حاجة.</span>
+              <span class="t-hint" id="ob-spec-hint"></span>
             </div>
             <label class="t-check"><input type="checkbox" checked> <span data-en="I agree to the terms and the patient-data privacy policy">موافق على الشروط وسياسة خصوصية بيانات المرضى</span></label>
-            <button class="t-btn primary lg block" type="button" id="ob-create"><span data-en="Create clinic and start trial">اعمل العيادة وابدأ التجربة</span><span class="t-kbd">Enter</span></button>
+            <button class="t-btn primary lg block" type="button" id="ob-create"><span id="ob-create-l">اعمل العيادة وابدأ التجربة</span><span class="t-kbd">Enter</span></button>
           </div>
         </section>
       </div>
@@ -150,7 +174,7 @@
         <header class="t-screen-head">
           <div>
             <h1 data-en="Get your clinic ready">جهّز عيادتك</h1>
-            <p class="t-sub mb-0" data-en="5 short steps. Nothing here blocks you: you can add patients to the queue right now.">٥ خطوات قصيرة. ولا حاجة فيهم بتوقفك: تقدر تضيف مرضى للدور من دلوقتي.</p>
+            <p class="t-sub mb-0" id="ob-cl-sub"></p>
           </div>
           <div class="t-actions">
             <a class="t-btn" href="reception-queue.html"><svg class="t-icon sm"><use href="#i-queue"/></svg><span data-en="Open the live queue">افتح الدور</span></a>
@@ -163,7 +187,7 @@
             <div class="t-card mb-4" data-note="Readiness checklist instead of hidden prerequisites. NITCO hides a policy until it has a class, an insurer until it has visit days, a service until 'active' is ticked (v11, 13, 99, 107). Here every step says what it unlocks and can be skipped."
                  data-note-ar="قائمة جاهزية بدل الشروط المخفية. في NITCO العقد مش بيظهر غير لما يبقى له فئة، والخدمة مش بتشتغل غير لما تعلّم 'مفعّل'. هنا كل خطوة بتقول بتفتح إيه، وممكن تتأجل.">
               <div class="t-row between mb-2">
-                <h2 id="ob-list-h" style="font-size:var(--fs-lg)"><span id="ob-count">3</span> <span data-en="of 5 done">من ٥ خلصوا</span></h2>
+                <h2 id="ob-list-h" style="font-size:var(--fs-lg)"><span id="ob-count">3</span> <span id="ob-of"></span></h2>
                 <span class="t-small t-muted" data-en="Saved as you go">بيتحفظ أول بأول</span>
               </div>
               <div class="ob-progress" role="progressbar" aria-valuemin="0" aria-valuemax="5" aria-valuenow="3" id="ob-bar"><i style="width:60%"></i></div>
@@ -173,7 +197,7 @@
             <details class="ob-task is-done" data-task>
               <summary>
                 <span class="ob-num"><svg class="t-icon sm"><use href="#i-check"/></svg></span>
-                <span><h3 data-en="Working days and hours">أيام ومواعيد الشغل</h3><span class="ob-sum" data-en="Sat–Thu, 5:00–11:00 pm · 15-min slots · Friday off">السبت–الخميس، ٥ م–١١ م · كل كشف ١٥ دقيقة · الجمعة إجازة</span></span>
+                <span><h3 data-en="Working days and hours">أيام ومواعيد الشغل</h3><span class="ob-sum" id="ob-sum-hours"></span></span>
                 <span class="t-chip paid" data-en="Done">تم</span>
               </summary>
               <div class="ob-task-body">
@@ -186,12 +210,31 @@
             <details class="ob-task is-done" data-task>
               <summary>
                 <span class="ob-num"><svg class="t-icon sm"><use href="#i-check"/></svg></span>
-                <span><h3 data-en="Fees and free follow-up">سعر الكشف والاستشارة المجانية</h3><span class="ob-sum" data-en="Consult 300 EGP · follow-up free within 14 days (1 time), then 150 EGP">كشف ٣٠٠ ج.م · استشارة مجانية خلال ١٤ يوم (مرة واحدة)، وبعدها ١٥٠ ج.م</span></span>
+                <span><h3 data-en="Fees and free follow-up">سعر الكشف والاستشارة المجانية</h3><span class="ob-sum" id="ob-sum-fees"></span></span>
                 <span class="t-chip paid" data-en="Done">تم</span>
               </summary>
               <div class="ob-task-body">
                 <p class="t-small t-muted" data-en="The cashier screen fills these in by itself, and a returning patient inside the window is priced as a free follow-up automatically (NITCO v13/v62 'visit days').">شاشة الخزنة بتحطهم لوحدها، والمريض اللي راجع جوه المدة بيتحسب استشارة مجانية تلقائيًا.</p>
                 <a class="t-btn sm" href="services-prices.html"><span data-en="All services and prices">كل الخدمات والأسعار</span><svg class="t-icon sm flip"><use href="#i-chevron"/></svg></a>
+              </div>
+            </details>
+
+            <!-- Branches, rooms, doctors (multi-branch orgs only) -->
+            <details class="ob-task is-done" data-task id="ob-tb" hidden
+                     data-note="Multi-branch only: rooms per branch (type, never specialty) and each doctor's shifts per branch and room, with the specialty belonging to the doctor. Room double-booking and a doctor in two branches at once are caught here, before the calendar opens."
+                     data-note-ar="للفروع بس: الغرف لكل فرع (النوع مش التخصص) وورديات كل دكتور في كل فرع وغرفة، والتخصص تبع الدكتور. الغرفة المحجوزة مرتين والدكتور اللي في فرعين في نفس الوقت بيتمسكوا هنا قبل ما المواعيد تفتح.">
+              <summary>
+                <span class="ob-num"><svg class="t-icon sm"><use href="#i-check"/></svg></span>
+                <span><h3 data-en="Branches, rooms and doctors">الفروع والغرف والأطباء</h3><span class="ob-sum" id="ob-sum-br"></span></span>
+                <span class="t-chip paid" data-en="Done">تم</span>
+              </summary>
+              <div class="ob-task-body t-stack">
+                <div id="ob-br-detail"></div>
+                <div class="t-row tight">
+                  <a class="t-btn sm" href="org-branches.html"><span data-en="Branches">الفروع</span><svg class="t-icon sm flip"><use href="#i-chevron"/></svg></a>
+                  <a class="t-btn sm" href="rooms.html"><span data-en="Rooms">الغرف</span><svg class="t-icon sm flip"><use href="#i-chevron"/></svg></a>
+                  <a class="t-btn sm" href="doctors-branches.html"><span data-en="Doctors &amp; branches">الأطباء والفروع</span><svg class="t-icon sm flip"><use href="#i-chevron"/></svg></a>
+                </div>
               </div>
             </details>
 
@@ -214,16 +257,16 @@
                   </div>
                   <div class="t-field">
                     <label class="t-label" for="ob-title" data-en="Title under your name">اللقب تحت اسمك</label>
-                    <input id="ob-title" class="t-input" value="استشاري الباطنة والجهاز الهضمي">
+                    <input id="ob-title" class="t-input" value="">
                   </div>
                   <div class="t-field">
                     <label class="t-label" for="ob-synd" data-en="Syndicate no.">رقم القيد بالنقابة</label>
-                    <input id="ob-synd" class="t-input ltr" inputmode="numeric" value="148277">
+                    <input id="ob-synd" class="t-input ltr" value="">
                   </div>
                 </div>
                 <div class="ob-mini-lh" aria-label="Preview" data-en-aria-label="Preview">
-                  <span class="lh-mark">أ</span>
-                  <span><b id="ob-lh-name">د. أحمد سليم عبد الحميد</b><span class="t-small t-muted" id="ob-lh-title">استشاري الباطنة والجهاز الهضمي</span></span>
+                  <span class="lh-mark" id="ob-lh-mark"></span>
+                  <span><b id="ob-lh-name"></b><span class="t-small t-muted" id="ob-lh-title"></span><span class="t-small t-muted" id="ob-lh-addr" style="display:block"></span></span>
                   <a class="t-end t-small" href="settings-letterhead.html" data-en="Full letterhead editor">محرر الترويسة الكامل</a>
                 </div>
                 <div class="t-row">
@@ -237,18 +280,18 @@
             <details class="ob-task" data-task id="ob-t4">
               <summary>
                 <span class="ob-num">4</span>
-                <span><h3 data-en="Invite your assistant">ضيف المساعدة</h3><span class="ob-sum" data-en="She gets her own login, the queue as her home, and only the actions you allow">ليها حساب لوحدها، والدور هو صفحتها الرئيسية، وبس الصلاحيات اللي تسمح بيها</span></span>
+                <span><h3 id="ob-inv-h">ضيف المساعدة</h3><span class="ob-sum" data-en="Own login, the queue as home, and only the actions and branches you allow">حساب لوحدها، والدور هو صفحتها الرئيسية، وبس الصلاحيات والفروع اللي تسمح بيها</span></span>
                 <span class="t-chip booked" data-en="To do">لسه</span>
               </summary>
               <div class="ob-task-body t-stack">
                 <div class="t-form-grid">
                   <div class="t-field">
                     <label class="t-label" for="ob-inv-name" data-en="Name">الاسم</label>
-                    <input id="ob-inv-name" class="t-input" value="سارة رمضان علي">
+                    <input id="ob-inv-name" class="t-input" value="">
                   </div>
                   <div class="t-field">
                     <label class="t-label" for="ob-inv-mob" data-en="Mobile">الموبايل</label>
-                    <input id="ob-inv-mob" class="t-input ltr" inputmode="tel" value="01112345678">
+                    <input id="ob-inv-mob" class="t-input ltr" inputmode="tel" value="">
                   </div>
                   <div class="t-field span-2">
                     <span class="t-label" data-en="What she does">بتعمل إيه</span>
@@ -257,13 +300,18 @@
                       <button type="button" class="t-pick is-on" data-en="Cashier">خزنة</button>
                       <button type="button" class="t-pick" data-en="Nurse">تمريض</button>
                     </div>
-                    <span class="t-hint" data-en="Max discount she can give alone: 20%. Change it any time in Users & roles.">أقصى خصم تقدر تديه لوحدها: ٢٠٪. تقدر تغيّره في المستخدمين والصلاحيات.</span>
+                    <span class="t-hint" id="ob-inv-cap"></span>
+                  </div>
+                  <div class="t-field span-2" id="ob-inv-brs-f" hidden>
+                    <span class="t-label" data-en="Works in">بتشتغل في</span>
+                    <div class="t-row tight" id="ob-inv-brs"></div>
+                    <span class="t-hint" data-en="Her role applies only in the branches you tick; she sees one branch at a time.">الصلاحية بتسري بس في الفروع اللي تعلّم عليها؛ وبتشوف فرع واحد في المرة.</span>
                   </div>
                 </div>
                 <div class="t-row">
                   <button class="t-btn primary" type="button" data-done="4"><svg class="t-icon sm flip"><use href="#i-send"/></svg><span data-en="Send invite by SMS">ابعت الدعوة في رسالة</span></button>
                   <button class="t-btn" type="button" data-toast="اتنسخ لينك الدعوة" data-toast-en="Invite link copied"><svg class="t-icon sm"><use href="#i-copy"/></svg><span data-en="Copy link">انسخ اللينك</span></button>
-                  <button class="t-btn ghost" type="button" data-skip="4" data-en="Skip — I work alone">أجّلها — أنا لوحدي</button>
+                  <button class="t-btn ghost" type="button" data-skip="4" data-en="Skip for later">أجّلها</button>
                 </div>
               </div>
             </details>
@@ -296,13 +344,13 @@
                 <span class="t-chip waiting" data-en="Ends 26 Nov">تنتهي ٢٦ نوفمبر</span>
               </div>
               <hr>
-              <p class="t-small mb-2" data-en="After the trial: your data stays. The clinic turns read-only until you pick a plan from 199 EGP/month.">بعد التجربة: بياناتك فاضلة. العيادة تبقى للقراءة بس لحد ما تختار باقة تبدأ من ١٩٩ ج.م في الشهر.</p>
+              <p class="t-small mb-2" id="ob-trial-p"></p>
               <a href="subscription-plan.html" class="t-small" data-en="See plans">شوف الباقات</a>
             </div>
 
             <div class="t-card" data-note="What the specialty already loaded. Shown so the doctor trusts the defaults and knows where to change them (no NITCO-style support-loaded setup)."
                  data-note-ar="اللي اتحمّل بالفعل من التخصص، عشان الدكتور يثق في الإعدادات الجاهزة ويعرف يغيّرها منين (مش زي NITCO اللي الدعم الفني بيحمّل الإعدادات).">
-              <div class="t-card-head"><h3 data-en="Already ready for internal medicine">جاهز بالفعل لتخصص الباطنة</h3></div>
+              <div class="t-card-head"><h3 id="ob-ready-h"></h3></div>
               <ul class="ob-loaded mb-0" style="list-style:none;padding:0;margin:0">
                 <li><svg class="t-icon sm"><use href="#i-check"/></svg><a href="settings-templates.html" data-en="14 visit templates (e.g. gastritis, UTI, hypertension)">١٤ قالب كشف (التهاب معدة، التهاب مسالك، ضغط)</a></li>
                 <li><svg class="t-icon sm"><use href="#i-check"/></svg><a href="rx-favourites.html" data-en="38 Rx favourites (Nexium 40, Concor 5, Glucophage 1000…)">٣٨ روشتة مفضلة (Nexium 40، Concor 5، Glucophage 1000…)</a></li>
@@ -333,7 +381,7 @@
           <div class="t-empty" style="padding-block:var(--s-8)">
             <div class="t-empty-art"><svg class="t-icon"><use href="#i-check"/></svg></div>
             <h3 data-en="Your clinic is ready">عيادتك جاهزة</h3>
-            <p data-en="Sara can log in, the letterhead prints, and fees fill themselves. Add your first patient.">سارة تقدر تدخل، والروشتة بتتطبع، والأسعار بتتحط لوحدها. ضيف أول مريض.</p>
+            <p id="ob-done-p"></p>
             <div class="t-row tight">
               <a class="t-btn primary" href="reception-queue.html"><span data-en="Go to the live queue">روح للدور</span><span class="t-kbd">F2</span></a>
               <a class="t-btn" href="doctor-home.html" data-en="My day as a doctor">يومي كدكتور</a>
@@ -345,14 +393,148 @@
 
   </div>
 </main>
+<script src="../assets/demo-data.js"></script>
 <script src="../assets/shell.js"></script>
 <script>
 (function () {
-  var L = function () { return window.Tamargi && Tamargi.lang() === "en"; };
+  /* Sign-up for a NEW organization. Prefill and checklist summaries come from Tamargi.data:
+     "One clinic" uses the solo sample org, "Medical centre or branches" the polyclinic sample org. */
+  var D = Tamargi.data, C = Tamargi.ctx, F = D.fmt;
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
-  function toast(ar, en) { Tamargi.toast(L() ? en : ar); }
-  function setT(el, ar, en) { el.setAttribute("data-ar", ar); el.setAttribute("data-en", en); el.innerHTML = L() ? en : ar; }
+  function t(r) { return F.t(r, C.lang); }
+  function tx(a, e) { return C.lang === "en" ? e : a; }
+  function n(x) { return F.num(x, C.lang); }
+  function toast(ar, en) { Tamargi.toast(tx(ar, en)); }
+  function setT(el, ar, en) { el.setAttribute("data-ar", ar); el.setAttribute("data-en", en); el.innerHTML = tx(ar, en); }
+  function shortB(b) { return C.lang === "en" ? b.shortEn : b.shortAr; }
+  function spTag(sp) { var s = D.specialties[sp]; return s ? '<span class="t-spec-tag ' + s.cls + '">' + t(s) + "</span>" : ""; }
+  function docShort(id) { var d = D.doctor(id); return d ? (C.lang === "en" ? d.shortEn : d.shortAr) : ""; }
+  function egp(x) { return F.money(x) + " " + tx("ج.م", "EGP"); }
+
+  var S = { kind: null, sample: null, branches: [], specs: [], ndoc: 1, invBranches: [] };
+  function sampleOrg(kind) { return D.orgs.filter(function (o) { return kind === "multi" ? o.kind !== "solo" : o.kind === "solo"; })[0]; }
+  function ownerOf(org) { return D.staff.filter(function (m) { return m.org === org && m.grants.some(function (g) { return g.role === "owner"; }); })[0]; }
+  function inviteeOf(org) { return D.staff.filter(function (m) { return m.org === org && !m.doctor && m.status !== "inactive" && m.grants.some(function (g) { return g.role === "reception"; }); })[0]; }
+  function orgDoctors(org) { return D.doctors.filter(function (d) { return d.org === org; }); }
+  function cityOpts() { return $$("#ob-city option"); }
+  function cityIndex(city) { var i = 0; cityOpts().forEach(function (o, k) { if ((o.getAttribute("data-en") || "") === city.en) i = k; }); return i; }
+
+  /* prefill everything from the sample org of the chosen kind */
+  function prefill(kind) {
+    var o = sampleOrg(kind), own = ownerOf(o.id), docs = orgDoctors(o.id), inv = inviteeOf(o.id), lead = docs.filter(function (d) { return own && own.person && d.person === own.person; })[0] || docs[0];
+    S.kind = kind; S.sample = o;
+    S.branches = D.branchesOf(o.id).map(function (b) { return { name: kind === "multi" ? (C.lang === "en" ? b.en : b.ar) : "", city: cityIndex(b.city), id: b.id }; });
+    S.specs = []; docs.forEach(function (d) { d.sp.forEach(function (sp) { if (S.specs.indexOf(sp) === -1 && $('#ob-specs [data-spec="' + sp + '"]')) S.specs.push(sp); }); });
+    if (kind === "solo") S.specs = S.specs.slice(0, 1);
+    S.ndoc = Math.min(3, docs.length);
+    S.invBranches = inv ? D.branchesOf(o.id).filter(function (b) { return inv.grants.some(function (g) { return g.branches === "all" || g.branches.indexOf(b.id) > -1; }); }).map(function (b) { return b.id; }) : [];
+    $("#ob-mobile").value = own ? own.phone.replace(/\s/g, "") : "";
+    $("#ob-doc").value = own ? D.memberName(own, C.lang) : "";
+    $("#ob-clinic").value = t(o);
+    $("#ob-city").selectedIndex = cityIndex(D.branchesOf(o.id)[0].city);
+    $("#ob-title").value = lead ? tx("استشاري ", "Consultant, ") + t(D.specialties[lead.sp[0]]) : "";
+    $("#ob-synd").value = lead ? lead.licence : "";
+    $("#ob-inv-name").value = inv ? D.memberName(inv, C.lang) : "";
+    $("#ob-inv-mob").value = inv ? inv.phone.replace(/\s/g, "") : "";
+    $$("#ob-t4 .t-pick").forEach(function (b, i) { var role = ["reception", "cashier", "nurse"][i]; b.classList.toggle("is-on", !!inv && inv.grants.some(function (g) { return g.role === role; })); });
+  }
+
+  /* ---------- step C: kind, branches, specialties ---------- */
+  function readBranches() {
+    $$("#ob-br-list .ob-br").forEach(function (row, i) { if (!S.branches[i]) return; S.branches[i].name = $("input", row).value; S.branches[i].city = $("select", row).selectedIndex; });
+  }
+  function renderStepC() {
+    var multi = S.kind === "multi";
+    $$("#ob-kind .t-pick").forEach(function (b) { b.classList.toggle("is-on", b.getAttribute("data-kind") === S.kind); b.setAttribute("aria-pressed", String(b.getAttribute("data-kind") === S.kind)); });
+    $("#ob-branches").hidden = !multi;
+    $("#ob-city").closest(".t-field").hidden = multi;   /* each branch carries its own city */
+    var cities = cityOpts().map(function (o) { return o.textContent; });
+    $("#ob-br-list").innerHTML = S.branches.map(function (b, i) {
+      return '<div class="ob-br"><input class="t-input" aria-label="' + tx("اسم الفرع ", "Branch name ") + (i + 1) + '" value="' + (b.name || "").replace(/"/g, "&quot;") + '" placeholder="' + tx("مثلًا: المنصورة - توريل", "e.g. Mansoura - Toreil") + '">' +
+        '<select class="t-select ob-br-city" aria-label="' + tx("المدينة", "City") + '">' + cities.map(function (c, k) { return "<option" + (k === b.city ? " selected" : "") + ">" + c + "</option>"; }).join("") + "</select>" +
+        '<button type="button" class="t-btn icon ghost" data-br-del="' + i + '" aria-label="' + tx("شيل الفرع", "Remove branch") + '"' + (S.branches.length < 2 ? " disabled" : "") + '><svg class="t-icon"><use href="#i-close"/></svg></button></div>';
+    }).join("");
+    var P = { inc: 2, add: 249, price: 699 }, extra = Math.max(0, S.branches.length - P.inc);
+    $("#ob-br-hint").textContent = tx("باقة المجمعات: فرعين ضمنها" + (extra ? "، و" + n(extra) + " زيادة × " + egp(P.add) : "، وكل فرع زيادة +" + egp(P.add)) + ". الغرف والأطباء لكل فرع بعد كده.",
+      "Polyclinic plan: 2 branches included" + (extra ? ", " + extra + " extra × " + egp(P.add) : ", each extra branch +" + egp(P.add)) + ". Rooms and doctors per branch come next.");
+    $$("#ob-ndoc button").forEach(function (b) { b.setAttribute("aria-pressed", String(+b.getAttribute("data-n") === S.ndoc)); });
+    $$("#ob-specs .t-pick").forEach(function (b) { b.classList.toggle("is-on", S.specs.indexOf(b.getAttribute("data-spec")) > -1); });
+    $("#ob-spec-l").textContent = multi ? tx("التخصصات في المركز (اختار كلهم)", "Specialties in your centre (pick all)") : tx("التخصص", "Specialty");
+    $("#ob-spec-hint").textContent = specHint();
+    $("#ob-create-l").textContent = multi ? tx("اعمل المركز وفروعه وابدأ التجربة", "Create the centre and its branches, start trial") : tx("اعمل العيادة وابدأ التجربة", "Create clinic and start trial");
+  }
+  var packs = {
+    im: ["١٤ قالب كشف، ٣٨ روشتة مفضلة، ٢٢ اختصار و٩ خدمات", "14 visit templates, 38 Rx favourites, 22 shortcuts and 9 services"],
+    peds: ["١٢ قالب كشف، ٤٥ روشتة مفضلة (جرعات بالوزن)، ١٨ اختصار و٧ خدمات", "12 visit templates, 45 Rx favourites (weight-based doses), 18 shortcuts and 7 services"],
+    gyn: ["١٦ قالب كشف، ٣٠ روشتة مفضلة، ٢٠ اختصار و١١ خدمة (سونار، متابعة حمل)", "16 visit templates, 30 Rx favourites, 20 shortcuts and 11 services (ultrasound, ANC)"],
+    derma: ["١٠ قوالب كشف، ٣٤ روشتة مفضلة، ١٥ اختصار و١٢ خدمة (ليزر، تقشير)", "10 visit templates, 34 Rx favourites, 15 shortcuts and 12 services (laser, peeling)"]
+  };
+  function specName(sp) { var b = $('#ob-specs [data-spec="' + sp + '"]'); return D.specialties[sp] ? t(D.specialties[sp]) : (b ? b.textContent : sp); }
+  function specHint() {
+    if (!S.specs.length) return tx("اختار تخصص واحد على الأقل.", "Pick at least one specialty.");
+    if (S.kind === "multi") return tx("هيتحمّل باقة لكل تخصص (" + S.specs.map(specName).join("، ") + ")، وكل دكتور بياخد باقة تخصصه هو. التخصص تبع الدكتور مش الغرفة.", "Loads one pack per specialty (" + S.specs.map(specName).join(", ") + "); each doctor gets the pack of his own specialty. Specialty belongs to the doctor, not the room.");
+    var p = packs[S.specs[0]] || ["قالب عام فاضي تقدر تبني عليه، أو استورد باقة تخصص بعدين", "a general starter set; import a specialty pack later"];
+    return tx("هيتحمّل " + p[0] + ". تقدر تعدّل أو تمسح أي حاجة.", "Loads " + p[1] + ". You can edit or delete any of them.");
+  }
+
+  /* ---------- checklist summaries ---------- */
+  function daysTxt(closed, lang) {
+    var open = [0, 1, 2, 3, 4, 5, 6].filter(function (d) { return closed.indexOf(d) === -1; });
+    return F.day(open[0], lang) + "–" + F.day(open[open.length - 1], lang);
+  }
+  function plan() {
+    if (S.kind === "multi") return { ar: "المجمعات", en: "Polyclinic", price: 699 + Math.max(0, S.branches.length - 2) * 249 };
+    return S.ndoc <= 1 ? { ar: "فردي", en: "Solo", price: 199 } : { ar: "العيادة", en: "Clinic", price: 399 };
+  }
+  function renderChecklist() {
+    var o = S.sample, brs = D.branchesOf(o.id), docs = orgDoctors(o.id), multi = S.kind === "multi", b0 = brs[0];
+    var closed = b0.closedDays.map(function (d) { return F.day(d, C.lang); }).join(tx(" و", " & "));
+    $("#ob-sum-hours").textContent = multi
+      ? brs.map(function (b) { return shortB(b) + " " + F.range(b.hours.from, b.hours.to, C.lang); }).join(" · ") + tx(" · " + closed + " إجازة", " · " + closed + " off")
+      : daysTxt(b0.closedDays, C.lang) + tx("، ", ", ") + F.range(b0.hours.from, b0.hours.to, C.lang) + tx(" · كل كشف ١٥ دقيقة · " + closed + " إجازة", " · 15-min slots · " + closed + " off");
+    var lead = docs[0], main = D.mainService(o.id, lead.sp[0]), fu = D.services.filter(function (s) { return s.org === o.id && s.sp === lead.sp[0] && s.kind === "followup"; })[0];
+    if (multi) {
+      var priced = brs.map(function (b) { return shortB(b) + " " + egp(D.price(main.id, lead.id, b.id)); }).join(tx(" و", " and "));
+      $("#ob-sum-fees").textContent = tx("سعر لكل دكتور ولكل فرع: " + t(main) + " مع " + docShort(lead.id) + " " + priced + (fu ? " · استشارة مجانية خلال " + n(fu.freeWithinDays) + " يوم" : ""),
+        "Per doctor and branch: " + t(main) + " with " + docShort(lead.id) + " " + priced + (fu ? " · free follow-up within " + fu.freeWithinDays + " days" : ""));
+    } else {
+      var p = D.price(main.id, lead.id, b0.id), fp = fu ? D.price(fu.id, lead.id, b0.id) : 0;
+      $("#ob-sum-fees").textContent = tx("كشف " + egp(p) + (fu ? " · استشارة مجانية خلال " + n(fu.freeWithinDays) + " يوم (مرة واحدة)، وبعدها " + egp(fp) : ""), "Consult " + egp(p) + (fu ? " · follow-up free within " + fu.freeWithinDays + " days (1 time), then " + egp(fp) : ""));
+    }
+    var tb = $("#ob-tb"); tb.hidden = !multi;
+    if (multi) tb.setAttribute("data-task", ""); else tb.removeAttribute("data-task");
+    var rooms = D.rooms.filter(function (r) { return r.org === o.id; }), conf = D.conflicts(o.id);
+    $("#ob-sum-br").textContent = tx(n(brs.length) + " فروع · " + n(rooms.length) + " غرف · " + n(docs.length) + " أطباء بتخصصاتهم", brs.length + " branches · " + rooms.length + " rooms · " + docs.length + " doctors with their specialties");
+    $("#ob-br-detail").innerHTML = brs.map(function (b) {
+      var seen = {}, sh = D.shifts.filter(function (s) { return s.branch === b.id; }).filter(function (s) { var k = s.doctor + s.sp; if (seen[k]) return false; seen[k] = 1; return true; });
+      return '<div class="t-row tight" style="flex-wrap:wrap"><span class="t-branch-tag"><svg class="t-icon"><use href="#i-pin"/></svg>' + shortB(b) + '</span><span class="t-small t-muted">' + tx(n(D.rooms.filter(function (r) { return r.branch === b.id; }).length) + " غرف", D.rooms.filter(function (r) { return r.branch === b.id; }).length + " rooms") + "</span>" +
+        sh.map(function (s) { return '<span class="t-small">' + docShort(s.doctor) + "</span> " + spTag(s.sp); }).join(" ") + "</div>";
+    }).join("") + (conf.length ? '<div class="t-alert warning"><svg class="t-icon"><use href="#i-alert"/></svg><span>' + tx(n(conf.length) + " تعارض في الجدول محتاج يتحل (غرفة محجوزة مرتين أو دكتور في فرعين).", conf.length + " schedule conflict(s) to fix (a room booked twice or a doctor in two branches).") + "</span></div>" : "");
+    var lh = lead;
+    $("#ob-lh-mark").textContent = (C.lang === "en" ? lh.shortEn.replace(/^Dr\.\s*/, "") : lh.shortAr.replace(/^د\.\s*/, "")).charAt(0);
+    $("#ob-lh-name").textContent = $("#ob-doc").value || t(lh);
+    $("#ob-lh-title").textContent = $("#ob-title").value;
+    $("#ob-lh-addr").textContent = multi ? tx("كل فرع بيطبع عنوانه وتليفونه: ", "Each branch prints its own address and phone: ") + brs.map(shortB).join(" · ") : (C.lang === "en" ? b0.addressEn : b0.addressAr) + " · " + b0.phone;
+    var inv = inviteeOf(o.id), first = ($("#ob-inv-name").value || "").split(" ")[0];
+    $("#ob-inv-h").textContent = tx("ضيف " + (first || "المساعدة"), "Invite " + (first || "your assistant"));
+    $("#ob-inv-cap").textContent = tx("أقصى خصم تقدر تديه لوحدها: " + n(inv ? inv.discountCap : 20) + "٪. تقدر تغيّره في المستخدمين والصلاحيات.", "Max discount she can give alone: " + (inv ? inv.discountCap : 20) + "%. Change it any time in Users & roles.");
+    $("#ob-inv-brs-f").hidden = !multi;
+    $("#ob-inv-brs").innerHTML = brs.map(function (b) { return '<button type="button" class="t-pick' + (S.invBranches.indexOf(b.id) > -1 ? " is-on" : "") + '" data-inv-br="' + b.id + '">' + shortB(b) + "</button>"; }).join("");
+    var pl = plan();
+    $("#ob-trial-p").textContent = tx("بعد التجربة: بياناتك فاضلة. " + (multi ? "المركز" : "العيادة") + " تبقى للقراءة بس لحد ما تختار باقة. المناسبة ليك: " + pl.ar + " بـ" + egp(pl.price) + " في الشهر.",
+      "After the trial: your data stays. The " + (multi ? "centre" : "clinic") + " turns read-only until you pick a plan. Your fit: " + pl.en + " at " + egp(pl.price) + "/month.");
+    $("#ob-ready-h").textContent = tx("جاهز بالفعل لـ" + S.specs.map(specName).join(" و"), "Already ready for " + S.specs.map(specName).join(", "));
+    $("#ob-done-p").textContent = tx((first || "المساعدة") + " تقدر تدخل، والروشتة بتتطبع، والأسعار بتتحط لوحدها" + (multi ? " في كل فرع" : "") + ". ضيف أول مريض.", (first || "Your assistant") + " can log in, the letterhead prints, and fees fill themselves" + (multi ? " in every branch" : "") + ". Add your first patient.");
+    refresh(true);
+  }
+
+  function render(ctx, reason) {
+    if (!S.kind || reason === "org") prefill(C.orgRec.kind === "solo" ? "solo" : "multi");
+    else readBranches();
+    $("#ob-mob-show").textContent = ($("#ob-mobile").value || "").replace(/^(\d{4})(\d{3})(\d+)$/, "$1 $2 $3");
+    renderStepC(); renderChecklist();
+  }
 
   /* --- sign-up steps --- */
   var steps = $$("#ob-steps li");
@@ -370,6 +552,7 @@
       setT(h, "الرقم لازم يكون ١١ رقم ويبدأ بـ 010 أو 011 أو 012 أو 015.", "The number must be 11 digits and start with 010, 011, 012 or 015.");
       return;
     }
+    $("#ob-mob-show").textContent = v.replace(/^(\d{4})(\d{3})(\d+)$/, "$1 $2 $3");
     toast("بعتنا الكود", "Code sent"); go(1);
   });
   $("#ob-change").addEventListener("click", function () { go(0); });
@@ -383,55 +566,67 @@
     else if (!$("#ob-b").hidden && !$("#ob-b").closest("[hidden]")) $("#ob-verify").click();
   });
 
-  /* specialty picker */
-  var packs = {
-    im: ["١٤ قالب كشف، ٣٨ روشتة مفضلة، ٢٢ اختصار و٩ خدمات", "14 visit templates, 38 Rx favourites, 22 shortcuts and 9 services"],
-    ped: ["١٢ قالب كشف، ٤٥ روشتة مفضلة (جرعات بالوزن)، ١٨ اختصار و٧ خدمات", "12 visit templates, 45 Rx favourites (weight-based doses), 18 shortcuts and 7 services"],
-    obg: ["١٦ قالب كشف، ٣٠ روشتة مفضلة، ٢٠ اختصار و١١ خدمة (سونار، متابعة حمل)", "16 visit templates, 30 Rx favourites, 20 shortcuts and 11 services (ultrasound, ANC)"],
-    derm: ["١٠ قوالب كشف، ٣٤ روشتة مفضلة، ١٥ اختصار و١٢ خدمة (ليزر، تقشير)", "10 visit templates, 34 Rx favourites, 15 shortcuts and 12 services (laser, peeling)"]
-  };
-  $$("#ob-specs .t-pick").forEach(function (b) {
-    b.addEventListener("click", function () {
-      $$("#ob-specs .t-pick").forEach(function (x) { x.classList.remove("is-on"); });
-      b.classList.add("is-on");
-      var p = packs[b.getAttribute("data-spec")] || ["قالب عام فاضي تقدر تبني عليه، أو استورد باقة تخصص بعدين", "a general starter set; import a specialty pack later"];
-      setT($("#ob-spec-hint"), "هيتحمّل " + p[0] + ". تقدر تعدّل أو تمسح أي حاجة.", "Loads " + p[1] + ". You can edit or delete any of them.");
-    });
+  document.addEventListener("click", function (e) {
+    var b;
+    if ((b = e.target.closest("#ob-kind .t-pick"))) { readBranches(); prefill(b.getAttribute("data-kind")); renderStepC(); renderChecklist(); return; }
+    if ((b = e.target.closest("#ob-ndoc button"))) { S.ndoc = +b.getAttribute("data-n"); renderStepC(); renderChecklist(); return; }
+    if (e.target.closest("#ob-br-add")) { readBranches(); S.branches.push({ name: "", city: $("#ob-city").selectedIndex }); renderStepC(); renderChecklist(); var ins = $$("#ob-br-list input"); ins[ins.length - 1].focus(); return; }
+    if ((b = e.target.closest("[data-br-del]"))) { readBranches(); S.branches.splice(+b.getAttribute("data-br-del"), 1); renderStepC(); renderChecklist(); return; }
+    if ((b = e.target.closest("#ob-specs .t-pick"))) {
+      var sp = b.getAttribute("data-spec"), i = S.specs.indexOf(sp);
+      if (S.kind === "multi") { if (i > -1) S.specs.splice(i, 1); else S.specs.push(sp); }
+      else S.specs = [sp];
+      renderStepC(); renderChecklist(); return;
+    }
+    if ((b = e.target.closest("[data-inv-br]"))) {
+      var id = b.getAttribute("data-inv-br"), k = S.invBranches.indexOf(id);
+      if (k > -1) { if (S.invBranches.length > 1) S.invBranches.splice(k, 1); } else S.invBranches.push(id);
+      renderChecklist(); return;
+    }
+    if ((b = e.target.closest("#ob-t4 .ob-task-body .t-pick"))) { b.classList.toggle("is-on"); }
   });
+  document.addEventListener("input", function (e) { if (e.target.closest("#ob-br-list")) readBranches(); });
   $("#ob-create").addEventListener("click", function () {
-    toast("اتعملت العيادة — بدأت تجربة ١٤ يوم", "Clinic created — 14-day trial started");
+    readBranches();
+    if (S.kind === "multi") toast("اتعمل المركز بـ" + n(S.branches.length) + " فروع — بدأت تجربة ١٤ يوم", "Centre created with " + S.branches.length + " branches — 14-day trial started");
+    else toast("اتعملت العيادة — بدأت تجربة ١٤ يوم", "Clinic created — 14-day trial started");
     Tamargi.setState("checklist"); window.scrollTo(0, 0);
   });
 
   /* --- checklist --- */
-  function refresh() {
-    var tasks = $$("[data-task]");
-    var done = tasks.filter(function (t) { return t.classList.contains("is-done"); }).length;
-    $("#ob-count").textContent = done;
+  function visibleTasks() { return $$("[data-task]").filter(function (x) { return !x.hidden; }); }
+  function refresh(quiet) {
+    var tasks = visibleTasks();
+    var done = tasks.filter(function (x) { return x.classList.contains("is-done"); }).length;
+    tasks.forEach(function (x, i) { if (!x.classList.contains("is-done")) $(".ob-num", x).textContent = n(i + 1); });
+    $("#ob-count").textContent = n(done);
+    $("#ob-of").textContent = tx("من " + n(tasks.length) + " خلصوا", "of " + tasks.length + " done");
+    $("#ob-cl-sub").textContent = tx(n(tasks.length) + " خطوات قصيرة. ولا حاجة فيهم بتوقفك: تقدر تضيف مرضى للدور من دلوقتي.", tasks.length + " short steps. Nothing here blocks you: you can add patients to the queue right now.");
+    $("#ob-bar").setAttribute("aria-valuemax", tasks.length);
     $("#ob-bar").setAttribute("aria-valuenow", done);
     $("#ob-bar > i").style.width = (done / tasks.length * 100) + "%";
-    if (done === tasks.length) { Tamargi.setState("ready"); window.scrollTo(0, 0); }
+    if (!quiet && done === tasks.length) { Tamargi.setState("ready"); window.scrollTo(0, 0); }
   }
-  function openNext(from) {
-    var next = $$("[data-task]").filter(function (t) { return !t.classList.contains("is-done") && !t.classList.contains("is-skipped"); })[0];
-    $$("[data-task]").forEach(function (t) { t.open = t === next; });
+  function openNext() {
+    var next = visibleTasks().filter(function (x) { return !x.classList.contains("is-done") && !x.classList.contains("is-skipped"); })[0];
+    $$("[data-task]").forEach(function (x) { x.open = x === next; });
     if (next) next.scrollIntoView({ behavior: "smooth", block: "center" });
   }
-  function mark(n, how) {
-    var t = $("#ob-t" + n); if (!t) return;
-    t.classList.remove("is-skipped", "is-done"); t.classList.add(how === "done" ? "is-done" : "is-skipped");
-    var chip = $("summary .t-chip", t);
+  function mark(k, how) {
+    var x = $("#ob-t" + k); if (!x) return;
+    x.classList.remove("is-skipped", "is-done"); x.classList.add(how === "done" ? "is-done" : "is-skipped");
+    var chip = $("summary .t-chip", x);
     chip.className = "t-chip " + (how === "done" ? "paid" : "booked");
     setT(chip, how === "done" ? "تم" : "متأجلة", how === "done" ? "Done" : "Skipped");
-    if (how === "done") $(".ob-num", t).innerHTML = '<svg class="t-icon sm"><use href="#i-check"/></svg>';
+    if (how === "done") $(".ob-num", x).innerHTML = '<svg class="t-icon sm"><use href="#i-check"/></svg>';
     refresh(); openNext();
   }
   $$("[data-done]").forEach(function (b) {
     b.addEventListener("click", function (e) {
-      var n = b.getAttribute("data-done");
+      var k = b.getAttribute("data-done"), first = ($("#ob-inv-name").value || "").split(" ")[0];
       if (b.tagName === "A") { e.preventDefault(); var href = b.href; setTimeout(function () { location.href = href; }, 700); }
-      var msg = { 3: ["اتحفظت الترويسة", "Letterhead saved"], 4: ["اتبعتت الدعوة لسارة", "Invite sent to Sara"], 5: ["اتطبعت روشتة التجربة", "Test Rx printed"] }[n];
-      toast(msg[0], msg[1]); mark(n, "done");
+      var msg = { 3: ["اتحفظت الترويسة", "Letterhead saved"], 4: ["اتبعتت الدعوة لـ" + first, "Invite sent to " + first], 5: ["اتطبعت روشتة التجربة", "Test Rx printed"] }[k];
+      toast(msg[0], msg[1]); mark(k, "done");
     });
   });
   $$("[data-skip]").forEach(function (b) { b.addEventListener("click", function () { toast("اتأجلت — هتلاقيها هنا", "Skipped — it stays on this list"); mark(b.getAttribute("data-skip"), "skip"); }); });
@@ -439,6 +634,11 @@
 
   /* live mini letterhead */
   $("#ob-title").addEventListener("input", function (e) { $("#ob-lh-title").textContent = e.target.value; });
+  $("#ob-doc").addEventListener("input", function (e) { $("#ob-lh-name").textContent = e.target.value; });
+  $("#ob-inv-name").addEventListener("input", function () { renderChecklist(); });
+
+  Tamargi.onCtx(render);
+  render(C, "init");
 })();
 </script>
 </body>

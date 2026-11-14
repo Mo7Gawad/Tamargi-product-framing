@@ -29,28 +29,21 @@
     }
     .pa-print-head { display: none; margin-block-end: var(--s-4); }
   </style>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
-<body data-screen="patient-account">
+<body data-screen="patient-account" data-org-default="selim">
 <main id="screen">
 
   <section class="t-banner" aria-label="Patient" data-en-aria-label="Patient">
     <div class="t-banner-id">
-      <span class="t-avatar">ك ع</span>
+      <span class="t-avatar" id="pa-av"></span>
       <div>
-        <div class="t-banner-name">كريم محمود عبد العزيز</div>
-        <div class="t-banner-facts">
-          <span><b>67</b> <span data-en="yrs · M">سنة · ذكر</span></span>
-          <span><span data-en="File">ملف</span> <b class="t-ltr">0872</b></span>
-          <span class="t-ltr">0122 870 4411</span>
-          <span data-en="Talkha, Dakahlia">طلخا، الدقهلية</span>
-        </div>
+        <div class="t-banner-name" id="pa-name"></div>
+        <div class="t-banner-facts" id="pa-facts"></div>
       </div>
     </div>
-    <div class="t-banner-alerts">
-      <span class="t-allergy none" data-en="No known allergies">لا حساسية معروفة</span>
-      <span class="t-balance debt" data-en="Owes 90 EGP">عليه ٩٠ ج.م</span>
-      <span class="t-balance deposit" data-en="Deposit 150 EGP">رصيد مقدم ١٥٠ ج.م</span>
-    </div>
+    <div class="t-banner-alerts" id="pa-alerts"></div>
   </section>
 
   <div class="t-container">
@@ -60,7 +53,7 @@
         <p class="t-sub mb-0" data-en="Everything the patient paid, owes and left on deposit, in one ledger.">كل اللي المريض دفعه، وعليه، وسايبه رصيد مقدم، في كشف واحد.</p>
       </div>
       <div class="t-actions">
-        <a class="t-btn" href="patient-file.html"><svg class="t-icon sm"><use href="#i-file"/></svg><span data-en="Patient file">ملف المريض</span></a>
+        <a class="t-btn" href="patient-file.html" id="pa-file"><svg class="t-icon sm"><use href="#i-file"/></svg><span data-en="Patient file">ملف المريض</span></a>
         <button class="t-btn" type="button" id="pa-print"><svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Print statement">طباعة كشف الحساب</span></button>
         <button class="t-btn" type="button" data-toast="كشف الحساب اتبعت في شات المريض (PDF)" data-toast-en="Statement sent in patient chat (PDF)"><svg class="t-icon sm"><use href="#i-send"/></svg><span data-en="Share">مشاركة</span></button>
         <button class="t-btn primary" type="button" data-open="#pa-receive" id="pa-recv-btn"><svg class="t-icon sm"><use href="#i-cash"/></svg><span data-en="Receive payment">استلام مبلغ</span><span class="t-kbd">F8</span></button>
@@ -68,8 +61,8 @@
     </header>
 
     <div class="pa-print-head">
-      <h2 data-en="Account statement — Dr. Ahmed Selim Clinic">كشف حساب — عيادة د. أحمد سليم</h2>
-      <p class="t-muted mb-0">كريم محمود عبد العزيز · <span data-en="File">ملف</span> 0872 · <span data-en="1 Sep – 14 Nov 2026">١ سبتمبر – ١٤ نوفمبر ٢٠٢٦</span></p>
+      <h2 id="pa-ph-h"></h2>
+      <p class="t-muted mb-0" id="pa-ph-p"></p>
     </div>
 
     <div class="pa-bal mb-6"
@@ -78,7 +71,7 @@
       <div class="t-card debt">
         <span class="t-small t-muted" data-en="Debt owed to the clinic">مديونية على المريض</span>
         <span class="t-money xl debt"><span id="pa-debt">90</span><span class="cur" data-en="EGP">ج.م</span></span>
-        <span class="t-small t-muted" data-en="From 2 invoices · oldest 28 Oct (17 days)">من فاتورتين · الأقدم ٢٨ أكتوبر (١٧ يوم)</span>
+        <span class="t-small t-muted" id="pa-debt-sub"></span>
       </div>
       <div class="t-card">
         <span class="t-small t-muted" data-en="Deposit held for the patient">رصيد مقدم للمريض</span>
@@ -87,12 +80,14 @@
       </div>
       <div class="t-card sunk">
         <span class="t-small t-muted" data-en="Lifetime">إجمالي التعامل</span>
-        <span class="t-money lg">1,430<span class="cur" data-en="EGP">ج.م</span></span>
-        <span class="t-small t-muted" data-en="Net billed · 5 visits since Sep 2026">صافي الفواتير · ٥ زيارات من سبتمبر ٢٠٢٦</span>
+        <span class="t-money lg"><span id="pa-life">0</span><span class="cur" data-en="EGP">ج.م</span></span>
+        <span class="t-small t-muted" id="pa-life-sub"></span>
       </div>
     </div>
 
-    <div class="t-split aside-end">
+    <div class="t-split aside-end"
+         data-note="Tenancy: the account is the organization's, like the patient file: invoices from every branch are in one ledger, each tagged with its branch, and debt can be settled at any branch. New receipts and deposits take the number series of the branch that takes the cash (its own drawer), so 'All branches' asks for one branch before receiving money."
+         data-note-ar="الحساب تبع المنشأة زي الملف: فواتير كل الفروع في كشف واحد وكل فاتورة عليها فرعها، والمديونية تتسدد من أي فرع. الإيصالات والإيداعات الجديدة بتاخد مسلسل الفرع اللي استلم الفلوس (خزنته)، فـ«كل الفروع» بتطلب فرع واحد قبل الاستلام.">
       <section class="t-card flush">
         <div class="t-card-head">
           <h2 data-en="Ledger">كشف الحساب</h2>
@@ -112,16 +107,8 @@
               <th class="num" data-en="Charged">عليه</th><th class="num" data-en="Paid">دفع</th>
               <th class="num" data-en="Debt">المديونية</th><th class="num" data-en="Deposit">الرصيد</th>
             </tr></thead>
-            <tbody id="pa-rows">
-              <tr><td class="t-ltr">15/09</td><td><a class="pa-doc" href="invoice-detail.html">INV-004102</a><span class="t-meta"><span class="t-chip paid" data-en="Paid">مدفوعة</span></span></td><td data-en="New consultation · cash">كشف جديد · كاش</td><td class="num">300</td><td class="num">300</td><td class="num">0</td><td class="num">0</td></tr>
-              <tr><td class="t-ltr">01/10</td><td><span class="pa-doc t-ltr">DEP-000211</span><span class="t-meta"><span class="t-chip info" data-en="Deposit">إيداع</span></span></td><td data-en="Advance for echo · cash">مقدم إيكو · كاش</td><td class="num">—</td><td class="num">550</td><td class="num">0</td><td class="num"><span class="t-money deposit">550</span></td></tr>
-              <tr><td class="t-ltr">03/10</td><td><a class="pa-doc" href="invoice-detail.html">INV-004390</a><span class="t-meta"><span class="t-chip paid" data-en="Paid">مدفوعة</span></span></td><td data-en="Echocardiogram · from deposit">إيكو على القلب · من الرصيد</td><td class="num">400</td><td class="num">400</td><td class="num">0</td><td class="num"><span class="t-money deposit">150</span></td></tr>
-              <tr><td class="t-ltr">03/10</td><td><a class="pa-doc" href="invoice-detail.html">CN-000029</a><span class="t-meta"><span class="t-chip credit" data-en="Credit note">مرتجع</span></span></td><td data-en="Colleague discount not applied · to deposit">خصم زميل متطبقش · للرصيد</td><td class="num">−50</td><td class="num">—</td><td class="num">0</td><td class="num"><span class="t-money deposit">200</span></td></tr>
-              <tr><td class="t-ltr">28/10</td><td><a class="pa-doc" href="invoice-detail.html">INV-004655</a><span class="t-meta"><span class="t-chip partial" data-en="Partial">جزئي</span></span></td><td data-en="New consultation · paid 240 cash">كشف جديد · دفع ٢٤٠ كاش</td><td class="num">300</td><td class="num">240</td><td class="num"><span class="t-money debt">60</span></td><td class="num">200</td></tr>
-              <tr><td class="t-ltr">04/11</td><td><a class="pa-doc" href="invoice-detail.html">INV-004721</a><span class="t-meta"><span class="t-chip paid" data-en="Paid">مدفوعة</span></span></td><td data-en="New consultation · cash (starts free follow-up to 18 Nov)">كشف جديد · كاش (بداية المتابعة المجانية حتى ١٨ نوفمبر)</td><td class="num">300</td><td class="num">300</td><td class="num"><span class="t-money debt">60</span></td><td class="num">200</td></tr>
-              <tr class="is-selected"><td class="t-ltr">14/11</td><td><a class="pa-doc" href="invoice-detail.html">INV-004812</a><span class="t-meta"><span class="t-chip partial" data-en="Partial">جزئي</span></span></td><td data-en="Free follow-up + ECG + nebuliser, −10% seniors · 100 cash + 50 deposit">متابعة مجانية + رسم قلب + نيبولايزر، −١٠٪ كبار السن · ١٠٠ كاش + ٥٠ رصيد</td><td class="num">180</td><td class="num">150</td><td class="num"><span class="t-money debt">90</span></td><td class="num"><span class="t-money deposit">150</span></td></tr>
-            </tbody>
-            <tfoot><tr><td colspan="3" data-en="Balance today">الرصيد النهارده</td><td class="num">1,430</td><td class="num"></td><td class="num"><span class="t-money debt" id="pa-debt-f">90</span></td><td class="num"><span class="t-money deposit" id="pa-dep-f">150</span></td></tr></tfoot>
+            <tbody id="pa-rows"></tbody>
+            <tfoot><tr><td colspan="3" data-en="Balance today">الرصيد النهارده</td><td class="num" id="pa-ch-f"></td><td class="num"></td><td class="num"><span class="t-money debt" id="pa-debt-f">0</span></td><td class="num"><span class="t-money deposit" id="pa-dep-f">0</span></td></tr></tfoot>
           </table>
         </div>
       </section>
@@ -130,18 +117,9 @@
         <section class="t-card"
                  data-note="Pay an open invoice from the deposit in one click. The button is disabled when the deposit is smaller than what is due, with the reason shown, so the deposit can never go negative (NITCO v84 rule)."
                  data-note-ar="ادفع فاتورة مفتوحة من الرصيد بضغطة. الزرار بيتقفل لو الرصيد أقل من المطلوب، والسبب ظاهر، عشان الرصيد مايبقاش سالب.">
-          <div class="t-card-head"><h3 data-en="Open invoices">فواتير عليها باقي</h3><div class="t-actions"><span class="t-badge muted">2</span></div></div>
-          <div id="pa-open">
-            <div class="pa-open" data-due="60" data-inv="INV-004655">
-              <div class="t-grow"><span class="pa-doc">INV-004655</span><div class="t-small t-muted"><span data-en="28 Oct · due">٢٨ أكتوبر · الباقي</span> <b class="t-money debt">60</b></div></div>
-              <button class="t-btn sm soft" type="button" data-payfrom><svg class="t-icon sm"><use href="#i-wallet"/></svg><span data-en="Pay 60 from deposit">ادفع ٦٠ من الرصيد</span></button>
-            </div>
-            <div class="pa-open" data-due="30" data-inv="INV-004812">
-              <div class="t-grow"><span class="pa-doc">INV-004812</span><div class="t-small t-muted"><span data-en="14 Nov · due">١٤ نوفمبر · الباقي</span> <b class="t-money debt">30</b></div></div>
-              <button class="t-btn sm soft" type="button" data-payfrom><svg class="t-icon sm"><use href="#i-wallet"/></svg><span data-en="Pay 30 from deposit">ادفع ٣٠ من الرصيد</span></button>
-            </div>
-          </div>
-          <p class="t-hint mt-2 mb-0" id="pa-open-hint" data-en="Oldest debt first is the clinic default.">الأقدم الأول هو افتراضي العيادة.</p>
+          <div class="t-card-head"><h3 data-en="Open invoices">فواتير عليها باقي</h3><div class="t-actions"><span class="t-badge muted" id="pa-open-n">0</span></div></div>
+          <div id="pa-open"></div>
+          <p class="t-hint mt-2 mb-0" id="pa-open-hint"></p>
         </section>
         <section class="t-card sunk">
           <h3 class="mb-2" data-en="Rules for this clinic">قواعد العيادة</h3>
@@ -149,6 +127,7 @@
             <li data-en="Debt alert in the banner from 1 EGP">تنبيه المديونية في الشريط من ١ ج.م</li>
             <li data-en="Deposit refunds in cash need the owner">رد الرصيد كاش محتاج المالك</li>
             <li data-en="Debt is per patient, not per doctor (MVP)">المديونية على المريض مش على الدكتور (النسخة الأولى)</li>
+            <li id="pa-rule-org"></li>
           </ul>
           <a class="t-small" href="settings-clinic.html" data-en="Change in clinic rules">تعديل في قواعد العيادة</a>
         </section>
@@ -170,7 +149,7 @@
           <span class="t-label" data-en="What is this money for?">الفلوس دي لإيه؟</span>
           <div class="pa-choice" role="radiogroup">
             <label class="pa-opt"><input type="radio" name="pa-kind" value="debt" checked>
-              <span><b data-en="Settle debt">سداد مديونية</b><small data-en="Owes 90 · oldest invoice first">عليه ٩٠ · الأقدم الأول</small></span></label>
+              <span><b data-en="Settle debt">سداد مديونية</b><small id="pa-kind-debt"></small></span></label>
             <label class="pa-opt"><input type="radio" name="pa-kind" value="deposit">
               <span><b data-en="Add to deposit">إضافة للرصيد المقدم</b><small data-en="For a future procedure or visit">لعملية أو زيارة جاية</small></span></label>
           </div>
@@ -178,7 +157,7 @@
         <div class="t-form-grid">
           <div class="t-field">
             <label class="t-label" for="pa-amt"><span data-en="Amount">المبلغ</span><span class="req">*</span></label>
-            <div class="t-input-affix"><input id="pa-amt" class="t-input ltr" value="90" inputmode="decimal"><span class="t-affix" data-en="EGP">ج.م</span></div>
+            <div class="t-input-affix"><input id="pa-amt" class="t-input ltr" value="" inputmode="decimal"><span class="t-affix" data-en="EGP">ج.م</span></div>
           </div>
           <div class="t-field">
             <span class="t-label" data-en="Method">الطريقة</span>
@@ -189,7 +168,7 @@
             </div>
           </div>
         </div>
-        <div class="t-alert info" id="pa-msg"><svg class="t-icon"><use href="#i-info"/></svg><span id="pa-msg-t" data-en="Closes INV-004655 (60) and INV-004812 (30). Debt becomes 0.">هيقفل INV-004655 (٦٠) و INV-004812 (٣٠). المديونية هتبقى ٠.</span></div>
+        <div class="t-alert info" id="pa-msg"><svg class="t-icon"><use href="#i-info"/></svg><span id="pa-msg-t"></span></div>
         <div class="t-field">
           <label class="t-label" for="pa-note"><span data-en="Note">ملاحظة</span><span class="opt" data-en="(optional)">(اختياري)</span></label>
           <input id="pa-note" class="t-input" placeholder="مثال: ابنه دفع عنه" data-en-placeholder="e.g. paid by his son">
@@ -197,75 +176,162 @@
       </div>
       <div class="t-modal-foot">
         <button class="t-btn" type="button" data-close data-en="Cancel">إلغاء</button>
-        <button class="t-btn primary" type="button" id="pa-ok"><span data-en="Receive">استلام</span> <span class="t-money" id="pa-ok-amt">90</span><span class="t-kbd">Enter</span></button>
+        <button class="t-btn primary" type="button" id="pa-ok"><span data-en="Receive">استلام</span> <span class="t-money" id="pa-ok-amt">0</span><span class="t-kbd">Enter</span></button>
       </div>
     </div>
   </div>
 </main>
+<script src="../assets/demo-data.js"></script>
 <script src="../assets/shell.js"></script>
 <script>
 (function () {
+  "use strict";
+  /* Ledger built from assets/demo-data.js invoices of ?p=<patient> (org-wide, every branch). */
+  var T = window.Tamargi, D = T.data, C = T.ctx, F = D.fmt;
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
-  var en = function () { return window.Tamargi && Tamargi.lang() === "en"; };
-  var debt = 90, dep = 150;
+  function en() { return C.lang === "en"; }
+  function tx(ar, e) { return en() ? e : ar; }
+  function t(r) { return F.t(r, C.lang); }
+  function n(x) { return F.num(x, C.lang); }
+  var M = F.money;
+  var MON = [["يناير", "Jan"], ["فبراير", "Feb"], ["مارس", "Mar"], ["أبريل", "Apr"], ["مايو", "May"], ["يونيو", "Jun"], ["يوليو", "Jul"], ["أغسطس", "Aug"], ["سبتمبر", "Sep"], ["أكتوبر", "Oct"], ["نوفمبر", "Nov"], ["ديسمبر", "Dec"]];
+  function dShort(iso) { var p = iso.split("-"); return en() ? +p[2] + " " + MON[+p[1] - 1][1] : n(+p[2]) + " " + MON[+p[1] - 1][0]; }
+  function dd(iso) { var p = iso.split("-"); return p[2] + "/" + p[1]; }
+  function multi() { return D.branchesOf(C.org).length > 1; }
+  function brTag(id) { var b = D.branch(id); return b ? ' <span class="t-branch-tag"><svg class="t-icon"><use href="#i-pin"/></svg>' + tx(b.shortAr, b.shortEn) + "</span>" : ""; }
+  function docShort(id) { var d = D.doctor(id); return d ? tx(d.shortAr, d.shortEn) : ""; }
+  var DEF = { selim: "s-p6", nile: "n-p4" };
+  var urlP = (location.search.match(/[?&]p=([\w-]+)/) || [])[1];
+  var P = null, debt = 0, dep = 0, open = [], extra = [], seq = 193;
+
+  function current() {
+    var u = urlP && D.patient(urlP);
+    if (u && u.org === C.org) { T.clearNotice("pt"); return u; }
+    if (u) T.scopeNotice({ org: u.org, what: { ar: "حساب " + u.ar, en: u.en + "'s account" }, key: "pt" }); else T.clearNotice("pt");
+    return D.patient(DEF[C.org]) || D.scoped("patients", C)[0];
+  }
+  /* new receipts/deposits take the number series of the branch that takes the cash */
+  function docNo(kind) { var b = C.branchRec; return b ? D.docNo(kind, b.id, seq++) : kind + "-" + seq++; }   /* per-branch series (D39) */
+
+  function load() {
+    P = current(); debt = P.debt; dep = P.deposit; extra = [];
+    var inv = D.patientInvoices(P.id).slice().sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : a.time - b.time; });
+    open = inv.filter(function (i) { return i.status !== "credit" && i.status !== "void" && i.total > i.paid; }).map(function (i) { return { no: i.no, date: i.date, due: i.total - i.paid, branch: i.branch }; });
+  }
+  function ledger() {
+    var inv = D.patientInvoices(P.id).slice().sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : a.time - b.time; });
+    var credits = inv.filter(function (i) { return i.creditNote; }).reduce(function (s, i) { return s + i.creditNote.amount; }, 0);
+    var rd = 0, rp = Math.max(0, P.deposit - credits), rows = [], charged = 0;
+    function row(date, doc, link, chipCls, chip, detail, ch, pd, br) {
+      rows.push('<tr><td class="t-ltr">' + dd(date) + "</td><td>" + (link ? '<a class="pa-doc" href="invoice-detail.html">' + doc + "</a>" : '<span class="pa-doc">' + doc + "</span>") +
+        '<span class="t-meta"><span class="t-chip ' + chipCls + '">' + chip + "</span>" + (multi() && br ? brTag(br) : "") + "</span></td><td>" + detail + '</td><td class="num">' + ch + '</td><td class="num">' + pd + "</td>" +
+        '<td class="num">' + (rd ? '<span class="t-money debt">' + M(rd) + "</span>" : "0") + '</td><td class="num">' + (rp ? '<span class="t-money deposit">' + M(rp) + "</span>" : "0") + "</td></tr>");
+    }
+    if (rp) row(inv.length ? inv[0].date : D.today, "DEP", false, "info", tx("رصيد سابق", "Opening"), tx("رصيد مقدم سابق", "Deposit brought forward"), "—", M(rp), null);
+    inv.forEach(function (i) {
+      var lines = i.lines.map(function (l) { return t(l); }).join(" + "), due = i.total - i.paid;
+      charged += i.total; rd += Math.max(0, due);
+      var det = lines + " · " + docShort(i.doctor) + " · " + (i.total === 0 ? tx("متابعة مجانية", "free follow-up") : tx("دفع " + M(i.paid) + " ", "paid " + M(i.paid) + " ") + t(D.payMethods[i.method]));
+      row(i.date, i.no, true, i.status, t(D.invoiceStatus[i.status]), det, M(i.total), M(i.paid), i.branch);
+      if (i.creditNote) { charged -= i.creditNote.amount; rp += i.creditNote.amount; row(i.date, i.creditNote.no, true, "credit", tx("مرتجع", "Credit note"), t(i.creditNote.reason) + tx(" · للرصيد", " · to deposit"), "−" + M(i.creditNote.amount), "—", i.branch); }
+    });
+    if (!inv.length && !rp) rows.push('<tr><td colspan="7" class="t-muted">' + tx("لسه مفيش حركة على الحساب.", "No activity on this account yet.") + "</td></tr>");
+    return { html: rows.join(""), charged: charged, count: inv.length, firstDate: inv.length ? inv[0].date : null };
+  }
 
   function paint() {
-    $("#pa-debt").textContent = debt; $("#pa-dep").textContent = dep;
-    $("#pa-debt-f").textContent = debt; $("#pa-dep-f").textContent = dep;
-    $$(".t-banner .t-balance.debt").forEach(function (b) { b.setAttribute("data-ar", "عليه " + debt + " ج.م"); b.setAttribute("data-en", "Owes " + debt + " EGP"); b.innerHTML = en() ? "Owes " + debt + " EGP" : "عليه " + debt + " ج.م"; b.hidden = debt <= 0; });
-    $$(".t-banner .t-balance.deposit").forEach(function (b) { b.setAttribute("data-ar", "رصيد مقدم " + dep + " ج.م"); b.setAttribute("data-en", "Deposit " + dep + " EGP"); b.innerHTML = en() ? "Deposit " + dep + " EGP" : "رصيد مقدم " + dep + " ج.م"; });
-    $$("#pa-open .pa-open").forEach(function (r) {
-      var due = +r.getAttribute("data-due"), b = $("[data-payfrom]", r);
-      b.disabled = due > dep;
-      b.title = due > dep ? (en() ? "Deposit is less than the amount due" : "الرصيد أقل من المطلوب") : "";
-    });
-    if (!$("#pa-open .pa-open")) $("#pa-open-hint").innerHTML = en() ? "No open invoices." : "مفيش فواتير عليها باقي.";
+    var o = C.orgRec, L = ledger();
+    $("#pa-av").textContent = (en() ? P.en : P.ar).split(" ").slice(0, 2).map(function (w) { return w[0]; }).join(" ");
+    $("#pa-name").textContent = t(P);
+    $("#pa-file").href = "patient-file.html?p=" + P.id;
+    $("#pa-facts").innerHTML = "<span><b>" + n(P.age) + "</b> " + tx("سنة · " + (P.sex === "F" ? "أنثى" : "ذكر"), "yrs · " + P.sex) + "</span><span>" + tx("ملف", "File") + ' <b class="t-ltr">' + P.fileNo + '</b></span><span class="t-ltr">' + P.phone + "</span>" +
+      (multi() ? "<span>" + tx("حساب واحد لكل فروع " + o.ar, "One account across " + o.en + " branches") + "</span>" : "<span>" + t(D.branch(P.regBranch).city) + "</span>");
+    var al = P.allergies.length ? '<span class="t-allergy"><svg class="t-icon sm"><use href="#i-alert"/></svg>' + tx("حساسية: ", "Allergy: ") + P.allergies.map(t).join(tx("، ", ", ")) + "</span>" : '<span class="t-allergy none">' + tx("لا حساسية معروفة", "No known allergies") + "</span>";
+    if (debt > 0) al += '<span class="t-balance debt">' + tx((P.sex === "F" ? "عليها " : "عليه ") + M(debt) + " ج.م", "Owes " + M(debt) + " EGP") + "</span>";
+    if (dep > 0) al += '<span class="t-balance deposit">' + tx("رصيد مقدم " + M(dep) + " ج.م", "Deposit " + M(dep) + " EGP") + "</span>";
+    $("#pa-alerts").innerHTML = al;
+    var b = C.branchRec || D.branchesOf(C.org)[0];
+    $("#pa-ph-h").textContent = tx("كشف حساب — " + o.ar, "Account statement — " + o.en);
+    $("#pa-ph-p").textContent = t(P) + " · " + tx("ملف ", "File ") + P.fileNo + " · " + tx(b.addressAr, b.addressEn) + " · " + b.phone + (L.firstDate ? " · " + dShort(L.firstDate) + " – " + dShort(D.today) : "");
+
+    $("#pa-debt").textContent = M(debt); $("#pa-dep").textContent = M(dep);
+    $("#pa-debt-f").textContent = M(debt); $("#pa-dep-f").textContent = M(dep);
+    var nOpen = open.length, oldest = open[0];
+    $("#pa-debt-sub").textContent = nOpen ? tx("من " + (nOpen === 1 ? "فاتورة واحدة" : nOpen === 2 ? "فاتورتين" : n(nOpen) + " فواتير") + " · الأقدم " + dShort(oldest.date) + " (" + n(-D.daysTo(oldest.date)) + " يوم)", "From " + nOpen + " invoice" + (nOpen > 1 ? "s" : "") + " · oldest " + dShort(oldest.date) + " (" + -D.daysTo(oldest.date) + " days)") : tx("مفيش فواتير عليها باقي", "No open invoices");
+    $("#pa-life").textContent = M(L.charged);
+    $("#pa-life-sub").textContent = L.firstDate ? tx("صافي الفواتير · " + n(L.count) + " فواتير من " + dShort(L.firstDate), "Net billed · " + L.count + (L.count === 1 ? " invoice" : " invoices") + " since " + dShort(L.firstDate)) : tx("لسه مفيش فواتير", "No invoices yet");
+    $("#pa-ch-f").textContent = M(L.charged);
+    $("#pa-rows").innerHTML = L.html + extra.join("");
+
+    $("#pa-open-n").textContent = n(open.length);
+    $("#pa-open").innerHTML = open.map(function (o2, i) {
+      var dis = o2.due > dep;
+      return '<div class="pa-open" data-i="' + i + '"><div class="t-grow"><span class="pa-doc">' + o2.no + '</span><div class="t-small t-muted">' + dShort(o2.date) + tx(" · الباقي ", " · due ") + '<b class="t-money debt">' + M(o2.due) + "</b>" + (multi() ? brTag(o2.branch) : "") + "</div></div>" +
+        '<button class="t-btn sm soft" type="button" data-payfrom' + (dis ? ' disabled title="' + tx("الرصيد أقل من المطلوب", "Deposit is less than the amount due") + '"' : "") + '><svg class="t-icon sm"><use href="#i-wallet"/></svg>' + tx("ادفع " + M(o2.due) + " من الرصيد", "Pay " + M(o2.due) + " from deposit") + "</button></div>";
+    }).join("");
+    $("#pa-open-hint").textContent = open.length ? (dep < open[0].due ? tx("الرصيد " + M(dep) + " ج.م — أقل من الباقي، فالدفع من الرصيد مقفول.", "Deposit " + M(dep) + " EGP — less than what is due, so paying from deposit is off.") : tx("الأقدم الأول هو افتراضي العيادة.", "Oldest debt first is the clinic default.")) : tx("مفيش فواتير عليها باقي.", "No open invoices.");
+    $("#pa-rule-org").textContent = multi() ? tx("المديونية بتتسدد من أي فرع في " + o.ar, "Debt can be settled at any " + o.en + " branch") : tx("فرع واحد: كل الحركة على خزنة " + t(b), "One branch: all money goes through the " + t(b) + " drawer");
+    $("#pa-kind-debt").textContent = tx((P.sex === "F" ? "عليها " : "عليه ") + M(debt) + " · الأقدم الأول", "Owes " + M(debt) + " · oldest invoice first");
     msg();
   }
   function msg() {
-    var kind = ($('input[name="pa-kind"]:checked') || {}).value, amt = parseFloat($("#pa-amt").value) || 0, t, cls = "info";
-    $("#pa-ok-amt").textContent = amt;
-    if (kind === "deposit") t = en() ? "Deposit will become " + (dep + amt) + " EGP. Debt stays " + debt + "." : "الرصيد هيبقى " + (dep + amt) + " ج.م. المديونية تفضل " + debt + ".";
-    else if (amt > debt) { cls = "warning"; t = en() ? "That is " + (amt - debt) + " more than the debt. Choose “Add to deposit” for the extra, or lower the amount." : "ده أكتر من المديونية بـ " + (amt - debt) + ". اختار «إضافة للرصيد» للزيادة أو قلّل المبلغ."; }
-    else t = en() ? "Debt will become " + (debt - amt) + " EGP (oldest invoice first)." : "المديونية هتبقى " + (debt - amt) + " ج.م (الأقدم الأول).";
-    var m = $("#pa-msg"); m.className = "t-alert " + cls; $("#pa-msg-t").textContent = t;
+    var kind = ($('input[name="pa-kind"]:checked') || {}).value, amt = parseFloat($("#pa-amt").value) || 0, tt, cls = "info";
+    $("#pa-ok-amt").textContent = M(amt);
+    if (kind === "deposit") tt = tx("الرصيد هيبقى " + M(dep + amt) + " ج.م. المديونية تفضل " + M(debt) + ".", "Deposit will become " + M(dep + amt) + " EGP. Debt stays " + M(debt) + ".");
+    else if (amt > debt) { cls = "warning"; tt = tx("ده أكتر من المديونية بـ " + M(amt - debt) + ". اختار «إضافة للرصيد» للزيادة أو قلّل المبلغ.", "That is " + M(amt - debt) + " more than the debt. Choose “Add to deposit” for the extra, or lower the amount."); }
+    else {
+      var left = amt, closes = [];
+      open.forEach(function (o2) { if (left >= o2.due) { closes.push(o2.no + " (" + M(o2.due) + ")"); left -= o2.due; } });
+      tt = (closes.length ? tx("هيقفل " + closes.join(" و") + ". ", "Closes " + closes.join(" and ") + ". ") : "") + tx("المديونية هتبقى " + M(debt - amt) + " ج.م (الأقدم الأول).", "Debt will become " + M(debt - amt) + " EGP (oldest invoice first).");
+    }
+    var m = $("#pa-msg"); m.className = "t-alert " + cls; $("#pa-msg-t").textContent = tt;
     $("#pa-ok").disabled = amt <= 0 || (kind === "debt" && amt > debt);
   }
   function addRow(doc, chip, chipCls, detail, ch, pd) {
-    var tr = document.createElement("tr");
-    tr.innerHTML = '<td class="t-ltr">14/11</td><td><span class="pa-doc">' + doc + '</span><span class="t-meta"><span class="t-chip ' + chipCls + '">' + chip + "</span></span></td><td>" + detail + '</td><td class="num">' + ch + '</td><td class="num">' + pd + '</td><td class="num"><span class="t-money debt">' + debt + '</span></td><td class="num"><span class="t-money deposit">' + dep + "</span></td>";
-    $$("#pa-rows tr").forEach(function (r) { r.classList.remove("is-selected"); });
-    tr.className = "is-selected"; $("#pa-rows").appendChild(tr);
+    var b = C.branchRec;
+    extra.push('<tr class="is-selected"><td class="t-ltr">' + dd(D.today) + '</td><td><span class="pa-doc">' + doc + '</span><span class="t-meta"><span class="t-chip ' + chipCls + '">' + chip + "</span>" + (multi() && b ? brTag(b.id) : "") + "</span></td><td>" + detail +
+      '</td><td class="num">' + ch + '</td><td class="num">' + M(pd) + '</td><td class="num"><span class="t-money debt">' + M(debt) + '</span></td><td class="num"><span class="t-money deposit">' + M(dep) + "</span></td></tr>");
   }
+  function needBranch() { return !T.scopeNotice({ needBranch: true, what: { ar: "استلام الفلوس", en: "Receiving money" }, key: "cash" }).ok; }
   document.addEventListener("input", function (e) { if (e.target.id === "pa-amt") msg(); });
   document.addEventListener("change", function (e) { if (e.target.name === "pa-kind") msg(); });
   document.addEventListener("click", function (e) {
     var b;
+    if ((b = e.target.closest("#pa-recv-btn"))) {
+      if (needBranch()) { $("#pa-receive").hidden = true; T.toast(tx("اختار فرع واحد الأول: الفلوس بتدخل خزنة فرع", "Pick one branch first: money goes into a branch drawer")); return; }
+      $("#pa-amt").value = debt > 0 ? String(debt) : "100";
+      var r = $('input[name="pa-kind"][value="' + (debt > 0 ? "debt" : "deposit") + '"]'); if (r) r.checked = true; msg(); return;
+    }
     if ((b = e.target.closest("#pa-meth button"))) { $$("#pa-meth button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); return; }
     if ((b = e.target.closest("[data-payfrom]"))) {
-      var row = b.closest(".pa-open"), due = +row.getAttribute("data-due");
-      if (due > dep) return;
-      dep -= due; debt -= due;
-      addRow("PAY-" + row.getAttribute("data-inv").slice(4), en() ? "From deposit" : "من الرصيد", "info", (en() ? "Paid " : "سداد ") + row.getAttribute("data-inv") + (en() ? " from deposit" : " من الرصيد"), "—", due);
-      row.remove(); paint();
-      Tamargi.toast(en() ? "Paid " + due + " from deposit" : "اتدفع " + due + " من الرصيد"); return;
+      var i = +b.closest(".pa-open").getAttribute("data-i"), o2 = open[i];
+      if (!o2 || o2.due > dep) return;
+      dep -= o2.due; debt -= o2.due; open.splice(i, 1);
+      addRow(docNo("PAY"), tx("من الرصيد", "From deposit"), "info", tx("سداد ", "Paid ") + o2.no + tx(" من الرصيد", " from deposit"), "—", o2.due);
+      paint(); T.toast(tx("اتدفع " + M(o2.due) + " من الرصيد", "Paid " + M(o2.due) + " from deposit")); return;
     }
     if (e.target.closest("#pa-ok")) {
-      var kind = $('input[name="pa-kind"]:checked').value, amt = parseFloat($("#pa-amt").value) || 0;
-      if (kind === "deposit") { dep += amt; addRow("DEP-000248", en() ? "Deposit" : "إيداع", "info", en() ? "Deposit · cash" : "إيداع · كاش", "—", amt); }
-      else { debt -= amt; addRow("RCV-000193", en() ? "Debt receipt" : "سداد مديونية", "paid", en() ? "Debt settled · cash" : "سداد مديونية · كاش", "—", amt); if (debt === 0) $$("#pa-open .pa-open").forEach(function (r) { r.remove(); }); }
+      if (needBranch()) return;
+      var kind = $('input[name="pa-kind"]:checked').value, amt = parseFloat($("#pa-amt").value) || 0, meth = $("#pa-meth [aria-pressed=true]").textContent;
+      if (kind === "deposit") { dep += amt; addRow(docNo("DEP"), tx("إيداع", "Deposit"), "info", tx("إيداع · ", "Deposit · ") + meth, "—", amt); }
+      else {
+        debt -= amt; var left = amt;
+        while (open.length && left >= open[0].due) { left -= open[0].due; open.shift(); }
+        if (open.length && left > 0) open[0].due -= left;
+        addRow(docNo("RCV"), tx("سداد مديونية", "Debt receipt"), "paid", tx("سداد مديونية · ", "Debt settled · ") + meth, "—", amt);
+      }
       $("#pa-receive").hidden = true; paint();
-      Tamargi.toast(en() ? "Received " + amt + " EGP — receipt ready to print" : "اتستلم " + amt + " ج.م — الإيصال جاهز للطباعة", en() ? "Print" : "طباعة"); return;
+      T.toast(tx("اتستلم " + M(amt) + " ج.م في خزنة " + C.branchRec.shortAr + " — الإيصال جاهز للطباعة", "Received " + M(amt) + " EGP into the " + C.branchRec.shortEn + " drawer — receipt ready to print"), tx("طباعة", "Print")); return;
     }
     if (e.target.closest("#pa-print")) { window.print(); return; }
-    if (e.target.closest("[data-shell-lang]")) setTimeout(paint, 0);
   });
   document.addEventListener("keydown", function (e) {
     if (e.key === "F8") { e.preventDefault(); $("#pa-recv-btn").click(); }
     if (e.key === "Enter" && !$("#pa-receive").hidden && e.target.tagName !== "BUTTON") { e.preventDefault(); $("#pa-ok").click(); }
   });
-  paint();
+  T.onCtx(function (c, reason) { if (reason === "org" || reason === "init") load(); if (reason !== "branch" || !c.all) T.clearNotice("cash"); paint(); });
+  load(); paint();
 })();
 </script>
 </body>

@@ -19,10 +19,13 @@
     .ps-keys { display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-4); padding: var(--s-3) var(--s-5); border-block-start: 1px solid var(--line); background: var(--surface-sunk); font-size: var(--fs-xs); color: var(--text-2); }
     .ps-keys span { display: inline-flex; align-items: center; gap: 6px; }
     .ps-count { font-size: var(--fs-sm); color: var(--text-2); }
+    .ps-table td .t-ltr { white-space: nowrap; }
     @media (max-width: 760px) { .ps-hide-sm { display: none; } }
   </style>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
-<body data-screen="patient-search">
+<body data-screen="patient-search" data-org-default="selim">
 <main id="screen">
   <div class="t-container narrow" style="max-width:1080px">
 
@@ -30,6 +33,7 @@
       <div>
         <h1 data-en="Patient search">البحث عن مريض</h1>
         <p class="t-sub mb-0" data-en="One box for name, mobile, national ID or file number. Spelling differences don't matter.">خانة واحدة للاسم أو الموبايل أو الرقم القومي أو رقم الملف. اختلاف الإملاء مش مشكلة.</p>
+        <p class="t-small t-muted mb-0 mt-2" id="ps-scope"></p>
       </div>
       <div class="t-actions">
         <a class="t-btn primary" href="patient-quick-register.html" id="ps-new"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="New patient">مريض جديد</span><span class="t-kbd">F4</span></a>
@@ -45,7 +49,9 @@
              data-en-placeholder="Type a name, mobile, national ID or file no.">
       <span class="t-kbd">Ctrl K</span>
     </div>
-    <div class="ps-norm" id="ps-norm">
+    <div class="ps-norm" id="ps-norm"
+         data-note="One patient file per organization (ADR-017): search always covers every branch of the selected organization, so a patient registered in Toreil is found from University. Each result shows the branch where the file was opened and where the last visit was. Another organization's patients never appear: switching org switches the file list."
+         data-note-ar="ملف واحد للمريض في المنشأة: البحث بيغطي كل فروع المنشأة المختارة، فالمريض المسجل في توريل بيتلاقي من الجامعة. كل نتيجة فيها الفرع اللي اتفتح فيه الملف وفرع آخر زيارة. مرضى منشأة تانية عمرهم ما بيظهروا.">
       <span data-en="Finds both spellings:">بيلاقي الكتابتين:</span>
       <code>هبة = هبه</code><code>مني = منى</code><code>إسراء = اسراء</code><code>عبد الله = عبدالله</code><code class="t-ltr">٠١٠ = 010</code>
     </div>
@@ -53,7 +59,7 @@
     <!-- ===== STATE: results ===== -->
     <section class="t-card flush" data-state="results">
       <div class="t-card-head">
-        <h2 class="ps-count" id="ps-count" data-en="2 patients match">٢ مرضى مطابقين</h2>
+        <h2 class="ps-count" id="ps-count"></h2>
         <div class="t-actions"><span class="t-small t-faint" data-en="Sorted by last visit">مترتبين بآخر زيارة</span></div>
       </div>
       <div class="t-table-wrap" style="border:0;border-radius:0">
@@ -105,7 +111,7 @@
         <h3 id="ps-none-h" data-en="No patient matches">مفيش مريض بالبيانات دي</h3>
         <p data-en="Check the mobile number, or try only the first and last name. If this is a new patient, register them now; what you typed is carried over.">راجع رقم الموبايل، أو جرّب الاسم الأول والأخير بس. لو مريض جديد سجّله دلوقتي، واللي كتبته هيتنقل معاك.</p>
         <div class="t-row tight">
-          <a class="t-btn primary" id="ps-reg" href="patient-quick-register.html?q=%D8%A5%D8%A8%D8%B1%D8%A7%D9%87%D9%8A%D9%85%20%D8%A7%D9%84%D8%B3%D9%8A%D8%AF%20%D8%B9%D9%88%D8%B6"><svg class="t-icon sm"><use href="#i-plus"/></svg><span id="ps-reg-label">سجّل «إبراهيم السيد عوض»</span><span class="t-kbd">F4</span></a>
+          <a class="t-btn primary" id="ps-reg" href="patient-quick-register.html?q=%D8%A5%D8%A8%D8%B1%D8%A7%D9%87%D9%8A%D9%85%20%D8%A7%D9%84%D8%B3%D9%8A%D8%AF%20%D8%B9%D9%88%D8%B6"><svg class="t-icon sm"><use href="#i-plus"/></svg><span id="ps-reg-label"></span><span class="t-kbd">F4</span></a>
           <button class="t-btn" type="button" id="ps-clear"><span data-en="Clear search">مسح البحث</span></button>
         </div>
       </div>
@@ -113,32 +119,39 @@
 
   </div>
 </main>
+<script src="../assets/demo-data.js"></script>
 <script src="../assets/shell.js"></script>
 <script>
 (function () {
   "use strict";
-  var T = window.Tamargi;
-  function en() { return T.lang() === "en"; }
-  function tx(ar, e) { return '<span data-ar="' + ar + '" data-en="' + e + '">' + (en() ? e : ar) + "</span>"; }
+  /* Patients come from assets/demo-data.js: the selected organization's file list (all its branches). */
+  var T = window.Tamargi, D = T.data, C = T.ctx, F = D.fmt;
+  function L() { return C.lang === "en"; }
+  function tx(ar, e) { return L() ? e : ar; }
+  function t(r) { return F.t(r, C.lang); }
+  function n(x) { return F.num(x, C.lang); }
+  var MON = [["يناير", "Jan"], ["فبراير", "Feb"], ["مارس", "Mar"], ["أبريل", "Apr"], ["مايو", "May"], ["يونيو", "Jun"], ["يوليو", "Jul"], ["أغسطس", "Aug"], ["سبتمبر", "Sep"], ["أكتوبر", "Oct"], ["نوفمبر", "Nov"], ["ديسمبر", "Dec"]];
+  function dShort(iso) { var p = iso.split("-"); return L() ? +p[2] + " " + MON[+p[1] - 1][1] : n(+p[2]) + " " + MON[+p[1] - 1][0]; }
+  function multi() { return D.branchesOf(C.org).length > 1; }
+  function brShort(id) { var b = D.branch(id); return b ? tx(b.shortAr, b.shortEn) : ""; }
+  function brTag(id) { return '<span class="t-branch-tag"><svg class="t-icon"><use href="#i-pin"/></svg>' + brShort(id) + "</span>"; }
+  function docShort(id) { var d = D.doctor(id); return d ? tx(d.shortAr, d.shortEn) : ""; }
+  /* demo query per org, so the "results" state always has hits */
+  var DEMO = { selim: "محمد عبد الله", nile: "محمود" }, NONE = "إبراهيم السيد عوض";
 
-  /* Fake patients — no real people */
-  var P = [
-    { n: "محمد عبد الله إبراهيم العشري", age: 52, sx: ["ذكر", "M"], mob: "01227781190", nid: "27403151200435", file: "0871", last: ["٢ نوفمبر · د. أحمد", "2 Nov · Dr. Ahmed"], dep: 200, ord: 3 },
-    { n: "محمد عبدالله فوزي الجندي", age: 29, sx: ["ذكر", "M"], mob: "01114402233", nid: "29705081201117", file: "1310", last: ["١١ نوفمبر · د. أحمد", "11 Nov · Dr. Ahmed"], fu: ["متابعة مجانية حتى ٢٥ نوفمبر", "Free follow-up until 25 Nov"], ord: 1 },
-    { n: "منى عبد الرحمن السيد الشناوي", age: 34, sx: ["أنثى", "F"], mob: "01002345678", nid: "29203121201882", file: "1043", last: ["٥ نوفمبر · د. أحمد", "5 Nov · Dr. Ahmed"], debt: 40, fu: ["متابعة مجانية حتى ١٩ نوفمبر", "Free follow-up until 19 Nov"], ord: 2 },
-    { n: "هبة محمود عبد الله سرور", age: 41, sx: ["أنثى", "F"], mob: "01550093317", nid: "28509221200764", file: "0655", last: ["١٣ سبتمبر · د. أحمد", "13 Sep · Dr. Ahmed"], ord: 6 },
-    { n: "ريم أحمد عبد الفتاح زكي", age: 5, sx: ["أنثى", "F"], mob: "01093320145", nid: "", file: "2214", last: ["٨ نوفمبر · د. هبة", "8 Nov · Dr. Heba"], fu: ["متابعة مجانية حتى ١٨ نوفمبر", "Free follow-up until 18 Nov"], child: true, ord: 4 },
-    { n: "عبد الله فتحي القط", age: 63, sx: ["ذكر", "M"], mob: "01006617742", nid: "26301011200291", file: "0412", last: ["٣ نوفمبر · د. أحمد", "3 Nov · Dr. Ahmed"], debt: 150, ord: 5 },
-    { n: "أسماء عبد العاطي المرسي", age: 27, sx: ["أنثى", "F"], mob: "01282230456", nid: "29908141201553", file: "1502", last: ["النهارده · د. أحمد", "Today · Dr. Ahmed"], ord: 0, today: ["انتهت ٧:٠٥ · مدفوع", "Done 7:05 · paid"] },
-    { n: "إسراء محمد الشربيني", age: 31, sx: ["أنثى", "F"], mob: "01019874456", nid: "29502271201345", file: "1188", last: ["٢٠ أكتوبر · د. هبة", "20 Oct · Dr. Heba"], ord: 7 },
-    { n: "كريم محمود عبد العزيز", age: 38, sx: ["ذكر", "M"], mob: "01224408812", nid: "28806051201239", file: "1620", last: ["النهارده · د. أحمد", "Today · Dr. Ahmed"], debt: 150, ord: 0, today: ["انتهى · مطلوب ١٥٠", "Done · owes 150"] },
-    { n: "سامية فؤاد البدراوي", age: 46, sx: ["أنثى", "F"], mob: "01061122093", nid: "", file: "1621", last: ["النهارده · د. أحمد", "Today · Dr. Ahmed"], ord: 0, today: ["في الكشف", "In room"] }
-  ];
+  /* last visit = newest finished appointment or invoice of this patient (any branch of the org) */
+  function lastVisit(p) {
+    var best = null;
+    D.patientAppointments(p.id).forEach(function (a) { if (a.status === "done" && a.date <= D.today && (!best || a.date > best.date)) best = { date: a.date, doctor: a.doctor, branch: a.branch }; });
+    D.patientInvoices(p.id).forEach(function (i) { if (!best || i.date > best.date) best = { date: i.date, doctor: i.doctor, branch: i.branch }; });
+    return best;
+  }
+  function todayAppt(p) { return D.appointmentsOn(C).filter(function (a) { return a.patient === p.id; })[0] || null; }
 
   /* Arabic normaliser that keeps a map back to the original string (for highlighting) */
   function nchar(c) {
     if (/[أإآٱ]/.test(c)) return "ا"; if (c === "ة") return "ه"; if (c === "ى" || c === "ئ") return "ي"; if (c === "ؤ") return "و";
-    var k = c.charCodeAt(0); if (k >= 1632 && k <= 1641) return String(k - 1632); return c;
+    var k = c.charCodeAt(0); if (k >= 1632 && k <= 1641) return String(k - 1632); return c.toLowerCase();
   }
   function nmap(s) { var out = "", map = []; for (var i = 0; i < s.length; i++) { if (/\s/.test(s[i])) continue; out += nchar(s[i]); map.push(i); } return { s: out, map: map }; }
   function hl(name, q) {
@@ -146,20 +159,26 @@
     var a = N.map[i], b = N.map[i + q.length - 1] + 1;
     return name.slice(0, a) + "<mark>" + name.slice(a, b) + "</mark>" + name.slice(b);
   }
-  function fmtMob(m) { return m.slice(0, 4) + " " + m.slice(4, 7) + " " + m.slice(7); }
   function pills(p) {
     var h = "";
-    if (p.debt) h += '<span class="t-chip debt plain">' + tx("عليه " + p.debt + " ج.م", "Owes " + p.debt + " EGP") + "</span>";
-    if (p.dep) h += '<span class="t-chip paid plain">' + tx("رصيد " + p.dep + " ج.م", "Deposit " + p.dep + " EGP") + "</span>";
-    if (p.fu) h += '<span class="t-chip free">' + tx(p.fu[0], p.fu[1]) + "</span>";
+    if (p.allergies.length) h += '<span class="t-chip danger plain">' + tx("حساسية: ", "Allergy: ") + p.allergies.map(t).join(tx("، ", ", ")) + "</span>";
+    if (p.debt) h += '<span class="t-chip debt plain">' + tx("عليه " + F.money(p.debt) + " ج.م", "Owes " + F.money(p.debt) + " EGP") + "</span>";
+    if (p.deposit) h += '<span class="t-chip paid plain">' + tx("رصيد " + F.money(p.deposit) + " ج.م", "Deposit " + F.money(p.deposit) + " EGP") + "</span>";
+    if (p.followupUntil && p.followupUntil >= D.today) h += '<span class="t-chip free">' + tx("متابعة مجانية حتى " + dShort(p.followupUntil), "Free follow-up until " + dShort(p.followupUntil)) + "</span>";
     return h || '<span class="t-faint t-small">' + tx("صفر", "Clear") + "</span>";
   }
   function row(p, q, recent) {
-    return '<tr tabindex="-1" data-file="' + p.file + '">' +
-      '<td><span class="t-name">' + hl(p.n, q) + '</span><span class="t-meta">' + tx("ملف", "File") + ' <span class="t-ltr">' + p.file + "</span>" + (p.nid ? ' · <span class="t-ltr">' + p.nid.slice(0, 1) + "•••••••••" + p.nid.slice(-4) + "</span>" : "") + (p.child ? " · " + tx("طفل — رقم ولي الأمر", "Child — guardian's phone") : "") + "</span></td>" +
-      '<td class="ps-hide-sm">' + p.age + " · " + tx(p.sx[0], p.sx[1]) + "</td>" +
-      '<td><span class="t-ltr">' + fmtMob(p.mob) + "</span></td>" +
-      '<td class="ps-hide-sm">' + (recent && p.today ? tx(p.today[0], p.today[1]) : tx(p.last[0], p.last[1])) + "</td>" +
+    var lv = lastVisit(p), ta = todayAppt(p), when;
+    if (recent && ta) when = t(D.apptStatus[ta.status]) + " · " + docShort(ta.doctor) + (C.all ? " " + brTag(ta.branch) : "");
+    else if (lv) when = (lv.date === D.today ? tx("النهارده", "Today") : dShort(lv.date)) + " · " + docShort(lv.doctor) + (multi() ? " " + brTag(lv.branch) : "");
+    else when = '<span class="t-faint">' + tx("لسه مفيش زيارات", "No visits yet") + "</span>";
+    var name = t(p);
+    return '<tr tabindex="-1" data-p="' + p.id + '">' +
+      '<td><span class="t-name">' + hl(name, q) + '</span><span class="t-meta">' + tx("ملف", "File") + ' <span class="t-ltr">' + p.fileNo + "</span>" +
+        (multi() ? " · " + tx("اتسجل في ", "registered in ") + brShort(p.regBranch) : "") + (p.child ? " · " + tx("طفل — رقم ولي الأمر", "Child — guardian's phone") : "") + "</span></td>" +
+      '<td class="ps-hide-sm">' + n(p.age) + " · " + tx(p.sex === "F" ? "أنثى" : "ذكر", p.sex) + "</td>" +
+      '<td><span class="t-ltr">' + p.phone + "</span></td>" +
+      '<td class="ps-hide-sm">' + when + "</td>" +
       '<td><div class="ps-pills">' + pills(p) + "</div></td>" +
       '<td class="actions"><button class="t-btn sm soft" type="button" data-q>' + tx("إضافة للدور", "Add to queue") + "</button></td></tr>";
   }
@@ -167,69 +186,88 @@
   var input = document.getElementById("ps-q"), body = document.getElementById("ps-body"), sel = 0, hits = [];
   function search() {
     var raw = input.value.trim(), q = nmap(raw).s;
-    if (!q) { T.setState("recent"); return; }
+    if (!q) { T.setState("recent"); sel = 0; mark(); return; }
     var digits = /^[0-9]+$/.test(q);
-    hits = P.filter(function (p) { return digits ? (p.mob.indexOf(q) > -1 || p.nid.indexOf(q) > -1 || p.file.indexOf(q) > -1) : nmap(p.n).s.indexOf(q) > -1; })
-            .sort(function (a, b) { return a.ord - b.ord; });
+    hits = D.scoped("patients", C).filter(function (p) {
+      return digits ? (p.phone.replace(/\s/g, "").indexOf(q) > -1 || p.fileNo.indexOf(q) > -1) : (nmap(p.ar).s.indexOf(q) > -1 || nmap(p.en).s.indexOf(q) > -1);
+    }).sort(function (a, b) { var la = lastVisit(a), lb = lastVisit(b); return (lb ? lb.date : "") < (la ? la.date : "") ? -1 : 1; });
     if (!hits.length) {
       document.getElementById("ps-reg").href = "patient-quick-register.html?q=" + encodeURIComponent(raw);
-      var lbl = document.getElementById("ps-reg-label");
-      lbl.setAttribute("data-ar", "سجّل «" + raw + "»"); lbl.setAttribute("data-en", "Register “" + raw + "”");
-      lbl.innerHTML = en() ? lbl.getAttribute("data-en") : lbl.getAttribute("data-ar");
+      document.getElementById("ps-reg-label").textContent = tx("سجّل «" + raw + "»", "Register “" + raw + "”");
       T.setState("no-results"); return;
     }
     body.innerHTML = hits.map(function (p) { return row(p, digits ? "" : q); }).join("");
-    var c = document.getElementById("ps-count"), n = hits.length;
-    c.setAttribute("data-ar", n + (n === 1 ? " مريض مطابق" : " مرضى مطابقين")); c.setAttribute("data-en", n + (n === 1 ? " patient matches" : " patients match"));
-    c.innerHTML = en() ? c.getAttribute("data-en") : c.getAttribute("data-ar");
+    var c = hits.length;
+    document.getElementById("ps-count").textContent = L() ? c + (c === 1 ? " patient matches" : " patients match") : n(c) + (c === 1 ? " مريض مطابق" : " مرضى مطابقين");
     sel = 0; mark(); T.setState("results");
   }
   function mark() {
     var rows = document.querySelectorAll("[data-state]:not([hidden]) tbody tr");
     Array.prototype.forEach.call(rows, function (r, i) { r.classList.toggle("is-selected", i === sel); });
   }
-  document.getElementById("ps-recent").innerHTML = P.filter(function (p) { return p.today; }).concat(P.filter(function (p) { return p.ord === 1 || p.ord === 2; })).map(function (p) { return row(p, "", true); }).join("");
+  function render() {
+    var o = C.orgRec, nb = D.branchesOf(C.org).length, nP = D.scoped("patients", C).length;
+    document.getElementById("ps-scope").textContent = nb > 1
+      ? tx("بتدوّر في ملفات " + o.ar + " كلها (" + n(nP) + " ملف · " + (nb === 2 ? "فرعين" : n(nb) + " فروع") + "): ملف واحد للمريض في كل الفروع.", "Searching all " + o.en + " files (" + nP + " files · " + nb + " branches): one file per patient across branches.")
+      : tx("بتدوّر في ملفات " + o.ar + " (" + n(nP) + " ملف).", "Searching " + o.en + " files (" + nP + " files).");
+    /* recent = patients with an appointment today in the selected branch(es), then free follow-ups */
+    var seen = {}, rec = [];
+    D.appointmentsOn(C).filter(function (a) { return a.status !== "booked" && a.status !== "confirmed" && a.status !== "cancelled"; }).reverse()
+      .forEach(function (a) { if (!seen[a.patient]) { seen[a.patient] = 1; rec.push(D.patient(a.patient)); } });
+    document.getElementById("ps-recent").innerHTML = rec.slice(0, 8).map(function (p) { return row(p, "", true); }).join("");
+    search();
+  }
 
   input.addEventListener("input", search);
   document.getElementById("ps-clear").addEventListener("click", function () { input.value = ""; search(); input.focus(); });
 
+  function patientOf(tr) { return D.patient(tr.getAttribute("data-p")); }
+  function openFile(tr) { if (tr) location.href = "patient-file.html?p=" + tr.getAttribute("data-p"); }
   /* Spec-strip state switcher: keep the input in sync */
   document.addEventListener("click", function (e) {
     var s = e.target.closest("[data-set-state]");
     if (s) {
       var v = s.getAttribute("data-set-state");
-      input.value = v === "results" ? "محمد عبد الله" : v === "no-results" ? "إبراهيم السيد عوض" : "";
+      input.value = v === "results" ? DEMO[C.org] || "" : v === "no-results" ? NONE : "";
       search(); return;
     }
     var q = e.target.closest("[data-q]");
     if (q) { e.stopPropagation(); addToQueue(q.closest("tr")); return; }
     var tr = e.target.closest(".ps-table tbody tr");
-    if (tr) location.href = "patient-file.html";
+    if (tr) openFile(tr);
   });
+  /* queue: the doctor working now in this branch (paediatrics first for a child), fee from the shared price list */
   function addToQueue(tr) {
-    var p = P.filter(function (x) { return x.file === tr.getAttribute("data-file"); })[0];
-    var d = p.child ? "د. هبة" : "د. أحمد", de = p.child ? "Dr. Heba" : "Dr. Ahmed";
-    var t = (p.child ? "B-10" : "A-19");
-    var typeAr = p.fu ? "متابعة مجانية" : "كشف " + (p.child ? 250 : 300) + " ج.م", typeEn = p.fu ? "free follow-up" : "consult " + (p.child ? 250 : 300) + " EGP";
-    T.toast(en() ? "Added to " + de + "'s queue — " + t + " · " + typeEn : "اتضاف لدور " + d + " — " + t + " · " + typeAr);
+    var p = patientOf(tr);
+    if (C.all) { T.toast(tx("اختار فرع واحد الأول عشان تضيف للدور", "Pick one branch first to add to the queue")); return; }
+    var ta = todayAppt(p);
+    if (ta && ta.queueNo) { T.toast(tx(t(p) + " في الدور بالفعل مع " + docShort(ta.doctor), t(p) + " is already in " + docShort(ta.doctor) + "'s queue")); return; }
+    var day = D.dayIndex(D.today), sh = D.shifts.filter(function (x) { return x.org === C.org && x.branch === C.branch && x.days.indexOf(day) > -1 && x.to > D.now; });
+    var pick = (p.child && sh.filter(function (x) { return x.sp === "peds"; })[0]) || sh.filter(function (x) { return x.sp !== "gyn" || p.sex === "F"; })[0];
+    if (!pick) { T.toast(tx("مفيش طبيب شغال دلوقتي في " + t(C.branchRec), "No doctor working now in " + t(C.branchRec))); return; }
+    var free = p.followupUntil && p.followupUntil >= D.today, svc = D.mainService(C.org, pick.sp), fee = svc ? D.price(svc.id, pick.doctor, C.branch) : 0;
+    var room = D.room(pick.room);
+    T.toast(free ? tx("اتضاف لدور " + docShort(pick.doctor) + " · " + t(room) + " · متابعة مجانية", "Added to " + docShort(pick.doctor) + "'s queue · " + t(room) + " · free follow-up")
+                 : tx("اتضاف لدور " + docShort(pick.doctor) + " · " + t(room) + " · " + svc.ar + " " + F.money(fee) + " ج.م", "Added to " + docShort(pick.doctor) + "'s queue · " + t(room) + " · " + svc.en + " " + F.money(fee) + " EGP"));
   }
 
   window.addEventListener("keydown", function (e) {
     var rows = document.querySelectorAll("[data-state]:not([hidden]) tbody tr");
     if ((e.ctrlKey || e.metaKey) && (e.key === "k" || e.key === "K")) { e.preventDefault(); e.stopPropagation(); input.focus(); input.select(); return; }
-    if (e.key === "F4") { e.preventDefault(); location.href = document.getElementById("ps-reg").href.indexOf("q=") > -1 && !hits.length ? document.getElementById("ps-reg").href : "patient-quick-register.html"; return; }
+    if (e.key === "F4") { e.preventDefault(); location.href = !hits.length && input.value.trim() ? document.getElementById("ps-reg").href : "patient-quick-register.html"; return; }
     if (e.target && e.target.hasAttribute && e.target.hasAttribute("data-shell-search")) return;
     if (e.key === "ArrowDown" && rows.length) { sel = Math.min(sel + 1, rows.length - 1); mark(); e.preventDefault(); }
     else if (e.key === "ArrowUp" && rows.length) { sel = Math.max(sel - 1, 0); mark(); e.preventDefault(); }
-    else if (e.key === "Enter" && rows.length && document.activeElement === input) { e.preventDefault(); location.href = "patient-file.html"; }
+    else if (e.key === "Enter" && rows.length && document.activeElement === input) { e.preventDefault(); openFile(rows[sel]); }
     else if (e.altKey && (e.key === "q" || e.key === "Q") && rows[sel]) { e.preventDefault(); addToQueue(rows[sel]); }
     else if (e.key === "Escape" && document.activeElement === input) { input.value = ""; search(); }
   }, true);
 
   /* Initial state from hash or default */
   var h = (location.hash.match(/state=([\w-]+)/) || [])[1];
-  if (h === "no-results") input.value = "إبراهيم السيد عوض"; else if (h === "recent") input.value = "";
-  search(); input.focus();
+  input.value = h === "no-results" ? NONE : h === "recent" ? "" : DEMO[C.org] || "";
+  T.onCtx(function (c, reason) { if (reason === "org" && input.value && !h) input.value = DEMO[C.org] || ""; render(); });
+  render(); input.focus();
 })();
 </script>
 </body>

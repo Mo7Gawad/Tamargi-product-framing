@@ -4,7 +4,7 @@
   Rules for designers (full spec: 01_Obsidian_Vault/07_UI_UX_Brand/design-system.md)
   1. Keep <html lang="ar" dir="rtl">. Arabic is the authored text; put English in data-en="…".
      Attributes: data-en-placeholder, data-en-title, data-en-aria-label.
-  2. Link ../assets/tamargi.css in <head> and ../assets/shell.js at the end of <body>.
+  2. Link ../assets/tamargi.css in <head> and ../assets/demo-data.js + ../assets/shell.js at the end of <body>.
      (This template sits one level up, so it uses assets/… instead of ../assets/…)
   3. Everything goes inside <main id="screen"><div class="t-container">…</div></main>.
      shell.js wraps it with the top bar + side nav. Do NOT build your own top bar or nav.
@@ -29,6 +29,19 @@
  11. Polyclinic-only features: mark the section with data-tier="2" and a <span class="t-tier">Tier 2</span>.
      Money: <span class="t-money debt">40<span class="cur">ج.م</span></span>; invoice states: .t-chip.paid/partial/unpaid/void/credit;
      appointment states: .t-chip.booked/confirmed/arrived/noshow/cancelled.
+ 12. Demo data + tenancy: load ../assets/demo-data.js BEFORE ../assets/shell.js. Never hard-code
+     people, patients, rooms, prices, invoices, stock or devices in the screen: read them from
+     Tamargi.data (window.TamargiData) and render for the current org/branch:
+       var D = Tamargi.data, C = Tamargi.ctx;              // C = {org, branch, all, branches[], lang, ...}
+       function render() { var rows = D.scoped("appointments", C); ... }
+       Tamargi.onCtx(render); render();                   // re-renders on org/branch/role/lang change
+     Use <body data-org-default="nile"> (not data-org) when the screen reads demo-data.js and
+     looks best with the polyclinic. Show wrong-org / wrong-branch / pick-a-branch notices with
+     Tamargi.scopeNotice({ org, branch, needBranch, what: {ar, en} }).
+     Clinical screens (visit, Rx, templates) also load ../assets/demo-clinical.js between
+     demo-data.js and shell.js (drug lines, templates, Rx sets by specialty).
+     Document numbers are per branch (D39): D.invoiceNo / D.nextInvoiceNo / D.docNo("CN"|"RCV", branch, n).
+     Plan limits: D.plans. Leaves, vitals, past visits: D.leaves / D.vitals / D.visits.
 -->
 <html lang="ar" dir="rtl">
 <head>
@@ -40,6 +53,8 @@
     /* page-specific CSS: tokens only */
     .tpl-legend { display: flex; flex-wrap: wrap; gap: var(--s-2); }
   </style>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body data-screen="_screen-template">
 <main id="screen">
@@ -182,6 +197,7 @@
 
   </div>
 </main>
+<script src="assets/demo-data.js"></script>
 <script src="assets/shell.js"></script>
 </body>
 </html>

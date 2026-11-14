@@ -39,8 +39,10 @@
     .rm-branch-h { display: flex; align-items: center; gap: var(--s-2); margin-block: var(--s-5) var(--s-3); font-size: var(--fs-lg); }
     .rm-branch-h:first-child { margin-block-start: 0; }
   </style>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
-<body data-screen="rooms" data-org="nile">
+<body data-screen="rooms" data-org-default="nile">
 <main id="screen">
   <div class="t-container">
 
@@ -79,7 +81,7 @@
           <tbody id="rm-grid-body"></tbody>
         </table>
       </div>
-      <div class="t-card-foot"><svg class="t-icon sm"><use href="#i-info"/></svg><span class="t-small" data-en="Friday closed in both branches. Room 5 (procedures) is used by nursing all day and is not booked by doctors.">الجمعة إجازة في الفرعين. غرفة ٥ (إجراءات) بتستخدمها التمريض طول اليوم ومبتتحجزش للأطباء.</span></div>
+      <div class="t-card-foot"><svg class="t-icon sm"><use href="#i-info"/></svg><span class="t-small" id="rm-foot"></span></div>
     </section>
 
   </div>
@@ -103,7 +105,7 @@
             <button type="button" class="t-pick" data-en="Procedures">إجراءات</button>
           </div>
           <span class="t-hint" data-en="The type decides which services can be booked here. Specialty stays with the doctor.">النوع بيحدد الخدمات اللي تتحجز هنا. التخصص بيفضل بتاع الطبيب.</span></div>
-        <div class="t-field"><label class="t-label" for="rm-branch" data-en="Branch">الفرع</label><select id="rm-branch" class="t-select"><option data-en="Mansoura - Toreil">المنصورة - توريل</option><option data-en="Mansoura - University">المنصورة - الجامعة</option></select></div>
+        <div class="t-field"><label class="t-label" for="rm-branch" data-en="Branch">الفرع</label><select id="rm-branch" class="t-select"></select></div>
         <div class="t-field"><span class="t-label" data-en="Booking">الحجز</span><label class="t-switch"><input type="checkbox" checked> <span data-en="Doctors can be scheduled here">الأطباء يتجدولوا فيها</span></label></div>
       </div>
     </div>
@@ -114,100 +116,63 @@
   </div>
 </div>
 
+<script src="../assets/demo-data.js"></script>
 <script src="../assets/shell.js"></script>
 <script>
 (function () {
   "use strict";
-  var L = function () { return window.Tamargi && Tamargi.lang() === "en"; };
+  /* All data comes from assets/demo-data.js (Tamargi.data); scope from Tamargi.ctx. */
+  var D = Tamargi.data, C = Tamargi.ctx, F = D.fmt;
   var $ = function (s) { return document.querySelector(s); };
+  function L() { return C.lang === "en"; }
   function tx(a, e) { return L() ? e : a; }
-  var AD = "٠١٢٣٤٥٦٧٨٩";
-  function ar(n) { return String(n).replace(/\d/g, function (d) { return AD[d]; }); }
-  function fmt(h) {
-    var hh = Math.floor(h), mm = Math.round((h - hh) * 60), pm = hh >= 12, h12 = hh > 12 ? hh - 12 : hh;
-    var s = h12 + (mm ? ":" + (mm < 10 ? "0" : "") + mm : "");
-    return L() ? s + (pm ? " pm" : " am") : ar(s) + (pm ? " م" : " ص");
-  }
+  function t(rec) { return F.t(rec, C.lang); }
+  function fmt(h) { return F.hour(h, C.lang); }
+  var DAYS = [0, 1, 2, 3, 4, 5];   /* Sat..Thu, Friday is closed in every demo branch */
+  var SPC = function (sp) { return D.specialties[sp].cls; };
+  function docShort(id) { var d = D.doctor(id); return tx(d.shortAr, d.shortEn); }
 
-  /* Shared demo data (same in doctors-branches.html). FAKE. */
-  var SP = { im: ["باطنة", "Internal med."], derma: ["جلدية", "Dermatology"], laser: ["ليزر تجميل", "Cosmetic laser"], peds: ["أطفال", "Paediatrics"], ent: ["أنف وأذن", "ENT"], dent: ["أسنان", "Dental"], gyn: ["نسا وتوليد", "OB/GYN"] };
-  var SPC = { im: "im", derma: "derma", laser: "derma", peds: "peds", ent: "ent", dent: "dent", gyn: "gyn" };
-  var DOCS = {
-    ahmed: ["د. أحمد سليم", "Dr. Ahmed Selim"], noha: ["د. نهى الشربيني", "Dr. Noha El-Sherbini"], marwa: ["د. مروة حجازي", "Dr. Marwa Hegazy"],
-    karim: ["د. كريم الدسوقي", "Dr. Karim El-Desouky"], yasser: ["د. ياسر الشافعي", "Dr. Yasser El-Shafei"], heba: ["د. هبة النجار", "Dr. Heba El-Naggar"]
-  };
-  var BR = { tor: ["المنصورة - توريل", "Mansoura - Toreil", 10, 23], gam: ["المنصورة - الجامعة", "Mansoura - University", 16, 23] };
-  var TYPES = { consult: ["كشف", "Consult"], dental: ["كرسي أسنان", "Dental chair"], laser: ["ليزر", "Laser"], proc: ["إجراءات", "Procedures"] };
-  var ROOMS = [
-    { id: "T1", b: "tor", ar: "غرفة كشف ١", en: "Consult room 1", t: "consult", dev: 2 },
-    { id: "T2", b: "tor", ar: "غرفة كشف ٢", en: "Consult room 2", t: "consult", dev: 1 },
-    { id: "T3", b: "tor", ar: "غرفة كشف ٣", en: "Consult room 3", t: "consult", dev: 2 },
-    { id: "T4", b: "tor", ar: "غرفة الليزر", en: "Laser room", t: "laser", dev: 1 },
-    { id: "T5", b: "tor", ar: "غرفة الإجراءات والحقن", en: "Procedures & injections", t: "proc", dev: 3, nurse: true },
-    { id: "G1", b: "gam", ar: "غرفة كشف ١", en: "Consult room 1", t: "consult", dev: 1 },
-    { id: "G2", b: "gam", ar: "غرفة كشف ٢", en: "Consult room 2", t: "consult", dev: 1 },
-    { id: "G3", b: "gam", ar: "كرسي أسنان ١", en: "Dental chair 1", t: "dental", dev: 2 }
-  ];
-  /* [room, doctor, specialty, days (0 = Sat … 5 = Thu), from, to] */
-  var SHIFTS = [
-    ["T1", "ahmed", "im", [0, 2, 4], 17, 23], ["T1", "ahmed", "im", [5], 18, 20],
-    ["T3", "noha", "derma", [0, 1, 2, 3, 4, 5], 10, 14], ["T3", "marwa", "peds", [0, 1, 3, 4], 14.5, 18],
-    ["T3", "karim", "ent", [0, 2], 19, 23], ["T3", "karim", "ent", [4], 17.5, 23],
-    ["T4", "noha", "laser", [2, 5], 15, 19],
-    ["G1", "heba", "gyn", [0, 2, 4], 16, 20], ["G2", "ahmed", "im", [1, 3, 5], 17, 22],
-    ["G3", "yasser", "dent", [0, 1, 2, 3, 4, 5], 16, 23]
-  ];
-  var DAYS = [["السبت", "Sat"], ["الأحد", "Sun"], ["الاتنين", "Mon"], ["التلات", "Tue"], ["الأربع", "Wed"], ["الخميس", "Thu"]];
-  function roomById(id) { return ROOMS.filter(function (r) { return r.id === id; })[0]; }
-
-  /* Expand to per-day blocks and detect conflicts (same room overlap, same doctor in two branches). */
-  var BLOCKS = [];
-  SHIFTS.forEach(function (s, i) { s[3].forEach(function (d) { BLOCKS.push({ k: i + "-" + d, room: s[0], doc: s[1], sp: s[2], day: d, from: s[4], to: s[5], br: roomById(s[0]).b, c: null }); }); });
-  var CONFLICTS = [];
-  for (var i = 0; i < BLOCKS.length; i++) for (var j = i + 1; j < BLOCKS.length; j++) {
-    var a = BLOCKS[i], b = BLOCKS[j];
-    if (a.day !== b.day || !(a.from < b.to && b.from < a.to)) continue;
-    if (a.room === b.room) { a.c = b.c = "room"; CONFLICTS.push({ type: "room", a: a, b: b }); }
-    else if (a.doc === b.doc && a.br !== b.br) { a.c = b.c = "doctor"; CONFLICTS.push({ type: "doctor", a: a, b: b }); }
-  }
-
-  function visible(br) { var sc = Tamargi.scope(); return sc.mismatch || sc.all || sc.branch === br; }
-
-  function renderConflicts() {
-    var h = CONFLICTS.filter(function (c) { return visible(c.a.br) || visible(c.b.br); }).map(function (c) {
-      var A = c.a, B = c.b, day = tx(DAYS[A.day][0], DAYS[A.day][1]);
-      var from = Math.max(A.from, B.from), to = Math.min(A.to, B.to);
+  function renderConflicts(blocks, conflicts) {
+    var h = conflicts.filter(function (c) { return D.inScope(c.a, C) || D.inScope(c.b, C); }).map(function (c) {
+      var A = c.a, B = c.b, day = F.day(A.day, C.lang), ra = D.room(A.room), ba = D.branch(A.branch), bb = D.branch(B.branch);
       var msg = c.type === "room"
-        ? tx("<b>تعارض غرفة:</b> " + roomById(A.room).ar + " (" + BR[A.br][0] + ") محجوزة لـ" + DOCS[A.doc][0] + " و" + DOCS[B.doc][0] + " يوم " + day + " من " + fmt(from) + " لـ" + fmt(to) + ".",
-               "<b>Room conflict:</b> " + roomById(A.room).en + " (" + BR[A.br][1] + ") is booked for " + DOCS[A.doc][1] + " and " + DOCS[B.doc][1] + " on " + day + ", " + fmt(from) + "–" + fmt(to) + ".")
-        : tx("<b>طبيب في فرعين:</b> " + DOCS[A.doc][0] + " متجدول في " + BR[A.br][0] + " و" + BR[B.br][0] + " يوم " + day + " من " + fmt(from) + " لـ" + fmt(to) + ".",
-               "<b>Doctor in two branches:</b> " + DOCS[A.doc][1] + " is scheduled in " + BR[A.br][1] + " and " + BR[B.br][1] + " on " + day + ", " + fmt(from) + "–" + fmt(to) + ".");
-      var fix = c.type === "room" ? tx("انقل لغرفة كشف ٢ (فاضية)", "Move to Consult room 2 (free)") : tx("افتح جدول الطبيب", "Open doctor schedule");
-      var act = c.type === "room" ? '<button class="t-btn sm" type="button" data-toast="' + tx("اتنقلت الوردية لغرفة كشف ٢ والتعارض اتحل", "Shift moved to Consult room 2, conflict solved") + '">' + fix + "</button>"
-                                  : '<a class="t-btn sm" href="doctors-branches.html">' + fix + "</a>";
+        ? tx("<b>تعارض غرفة:</b> " + ra.ar + " (" + ba.ar + ") محجوزة لـ" + D.doctor(A.doctor).shortAr + " و" + D.doctor(B.doctor).shortAr + " يوم " + day + " من " + fmt(c.from) + " لـ" + fmt(c.to) + ".",
+               "<b>Room conflict:</b> " + ra.en + " (" + ba.en + ") is booked for " + D.doctor(A.doctor).shortEn + " and " + D.doctor(B.doctor).shortEn + " on " + day + ", " + fmt(c.from) + "–" + fmt(c.to) + ".")
+        : tx("<b>طبيب في فرعين:</b> " + D.doctor(A.doctor).shortAr + " متجدول في " + ba.ar + " و" + bb.ar + " يوم " + day + " من " + fmt(c.from) + " لـ" + fmt(c.to) + ".",
+               "<b>Doctor in two branches:</b> " + D.doctor(A.doctor).shortEn + " is scheduled in " + ba.en + " and " + bb.en + " on " + day + ", " + fmt(c.from) + "–" + fmt(c.to) + ".");
+      var act;
+      if (c.type === "room") {
+        /* suggest a bookable room of the same branch and type that is free in that slot */
+        var free = D.rooms.filter(function (r) {
+          return r.branch === A.branch && r.bookable && r.type === ra.type && r.id !== A.room &&
+            !blocks.some(function (b) { return b.room === r.id && b.day === A.day && b.from < c.to && c.from < b.to; });
+        })[0];
+        act = free ? '<button class="t-btn sm" type="button" data-toast="' + tx("اتنقلت الوردية لـ" + free.ar + " والتعارض اتحل", "Shift moved to " + free.en + ", conflict solved") + '">' + tx("انقل لـ" + free.ar + " (فاضية)", "Move to " + free.en + " (free)") + "</button>"
+                   : '<a class="t-btn sm" href="doctors-branches.html">' + tx("افتح جدول الأطباء", "Open doctor schedules") + "</a>";
+      } else act = '<a class="t-btn sm" href="doctors-branches.html">' + tx("افتح جدول الطبيب", "Open doctor schedule") + "</a>";
       return '<div class="t-alert danger"><svg class="t-icon"><use href="#i-alert"/></svg><span>' + msg + '</span><div class="t-actions">' + act + "</div></div>";
     }).join("");
     $("#rm-conflicts").innerHTML = h || '<div class="t-alert success"><svg class="t-icon"><use href="#i-check"/></svg><span>' + tx("مفيش تعارضات في الفرع ده الأسبوع ده.", "No conflicts in this branch this week.") + "</span></div>";
   }
 
-  function hoursOf(room) { return BLOCKS.filter(function (b) { return b.room === room; }).reduce(function (s, b) { return s + (b.to - b.from); }, 0); }
-
-  function renderCards() {
-    var groups = ["tor", "gam"].filter(visible), h = "";
+  function renderCards(blocks) {
+    var groups = C.branches, h = "";
     groups.forEach(function (br) {
-      if (groups.length > 1) h += '<h3 class="rm-branch-h"><svg class="t-icon"><use href="#i-pin"/></svg>' + tx(BR[br][0], BR[br][1]) + "</h3>";
+      var B = D.branch(br);
+      if (groups.length > 1) h += '<h3 class="rm-branch-h"><svg class="t-icon"><use href="#i-pin"/></svg>' + t(B) + "</h3>";
       h += '<div class="rm-cards">';
-      ROOMS.filter(function (r) { return r.b === br; }).forEach(function (r) {
-        var open = (BR[br][3] - BR[br][2]) * 6, used = hoursOf(r.id), pct = Math.round(used / open * 100);
-        var specs = [], conflict = BLOCKS.some(function (b) { return b.room === r.id && b.c === "room"; });
-        BLOCKS.forEach(function (b) { if (b.room === r.id && specs.indexOf(b.sp) === -1) specs.push(b.sp); });
+      D.rooms.filter(function (r) { return r.branch === br; }).forEach(function (r) {
+        var mine = blocks.filter(function (b) { return b.room === r.id; });
+        var open = (B.hours.to - B.hours.from) * DAYS.length, used = mine.reduce(function (s, b) { return s + (b.to - b.from); }, 0), pct = Math.round(used / open * 100);
+        var specs = [], conflict = mine.some(function (b) { return b.conflict === "room"; }), dev = D.devicesIn(r.id).length;
+        mine.forEach(function (b) { if (specs.indexOf(b.sp) === -1) specs.push(b.sp); });
         h += '<article class="t-card rm-card' + (conflict ? " is-conflict" : "") + '">' +
-          '<div class="t-row between"><h3>' + tx(r.ar, r.en) + '</h3><span class="rm-type">' + tx(TYPES[r.t][0], TYPES[r.t][1]) + "</span></div>" +
+          '<div class="t-row between"><h3>' + t(r) + '</h3><span class="rm-type">' + t(D.roomTypes[r.type]) + "</span></div>" +
           '<div class="rm-specs">' + (r.nurse ? '<span class="t-small t-muted">' + tx("التمريض: حقن وجلسات", "Nursing: injections & sessions") + "</span>" :
-            specs.length ? specs.map(function (s) { return '<span class="t-spec-tag ' + SPC[s] + '">' + tx(SP[s][0], SP[s][1]) + "</span>"; }).join("") : '<span class="t-small t-muted">' + tx("مفيش أطباء متجدولين", "No doctors scheduled") + "</span>") + "</div>" +
-          (r.nurse ? "" : '<div><div class="t-row between"><span>' + tx("الإشغال", "Occupancy") + '</span><b class="t-num">' + (L() ? pct + "%" : ar(pct) + "٪") + "</b></div>" +
+            specs.length ? specs.map(function (s) { return '<span class="t-spec-tag ' + SPC(s) + '">' + t(D.specialties[s]) + "</span>"; }).join("") : '<span class="t-small t-muted">' + tx("مفيش أطباء متجدولين", "No doctors scheduled") + "</span>") + "</div>" +
+          (r.nurse ? "" : '<div><div class="t-row between"><span>' + tx("الإشغال", "Occupancy") + '</span><b class="t-num">' + (L() ? pct + "%" : F.num(pct, "ar") + "٪") + "</b></div>" +
             '<div class="t-meter' + (pct < 15 ? " warn" : "") + '"><i style="width:' + Math.max(pct, 2) + '%"></i></div></div>') +
-          '<div class="t-row between"><a href="equipment.html">' + (L() ? r.dev + " devices" : ar(r.dev) + " أجهزة") + "</a>" +
+          '<div class="t-row between"><a href="equipment.html">' + (L() ? dev + (dev === 1 ? " device" : " devices") : F.num(dev, "ar") + " أجهزة") + "</a>" +
           (conflict ? '<span class="t-chip danger">' + tx("تعارض", "Conflict") + "</span>" : pct === 0 && !r.nurse ? '<span class="t-chip plain">' + tx("فاضية للحجز", "Free to book") + "</span>" : "") + "</div></article>";
       });
       h += "</div>";
@@ -215,29 +180,42 @@
     $("#rm-cards").innerHTML = h;
   }
 
-  function renderGrid() {
-    $("#rm-grid-head").innerHTML = "<th>" + tx("الغرفة", "Room") + "</th>" + DAYS.map(function (d) { return "<th>" + tx(d[0], d[1]) + "</th>"; }).join("");
-    var h = "", groups = ["tor", "gam"].filter(visible);
+  function renderGrid(blocks) {
+    $("#rm-grid-head").innerHTML = "<th>" + tx("الغرفة", "Room") + "</th>" + DAYS.map(function (d) { return "<th>" + F.day(d, C.lang) + "</th>"; }).join("");
+    var h = "", groups = C.branches, used = [];
     groups.forEach(function (br) {
-      if (groups.length > 1) h += '<tr><td colspan="7" style="background:var(--surface-sunk)"><b class="t-small">' + tx(BR[br][0], BR[br][1]) + "</b></td></tr>";
-      ROOMS.filter(function (r) { return r.b === br; }).forEach(function (r) {
-        h += "<tr><td><b>" + tx(r.ar, r.en) + "</b><span>" + tx(TYPES[r.t][0], TYPES[r.t][1]) + "</span></td>";
-        DAYS.forEach(function (d, di) {
-          var bl = BLOCKS.filter(function (b) { return b.room === r.id && b.day === di; }).sort(function (x, y) { return x.from - y.from; });
+      if (groups.length > 1) h += '<tr><td colspan="7" style="background:var(--surface-sunk)"><b class="t-small">' + t(D.branch(br)) + "</b></td></tr>";
+      D.rooms.filter(function (r) { return r.branch === br; }).forEach(function (r) {
+        h += "<tr><td><b>" + t(r) + "</b><span>" + t(D.roomTypes[r.type]) + "</span></td>";
+        DAYS.forEach(function (di) {
+          var bl = blocks.filter(function (b) { return b.room === r.id && b.day === di; }).sort(function (x, y) { return x.from - y.from; });
           h += '<td><div class="rm-cell">' + (r.nurse ? '<span class="rm-free">' + tx("التمريض", "Nursing") + "</span>" : bl.length ? bl.map(function (b) {
-            return '<div class="rm-blk ' + SPC[b.sp] + (b.c ? " is-conflict" : "") + '"><span class="tm">' + fmt(b.from) + "–" + fmt(b.to) + "</span><span>" + tx(DOCS[b.doc][0], DOCS[b.doc][1]) + " · " + tx(SP[b.sp][0], SP[b.sp][1]) + "</span>" +
-              (b.c ? "<span>⚠ " + (b.c === "room" ? tx("الغرفة محجوزة مرتين", "Room double-booked") : tx("الطبيب في فرع تاني", "Doctor in other branch")) + "</span>" : "") + "</div>";
+            if (used.indexOf(b.sp) === -1) used.push(b.sp);
+            return '<div class="rm-blk ' + SPC(b.sp) + (b.conflict ? " is-conflict" : "") + '"><span class="tm">' + fmt(b.from) + "–" + fmt(b.to) + "</span><span>" + docShort(b.doctor) + " · " + t(D.specialties[b.sp]) + "</span>" +
+              (b.conflict ? "<span>⚠ " + (b.conflict === "room" ? tx("الغرفة محجوزة مرتين", "Room double-booked") : tx("الطبيب في فرع تاني", "Doctor in other branch")) + "</span>" : "") + "</div>";
           }).join("") : '<span class="rm-free">' + tx("فاضية", "Free") + "</span>") + "</div></td>";
         });
         h += "</tr>";
       });
     });
     $("#rm-grid-body").innerHTML = h;
-    $("#rm-legend").innerHTML = ["im", "derma", "peds", "ent", "dent", "gyn"].map(function (s) { return '<span class="t-spec-tag ' + s + '">' + tx(SP[s][0], SP[s][1]) + "</span>"; }).join("");
+    var seen = {}; /* one legend chip per colour class (laser shares the dermatology colour) */
+    $("#rm-legend").innerHTML = used.filter(function (s) { var c = SPC(s); if (seen[c]) return false; seen[c] = 1; return true; })
+      .map(function (s) { return '<span class="t-spec-tag ' + SPC(s) + '">' + t(D.specialties[s]) + "</span>"; }).join("");
+    var nurseRooms = D.rooms.filter(function (r) { return C.branches.indexOf(r.branch) > -1 && r.nurse; });
+    $("#rm-foot").innerHTML = tx("الجمعة إجازة" + (C.branches.length > 1 ? " في كل الفروع" : "") + "." + (nurseRooms.length ? " " + nurseRooms.map(function (r) { return r.ar; }).join("، ") + " بتستخدمها التمريض طول اليوم ومبتتحجزش للأطباء." : ""),
+                                 "Friday closed" + (C.branches.length > 1 ? " in all branches" : "") + "." + (nurseRooms.length ? " " + nurseRooms.map(function (r) { return r.en; }).join(", ") + " is used by nursing all day and is not booked by doctors." : ""));
   }
 
-  function render() { renderConflicts(); renderCards(); renderGrid(); }
-  document.addEventListener("tamargi:scope", render);
+  function renderBranchSelect() {
+    $("#rm-branch").innerHTML = D.branchesOf(C.org).map(function (b) { return '<option value="' + b.id + '"' + (b.id === C.branch ? " selected" : "") + ">" + t(b) + "</option>"; }).join("");
+  }
+
+  function render() {
+    var blocks = D.blocks(C.org), conflicts = D.conflicts(C.org);
+    renderConflicts(blocks, conflicts); renderCards(blocks); renderGrid(blocks); renderBranchSelect();
+  }
+  Tamargi.onCtx(render);
   render();
 
   Array.prototype.forEach.call(document.querySelectorAll("#rm-types .t-pick"), function (p) {

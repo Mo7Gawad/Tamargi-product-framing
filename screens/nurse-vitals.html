@@ -24,30 +24,14 @@
     .nv-summary { display: flex; flex-wrap: wrap; gap: var(--s-2); }
     @media (max-width: 640px) { .nv-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   </style>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
-<body data-screen="nurse-vitals">
+<body data-screen="nurse-vitals" data-org-default="nile">
 <main id="screen">
 
   <!-- Banner for the selected patient -->
-  <section class="t-banner" aria-label="المريض" data-en-aria-label="Patient">
-    <div class="t-banner-id">
-      <span class="t-avatar">س ن</span>
-      <div>
-        <div class="t-banner-name">سعاد محمد عبد الله النجار</div>
-        <div class="t-banner-facts">
-          <span><b>٥٨</b> <span data-en="yrs · F">سنة · أنثى</span></span>
-          <span><span data-en="File">ملف</span> <b class="t-ltr">0877</b></span>
-          <span class="t-ltr">0109 556 2210</span>
-          <span data-en="Ticket A-18 · Dr. Ahmed">تذكرة A-18 · د. أحمد</span>
-        </div>
-      </div>
-    </div>
-    <div class="t-banner-alerts">
-      <span class="t-allergy none" data-en="No known allergies">لا توجد حساسية معروفة</span>
-      <span class="t-flag" data-en="Type 2 diabetes · since 2019">سكر نوع ٢ · من ٢٠١٩</span>
-      <span class="t-balance" data-en="Last vitals 12 Oct">آخر قياس ١٢ أكتوبر</span>
-    </div>
-  </section>
+  <section class="t-banner" id="nv-banner" aria-label="المريض" data-en-aria-label="Patient"></section>
 
   <div class="t-container">
     <header class="t-screen-head">
@@ -56,13 +40,9 @@
         <p class="t-sub mb-0" data-en="Measure, type, send. The doctor sees your readings and flags on the next-patient card.">قيس، اكتب، ابعت. الدكتور بيشوف قياساتك والتنبيهات على كارت المريض التالي.</p>
       </div>
       <div class="t-actions">
-        <div class="t-seg" role="group" aria-label="الدكتور" data-en-aria-label="Doctor"
-             data-note="The nurse only sees patients of the doctors she is assigned to (2-doctor clinic: Dr. Ahmed and Dr. Nada). NITCO v16 shows every visit of the day with 9 filter fields."
-             data-note-ar="الممرضة بتشوف مرضى الدكاترة المسؤولة عنهم بس، بدل قائمة كل زيارات اليوم بفلاتر كتير.">
-          <button type="button" aria-pressed="true" data-en="Both doctors">الدكتورين</button>
-          <button type="button" aria-pressed="false" data-en="Dr. Ahmed">د. أحمد</button>
-          <button type="button" aria-pressed="false" data-en="Dr. Nada">د. ندى</button>
-        </div>
+        <div id="nv-doc-pick"
+             data-note="The nurse only sees patients of the doctors working in her branch today (her role is granted per branch). Patients of other branches never show here, even in the same organization. NITCO v16 shows every visit of the day with 9 filter fields."
+             data-note-ar="الممرضة بتشوف مرضى الدكاترة الشغالين في فرعها النهارده بس (صلاحيتها لكل فرع). مرضى الفروع التانية مش بيظهروا هنا حتى لو في نفس المنشأة. NITCO بيعرض كل زيارات اليوم بفلاتر كتير."></div>
       </div>
     </header>
 
@@ -70,44 +50,17 @@
     <div class="t-split">
       <!-- Waiting list -->
       <section class="t-card flush" aria-labelledby="wlTitle">
-        <div class="t-card-head"><h2 id="wlTitle" data-en="Needs vitals">محتاج قياسات</h2><span class="t-badge">3</span></div>
-        <div class="nv-list">
-          <button class="t-qcard is-on" type="button">
-            <span class="t-ticket waiting"><b>A-18</b></span>
-            <span class="t-grow"><span class="t-qname" style="display:block">سعاد محمد النجار</span><span class="t-qmeta" data-en="Dr. Ahmed · waited 9 min">د. أحمد · مستنية ٩ د</span></span>
-            <span class="t-chip waiting" data-en="Now">دلوقتي</span>
-          </button>
-          <button class="t-qcard" type="button" data-toast="(نموذج) اختيار مريض آخر" data-toast-en="(prototype) select another patient">
-            <span class="t-ticket waiting"><b>B-07</b></span>
-            <span class="t-grow"><span class="t-qname" style="display:block">آدم كريم الدسوقي</span><span class="t-qmeta" data-en="Dr. Nada · 3 yrs · weight needed">د. ندى · ٣ سنين · محتاج وزن</span></span>
-            <span class="t-chip waiting" data-en="Waiting">منتظر</span>
-          </button>
-          <button class="t-qcard" type="button" data-toast="(نموذج) اختيار مريض آخر" data-toast-en="(prototype) select another patient">
-            <span class="t-ticket waiting"><b>A-19</b></span>
-            <span class="t-grow"><span class="t-qname" style="display:block">حسن السيد البدراوي</span><span class="t-qmeta" data-en="Dr. Ahmed · waited 6 min">د. أحمد · مستني ٦ د</span></span>
-            <span class="t-chip waiting" data-en="Waiting">منتظر</span>
-          </button>
-        </div>
-        <div class="t-card-head" style="border-block-start:1px solid var(--line)"><h3 data-en="Sent to doctor">اتبعت للدكتور</h3><span class="t-badge muted">2</span></div>
-        <div class="nv-list">
-          <div class="t-qcard">
-            <span class="t-ticket"><b>A-16</b></span>
-            <span class="t-grow"><span class="t-qname" style="display:block">منى عبد الرحمن الشناوي</span><span class="t-qmeta" data-en="BP 150/95 flagged">ضغط ١٥٠/٩٥ متعلّم</span></span>
-            <span class="t-chip info" data-en="Ready">جاهز</span>
-          </div>
-          <div class="t-qcard">
-            <span class="t-ticket"><b>B-06</b></span>
-            <span class="t-grow"><span class="t-qname" style="display:block">ليلى محمد السعيد</span><span class="t-qmeta" data-en="Temp 38.6 flagged">حرارة ٣٨٫٦ متعلّمة</span></span>
-            <span class="t-chip info" data-en="Ready">جاهز</span>
-          </div>
-        </div>
+        <div class="t-card-head"><h2 id="wlTitle" data-en="Needs vitals">محتاج قياسات</h2><span class="t-badge" id="nv-needs-n">0</span></div>
+        <div class="nv-list" id="nv-needs"></div>
+        <div class="t-card-head" style="border-block-start:1px solid var(--line)"><h3 data-en="Sent to doctor">اتبعت للدكتور</h3><span class="t-badge muted" id="nv-sent-n">0</span></div>
+        <div class="nv-list" id="nv-sent"></div>
       </section>
 
       <!-- Vitals form -->
       <section class="t-stack lg">
         <form class="t-card" id="vitalsForm" autocomplete="off" onsubmit="return false">
           <div class="t-card-head">
-            <h2 data-en="Vitals — visit of 14 Nov">العلامات الحيوية — زيارة ١٤ نوفمبر</h2>
+            <h2 id="nv-form-title">العلامات الحيوية</h2>
             <div class="t-actions">
               <button class="t-btn sm ghost no-print" type="button" id="demoFill" title="Prototype only" data-en="Demo: fill sample readings">تجربة: املا قراءات</button>
             </div>
@@ -199,14 +152,11 @@
         </form>
 
         <section class="t-card sunk">
-          <div class="t-card-head"><h3 data-en="Previous readings">القياسات السابقة</h3><a class="t-end t-small" href="patient-file.html" data-en="Open patient file">فتح ملف المريض</a></div>
+          <div class="t-card-head"><h3 data-en="Previous readings">القياسات السابقة</h3><a class="t-end t-small" href="patient-file.html" data-en="Open patient file (org-wide)">فتح ملف المريض (لكل الفروع)</a></div>
           <div class="t-table-wrap">
             <table class="t-table">
               <thead><tr><th data-en="Date">التاريخ</th><th data-en="BP">الضغط</th><th class="num" data-en="Pulse">النبض</th><th class="num" data-en="Weight">الوزن</th><th class="num" data-en="Glucose">السكر</th><th data-en="By">بواسطة</th></tr></thead>
-              <tbody>
-                <tr><td class="t-ltr">12/10/2026</td><td><span class="t-ltr">140/90</span> <span class="t-chip danger plain" data-en="High">عالي</span></td><td class="num">84</td><td class="num">81</td><td class="num">236 <span class="t-chip danger plain" data-en="High">عالي</span></td><td data-en="Nurse Samar">سمر</td></tr>
-                <tr><td class="t-ltr">14/09/2026</td><td class="t-ltr">130/85</td><td class="num">80</td><td class="num">82</td><td class="num">188</td><td data-en="Dr. Ahmed">د. أحمد</td></tr>
-              </tbody>
+              <tbody id="nv-hist"></tbody>
             </table>
           </div>
         </section>
@@ -219,7 +169,7 @@
         <div class="t-empty">
           <div class="t-empty-art"><svg class="t-icon"><use href="#i-heart"/></svg></div>
           <h3 data-en="Everyone is measured">كل المرضى اتقاسوا</h3>
-          <p data-en="New patients appear here as soon as reception adds them to Dr. Ahmed's or Dr. Nada's queue.">المرضى الجداد هيظهروا هنا أول ما الاستقبال يضيفهم لدور د. أحمد أو د. ندى.</p>
+          <p id="nv-empty-text">المرضى الجداد هيظهروا هنا أول ما الاستقبال يضيفهم للدور.</p>
           <a class="t-btn primary" href="reception-queue.html"><span data-en="See the live queue">شوف الدور</span></a>
         </div>
       </section>
@@ -227,34 +177,120 @@
 
   </div>
 </main>
+<script src="../assets/demo-data.js"></script>
 <script src="../assets/shell.js"></script>
 <script>
 (function () {
-  var en = function () { return window.Tamargi && Tamargi.lang() === "en"; };
+  "use strict";
+  /* All data from assets/demo-data.js; scope from Tamargi.ctx. */
+  var D = Tamargi.data, C = Tamargi.ctx, F = D.fmt;
   var $ = function (id) { return document.getElementById(id); };
-  var glType = "random";
+  function L() { return C.lang === "en"; }
+  function en() { return L(); }
+  function tx(a, e) { return L() ? e : a; }
+  function t(rec) { return F.t(rec, C.lang); }
+  function hr(h) { return F.hour(h, C.lang); }
+  function n(x) { return F.num(x, C.lang); }
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;"); }
+  function docShort(id) { var d = D.doctor(id); return tx(d.shortAr, d.shortEn); }
+  function brShort(id) { var b = D.branch(id); return tx(b.shortAr, b.shortEn); }
+  function dShort(s) { return F.dateLong(s, C.lang, { noDay: true }); }
+
+  var glType = "random", docFilter = "all", sel = null, lastKey = "";
   var R = {
     pulse:  { lo: 60, hi: 100, min: 20, max: 250, nAr: "الطبيعي ٦٠–١٠٠", nEn: "normal 60–100" },
     temp:   { lo: 36.1, hi: 37.5, min: 30, max: 45, nAr: "الطبيعي ٣٦٫١–٣٧٫٥", nEn: "normal 36.1–37.5" },
     spo2:   { lo: 95, hi: 101, min: 50, max: 100, nAr: "الطبيعي ٩٥–١٠٠", nEn: "normal 95–100" }
   };
-  /* accept Arabic-Indic digits and the Arabic decimal mark typed on an Arabic keyboard */
+
+  /* ---------- lists ---------- */
+  function live() {
+    return D.appointmentsOn(C, D.today).filter(function (a) { return (a.status === "arrived" || a.status === "waiting" || a.status === "called" || a.status === "inroom") && (docFilter === "all" || a.doctor === docFilter); })
+      .sort(function (a, b) { return (a.queueNo || 99) - (b.queueNo || 99); });
+  }
+  function needs() { return live().filter(function (a) { return !D.vitalsFor(a.id) && (a.status === "arrived" || a.status === "waiting"); }); }
+  function sent() { return live().filter(function (a) { return !!D.vitalsFor(a.id); }); }
+  function waited(a) { var m = Math.round((D.now - a.from) * 60); return m > 0 ? m : 0; }
+  function vflags(v) {
+    var out = [];
+    if (v.bp && (v.bp[0] >= 140 || v.bp[1] >= 90)) out.push(tx("ضغط " + F.num(v.bp.join("/"), "ar") + " متعلّم", "BP " + v.bp.join("/") + " flagged"));
+    if (v.temp != null && v.temp > 37.5) out.push(tx("حرارة " + F.num(String(v.temp).replace(".", "٫"), "ar") + " متعلّمة", "Temp " + v.temp + " flagged"));
+    if (v.glucose != null && v.glucose >= (v.glType === "fasting" ? 126 : 200)) out.push(tx("سكر " + F.num(v.glucose, "ar") + " متعلّم", "Glucose " + v.glucose + " flagged"));
+    return out;
+  }
+
+  function renderPicker() {
+    var docs = []; D.appointmentsOn(C, D.today).forEach(function (a) { if (D.isLive(a) && docs.indexOf(a.doctor) === -1) docs.push(a.doctor); });
+    if (docFilter !== "all" && docs.indexOf(docFilter) === -1) docFilter = "all";
+    var all = docs.length === 2 ? tx("الدكتورين", "Both doctors") : tx("كل الأطباء", "All doctors");
+    $("nv-doc-pick").innerHTML = docs.length <= 3
+      ? '<div class="t-seg" role="group" aria-label="' + tx("الدكتور", "Doctor") + '"><button type="button" data-df="all" aria-pressed="' + (docFilter === "all") + '">' + all + "</button>" +
+        docs.map(function (id) { return '<button type="button" data-df="' + id + '" aria-pressed="' + (docFilter === id) + '">' + esc(docShort(id)) + "</button>"; }).join("") + "</div>"
+      : '<label class="t-sr" for="nv-doc">' + tx("الدكتور", "Doctor") + '</label><select id="nv-doc" class="t-select" style="width:auto"><option value="all">' + all + "</option>" +
+        docs.map(function (id) { return '<option value="' + id + '"' + (id === docFilter ? " selected" : "") + ">" + esc(docShort(id)) + "</option>"; }).join("") + "</select>";
+  }
+
+  function renderLists() {
+    var nd = needs(), sd = sent(), multi = C.branches.length > 1;
+    if (!sel || !nd.some(function (a) { return a.id === sel; })) sel = nd[0] ? nd[0].id : null;
+    $("nv-needs-n").textContent = n(nd.length); $("nv-sent-n").textContent = n(sd.length);
+    $("nv-needs").innerHTML = nd.map(function (a, i) {
+      var p = D.patient(a.patient), meta = docShort(a.doctor) + (multi ? " · " + brShort(a.branch) : "") + (p.child ? tx(" · " + n(p.age) + " سنين · محتاج وزن", " · " + p.age + " yrs · weight needed") : waited(a) ? tx(" · مستني " + n(waited(a)) + " د", " · waited " + waited(a) + " min") : "");
+      return '<button class="t-qcard' + (a.id === sel ? " is-on" : "") + '" type="button" data-pick="' + a.id + '"><span class="t-ticket waiting"><b>' + D.ticket(a) + '</b></span><span class="t-grow"><span class="t-qname" style="display:block">' + esc(t(p)) + '</span><span class="t-qmeta">' + esc(meta) + '</span></span><span class="t-chip waiting">' + (a.id === sel ? tx("دلوقتي", "Now") : tx("منتظر", "Waiting")) + "</span></button>";
+    }).join("") || '<p class="t-small t-muted mb-0">' + tx("مفيش حد مستني قياسات.", "Nobody is waiting for vitals.") + "</p>";
+    $("nv-sent").innerHTML = sd.map(function (a) {
+      var p = D.patient(a.patient), fl = vflags(D.vitalsFor(a.id));
+      return '<div class="t-qcard"><span class="t-ticket"><b>' + D.ticket(a) + '</b></span><span class="t-grow"><span class="t-qname" style="display:block">' + esc(t(p)) + '</span><span class="t-qmeta">' +
+        esc((fl.length ? fl.join(" · ") : tx("كله في المعدل", "All in range")) + " · " + docShort(a.doctor) + (multi ? " · " + brShort(a.branch) : "")) + '</span></span><span class="t-chip ' + (a.status === "inroom" ? "inroom" : "info") + '">' +
+        (a.status === "inroom" ? t(D.apptStatus.inroom) : tx("جاهز", "Ready")) + "</span></div>";
+    }).join("") || '<p class="t-small t-muted mb-0">' + tx("لسه محدش اتبعت.", "Nobody sent yet.") + "</p>";
+    return nd;
+  }
+
+  /* ---------- selected patient ---------- */
+  var DEF = {};
+  function history(p) { return D.vitalsOf(p.id).filter(function (v) { return v.date < D.today; }); }
+  function lastOf(p, k) { var v = history(p).filter(function (x) { return x[k] != null; })[0]; return v || null; }
+  function computeDefaults(p) {
+    var bp = lastOf(p, "bp"), w = lastOf(p, "weight"), h = lastOf(p, "height");
+    DEF = {
+      bp: bp ? ["آخر قياس: " + F.num(bp.bp.join("/"), "ar") + " (" + F.dateLong(bp.date, "ar", { noDay: true }) + ")", "Last: " + bp.bp.join("/") + " (" + F.dateLong(bp.date, "en", { noDay: true }) + ")"] : ["الطبيعي أقل من ١٤٠/٩٠", "Normal under 140/90"],
+      pulse: ["الطبيعي ٦٠–١٠٠", "Normal 60–100"], temp: ["الطبيعي ٣٦٫١–٣٧٫٥", "Normal 36.1–37.5"], spo2: ["الطبيعي ٩٥–١٠٠", "Normal 95–100"],
+      weight: w ? ["آخر وزن: " + F.num(w.weight, "ar") + " كجم", "Last: " + w.weight + " kg"] : p.child ? ["مطلوب للأطفال (الجرعة بالوزن)", "Needed for children (weight-based doses)"] : ["أول قياس", "First reading"],
+      height: h ? ["في الملف: " + F.num(h.height, "ar") + " سم" + (p.child ? "" : " (للكبار مرة في السنة)"), "On file: " + h.height + " cm" + (p.child ? "" : " (adults: once a year)")] : ["مش في الملف", "Not on file"],
+      bmi: ["محتاج وزن وطول", "Needs weight + height"], glucose: ["العشوائي: أقل من ٢٠٠", "Random: under 200"]
+    };
+  }
+  function renderPatient(nd) {
+    var a = sel ? D.by("appointments", sel) : null;
+    if (!a) { $("nv-banner").hidden = true; return; }
+    $("nv-banner").hidden = false;
+    var p = D.patient(a.patient), last = history(p)[0];
+    $("nv-banner").innerHTML = '<div class="t-banner-id"><span class="t-avatar">' + esc(D.initials(p, C.lang)) + '</span><div><div class="t-banner-name">' + esc(t(p)) + '</div><div class="t-banner-facts">' +
+      "<span>" + esc(tx(n(p.age) + (p.age < 11 ? " سنين" : " سنة") + " · " + (p.sex === "F" ? "أنثى" : "ذكر"), p.age + " yrs · " + p.sex)) + "</span><span>" + tx("ملف", "File") + ' <b class="t-ltr">' + p.fileNo + '</b></span><span class="t-ltr">' + p.phone + "</span>" +
+      "<span>" + esc(tx("تذكرة ", "Ticket ") + D.ticket(a) + " · " + docShort(a.doctor) + " · " + t(D.room(a.room)) + (C.branches.length > 1 ? " · " + brShort(a.branch) : "")) + "</span></div></div></div>" +
+      '<div class="t-banner-alerts">' + (p.allergies.length ? '<span class="t-allergy"><svg class="t-icon sm"><use href="#i-alert"/></svg>' + esc(tx("حساسية: ", "Allergy: ") + p.allergies.map(t).join("، ")) + "</span>" : '<span class="t-allergy none">' + tx("لا توجد حساسية معروفة", "No known allergies") + "</span>") +
+      (p.chronic.length ? '<span class="t-flag">' + esc(p.chronic.map(t).join(" · ")) + "</span>" : "") +
+      '<span class="t-balance">' + esc(last ? tx("آخر قياس ", "Last vitals ") + dShort(last.date) : tx("أول قياس في الملف", "First vitals on file")) + "</span></div>";
+    $("nv-form-title").textContent = tx("العلامات الحيوية — زيارة ", "Vitals — visit of ") + dShort(D.today) + (C.orgRec.kind !== "solo" ? " · " + brShort(a.branch) : "");
+    var hist = history(p);
+    $("nv-hist").innerHTML = hist.map(function (v) {
+      var hi = function (c) { return c ? ' <span class="t-chip danger plain">' + tx("عالي", "High") + "</span>" : ""; };
+      return '<tr><td class="t-ltr">' + F.date(v.date) + "</td><td>" + (v.bp ? '<span class="t-ltr">' + v.bp.join("/") + "</span>" + hi(v.bp[0] >= 140 || v.bp[1] >= 90) : "—") + '</td><td class="num">' + (v.pulse != null ? v.pulse : "—") + '</td><td class="num">' + (v.weight != null ? v.weight : "—") +
+        '</td><td class="num">' + (v.glucose != null ? v.glucose + hi(v.glucose >= 200) : "—") + "</td><td>" + esc(D.byName(v.by, C.lang)) + "</td></tr>";
+    }).join("") || '<tr><td colspan="6" class="t-faint">' + tx("مفيش قياسات سابقة في ملف المنشأة.", "No earlier readings in the organization file.") + "</td></tr>";
+  }
+
+  /* ---------- flags (unchanged rules) ---------- */
   function num(id) {
     var raw = ($(id).value || "").replace(/[٠-٩]/g, function (c) { return String(c.charCodeAt(0) - 0x0660); })
       .replace(/[۰-۹]/g, function (c) { return String(c.charCodeAt(0) - 0x06F0); }).replace(/[٫,]/g, ".");
     var v = parseFloat(raw); return isNaN(v) ? null : v;
   }
-  /* remember each box's resting hint so a cleared value goes back to "not measured" instead of keeping a stale flag */
-  var DEF = {};
-  document.querySelectorAll("[data-v]").forEach(function (box) {
-    var f = box.querySelector("[data-flag]");
-    DEF[box.getAttribute("data-v")] = [f.getAttribute("data-ar") || f.innerHTML, f.getAttribute("data-en")];
-  });
   function resetFlag(key) { setFlag(key, null, DEF[key][0], DEF[key][1]); }
-  function chip(cls, ar, enTxt) { return '<span class="t-chip ' + cls + '" data-ar="' + ar + '" data-en="' + enTxt + '">' + (en() ? enTxt : ar) + "</span>"; }
+  function chip(cls, ar, enTxt) { return '<span class="t-chip ' + cls + '">' + (en() ? enTxt : ar) + "</span>"; }
   function setFlag(key, state, ar, enTxt) {
-    var box = document.querySelector('[data-v="' + key + '"]');
-    var f = box.querySelector("[data-flag]");
+    var box = document.querySelector('[data-v="' + key + '"]'), f = box.querySelector("[data-flag]");
     box.classList.remove("is-high", "is-low", "is-ok");
     if (state) box.classList.add("is-" + state);
     f.className = "nv-flag " + (state === "high" || state === "low" ? "bad" : state === "ok" ? "ok" : "wait");
@@ -286,11 +322,12 @@
       measured++;
       var hi = glType === "fasting" ? 126 : 200;
       if (g < 70) { setFlag("glucose", "low", "واطي — أقل من ٧٠", "Low — under 70"); flags.push("glucose"); }
-      else if (g >= hi) { setFlag("glucose", "high", "عالي — الطبيعي أقل من " + hi, "High — normal under " + hi); flags.push("glucose"); }
+      else if (g >= hi) { setFlag("glucose", "high", "عالي — الطبيعي أقل من " + F.num(hi, "ar"), "High — normal under " + hi); flags.push("glucose"); }
       else setFlag("glucose", "ok", "طبيعي", "Normal");
     } else resetFlag("glucose");
     var w = num("weight"), h = num("height");
     if (w !== null) { measured++; setFlag("weight", "ok", "اتسجل", "Recorded"); } else resetFlag("weight");
+    if (h !== null) setFlag("height", "ok", "اتسجل", "Recorded"); else resetFlag("height");
     if (w !== null && h !== null && h > 50) {
       var bmi = w / Math.pow(h / 100, 2);
       $("bmi").textContent = bmi.toFixed(1);
@@ -301,38 +338,74 @@
     } else { $("bmi").textContent = "—"; resetFlag("bmi"); }
     var sum = $("summary");
     if (!measured) { sum.innerHTML = chip("plain t-faint", "لسه مفيش قياسات", "Nothing measured yet"); return measured; }
-    sum.innerHTML = chip("plain", "اتقاس " + measured, measured + " measured") +
-      (flags.length ? chip("danger", flags.length + " برا المعدل", flags.length + " out of range") : chip("paid", "كله في المعدل", "All in range"));
+    sum.innerHTML = chip("plain", "اتقاس " + F.num(measured, "ar"), measured + " measured") +
+      (flags.length ? chip("danger", F.num(flags.length, "ar") + " برا المعدل", flags.length + " out of range") : chip("paid", "كله في المعدل", "All in range"));
     return measured;
   }
-  document.getElementById("vitalsForm").addEventListener("input", check);
-  document.querySelectorAll("[data-gl]").forEach(function (b) {
+  function clearForm() {
+    ["bpS", "bpD", "pulse", "temp", "spo2", "weight", "height", "glucose", "nnote"].forEach(function (id) { $(id).value = ""; });
+    var p = sel ? D.patient(D.by("appointments", sel).patient) : null, h = p ? lastOf(p, "height") : null;
+    if (h && !p.child) $("height").value = h.height;
+    Array.prototype.forEach.call(document.querySelectorAll("[data-phrase]"), function (b) { b.classList.remove("is-on"); });
+    check();
+  }
+
+  function render() {
+    renderPicker();
+    var prev = sel, nd = renderLists();
+    if (sel) computeDefaults(D.patient(D.by("appointments", sel).patient));
+    renderPatient(nd);
+    if (sel !== prev) clearForm(); else check();
+    $("nv-empty-text").textContent = tx("المرضى الجداد هيظهروا هنا أول ما الاستقبال يضيفهم لدور " + C.branchName + ".", "New patients appear here as soon as reception adds them to the " + C.branchName + " queue.");
+    var key = C.org + "|" + C.branch + "|" + docFilter;
+    if (key !== lastKey || (!nd.length && !sel)) { lastKey = key; Tamargi.setState(nd.length ? "default" : "empty"); }
+  }
+  Tamargi.onCtx(function () { render(); });
+  render();
+
+  /* ---------- events ---------- */
+  $("vitalsForm").addEventListener("input", check);
+  Array.prototype.forEach.call(document.querySelectorAll("[data-gl]"), function (b) {
     b.addEventListener("click", function () {
       glType = b.getAttribute("data-gl");
-      document.querySelectorAll("[data-gl]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      DEF.glucose = glType === "fasting" ? ["الصايم: أقل من ١٢٦", "Fasting: under 126"] : ["العشوائي: أقل من ٢٠٠", "Random: under 200"];
+      Array.prototype.forEach.call(document.querySelectorAll("[data-gl]"), function (x) { x.setAttribute("aria-pressed", String(x === b)); });
       check();
     });
   });
-  document.querySelectorAll("[data-phrase]").forEach(function (b) {
+  Array.prototype.forEach.call(document.querySelectorAll("[data-phrase]"), function (b) {
     b.addEventListener("click", function () {
-      var t = $("nnote"); var p = en() ? b.getAttribute("data-phrase-en") : b.getAttribute("data-phrase");
-      t.value = t.value ? t.value.replace(/\s*$/, "، ") + p : p;
-      b.classList.add("is-on"); t.focus();
+      var ta = $("nnote"), p = en() ? b.getAttribute("data-phrase-en") : b.getAttribute("data-phrase");
+      ta.value = ta.value ? ta.value.replace(/\s*$/, en() ? ", " : "، ") + p : p;
+      b.classList.add("is-on"); ta.focus();
     });
   });
   $("demoFill").addEventListener("click", function () {
-    $("bpS").value = 155; $("bpD").value = 92; $("pulse").value = 86; $("temp").value = "37.0"; $("spo2").value = 97;
-    $("weight").value = 80; $("height").value = 160; $("glucose").value = 248; check();
+    var p = sel ? D.patient(D.by("appointments", sel).patient) : null;
+    if (p && p.child) { $("temp").value = "37.9"; $("spo2").value = 98; $("weight").value = 15; $("height").value = 98; }
+    else { $("bpS").value = 155; $("bpD").value = 92; $("pulse").value = 86; $("temp").value = "37.0"; $("spo2").value = 97; $("weight").value = 80; $("height").value = $("height").value || 165; $("glucose").value = 248; }
+    check();
   });
   function send() {
-    if (!check()) { Tamargi.toast(en() ? "Nothing measured — enter at least one reading, or use Save" : "مفيش قياسات — اكتب قراءة واحدة على الأقل أو استخدم حفظ"); $("bpS").focus(); return; }
-    var msg = en() ? "Sent to Dr. Ahmed — A-18 is Ready" + (flags.length ? " (" + flags.length + " flagged)" : "") : "اتبعتت لد. أحمد — A-18 جاهزة" + (flags.length ? " (" + flags.length + " تنبيه)" : "");
-    Tamargi.toast(msg);
+    if (!sel) return;
+    if (!check()) { Tamargi.toast(tx("مفيش قياسات — اكتب قراءة واحدة على الأقل أو استخدم حفظ", "Nothing measured — enter at least one reading, or use Save")); $("bpS").focus(); return; }
+    var a = D.by("appointments", sel);
+    var nurse = D.staff.filter(function (m) { return m.org === a.org && D.rolesIn(m, a.branch).indexOf("nurse") > -1; })[0];
+    var s = num("bpS"), d = num("bpD");
+    D.vitals.push({ id: "v-new-" + a.id, org: a.org, patient: a.patient, appointment: a.id, date: D.today, at: D.now, by: nurse ? nurse.id : a.doctor,
+      bp: s !== null && d !== null ? [s, d] : undefined, pulse: num("pulse"), temp: num("temp"), spo2: num("spo2"), weight: num("weight"), height: num("height"), glucose: num("glucose"), glType: glType,
+      note: $("nnote").value ? { ar: $("nnote").value, en: $("nnote").value } : undefined });
+    Tamargi.toast(tx("اتبعتت لـ" + D.doctor(a.doctor).shortAr + " — " + D.ticket(a) + " جاهز" + (flags.length ? " (" + F.num(flags.length, "ar") + " تنبيه)" : ""), "Sent to " + D.doctor(a.doctor).shortEn + " — " + D.ticket(a) + " is Ready" + (flags.length ? " (" + flags.length + " flagged)" : "")));
+    sel = null; render();
   }
   $("sendDoc").addEventListener("click", send);
+  document.addEventListener("click", function (e) {
+    var b;
+    if ((b = e.target.closest("[data-pick]"))) { sel = b.getAttribute("data-pick"); render(); return; }
+    if ((b = e.target.closest("[data-df]"))) { docFilter = b.getAttribute("data-df"); sel = null; render(); }
+  });
+  document.addEventListener("change", function (e) { if (e.target.id === "nv-doc") { docFilter = e.target.value; sel = null; render(); } });
   document.addEventListener("keydown", function (e) { if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); send(); } });
-  /* re-render JS-built text after the shell's AR/EN switch */
-  document.addEventListener("click", function (e) { if (e.target.closest("[data-shell-lang]")) check(); });
 })();
 </script>
 </body>

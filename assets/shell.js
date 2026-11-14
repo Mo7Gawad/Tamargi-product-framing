@@ -1,6 +1,8 @@
 /* =====================================================================
-   Tamargi prototype shell — shell.js  (v1.2, 2026-11-14)
-   Include at the end of <body>:  <script src="../assets/shell.js"></script>
+   Tamargi prototype shell — shell.js  (v1.3, 2026-11-14)
+   Include at the end of <body>, AFTER the shared demo data:
+     <script src="../assets/demo-data.js"></script>
+     <script src="../assets/shell.js"></script>
    What it does
    - Wraps <main id="screen"> in the app shell: top bar (clinic, search,
      role switcher, AR/EN toggle, theme toggle) + side nav of all screens.
@@ -27,6 +29,19 @@
      those branches (all show under "كل الفروع"); .t-only-all shows only under
      "كل الفروع"; [data-branch-name] is filled with the current branch name.
      Event: document "tamargi:scope" {org, branch}. API: Tamargi.scope().
+   - Context (v1.3): orgs/branches come from assets/demo-data.js (window.TamargiData,
+     also Tamargi.data). Tamargi.ctx is ONE live object (same reference, updated in
+     place): {org, branch, all, role, lang, mismatch, branches[], allowed[], orgRec,
+     branchRec, branchName}. Tamargi.onCtx(fn) subscribes (fn(ctx, reason); reason =
+     init|org|branch|role|lang) and returns an unsubscribe fn. Document event
+     "tamargi:ctx" (detail = ctx copy + reason) fires together with "tamargi:scope".
+     Tamargi.setCtx({org, branch}) switches programmatically (validated).
+     Selection persists in localStorage (tamargi.org, tamargi.branch.<org>).
+     Body data-org-default="nile": org used when the viewer has never picked one
+     (data-driven screens render the CURRENT org instead of pinning data-org).
+     Tamargi.scopeNotice({org, branch, needBranch, what:{ar,en}, key, host}) shows or
+     clears a "wrong organization / wrong branch / pick one branch" notice with switch
+     buttons and returns {ok, reason}. Tamargi.clearNotice(key). Tamargi.tx(ar, en).
    No external dependencies. Persists lang/theme/role/notes/org/branch in
    localStorage (wrapped in try/catch; page works without it).
    ===================================================================== */
@@ -83,7 +98,7 @@
     { f: "subscription-plan",      g: "setup",      icon: "card",     roles: ["owner"], ar: "الاشتراك والتجربة",       en: "Subscription & trial" },
     { f: "clinic-web-page",        g: "setup",      icon: "globe",    roles: ["public"], ar: "صفحة العيادة للمرضى",      en: "Clinic public page" },
     /* Branches, stock & equipment (tenancy round, 2026-11-14) */
-    { f: "org-branches",           g: "multi",      icon: "building", roles: ["owner"], tier: 2, ar: "المؤسسة والفروع",          en: "Organization & branches" },
+    { f: "org-branches",           g: "multi",      icon: "building", roles: ["owner"], tier: 2, ar: "المنشأة والفروع",          en: "Organization & branches" },
     { f: "rooms",                  g: "multi",      icon: "door",     roles: ["owner", "reception"], tier: 2, ar: "الغرف والعيادات",   en: "Rooms & chairs" },
     { f: "doctors-branches",       g: "multi",      icon: "users",    roles: ["owner", "doctor"], tier: 2, ar: "الأطباء والفروع",     en: "Doctors & branches" },
     { f: "stock",                  g: "multi",      icon: "box",      roles: ["owner", "nurse", "reception"], phase: "later", ar: "مخزون العيادة", en: "Clinic stock" },
@@ -96,19 +111,20 @@
     { id: "nurse",     ar: "التمريض",     en: "Nurse" },
     { id: "owner",     ar: "المالك",      en: "Owner / manager" }
   ];
-  /* ---------- Tenancy demo model: Organization (tenant) → Branch → Room ----------
-     The demo person (Dr. Ahmed) belongs to 2 orgs: his own solo clinic (owner + doctor)
-     and a polyclinic where he works as a doctor in 2 branches. FAKE data only. */
-  var ORGS = [
-    { id: "selim", ar: "عيادة د. أحمد سليم", en: "Dr. Ahmed Selim Clinic",
-      roleAr: "مالك + طبيب", roleEn: "Owner + doctor", planAr: "باقة العيادة", planEn: "Clinic plan",
-      branches: [ { id: "main", ar: "المنصورة — الفرع الرئيسي", en: "Mansoura — main branch", rooms: 1, doctors: 2 } ] },
-    { id: "nile", ar: "مجمع النيل الطبي", en: "Nile Medical Centre",
-      roleAr: "طبيب في فرعين", roleEn: "Doctor in 2 branches", planAr: "باقة المجمعات", planEn: "Polyclinic plan",
-      branches: [
-        { id: "tor", ar: "المنصورة - توريل", en: "Mansoura - Toreil", rooms: 5, doctors: 4 },
-        { id: "gam", ar: "المنصورة - الجامعة", en: "Mansoura - University", rooms: 3, doctors: 3 } ] }
-  ];
+  /* ---------- Tenancy model: Organization (tenant) → Branch → Room ----------
+     Built from the shared FAKE dataset (assets/demo-data.js). The demo person (Dr. Ahmed)
+     belongs to 2 orgs: his own solo clinic and a polyclinic where he works in 2 branches. */
+  var DATA = window.TamargiData || null;
+  var ORGS = DATA ? DATA.orgs.map(function (o) {
+    return { id: o.id, ar: o.ar, en: o.en, roleAr: o.myRoleAr, roleEn: o.myRoleEn, planAr: o.planAr, planEn: o.planEn,
+      branches: DATA.branchesOf(o.id).map(function (b) {
+        return { id: b.id, ar: b.ar, en: b.en,
+          rooms: DATA.rooms.filter(function (r) { return r.branch === b.id; }).length,
+          doctors: DATA.doctorsIn({ org: o.id, branch: b.id }).length };
+      }) };
+  }) : [ { id: "demo", ar: "عيادة تجريبية", en: "Demo clinic", roleAr: "مالك", roleEn: "Owner", planAr: "", planEn: "",
+           branches: [ { id: "main", ar: "الفرع الرئيسي", en: "Main branch", rooms: 1, doctors: 1 } ] } ];
+  if (!DATA && window.console) console.warn("Tamargi: load assets/demo-data.js before shell.js");
   /* Branches each role may see in the demo (reception/nurse are assigned to one branch). */
   var ROLE_BRANCHES = { reception: ["main", "tor"], nurse: ["main", "tor"] };
 
@@ -185,12 +201,14 @@
     theme: load("theme", "auto"),
     role: load("role", "all"),
     notes: load("notes", "off") === "on",
-    org: load("org", "selim"),
+    org: load("org", null),
     branch: null,
     menu: null          /* "org" | "branch" | null — which switcher menu is open */
   };
   var pageOrg = body.getAttribute("data-org");
-  if (pageOrg) state.org = pageOrg;          /* screen pins its sample org at load (not saved) */
+  if (!state.org) state.org = body.getAttribute("data-org-default") || ORGS[0].id;   /* viewer never picked one */
+  if (pageOrg) state.org = pageOrg;          /* static screen pins its sample org at load (not saved) */
+  if (!ORGS.some(function (o) { return o.id === state.org; })) state.org = ORGS[0].id;
 
   /* ---------- Tenancy scope helpers ---------- */
   function orgById(id) { return ORGS.filter(function (o) { return o.id === id; })[0] || ORGS[0]; }
@@ -265,7 +283,7 @@
     var o = curOrg(), open = state.menu === "org";
     var label = '<span class="t-scope-txt"><b>' + (en() ? o.en : o.ar) + "</b><span>" + (en() ? o.planEn : o.planAr) + "</span></span>";
     if (ORGS.length < 2) return '<span class="t-scope-btn is-static">' + label + "</span>";
-    var items = '<li class="t-menu-head" role="presentation">' + (en() ? "Your organizations — switch without signing out" : "مؤسساتك — بدّل من غير ما تخرج") + "</li>" +
+    var items = '<li class="t-menu-head" role="presentation">' + (en() ? "Your organizations — switch without signing out" : "منشآتك — بدّل من غير ما تخرج") + "</li>" +
       ORGS.map(function (x) {
         var on = x.id === o.id;
         return '<li role="menuitemradio" tabindex="-1" aria-checked="' + on + '" data-scope-org="' + x.id + '">' + icon("building", "sm") +
@@ -273,10 +291,10 @@
           (on ? icon("check", "sm") : "") + "</li>";
       }).join("") +
       '<li class="t-menu-sep" role="separator"></li>' +
-      '<li class="t-menu-head" role="presentation">' + (en() ? "Each organization's patients, money and stock stay separate." : "مرضى وفلوس ومخزون كل مؤسسة منفصلين تمامًا.") + "</li>";
-    return '<div class="t-scope-item"><button type="button" class="t-scope-btn" data-scope-toggle="org" aria-haspopup="menu" aria-expanded="' + open + '" title="' + (en() ? "Switch organization" : "تبديل المؤسسة") + '">' +
+      '<li class="t-menu-head" role="presentation">' + (en() ? "Each organization's patients, money and stock stay separate." : "مرضى وفلوس ومخزون كل منشأة منفصلين تمامًا.") + "</li>";
+    return '<div class="t-scope-item"><button type="button" class="t-scope-btn" data-scope-toggle="org" aria-haspopup="menu" aria-expanded="' + open + '" title="' + (en() ? "Switch organization" : "تبديل المنشأة") + '">' +
       icon("building", "sm t-scope-ico") + label + icon("chevdown", "sm") + "</button>" +
-      '<ul class="t-menu t-scope-menu" role="menu" aria-label="' + (en() ? "Organizations" : "المؤسسات") + '"' + (open ? "" : " hidden") + ">" + items + "</ul></div>";
+      '<ul class="t-menu t-scope-menu" role="menu" aria-label="' + (en() ? "Organizations" : "المنشآت") + '"' + (open ? "" : " hidden") + ">" + items + "</ul></div>";
   }
   function renderBranchSwitch() {
     var o = curOrg(), allowed = allowedBranches(), open = state.menu === "branch";
@@ -316,33 +334,113 @@
         n.classList.toggle("is-other-branch", !mismatch && !isAll && ids.indexOf(state.branch) === -1);
       });
       Array.prototype.forEach.call(main.querySelectorAll("[data-branch-name]"), function (n) { n.textContent = branchName(state.branch); });
-      var old = main.querySelector(".t-scope-alert"); if (old) old.remove();
       if (mismatch) {
         var po = orgById(pageOrg);
-        var a = el("div", { "class": "t-alert warning t-scope-alert no-print", role: "status" },
-          icon("info") + "<span>" + (en() ? "This screen's sample data belongs to <b>" + po.en + "</b>. You are now in <b>" + curOrg().en + "</b>: in the real app you would see that organization's data only."
-                                       : "بيانات العينة في الشاشة دي تبع <b>" + po.ar + "</b>. إنت دلوقتي في <b>" + curOrg().ar + "</b>: في البرنامج الحقيقي هتشوف بيانات المؤسسة دي بس.") + "</span>" +
-          '<div class="t-actions"><button class="t-btn sm" type="button" data-scope-org="' + pageOrg + '">' + (en() ? "Back to " + po.en : "ارجع لـ" + po.ar) + "</button></div>");
-        var host = main.querySelector(".t-container") || main;
-        host.insertBefore(a, host.firstChild);
-      }
+        showNotice("page-org", "warning",
+          en() ? "This screen's sample data belongs to <b>" + po.en + "</b>. You are now in <b>" + curOrg().en + "</b>: in the real app you would see that organization's data only."
+               : "بيانات العينة في الشاشة دي تبع <b>" + po.ar + "</b>. إنت دلوقتي في <b>" + curOrg().ar + "</b>: في البرنامج الحقيقي هتشوف بيانات المنشأة دي بس.",
+          '<button class="t-btn sm" type="button" data-scope-org="' + pageOrg + '">' + (en() ? "Back to " + po.en : "ارجع لـ" + po.ar) + "</button>");
+      } else clearNotice("page-org");
     }
-    var ev; try { ev = new CustomEvent("tamargi:scope", { detail: { org: state.org, branch: state.branch, mismatch: !!mismatch } }); } catch (e) { ev = null; }
-    if (ev) document.dispatchEvent(ev);
+    emitCtx();
+  }
+
+  /* ---------- Live context (Tamargi.ctx) + subscribers ---------- */
+  var ctx = {}, subs = [], nextReason = "init";
+  function syncCtx() {
+    var o = curOrg(), isAll = state.branch === "all";
+    ctx.org = state.org; ctx.branch = state.branch; ctx.all = isAll; ctx.role = state.role; ctx.lang = state.lang;
+    ctx.mismatch = !!(pageOrg && pageOrg !== state.org); ctx.pageOrg = pageOrg || null;
+    ctx.branches = isAll ? o.branches.map(function (b) { return b.id; }) : [state.branch];
+    ctx.allowed = allowedBranches().map(function (b) { return b.id; });
+    ctx.orgRec = DATA ? DATA.org(state.org) : o;
+    ctx.branchRec = isAll ? null : (DATA ? DATA.branch(state.branch) : o.branches.filter(function (b) { return b.id === state.branch; })[0] || null);
+    ctx.branchName = branchName(state.branch);
+    return ctx;
+  }
+  /* reason defaults to whatever the last action set (org/branch/role), then "lang" for re-renders */
+  function emitCtx(reason) {
+    reason = reason || nextReason; nextReason = "lang";
+    syncCtx();
+    subs.slice().forEach(function (fn) { try { fn(ctx, reason); } catch (err) { if (window.console) console.error(err); } });
+    var detail = {}; for (var k in ctx) detail[k] = ctx[k]; detail.reason = reason;
+    ["tamargi:scope", "tamargi:ctx"].forEach(function (name) {
+      var ev; try { ev = new CustomEvent(name, { detail: detail }); } catch (e) { ev = null; }
+      if (ev) document.dispatchEvent(ev);
+    });
+  }
+
+  /* ---------- Scope notices (org mismatch / wrong branch / pick one branch) ---------- */
+  function noticeHost(h) { return h || (main && (main.querySelector(".t-container") || main)); }
+  function clearNotice(key, host) {
+    var h = noticeHost(host); if (!h) return;
+    var n = h.querySelector('.t-scope-alert[data-notice="' + (key || "scope") + '"]'); if (n) n.remove();
+  }
+  function showNotice(key, tone, msg, actions, host) {
+    var h = noticeHost(host); if (!h) return null;
+    clearNotice(key, h);
+    var a = el("div", { "class": "t-alert " + (tone || "warning") + " t-scope-alert no-print", role: "status", "data-notice": key || "scope" },
+      icon(tone === "danger" ? "alert" : "info") + "<span>" + msg + "</span>" + (actions ? '<div class="t-actions">' + actions + "</div>" : ""));
+    var head = null;
+    for (var c = h.firstElementChild; c; c = c.nextElementSibling) if (c.classList.contains("t-screen-head")) { head = c; break; }
+    if (head) h.insertBefore(a, head.nextSibling); else h.insertBefore(a, h.firstChild);
+    return a;
+  }
+  /* opts: { org, branch, needBranch, what: {ar, en}, key, host }
+     -> { ok: true, reason: null } or { ok: false, reason: "org" | "branch" | "noaccess" | "all" } */
+  function scopeNotice(opts) {
+    opts = opts || {};
+    var key = opts.key || "scope", what = opts.what ? (en() ? opts.what.en : opts.what.ar) : (en() ? "This record" : "البيانات دي");
+    var o = curOrg();
+    if (opts.org && opts.org !== state.org) {
+      var ro = orgById(opts.org);
+      showNotice(key, "warning",
+        en() ? what + " belongs to <b>" + ro.en + "</b>. You are working in <b>" + o.en + "</b>, so it is not shown here."
+             : what + " تبع <b>" + ro.ar + "</b>. إنت شغال دلوقتي في <b>" + o.ar + "</b>، فمش ظاهرة هنا.",
+        '<button class="t-btn sm" type="button" data-scope-org="' + ro.id + '"' + (opts.branch ? ' data-scope-branch="' + opts.branch + '"' : "") + ">" + (en() ? "Switch to " + ro.en : "انتقل لـ" + ro.ar) + "</button>", opts.host);
+      return { ok: false, reason: "org" };
+    }
+    if (opts.branch && state.branch !== "all" && opts.branch !== state.branch) {
+      var bn = branchName(opts.branch);
+      if (!allowedBranches().some(function (b) { return b.id === opts.branch; })) {
+        showNotice(key, "danger",
+          en() ? what + " is in <b>" + bn + "</b>. You are not assigned to that branch: ask the owner or the branch manager."
+               : what + " في فرع <b>" + bn + "</b>. إنت مش متسجل على الفرع ده: كلّم المالك أو مدير الفرع.", "", opts.host);
+        return { ok: false, reason: "noaccess" };
+      }
+      showNotice(key, "warning",
+        en() ? what + " is in <b>" + bn + "</b>. You are working in <b>" + branchName(state.branch) + "</b>."
+             : what + " في فرع <b>" + bn + "</b>. إنت شغال دلوقتي في <b>" + branchName(state.branch) + "</b>.",
+        '<button class="t-btn sm" type="button" data-scope-branch="' + opts.branch + '">' + (en() ? "Switch to " + bn : "انتقل لـ" + bn) + "</button>", opts.host);
+      return { ok: false, reason: "branch" };
+    }
+    if (opts.needBranch && state.branch === "all") {
+      showNotice(key, "info",
+        en() ? "You are viewing <b>All branches</b>. Pick one branch to continue." : "إنت فاتح <b>كل الفروع</b>. اختار فرع واحد عشان تكمّل.",
+        allowedBranches().map(function (b) { return '<button class="t-btn sm" type="button" data-scope-branch="' + b.id + '">' + (en() ? b.en : b.ar) + "</button>"; }).join(""), opts.host);
+      return { ok: false, reason: "all" };
+    }
+    clearNotice(key, opts.host);
+    return { ok: true, reason: null };
   }
   function setMenu(m) {
     state.menu = m; renderTopbar();
     if (m) { var f = topbar.querySelector('.t-scope-menu:not([hidden]) li[tabindex]'); if (f) f.focus(); }
   }
-  function pickOrg(id) {
-    if (id === state.org) { setMenu(null); return; }
-    state.org = id; state.branch = null; save("org", id); resolveBranch(); state.menu = null;
-    renderTopbar(); applyScope();
+  function pickOrg(id, branch) {
+    if (!ORGS.some(function (o) { return o.id === id; })) return;
+    if (id === state.org) { setMenu(null); if (branch && branch !== state.branch) pickBranch(branch); return; }
+    state.org = id; state.branch = null; save("org", id);
+    if (branch) save("branch." + id, branch);
+    resolveBranch(); state.menu = null;
+    nextReason = "org"; renderTopbar(); applyScope();
     toast(en() ? "Switched to " + curOrg().en + " — no sign-out needed" : "اتنقلت لـ" + curOrg().ar + " — من غير تسجيل خروج");
   }
   function pickBranch(id) {
+    var ok = (id === "all" && canSeeAll() && curOrg().branches.length > 1) || allowedBranches().some(function (b) { return b.id === id; });
+    if (!ok) { setMenu(null); return; }
     state.branch = id; save("branch." + state.org, id); state.menu = null;
-    renderTopbar(); applyScope();
+    nextReason = "branch"; renderTopbar(); applyScope();
     toast(en() ? "Now working in: " + branchName(id) : "إنت دلوقتي في: " + branchName(id));
   }
 
@@ -469,20 +567,21 @@
   function renderAll() {
     applyLang();
     renderTopbar();
-    if (!bare) applyScope();
+    if (!bare) applyScope(); else emitCtx();
     if (!bare || sidenav) renderNav();
     renderSpec();
     applyState();
     renderNotes();
   }
   applyTheme();
+  syncCtx();
   renderAll();
 
   /* ---------- Events ---------- */
   document.addEventListener("click", function (e) {
     var b;
     if ((b = e.target.closest("[data-scope-toggle]"))) { var m = b.getAttribute("data-scope-toggle"); setMenu(state.menu === m ? null : m); return; }
-    if ((b = e.target.closest("[data-scope-org]"))) { pickOrg(b.getAttribute("data-scope-org")); return; }
+    if ((b = e.target.closest("[data-scope-org]"))) { pickOrg(b.getAttribute("data-scope-org"), b.getAttribute("data-scope-branch")); return; }
     if ((b = e.target.closest("[data-scope-branch]"))) { pickBranch(b.getAttribute("data-scope-branch")); return; }
     if (state.menu && !e.target.closest(".t-scope-item")) setMenu(null);
     if ((b = e.target.closest("[data-shell-lang]"))) { state.lang = state.lang === "en" ? "ar" : "en"; save("lang", state.lang); renderAll(); return; }
@@ -506,7 +605,7 @@
     if (html.classList.contains("nav-open") && !e.target.closest(".t-sidenav")) html.classList.remove("nav-open");
   });
   document.addEventListener("change", function (e) {
-    if (e.target && e.target.id === "t-role") { state.role = e.target.value; save("role", state.role); resolveBranch(); renderNav(); renderTopbar(); applyScope(); var r = document.getElementById("t-role"); if (r) r.focus(); }
+    if (e.target && e.target.id === "t-role") { state.role = e.target.value; save("role", state.role); resolveBranch(); renderNav(); renderTopbar(); nextReason = "role"; applyScope(); var r = document.getElementById("t-role"); if (r) r.focus(); }
   });
   document.addEventListener("keydown", function (e) {
     var typing = /^(INPUT|TEXTAREA|SELECT)$/.test((e.target || {}).tagName || "") || (e.target && e.target.isContentEditable);
@@ -531,7 +630,12 @@
     if (e.target && e.target.matches && e.target.matches("[data-shell-search]") && e.key === "Enter") location.href = screensBase + "patient-search.html";
   });
 
-  window.Tamargi = { toast: toast, screens: SCREENS, groups: GROUPS, orgs: ORGS, setState: function (s) { activeState = s; applyState(); renderNotes(); }, lang: function () { return state.lang; },
+  window.Tamargi = { toast: toast, screens: SCREENS, groups: GROUPS, orgs: ORGS, data: DATA, ctx: ctx,
+    setState: function (s) { activeState = s; applyState(); renderNotes(); }, lang: function () { return state.lang; },
+    tx: function (ar, enTxt) { return state.lang === "en" ? enTxt : ar; },
     scope: function () { return { org: state.org, branch: state.branch, all: state.branch === "all", mismatch: !!(pageOrg && pageOrg !== state.org), branchName: branchName(state.branch) }; },
-    role: function () { return state.role; } };
+    role: function () { return state.role; },
+    onCtx: function (fn) { subs.push(fn); return function () { var i = subs.indexOf(fn); if (i > -1) subs.splice(i, 1); }; },
+    setCtx: function (o) { o = o || {}; if (o.org && o.org !== state.org) pickOrg(o.org, o.branch); else if (o.branch && o.branch !== state.branch) pickBranch(o.branch); },
+    scopeNotice: scopeNotice, clearNotice: clearNotice, branchName: branchName };
 })();

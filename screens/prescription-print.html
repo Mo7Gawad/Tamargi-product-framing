@@ -36,46 +36,36 @@
       .rxp-stage .t-sheet { zoom: 1; }
     }
   </style>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
-<body data-screen="prescription-print">
+<body data-screen="prescription-print" data-org-default="nile">
 <main id="screen">
 
-  <section class="t-banner no-print" aria-label="Patient" data-en-aria-label="Patient">
-    <div class="t-banner-id">
-      <span class="t-avatar">م ع</span>
-      <div>
-        <div class="t-banner-name">منى عبد الرحمن السيد الشناوي</div>
-        <div class="t-banner-facts">
-          <span><b>٣٤</b> <span data-en="yrs · F">سنة · أنثى</span></span>
-          <span><span data-en="File">ملف</span> <b class="t-ltr">1043</b></span>
-          <span class="t-ltr">0100 234 5678</span>
-          <span data-en="Visit today 14 Nov · Dr. Ahmed">زيارة اليوم ١٤ نوفمبر · د. أحمد</span>
-        </div>
-      </div>
-    </div>
-    <div class="t-banner-alerts">
-      <span class="t-allergy"><svg class="t-icon sm"><use href="#i-alert"/></svg><span data-en="Allergy: Penicillin">حساسية: بنسلين</span></span>
-      <span class="t-flag" data-en="Pregnant — 2nd trimester">حامل — الثلث الثاني</span>
-    </div>
-  </section>
+  <!-- Patient banner: from the shared demo data, for the visit in ?appt= (or the patient in room) -->
+  <section class="t-banner no-print" id="vBanner" aria-label="Patient" data-en-aria-label="Patient"></section>
 
   <div class="t-container">
     <header class="t-screen-head">
       <div>
         <h1 data-en="Print preview">معاينة الطباعة</h1>
         <p class="t-sub mb-0" data-en="Exactly what prints on the clinic letterhead. Pick the document, check it, print from the browser.">نفس اللي هيتطبع على ترويسة العيادة بالظبط. اختار الورقة، راجعها، واطبع من المتصفح.</p>
+        <p class="t-small t-muted mb-0 mt-2" id="rxMeta"></p>
       </div>
       <div class="t-actions">
-        <a class="t-btn ghost" href="prescription-builder.html"><svg class="t-icon sm"><use href="#i-edit"/></svg><span data-en="Edit Rx">تعديل الروشتة</span></a>
-        <a class="t-btn ghost" href="patient-file.html"><svg class="t-icon sm"><use href="#i-file"/></svg><span data-en="Patient file">ملف المريض</span></a>
+        <a class="t-btn ghost" id="lnRx" href="prescription-builder.html"><svg class="t-icon sm"><use href="#i-edit"/></svg><span data-en="Edit Rx">تعديل الروشتة</span></a>
+        <a class="t-btn ghost" id="lnFile" href="patient-file.html"><svg class="t-icon sm"><use href="#i-file"/></svg><span data-en="Patient file">ملف المريض</span></a>
         <button class="t-btn primary" type="button" id="print-btn"
-                data-note="Browser print, no popup window and no PDF download step (NITCO v23 opens a Chrome popup report). Ctrl P works too because only the sheet is styled for print."
-                data-note-ar="طباعة من المتصفح مباشرة، من غير نافذة منبثقة ولا تحميل PDF (NITCO بيفتح التقرير في نافذة جديدة). Ctrl P شغال برضه لأن الورقة بس هي اللي بتتطبع.">
+                data-note="Browser print, no popup window and no PDF download step (NITCO v23 opens a Chrome popup report). Ctrl P works too because only the sheet is styled for print. Every print is logged with doctor, branch and time."
+                data-note-ar="طباعة من المتصفح مباشرة، من غير نافذة منبثقة ولا تحميل PDF. Ctrl P شغال برضه لأن الورقة بس هي اللي بتتطبع. كل طباعة بتتسجل بالدكتور والفرع والوقت.">
           <svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Print">اطبع</span><span class="t-kbd">Ctrl P</span>
         </button>
       </div>
     </header>
 
+    <section class="t-card no-print" id="vEmpty" hidden><div class="t-empty"><div class="t-empty-art"><svg class="t-icon"><use href="#i-print"/></svg></div><h3 id="vEmptyT"></h3><p id="vEmptyP"></p><a class="t-btn" href="patient-search.html" data-en="Find a patient">ابحث عن مريض</a></div></section>
+
+    <div id="vBody">
     <!-- Document switcher (uses the shared state mechanism) -->
     <div class="t-tabs rxp-tabs" role="group" aria-label="Document" data-en-aria-label="Document"
          data-note="One preview, three documents from the same visit: prescription, sick-leave certificate, medical report. Egyptian patients ask for a 'شهادة مرضية' for work or school almost daily (NITCO v23, v29: Must)."
@@ -98,7 +88,7 @@
           </div>
         </div>
         <label class="t-switch"><input type="checkbox" id="preprinted"><span data-en="Pre-printed paper (hide letterhead)">ورق مطبوع مسبقًا (اخفي الترويسة)</span></label>
-        <span class="t-small t-faint t-end" data-en="Printer: browser default · last used A5">الطابعة: الافتراضية في المتصفح · آخر استخدام A5</span>
+        <span class="t-small t-faint t-end" id="printerTxt"></span>
       </div>
     </div>
 
@@ -121,48 +111,30 @@
               <label class="t-switch"><input type="checkbox" id="show-sign" checked><span data-en="Doctor's signature line">سطر توقيع الطبيب</span></label>
             </div>
           </div>
-          <div class="t-alert info" data-note="Reception can reprint the doctor's Rx from the patient file but cannot change a line (role preset). Every print is logged with who and when; printing never marks anything as paid."
-               data-note-ar="الاستقبال يقدر يعيد طباعة روشتة الطبيب من ملف المريض لكن ما يعدلش فيها. كل طباعة بتتسجل مين وإمتى، والطباعة ملهاش علاقة بالدفع.">
+          <div class="t-alert info" data-note="Reception can reprint the doctor's Rx from the patient file at any branch of the org (one file per org) but cannot change a line (role preset). Every print is logged with who, where and when; printing never marks anything as paid."
+               data-note-ar="الاستقبال يقدر يعيد طباعة روشتة الطبيب من ملف المريض في أي فرع من فروع المنشأة لكن ما يعدلش فيها. كل طباعة بتتسجل مين وفين وإمتى، والطباعة ملهاش علاقة بالدفع.">
             <svg class="t-icon"><use href="#i-info"/></svg>
-            <span data-en="Printed 0 times. Reception can reprint, not edit. Prints are logged.">اتطبعت ٠ مرة. الاستقبال يقدر يعيد الطباعة من غير تعديل. كل طباعة بتتسجل.</span>
+            <span id="printInfo"></span>
           </div>
         </aside>
 
         <div class="t-print-stage rxp-stage">
           <article dir="rtl" class="t-sheet a5" aria-label="Prescription">
-            <header class="t-letterhead">
-              <div>
-                <div class="lh-name">د. أحمد سليم عبد الحميد</div>
-                <div class="lh-title">أخصائي الباطنة العامة<br>ماجستير الباطنة — جامعة المنصورة<br>رقم القيد بالنقابة: ٤٨٢١٣</div>
-              </div>
-              <div class="lh-logo">أ س</div>
-              <div class="lh-en">
-                <div class="lh-name">Dr. Ahmed Selim</div>
-                <div class="lh-title">Internal Medicine Specialist<br>MSc Internal Medicine, Mansoura Univ.<br>Syndicate no. 48213</div>
-              </div>
-            </header>
-            <div class="t-rx-patient">
-              <span>الاسم: <b>منى عبد الرحمن السيد الشناوي</b></span>
-              <span>السن: <b>٣٤ سنة</b></span>
-              <span>التاريخ: <b class="t-ltr">14/11/2026</b></span>
-              <span>ملف: <b class="t-ltr">1043</b></span>
-            </div>
+            <header class="t-letterhead"></header>
+            <div class="t-rx-patient" data-sheet-patient="rx"></div>
             <div class="t-rx-symbol">R/</div>
-            <div class="rx-diag" id="rx-dx">التشخيص: نزلة برد (J06.9)</div>
-            <ol class="t-rx-items"
-                data-note="Numbered lines: drug as written on the box (LTR), instruction in plain Egyptian Arabic under it (dose + frequency + timing + duration). Legibility was the #1 Rx complaint in research."
-                data-note-ar="سطور مرقمة: اسم الدواء زي العلبة، وتحته التعليمات بالعربي (الجرعة + التكرار + التوقيت + المدة). وضوح الخط كان أكبر شكوى في البحث.">
-              <li><div class="rx-drug">1. Panadol 500 mg</div><div class="rx-sig" data-sig-ar="قرص كل ٨ ساعات بعد الأكل لمدة ٥ أيام" data-sig-en="1 tablet every 8 hours after meals for 5 days">قرص كل ٨ ساعات بعد الأكل لمدة ٥ أيام</div></li>
-              <li><div class="rx-drug">2. Otrivin 0.1% nasal spray</div><div class="rx-sig" data-sig-ar="بخة في كل فتحة مرتين يوميًا لمدة ٥ أيام (لا تزيد عن ٥ أيام)" data-sig-en="1 puff in each nostril twice daily for 5 days (max 5 days)">بخة في كل فتحة مرتين يوميًا لمدة ٥ أيام (لا تزيد عن ٥ أيام)</div></li>
-              <li><div class="rx-drug">3. Vitacid C 500 mg effervescent</div><div class="rx-sig" data-sig-ar="قرص فوار في نص كوب ماء مرة يوميًا لمدة ١٠ أيام" data-sig-en="1 effervescent tablet in half a glass of water once daily for 10 days">قرص فوار في نص كوب ماء مرة يوميًا لمدة ١٠ أيام</div></li>
-            </ol>
-            <div class="rx-note">راحة تامة في المنزل لمدة ٣ أيام. الإكثار من السوائل الدافئة (ينسون، ليمون).</div>
+            <div class="rx-diag" id="rx-dx"></div>
+            <div data-note="Numbered lines: drug as written on the box (LTR), instruction in plain Egyptian Arabic under it (dose + frequency + timing + duration). Legibility was the #1 Rx complaint in research."
+                 data-note-ar="سطور مرقمة: اسم الدواء زي العلبة، وتحته التعليمات بالعربي (الجرعة + التكرار + التوقيت + المدة). وضوح الخط كان أكبر شكوى في البحث.">
+              <ol class="t-rx-items" id="rx-items"></ol>
+            </div>
+            <div class="rx-note" id="rx-note"></div>
             <div class="rx-sign" id="rx-sign"><span>توقيع الطبيب</span></div>
             <footer class="t-sheet-foot"
-                    data-note="Footer carries the follow-up date chosen in the builder, clinic hours and address. Reception sees the same date when booking, so the free follow-up window is honoured."
-                    data-note-ar="الذيل فيه ميعاد الاستشارة اللي اتحدد في الروشتة، ومواعيد العيادة والعنوان. الاستقبال بيشوف نفس الميعاد وهو بيحجز.">
-              <span><b>الاستشارة: السبت ٢١ نوفمبر</b><br>المواعيد: يوميًا ٥–١١ م عدا الجمعة</span>
-              <span>١٢ ش الجمهورية، أمام بنك مصر، المنصورة<br><span class="t-ltr">050 223 4567 · 0100 555 1212</span></span>
+                    data-note="Footer: the follow-up date (a day the doctor works in THIS branch) and his hours here, plus the branch's own address and phone. Same doctor, other branch = other footer (tenancy: branch address block on the letterhead)."
+                    data-note-ar="الذيل: ميعاد الاستشارة (يوم الدكتور شغال فيه في الفرع ده) ومواعيده هنا، وعنوان الفرع وتليفونه. نفس الدكتور في فرع تاني = ذيل تاني.">
+              <span id="rx-fu"></span>
+              <span data-branch-foot></span>
             </footer>
           </article>
         </div>
@@ -174,8 +146,8 @@
       <div class="t-split">
         <aside class="t-stack no-print">
           <div class="t-card"
-               data-note="Sick-leave fields from NITCO v23 cut to what an Egyptian private clinic needs: start date (pre-filled today) + number of days → end date computed. No approve/reject status, no Hijri date, no companion leave (Saudi-only)."
-               data-note-ar="حقول الشهادة المرضية من NITCO بعد التبسيط: تاريخ البداية (النهارده تلقائي) + عدد الأيام ← تاريخ النهاية بيتحسب. من غير حالة موافقة/رفض ولا تاريخ هجري ولا إجازة مرافق.">
+               data-note="Sick-leave fields from NITCO v23 cut to what an Egyptian private clinic needs: start date (pre-filled with the visit date) + number of days → end date computed. No approve/reject status, no Hijri date, no companion leave (Saudi-only)."
+               data-note-ar="حقول الشهادة المرضية من NITCO بعد التبسيط: تاريخ البداية (تاريخ الزيارة تلقائي) + عدد الأيام ← تاريخ النهاية بيتحسب. من غير حالة موافقة/رفض ولا تاريخ هجري ولا إجازة مرافق.">
             <div class="t-card-head"><h2 data-en="Certificate details">بيانات الشهادة</h2></div>
             <div class="t-stack">
               <div class="t-form-grid">
@@ -202,7 +174,7 @@
               <div class="t-field">
                 <label class="t-label" for="c-to" data-en="To be submitted to">لتقديمها إلى</label>
                 <select id="c-to" class="t-select">
-                  <option value="جهة العمل|her employer" data-en="Employer">جهة العمل</option>
+                  <option value="جهة العمل|the employer" data-en="Employer">جهة العمل</option>
                   <option value="المدرسة|the school" data-en="School">المدرسة</option>
                   <option value="الجامعة|the university" data-en="University">الجامعة</option>
                   <option value="من يهمه الأمر|whom it may concern" data-en="Whom it may concern">من يهمه الأمر</option>
@@ -211,7 +183,7 @@
               <label class="t-switch"><input type="checkbox" id="c-dx" checked><span data-en="Show diagnosis (optional — turn off if the patient asks)">إظهار التشخيص (اختياري — اقفله لو المريض طلب)</span></label>
               <div class="t-field">
                 <label class="t-label" for="c-dxtext" data-en="Diagnosis wording">صيغة التشخيص</label>
-                <input id="c-dxtext" class="t-input" value="نزلة برد حادة" data-en-value="acute common cold">
+                <input id="c-dxtext" class="t-input">
               </div>
               <div class="t-field">
                 <span class="t-label" data-en="Certificate language">لغة الشهادة</span>
@@ -226,40 +198,25 @@
           </div>
 
           <div class="t-card flush rxp-history"
-               data-note="Issued certificates are numbered and immutable: reprint any time, cancel only with a reason (logged). NITCO v23 lets anyone delete a certificate — a data-integrity hole."
-               data-note-ar="الشهادات الصادرة مرقمة وما ينفعش تتمسح: إعادة طباعة في أي وقت، والإلغاء بسبب بس ويتسجل. في NITCO أي حد يقدر يمسح شهادة.">
-            <div class="t-card-head"><h3 data-en="Issued for this patient">شهادات سابقة للمريضة</h3></div>
-            <table class="t-table">
-              <tbody>
-                <tr><td><span class="t-name t-ltr">C-2026-0112</span><span class="t-meta" data-en="2 Nov · 2 days · Employer">٢ نوفمبر · يومين · جهة العمل</span></td>
-                    <td class="actions"><button class="t-btn sm ghost" type="button" data-toast="جاري إعادة الطباعة…" data-toast-en="Reprinting…"><svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Reprint">إعادة طباعة</span></button></td></tr>
-                <tr class="is-muted"><td><span class="t-name t-ltr">C-2026-0047</span><span class="t-meta" data-en="Cancelled · wrong dates">ملغاة · تواريخ غلط</span></td>
-                    <td class="actions"><span class="t-chip void" data-en="Cancelled">ملغاة</span></td></tr>
-              </tbody>
-            </table>
+               data-note="Issued certificates are numbered per BRANCH series (D39: e.g. C-TOR-2026-0412) and immutable: reprint any time, cancel only with a reason (logged). The file is org-wide, so a certificate issued at another branch shows here with its branch. NITCO v23 lets anyone delete a certificate — a data-integrity hole."
+               data-note-ar="الشهادات الصادرة مرقمة بمسلسل كل فرع (مثلًا C-TOR-2026-0412) وما ينفعش تتمسح: إعادة طباعة في أي وقت، والإلغاء بسبب بس. الملف واحد للمنشأة، فالشهادة اللي طلعت من فرع تاني بتظهر هنا بفرعها.">
+            <div class="t-card-head"><h3 id="c-hist-title"></h3></div>
+            <div class="t-table-wrap" style="border:0;border-radius:0">
+            <table class="t-table"><tbody id="c-hist"></tbody></table>
+            </div>
           </div>
         </aside>
 
         <div class="t-print-stage rxp-stage">
           <article dir="rtl" class="t-sheet a5" aria-label="Sick-leave certificate">
-            <header class="t-letterhead">
-              <div>
-                <div class="lh-name">د. أحمد سليم عبد الحميد</div>
-                <div class="lh-title">أخصائي الباطنة العامة<br>ماجستير الباطنة — جامعة المنصورة<br>رقم القيد بالنقابة: ٤٨٢١٣</div>
-              </div>
-              <div class="lh-logo">أ س</div>
-              <div class="lh-en">
-                <div class="lh-name">Dr. Ahmed Selim</div>
-                <div class="lh-title">Internal Medicine Specialist<br>MSc Internal Medicine, Mansoura Univ.<br>Syndicate no. 48213</div>
-              </div>
-            </header>
+            <header class="t-letterhead"></header>
             <div class="cert-title" id="c-title">شهادة طبية</div>
-            <div class="cert-no" id="c-no">رقم الشهادة <span class="t-ltr">C-2026-0187</span> · تاريخ الإصدار <span class="t-ltr">14/11/2026</span></div>
+            <div class="cert-no" id="c-no"></div>
             <div class="cert-body" id="c-body"></div>
             <div class="rx-sign"><span id="c-sign">توقيع وختم الطبيب</span></div>
             <footer class="t-sheet-foot">
               <span>تصدر هذه الشهادة دون أدنى مسئولية على العيادة تجاه الغير</span>
-              <span>١٢ ش الجمهورية، المنصورة · <span class="t-ltr">050 223 4567</span></span>
+              <span data-branch-foot></span>
             </footer>
           </article>
         </div>
@@ -295,49 +252,45 @@
 
         <div class="t-print-stage rxp-stage">
           <article dir="rtl" class="t-sheet a5" aria-label="Medical report">
-            <header class="t-letterhead">
-              <div>
-                <div class="lh-name">د. أحمد سليم عبد الحميد</div>
-                <div class="lh-title">أخصائي الباطنة العامة<br>ماجستير الباطنة — جامعة المنصورة<br>رقم القيد بالنقابة: ٤٨٢١٣</div>
-              </div>
-              <div class="lh-logo">أ س</div>
-              <div class="lh-en">
-                <div class="lh-name">Dr. Ahmed Selim</div>
-                <div class="lh-title">Internal Medicine Specialist<br>MSc Internal Medicine, Mansoura Univ.<br>Syndicate no. 48213</div>
-              </div>
-            </header>
+            <header class="t-letterhead"></header>
             <div class="cert-title">تقرير طبي</div>
-            <div class="cert-no" id="r-head">إلى: من يهمه الأمر · <span class="t-ltr">14/11/2026</span></div>
-            <div class="t-rx-patient mb-2">
-              <span>الاسم: <b>منى عبد الرحمن السيد الشناوي</b></span>
-              <span>السن: <b>٣٤ سنة</b></span>
-              <span>ملف: <b class="t-ltr">1043</b></span>
-            </div>
+            <div class="cert-no" id="r-head"></div>
+            <div class="t-rx-patient mb-2" data-sheet-patient="report"></div>
             <div style="flex:1">
-              <div class="rep-sec" data-rep="complaint"><h4>الشكوى والتاريخ المرضي</h4>رشح واحتقان بالحلق وصداع منذ يومين، بدون ارتفاع ملحوظ في الحرارة. حامل في الأسبوع ٢٢. حساسية من البنسلين.</div>
-              <div class="rep-sec" data-rep="exam"><h4>الفحص</h4>الحرارة <span class="t-ltr">37.6 °C</span> · الضغط <span class="t-ltr">110/70</span> · النبض <span class="t-ltr">88</span>. احتقان بسيط بالحلق، الصدر سليم.</div>
-              <div class="rep-sec" data-rep="dx"><h4>التشخيص</h4>نزلة برد حادة <span class="t-ltr">(J06.9)</span></div>
-              <div class="rep-sec" data-rep="tx"><h4>العلاج</h4>باراسيتامول، بخاخ أنف، فيتامين سي — مع مراعاة الحمل والحساسية.</div>
-              <div class="rep-sec" data-rep="rec"><h4>التوصيات</h4>راحة بالمنزل ٣ أيام، ومتابعة يوم السبت ٢١ نوفمبر أو قبلها عند ارتفاع الحرارة.</div>
+              <div class="rep-sec" data-rep="complaint"><h4>الشكوى والتاريخ المرضي</h4><span id="rep-s"></span></div>
+              <div class="rep-sec" data-rep="exam"><h4>الفحص</h4><span id="rep-o"></span></div>
+              <div class="rep-sec" data-rep="dx"><h4>التشخيص</h4><span id="rep-dx"></span></div>
+              <div class="rep-sec" data-rep="tx"><h4>العلاج</h4><span id="rep-tx"></span></div>
+              <div class="rep-sec" data-rep="rec"><h4>التوصيات</h4><span id="rep-p"></span></div>
             </div>
             <div class="rx-sign"><span>توقيع وختم الطبيب</span></div>
             <footer class="t-sheet-foot">
-              <span>تقرير رقم <span class="t-ltr">R-2026-0033</span></span>
-              <span>١٢ ش الجمهورية، المنصورة · <span class="t-ltr">050 223 4567</span></span>
+              <span id="r-no"></span>
+              <span data-branch-foot></span>
             </footer>
           </article>
         </div>
       </div>
     </div>
+    </div>
 
   </div>
 </main>
+<script src="../assets/demo-data.js"></script>
+<script src="../assets/demo-clinical.js"></script>
 <script src="../assets/shell.js"></script>
 <script>
 (function () {
   "use strict";
+  var D = Tamargi.data, C = Tamargi.ctx, F = D.fmt, K = window.TamargiClinical;
   var $ = function (s) { return document.querySelector(s); };
   var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
+  var esc = K.esc;
+  function L(ar, en) { return C.lang === "en" ? en : ar; }
+
+  var V = null, curId = null, want = K.wanted(), sigLang = "ar", clang = "ar", DX = null, RX = [];
+  /* demo per-branch document counters (D39: certificate / report numbering per branch) */
+  var SEQ = { C: { main: 186, tor: 412, gam: 97 }, R: { main: 33, tor: 58, gam: 21 } };
 
   /* Paper size: sheet class + @page size, so the browser dialog needs no setup */
   function setPaper(p) {
@@ -347,57 +300,145 @@
   }
   $("#preprinted").addEventListener("change", function (e) { $$(".t-sheet").forEach(function (s) { s.classList.toggle("preprinted", e.target.checked); }); });
 
-  /* Rx options */
+  /* ---------- the visit's documents ---------- */
+  function loadVisit(v) {
+    V = v;
+    var t = (K.templates[v.pack] || [])[0];
+    DX = t ? t.dx[0] : null;
+    RX = (t ? t.rx : []).filter(function (id) { return !(v.flags.pen && K.drug(id).fam === "penicillin"); }).map(K.drug);
+    if (!RX.length) RX = (K.favs[v.pack] || []).slice(0, 2).map(function (x) { return K.drug(x[0]); });
+    $("#c-start").value = v.appt.date;
+    $("#c-dxtext").value = DX ? K.icd[DX][0] : "";
+    $("#r-to").value = "من يهمه الأمر";
+  }
+  function renderCommon() {
+    var v = V, a = v.appt, p = v.patient, sp = D.specialties[v.sp], multi = D.branchesOf(v.org.id).length > 1;
+    $("#vBanner").innerHTML = K.banner(v, C.lang, "<span>" + L("زيارة ", "Visit ") + K.dateText(a.date, C.lang, false) + " · " + esc(L(v.doctor.shortAr, v.doctor.shortEn)) + "</span>");
+    $("#rxMeta").innerHTML = esc(L(v.doctor.shortAr, v.doctor.shortEn)) + ' <span class="t-spec-tag ' + sp.cls + '">' + esc(F.t(sp, C.lang)) + "</span> · " +
+      (multi ? '<span class="t-branch-tag">' + esc(L(v.branch.shortAr, v.branch.shortEn)) + "</span> · " : "") + esc(F.t(v.room, C.lang));
+    $("#lnRx").href = "prescription-builder.html?appt=" + encodeURIComponent(a.id);
+    $("#lnFile").href = "patient-file.html?p=" + encodeURIComponent(p.id);
+    $("#printerTxt").textContent = L("الطابعة: طابعة " + v.branch.shortAr + " الافتراضية · آخر استخدام A5", "Printer: " + v.branch.shortEn + " default printer · last used A5");
+    $("#printInfo").textContent = L("اتطبعت ٠ مرة. الاستقبال في أي فرع يقدر يعيد الطباعة من غير تعديل. كل طباعة بتتسجل.", "Printed 0 times. Reception at any branch can reprint, not edit. Prints are logged.");
+    $$(".t-sheet .t-letterhead").forEach(function (h) { h.outerHTML = K.letterhead(v); });
+    $$("[data-branch-foot]").forEach(function (f) { f.innerHTML = K.branchFoot(v, false).replace(/^<span>|<\/span>$/g, ""); });
+    var pl = "<span>الاسم: <b>" + esc(p.ar) + "</b></span><span>السن: <b>" + F.num(p.age, "ar") + " سنة</b></span>";
+    $('[data-sheet-patient="rx"]').innerHTML = pl + '<span>التاريخ: <b class="t-ltr">' + K.slash(a.date) + '</b></span><span>ملف: <b class="t-ltr">' + esc(p.fileNo) + "</b></span>";
+    $('[data-sheet-patient="report"]').innerHTML = pl + '<span>ملف: <b class="t-ltr">' + esc(p.fileNo) + "</b></span>";
+  }
+
+  /* Prescription sheet */
+  function renderRx() {
+    var t = (K.templates[V.pack] || [])[0];
+    $("#rx-dx").textContent = DX ? "التشخيص: " + K.icd[DX][0] + " (" + DX + ")" : "";
+    $("#rx-dx").hidden = !$("#show-dx").checked || !DX;
+    $("#rx-items").innerHTML = RX.map(function (d, i) {
+      return '<li><div class="rx-drug">' + (i + 1) + ". " + esc(d.drug) + '</div><div class="rx-sig" data-sig-ar="' + esc(K.sigAr(d)) + '" data-sig-en="' + esc(K.sigEn(d)) + '">' + esc(K.sigAr(d)) + "</div></li>";
+    }).join("");
+    $("#rx-note").textContent = t ? t.p.ar : "";
+    var n = K.nextShift(V.doctor.id, V.branch.id, 7);
+    $("#rx-fu").innerHTML = (n ? "<b>الاستشارة: " + K.dateText(n.iso, "ar") + "</b><br>" : "") + "مواعيد " + esc(V.doctor.shortAr) + " هنا: " + K.hoursText(V.doctor.id, V.branch.id, "ar");
+    setSig(sigLang);
+  }
   function setSig(l) {
+    sigLang = l;
     $$("[data-sig]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-sig") === l)); });
     $$(".rx-sig").forEach(function (s) { s.textContent = s.getAttribute("data-sig-" + l); s.style.direction = l === "en" ? "ltr" : "rtl"; s.style.textAlign = l === "en" ? "left" : "right"; });
   }
-  $("#show-dx").addEventListener("change", function (e) { $("#rx-dx").hidden = !e.target.checked; });
+  $("#show-dx").addEventListener("change", function (e) { $("#rx-dx").hidden = !e.target.checked || !DX; });
   $("#show-sign").addEventListener("change", function (e) { $("#rx-sign").hidden = !e.target.checked; });
 
   /* Certificate */
-  var clang = "ar";
-  var AR_DIG = "٠١٢٣٤٥٦٧٨٩";
-  function ard(n) { return String(n).replace(/\d/g, function (d) { return AR_DIG[d]; }); }
   function fmt(d) { return ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear(); }
   function renderCert() {
+    var p = V.patient, she = p.sex === "F";
     var days = Math.max(1, Math.min(60, parseInt($("#c-days").value, 10) || 1));
-    var start = new Date(($("#c-start").value || "2026-11-14") + "T00:00:00");
+    var start = new Date(($("#c-start").value || V.appt.date) + "T00:00:00");
     var end = new Date(start); end.setDate(end.getDate() + days - 1);
     $("#c-end").value = fmt(end);
     $$("[data-days]").forEach(function (b) { b.classList.toggle("is-on", +b.getAttribute("data-days") === days); });
     var to = $("#c-to").value.split("|");
     var showDx = $("#c-dx").checked, dx = $("#c-dxtext").value.trim();
     var body = $("#c-body"), s = '<span class="t-ltr">' + fmt(start) + "</span>", e = '<span class="t-ltr">' + fmt(end) + "</span>";
+    $("#c-no").innerHTML = "رقم الشهادة <span class=\"t-ltr\">" + K.docNo("C", V.branch, SEQ.C[V.branch.id] + 1) + "</span> · تاريخ الإصدار <span class=\"t-ltr\">" + K.slash(V.appt.date) + "</span>";
     if (clang === "ar") {
       body.className = "cert-body";
-      body.innerHTML = "أشهد أنا الموقع أدناه بأن السيدة/ <b>منى عبد الرحمن السيد الشناوي</b>، السن ٣٤ سنة، ملف رقم <span class=\"t-ltr\">1043</span>، قد تم توقيع الكشف الطبي عليها بتاريخ " + s +
-        (showDx && dx ? "، وتبين أنها تعاني من <b>" + dx + "</b>" : "") +
-        "، وتحتاج إلى راحة لمدة <b>(" + ard(days) + ") " + (days === 1 ? "يوم" : days === 2 ? "يومين" : days <= 10 ? "أيام" : "يومًا") + "</b> تبدأ من " + s + " وتنتهي في " + e + ".<br>وقد أُعطيت لها هذه الشهادة بناءً على طلبها لتقديمها إلى <b>" + to[0] + "</b>.";
+      body.innerHTML = "أشهد أنا الموقع أدناه بأن " + (p.child ? "الطفل/" + (she ? "ة" : "") + " " : she ? "السيدة/ " : "السيد/ ") + "<b>" + esc(p.ar) + "</b>، السن " + F.num(p.age, "ar") + " سنة، ملف رقم <span class=\"t-ltr\">" + esc(p.fileNo) + "</span>، قد تم توقيع الكشف الطبي " + (she ? "عليها" : "عليه") + " بتاريخ " + s +
+        (showDx && dx ? "، وتبين أن" + (she ? "ها تعاني" : "ه يعاني") + " من <b>" + esc(dx) + "</b>" : "") +
+        "، و" + (she ? "تحتاج" : "يحتاج") + " إلى راحة لمدة <b>(" + F.num(days, "ar") + ") " + (days === 1 ? "يوم" : days === 2 ? "يومين" : days <= 10 ? "أيام" : "يومًا") + "</b> تبدأ من " + s + " وتنتهي في " + e + ".<br>وقد أُعطيت " + (she ? "لها" : "له") + " هذه الشهادة بناءً على طلب" + (she ? "ها" : "ه") + " لتقديمها إلى <b>" + to[0] + "</b>.";
       $("#c-title").textContent = "شهادة طبية"; $("#c-sign").textContent = "توقيع وختم الطبيب";
     } else {
+      var enDx = DX && dx === K.icd[DX][0] ? K.icd[DX][1].toLowerCase() : dx;
       body.className = "cert-body cert-en";
-      body.innerHTML = "This is to certify that Mrs. <b>Mona Abdelrahman El-Sayed El-Shennawy</b>, aged 34, file no. 1043, was examined on " + fmt(start) +
-        (showDx && dx ? " and was found to be suffering from <b>" + (dx === $("#c-dxtext").defaultValue ? $("#c-dxtext").getAttribute("data-en-value") : dx.replace(/</g, "&lt;")) + "</b>" : "") +
-        ". She requires sick leave for <b>" + days + " day" + (days > 1 ? "s" : "") + "</b>, from " + fmt(start) + " to " + fmt(end) + ".<br>This certificate is issued at her request, to be submitted to <b>" + to[1] + "</b>.";
+      body.innerHTML = "This is to certify that " + (p.child ? "" : she ? "Mrs. " : "Mr. ") + "<b>" + esc(p.en) + "</b>, aged " + p.age + ", file no. " + esc(p.fileNo) + ", was examined on " + fmt(start) +
+        (showDx && dx ? " and was found to be suffering from <b>" + esc(enDx) + "</b>" : "") +
+        ". " + (she ? "She" : "He") + " requires sick leave for <b>" + days + " day" + (days > 1 ? "s" : "") + "</b>, from " + fmt(start) + " to " + fmt(end) + ".<br>This certificate is issued at " + (she ? "her" : "his") + " request, to be submitted to <b>" + to[1] + "</b>.";
       $("#c-title").textContent = "Medical Certificate"; $("#c-sign").textContent = "Doctor's signature & stamp";
     }
   }
-  ["#c-start", "#c-days", "#c-to", "#c-dx", "#c-dxtext"].forEach(function (id) { $(id).addEventListener("input", renderCert); $(id).addEventListener("change", renderCert); });
+  function renderCertHistory() {
+    var p = V.patient, rows = [], multi = D.branchesOf(V.org.id).length > 1;
+    $("#c-hist-title").textContent = L(p.sex === "F" ? "شهادات سابقة للمريضة" : "شهادات سابقة للمريض", "Issued for this patient");
+    V.history.slice(0, 2).forEach(function (h, i) {
+      var b = D.branch(h.branch);
+      rows.push({ no: K.docNo("C", b, SEQ.C[b.id] - 7 - i * 9), date: h.date, days: 2, b: b, cancelled: false });
+    });
+    if (!rows.length) { $("#c-hist").innerHTML = '<tr><td class="t-muted t-small">' + L("مفيش شهادات سابقة في ملف المنشأة.", "No earlier certificates in this organization's file.") + "</td></tr>"; return; }
+    $("#c-hist").innerHTML = rows.map(function (r) {
+      return '<tr><td><span class="t-name t-ltr">' + r.no + '</span><span class="t-meta">' + K.dateText(r.date, C.lang, false) + " · " + L("يومين", "2 days") + " · " + L("جهة العمل", "Employer") + (multi ? ' · <span class="t-branch-tag">' + esc(L(r.b.shortAr, r.b.shortEn)) + "</span>" : "") + "</span></td>" +
+        '<td class="actions"><button class="t-btn sm ghost" type="button" data-reprint="' + r.no + '"><svg class="t-icon sm"><use href="#i-print"/></svg><span>' + L("إعادة طباعة", "Reprint") + "</span></button></td></tr>";
+    }).join("");
+  }
+  ["#c-start", "#c-days", "#c-to", "#c-dx", "#c-dxtext"].forEach(function (id) { $(id).addEventListener("input", function () { if (V) renderCert(); }); $(id).addEventListener("change", function () { if (V) renderCert(); }); });
 
-  /* Report sections */
+  /* Report */
+  function renderReport() {
+    var t = (K.templates[V.pack] || [])[0], p = V.patient;
+    var al = (p.allergies || []).map(function (a) { return "حساسية من " + a.ar; }).join("، ");
+    $("#rep-s").textContent = (t ? t.s.ar.replace(/___/g, "٣") : "") + (al ? " " + al + "." : "") + (p.note ? " " + p.note.ar + "." : "");
+    $("#rep-o").textContent = t ? t.o.ar.replace(/___/g, "—") : "";
+    $("#rep-dx").innerHTML = DX ? esc(K.icd[DX][0]) + ' <span class="t-ltr">(' + DX + ")</span>" : "—";
+    $("#rep-tx").textContent = RX.map(function (d) { return d.drug.split(" ")[0]; }).join("، ") + (p.allergies && p.allergies.length ? " — مع مراعاة الحساسية." : ".");
+    var n = K.nextShift(V.doctor.id, V.branch.id, 7);
+    $("#rep-p").textContent = (t ? t.p.ar + " " : "") + (n ? "متابعة يوم " + K.dateText(n.iso, "ar") + " في فرع " + V.branch.shortAr + "." : "");
+    $("#r-head").innerHTML = "إلى: " + esc($("#r-to").value) + ' · <span class="t-ltr">' + K.slash(V.appt.date) + "</span>";
+    $("#r-no").innerHTML = 'تقرير رقم <span class="t-ltr">' + K.docNo("R", V.branch, SEQ.R[V.branch.id] + 1) + "</span>";
+  }
   $$("[data-sec]").forEach(function (c) { c.addEventListener("change", function () { $('[data-rep="' + c.getAttribute("data-sec") + '"]').hidden = !c.checked; }); });
-  $("#r-to").addEventListener("input", function (e) { $("#r-head").innerHTML = "إلى: " + e.target.value.replace(/</g, "&lt;") + ' · <span class="t-ltr">14/11/2026</span>'; });
+  $("#r-to").addEventListener("input", function (e) { if (V) $("#r-head").innerHTML = "إلى: " + esc(e.target.value) + ' · <span class="t-ltr">' + K.slash(V.appt.date) + "</span>"; });
 
   document.addEventListener("click", function (e) {
     var b;
     if ((b = e.target.closest("[data-paper]"))) setPaper(b.getAttribute("data-paper"));
+    if (!V) return;
     if ((b = e.target.closest("[data-sig]"))) setSig(b.getAttribute("data-sig"));
     if ((b = e.target.closest("[data-days]"))) { $("#c-days").value = b.getAttribute("data-days"); renderCert(); }
     if ((b = e.target.closest("[data-clang]"))) { clang = b.getAttribute("data-clang"); $$("[data-clang]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); renderCert(); }
+    if ((b = e.target.closest("[data-reprint]"))) Tamargi.toast(L("جاري إعادة طباعة ", "Reprinting ") + b.getAttribute("data-reprint") + "…");
   });
-  $("#print-btn").addEventListener("click", function () { Tamargi.toast(Tamargi.lang() === "en" ? "Print logged · Dr. Ahmed · 14/11 19:42" : "اتسجلت الطباعة · د. أحمد · ١٤/١١ ٧:٤٢ م"); window.print(); });
-  renderCert();
+  $("#print-btn").addEventListener("click", function () {
+    if (V) { var now = F.hour(D.now, C.lang); Tamargi.toast(L("اتسجلت الطباعة · " + V.doctor.shortAr + " · " + V.branch.shortAr + " · " + now, "Print logged · " + V.doctor.shortEn + " · " + V.branch.shortEn + " · " + now)); }
+    window.print();
+  });
+
+  /* ---------- context: org / branch / role / language ---------- */
+  function show(on, tAr, tEn, pAr, pEn) {
+    $("#vBody").hidden = !on; $("#vBanner").hidden = !on; $("#vEmpty").hidden = on;
+    ["#print-btn", "#lnRx", "#lnFile"].forEach(function (s) { $(s).hidden = !on; });
+    if (!on) { $("#vEmptyT").textContent = L(tAr, tEn); $("#vEmptyP").textContent = L(pAr, pEn); $("#rxMeta").textContent = C.branchName; }
+  }
+  function onCtx(ctx, reason) {
+    if (reason === "org" || reason === "branch") want = null;
+    var pick = K.pickVisit(C, want);
+    Tamargi.scopeNotice(pick.requested ? { org: pick.requested.org, branch: pick.requested.branch, what: { ar: "أوراق الزيارة دي", en: "This visit's documents" } } : { needBranch: true, what: { ar: "الطباعة", en: "Printing" } });
+    if (!pick.appt) { V = null; show(false, "مفيش زيارة مفتوحة", "No open visit", "افتح الطباعة من الكشف أو من ملف المريض.", "Open printing from the visit or the patient file."); return; }
+    show(true);
+    if (pick.appt.id !== curId) { curId = pick.appt.id; loadVisit(K.visit(pick.appt)); } else V = K.visit(pick.appt);
+    /* reception may reprint but not edit the Rx (role preset) */
+    $("#lnRx").hidden = C.role === "reception";
+    renderCommon(); renderRx(); renderCert(); renderCertHistory(); renderReport();
+  }
+  Tamargi.onCtx(onCtx); onCtx(C, "init");
 })();
 </script>
 </body>
