@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Letterhead — Tamargi">ترويسة الروشتة والإيصال — تمرجي</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style>
+    /* page-specific CSS: tokens only (the printed sheet itself uses the shared .t-sheet / .t-letterhead styles) */
+    .lh-layout { display: grid; grid-template-columns: minmax(320px, 440px) minmax(0, 1fr); gap: var(--s-5); align-items: start; }
+    .lh-preview { position: sticky; top: calc(var(--topbar-h) + var(--s-4)); }
+    .lh-preview .t-print-stage { overflow: auto; max-height: calc(100vh - var(--topbar-h) - 140px); align-items: flex-start; }
+    .lh-logo-row { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-3); border: 1.5px dashed var(--line-strong); border-radius: var(--r-md); background: var(--surface-sunk); }
+    .lh-logo-row:hover { border-color: var(--primary); }
+    .lh-swatches { display: flex; gap: var(--s-2); }
+    .lh-swatch { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--surface); box-shadow: 0 0 0 1px var(--line-strong); cursor: pointer; padding: 0; }
+    .lh-swatch[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--focus); }
+    .lh-swatch.ink { background: var(--ink-600); } .lh-swatch.navy { background: var(--ink-800); } .lh-swatch.black { background: var(--n-900); }
+    .t-sheet.is-preprinted .t-letterhead { visibility: hidden; }
+    .t-sheet.is-preprinted .t-sheet-foot { visibility: hidden; }
+    .t-sheet.a4 { width: 210mm; min-height: 297mm; padding: 14mm 16mm 12mm; display: flex; flex-direction: column; }
+    .lh-rx-meta { display: flex; justify-content: space-between; font-size: 11px; color: #4E586C; margin-block-start: 2mm; }
+    .lh-sign { margin-block-start: 6mm; text-align: end; font-size: 11px; color: #4E586C; }
+    .lh-sign b { display: block; font-family: var(--font-letterhead); font-size: 14px; color: var(--lh-accent, #2944A8); }
+    .lh-rc-head { text-align: center; border-block-end: 1px dashed #6B7588; padding-block-end: 2mm; margin-block-end: 2mm; }
+    .lh-rc-head b { font-family: var(--font-letterhead); font-size: 16px; display: block; color: var(--lh-accent, #2944A8); }
+    .lh-rc-head span { display: block; font-size: 10.5px; color: #4E586C; }
+    .lh-rc-foot { text-align: center; font-size: 10.5px; color: #4E586C; margin-block-start: 3mm; border-block-start: 1px dashed #6B7588; padding-block-start: 2mm; }
+    @media (max-width: 1100px) { .lh-layout { grid-template-columns: 1fr; } .lh-preview { position: static; } }
+    @media print {
+      .lh-form, .lh-preview .t-tabs, .lh-preview .t-row { display: none !important; }
+      .lh-layout { display: block; }
+      .lh-preview .t-print-stage { max-height: none; overflow: visible; }
+      .lh-zoom { zoom: 1 !important; }
+    }
+  </style>
+</head>
+<body data-screen="settings-letterhead">
+<main id="screen">
+  <div class="t-container">
+
+    <header class="t-screen-head">
+      <div>
+        <h1 data-en="Letterhead">ترويسة الروشتة والإيصال</h1>
+        <p class="t-sub mb-0" data-en="Design the header once. Every prescription, sick-leave note and receipt uses it.">صمّم الترويسة مرة واحدة. كل روشتة وشهادة وإيصال بيستخدموها.</p>
+      </div>
+      <div class="t-actions">
+        <button class="t-btn" type="button" id="lh-print"><svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Print test page">اطبع صفحة تجربة</span><span class="t-kbd">Ctrl P</span></button>
+        <button class="t-btn primary" type="button" data-toast="اتحفظت الترويسة — الروشتات الجديدة هتطلع بيها" data-toast-en="Letterhead saved — new prescriptions use it"><span data-en="Save letterhead">احفظ الترويسة</span><span class="t-kbd">Ctrl S</span></button>
+      </div>
+    </header>
+
+    <div class="lh-layout">
+      <!-- ============ FORM ============ -->
+      <form class="lh-form t-stack lg" onsubmit="return false" id="lh-form">
+
+        <section class="t-card">
+          <div class="t-card-head"><h2 data-en="Doctor">الطبيب</h2></div>
+          <div class="t-stack">
+            <label class="lh-logo-row" for="lh-logo"
+                   data-note="Logo by drag-drop or phone camera, with an initial-in-a-circle fallback. NITCO needs a native 'Browse… No file selected' plus a separate Upload, across 5 image slots in a settings tab (v62/106)."
+                   data-note-ar="اللوجو بالسحب أو كاميرا الموبايل، ولو مفيش بنحط أول حرف في دايرة. NITCO محتاج 'Browse… No file selected' وزرار رفع لوحده، و٥ خانات صور في تبويب إعدادات.">
+              <span class="t-avatar" id="lh-logo-thumb" style="font-family:var(--font-letterhead)">أ</span>
+              <span class="t-grow"><b class="t-small" data-en="Logo">اللوجو</b><br><span class="t-hint" data-en="Drop an image or take a photo. Square, PNG/JPG.">اسحب صورة أو صوّر. مربعة، PNG أو JPG.</span></span>
+              <span class="t-btn sm" data-en="Upload">رفع</span>
+              <input id="lh-logo" type="file" accept="image/*" class="t-sr">
+            </label>
+            <div class="t-form-grid">
+              <div class="t-field"><label class="t-label" for="lh-name"><span data-en="Name (Arabic)">الاسم بالعربي</span><span class="req">*</span></label><input id="lh-name" class="t-input" data-bind="name" value="د. أحمد سليم عبد الحميد"></div>
+              <div class="t-field"><label class="t-label" for="lh-name-en"><span data-en="Name (English)">الاسم بالإنجليزي</span> <span class="opt" data-en="(optional)">(اختياري)</span></label><input id="lh-name-en" class="t-input ltr" data-bind="nameEn" value="Dr. Ahmed Selim"></div>
+              <div class="t-field span-2"><label class="t-label" for="lh-title" data-en="Title and degrees (one per line)">اللقب والشهادات (كل واحدة في سطر)</label>
+                <textarea id="lh-title" class="t-textarea" style="min-height:72px" data-bind="title">استشاري الباطنة والجهاز الهضمي
+دكتوراه الباطنة — كلية الطب جامعة المنصورة</textarea></div>
+              <div class="t-field span-2"><label class="t-label" for="lh-title-en" data-en="Title in English">اللقب بالإنجليزي</label>
+                <textarea id="lh-title-en" class="t-textarea ltr" style="min-height:56px;direction:ltr" data-bind="titleEn">Consultant of Internal Medicine &amp; Gastroenterology
+MD, Faculty of Medicine — Mansoura University</textarea></div>
+              <div class="t-field" data-note="Syndicate number and degrees on every Rx: pharmacists in Mansoura check them, and they are what makes a printed Rx look as trusted as the doctor's handwritten pad." data-note-ar="رقم القيد والشهادات على كل روشتة: الصيادلة بيراجعوها، وهي اللي بتخلي الروشتة المطبوعة موثوقة زي دفتر الدكتور."><label class="t-label" for="lh-synd" data-en="Syndicate no.">رقم القيد بالنقابة</label><input id="lh-synd" class="t-input ltr" inputmode="numeric" data-bind="synd" value="148277"></div>
+              <div class="t-field"><label class="t-label" for="lh-spec" data-en="Specialty line">سطر التخصص</label><input id="lh-spec" class="t-input" data-bind="spec" value="باطنة — جهاز هضمي — كبد"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="t-card">
+          <div class="t-card-head"><h2 data-en="Clinic details (footer)">بيانات العيادة (أسفل الورقة)</h2><div class="t-actions"><a class="t-small" href="settings-clinic.html" data-en="From clinic profile">من بيانات العيادة</a></div></div>
+          <div class="t-form-grid">
+            <div class="t-field span-2"><label class="t-label" for="lh-addr" data-en="Address">العنوان</label><input id="lh-addr" class="t-input" data-bind="addr" value="١٢ ش الجمهورية، برج النور، الدور ٣ — المنصورة"></div>
+            <div class="t-field"><label class="t-label" for="lh-phones" data-en="Phones">التليفونات</label><input id="lh-phones" class="t-input ltr" data-bind="phones" value="0100 123 4567 · 050 224 5566"></div>
+            <div class="t-field"><label class="t-label" for="lh-hours" data-en="Hours">المواعيد</label><input id="lh-hours" class="t-input" data-bind="hours" value="يوميًا ٥–١١ م ماعدا الجمعة"></div>
+            <div class="t-field span-2"><label class="t-label" for="lh-foot" data-en="Footer note">ملاحظة أسفل الروشتة</label><input id="lh-foot" class="t-input" data-bind="foot" value="الاستشارة مجانًا خلال ١٤ يوم من الكشف · برجاء إحضار الروشتة"></div>
+          </div>
+        </section>
+
+        <section class="t-card" data-note="Paper settings for browser printing (online-only MVP, no desktop helper). 'Pre-printed paper' keeps the space but prints only the content, for clinics that already bought 2,000 printed Rx pads."
+                 data-note-ar="إعدادات الورق للطباعة من المتصفح (من غير برنامج على الجهاز). 'ورق مطبوع جاهز' بيسيب مكان الترويسة ويطبع المحتوى بس، للعيادات اللي عندها دفاتر روشتات مطبوعة.">
+          <div class="t-card-head"><h2 data-en="Paper & print">الورق والطباعة</h2></div>
+          <div class="t-form-grid">
+            <div class="t-field"><span class="t-label" data-en="Prescription size">مقاس الروشتة</span>
+              <div class="t-seg" role="group" id="lh-size"><button type="button" aria-pressed="true" data-v="a5">A5</button><button type="button" aria-pressed="false" data-v="a4">A4</button></div></div>
+            <div class="t-field"><span class="t-label" data-en="Receipt">الإيصال</span>
+              <div class="t-seg" role="group" id="lh-rsize"><button type="button" aria-pressed="false" data-v="a5">A5</button><button type="button" aria-pressed="true" data-v="80" data-en="80 mm">80 مم</button></div></div>
+            <div class="t-field span-2">
+              <label class="t-switch"><input type="checkbox" id="lh-pre"> <span data-en="I use pre-printed paper (print content only)">بستخدم ورق مطبوع جاهز (اطبع المحتوى بس)</span></label>
+            </div>
+            <div class="t-field"><label class="t-label" for="lh-mt" data-en="Top margin">الهامش العلوي</label><div class="t-input-affix"><input id="lh-mt" class="t-input ltr" type="number" min="0" max="80" value="12"><span class="t-affix" data-en="mm">مم</span></div></div>
+            <div class="t-field"><label class="t-label" for="lh-mb" data-en="Bottom margin">الهامش السفلي</label><div class="t-input-affix"><input id="lh-mb" class="t-input ltr" type="number" min="0" max="60" value="10"><span class="t-affix" data-en="mm">مم</span></div></div>
+            <div class="t-field span-2"><span class="t-label" data-en="Ink colour">لون الحبر</span>
+              <div class="lh-swatches" role="group" id="lh-ink">
+                <button type="button" class="lh-swatch ink" aria-pressed="true" data-v="var(--ink-600)" aria-label="Stamp blue" data-en-aria-label="Stamp blue" title="أزرق الختم" data-en-title="Stamp blue"></button>
+                <button type="button" class="lh-swatch navy" aria-pressed="false" data-v="var(--ink-800)" aria-label="Navy" data-en-aria-label="Navy" title="كحلي" data-en-title="Navy"></button>
+                <button type="button" class="lh-swatch black" aria-pressed="false" data-v="var(--n-900)" aria-label="Black" data-en-aria-label="Black" title="أسود" data-en-title="Black"></button>
+              </div>
+              <span class="t-hint" data-en="Black prints cheapest on laser printers.">الأسود أرخص في طابعات الليزر.</span></div>
+            <div class="t-field span-2"><label class="t-switch"><input type="checkbox" id="lh-en" checked> <span data-en="Show English name block">اعرض الاسم بالإنجليزي</span></label></div>
+          </div>
+        </section>
+      </form>
+
+      <!-- ============ LIVE PREVIEW ============ -->
+      <section class="lh-preview" aria-label="Live preview" data-en-aria-label="Live preview">
+        <div class="t-row between mb-2">
+          <div class="t-tabs mb-0" role="tablist" style="border:0">
+            <button class="t-tab" role="tab" aria-selected="true" data-sheet="rx" data-en="Prescription">الروشتة</button>
+            <button class="t-tab" role="tab" aria-selected="false" data-sheet="rc" data-en="Receipt">الإيصال</button>
+          </div>
+          <span class="t-small t-muted" data-en="Live preview · sample patient">معاينة مباشرة · مريض نموذج</span>
+        </div>
+        <div class="t-print-stage" data-note="Live A5 preview: every keystroke updates the sheet. The letterhead is Tamargi's 'one bold thing': Amiri serif, stamp-blue ink. No ads or pharma logos ever appear on the Rx (product rule)."
+             data-note-ar="معاينة A5 مباشرة: كل حرف بيتغير على الورقة. الترويسة هي العنصر المميز في تمرجي: خط أميري وحبر أزرق الختم. مفيش إعلانات ولا لوجوهات شركات أدوية على الروشتة أبدًا.">
+          <div class="lh-zoom" id="lh-zoom">
+            <!-- Rx -->
+            <article class="t-sheet a5" id="lh-rx" data-sheet-panel="rx">
+              <header class="t-letterhead">
+                <div>
+                  <div class="lh-name" data-out="name">د. أحمد سليم عبد الحميد</div>
+                  <div class="lh-title" data-out="title" style="white-space:pre-line">استشاري الباطنة والجهاز الهضمي
+دكتوراه الباطنة — كلية الطب جامعة المنصورة</div>
+                  <div class="lh-title"><span data-out="spec">باطنة — جهاز هضمي — كبد</span> · <span data-en="Synd. no.">قيد</span> <span class="t-ltr" data-out="synd">148277</span></div>
+                </div>
+                <div class="lh-logo" id="lh-logo-mark">أ</div>
+                <div class="lh-en" id="lh-en-block">
+                  <div class="lh-name" data-out="nameEn">Dr. Ahmed Selim</div>
+                  <div class="lh-title" data-out="titleEn" style="white-space:pre-line">Consultant of Internal Medicine &amp; Gastroenterology
+MD, Faculty of Medicine — Mansoura University</div>
+                </div>
+              </header>
+              <div class="t-rx-patient">
+                <span><span data-en="Name:">الاسم:</span> <b>منى عبد الرحمن الشناوي</b></span>
+                <span><span data-en="Age:">السن:</span> <b>34</b></span>
+                <span><span data-en="Date:">التاريخ:</span> <b class="t-ltr">14/11/2026</b></span>
+                <span><span data-en="File:">ملف:</span> <b class="t-ltr">1043</b></span>
+              </div>
+              <div class="t-rx-symbol">R/</div>
+              <ul class="t-rx-items">
+                <li><div class="rx-drug">Nexium 40 mg tab</div><div class="rx-sig">قرص واحد على الريق قبل الفطار بنص ساعة — لمدة ١٤ يوم</div></li>
+                <li><div class="rx-drug">Motilium 10 mg tab</div><div class="rx-sig">قرص قبل الأكل ٣ مرات يوميًا — لمدة ٧ أيام</div></li>
+                <li><div class="rx-drug">Gaviscon Advance susp.</div><div class="rx-sig">معلقة كبيرة بعد الأكل وقبل النوم — عند اللزوم</div></li>
+              </ul>
+              <div class="lh-rx-meta"><span data-en="Follow-up: 28/11/2026 (free)">الاستشارة: 28/11/2026 (مجانًا)</span><span class="t-ltr">RX-2611-0142</span></div>
+              <div class="lh-sign"><span data-en="Signature">التوقيع</span><b data-out="name">د. أحمد سليم عبد الحميد</b></div>
+              <footer class="t-sheet-foot">
+                <span data-out="addr">١٢ ش الجمهورية، برج النور، الدور ٣ — المنصورة</span>
+                <span><span class="t-ltr" data-out="phones">0100 123 4567 · 050 224 5566</span><br><span data-out="hours">يوميًا ٥–١١ م ماعدا الجمعة</span></span>
+              </footer>
+              <div style="font-size:10px;color:#6B7588;text-align:center;margin-block-start:2mm" data-out="foot">الاستشارة مجانًا خلال ١٤ يوم من الكشف · برجاء إحضار الروشتة</div>
+            </article>
+
+            <!-- Receipt (80 mm) -->
+            <article class="t-sheet receipt" id="lh-rc" data-sheet-panel="rc" hidden>
+              <div class="lh-rc-head">
+                <b>عيادة د. أحمد سليم</b>
+                <span data-out="addr">١٢ ش الجمهورية، برج النور، الدور ٣ — المنصورة</span>
+                <span class="t-ltr" data-out="phones">0100 123 4567 · 050 224 5566</span>
+              </div>
+              <div class="t-receipt-row"><span data-en="Receipt">إيصال</span><span class="t-ltr">INV-2611-0431</span></div>
+              <div class="t-receipt-row"><span data-en="Date">التاريخ</span><span class="t-ltr">14/11/2026 · 21:12</span></div>
+              <div class="t-receipt-row"><span data-en="Patient">المريض</span><span>منى عبد الرحمن</span></div>
+              <div class="t-receipt-row"><span data-en="Doctor">الطبيب</span><span data-out="name">د. أحمد سليم عبد الحميد</span></div>
+              <div class="t-receipt-row" style="border-block-start:1px dashed #B9C2D1;margin-block-start:2mm;padding-block-start:2mm"><span data-en="Consult">كشف باطنة</span><span>300.00</span></div>
+              <div class="t-receipt-row"><span data-en="ECG">رسم قلب</span><span>150.00</span></div>
+              <div class="t-receipt-row"><span data-en="Discount (relatives 50%)">خصم (أقارب ٥٠٪)</span><span>−150.00</span></div>
+              <div class="t-receipt-row total"><span data-en="Total">الإجمالي</span><span>300.00 <span data-en="EGP">ج.م</span></span></div>
+              <div class="t-receipt-row"><span data-en="Paid cash">مدفوع كاش</span><span>300.00</span></div>
+              <div class="t-receipt-row"><span data-en="Cashier">الكاشير</span><span data-en="Sara R.">سارة ر.</span></div>
+              <div class="lh-rc-foot" data-out="foot">الاستشارة مجانًا خلال ١٤ يوم من الكشف · برجاء إحضار الروشتة</div>
+            </article>
+          </div>
+        </div>
+        <div class="t-row mt-2">
+          <a class="t-small" href="prescription-print.html" data-en="See it on a real prescription">شوفها على روشتة حقيقية</a>
+          <a class="t-small" href="receipt-print.html" data-en="Receipt print preview">معاينة طباعة الإيصال</a>
+        </div>
+      </section>
+    </div>
+
+  </div>
+</main>
+<script src="../assets/shell.js"></script>
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+
+  /* live binding */
+  $$("[data-bind]").forEach(function (inp) {
+    var k = inp.getAttribute("data-bind");
+    function upd() {
+      $$('[data-out="' + k + '"]').forEach(function (o) { o.textContent = inp.value; });
+      if (k === "name") { var c = (inp.value.replace(/^د\.\s*/, "").trim()[0]) || "د"; $("#lh-logo-mark").textContent = c; $("#lh-logo-thumb").textContent = c; }
+    }
+    inp.addEventListener("input", upd);
+  });
+
+  /* logo upload preview */
+  $("#lh-logo").addEventListener("change", function (e) {
+    var f = e.target.files && e.target.files[0]; if (!f) return;
+    var url = URL.createObjectURL(f);
+    [$("#lh-logo-mark"), $("#lh-logo-thumb")].forEach(function (n) { n.textContent = ""; n.style.background = "center/cover no-repeat url(" + url + ")"; });
+  });
+
+  /* segmented helpers */
+  function seg(id, fn) {
+    $(id).addEventListener("click", function (e) {
+      var b = e.target.closest("button"); if (!b) return;
+      $$("button", this).forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); fn(b.getAttribute("data-v"));
+    });
+  }
+  var rx = $("#lh-rx"), rc = $("#lh-rc");
+  seg("#lh-size", function (v) { rx.classList.toggle("a5", v === "a5"); rx.classList.toggle("a4", v === "a4"); fit(); });
+  seg("#lh-rsize", function (v) { rc.classList.toggle("receipt", v === "80"); rc.classList.toggle("a5", v === "a5"); fit(); });
+  seg("#lh-ink", function (v) { [rx, rc].forEach(function (s) { s.style.setProperty("--lh-accent", v); }); });
+
+  $("#lh-pre").addEventListener("change", function (e) { rx.classList.toggle("is-preprinted", e.target.checked); if (e.target.checked) $("#lh-mt").value = 45; margins(); });
+  function margins() { rx.style.paddingTop = (+$("#lh-mt").value || 0) + "mm"; rx.style.paddingBottom = (+$("#lh-mb").value || 0) + "mm"; }
+  $("#lh-mt").addEventListener("input", margins); $("#lh-mb").addEventListener("input", margins);
+  $("#lh-en").addEventListener("change", function (e) { $("#lh-en-block").style.visibility = e.target.checked ? "visible" : "hidden"; });
+
+  /* sheet tabs */
+  $$("[data-sheet]").forEach(function (t) {
+    t.addEventListener("click", function () {
+      var n = t.getAttribute("data-sheet");
+      $$("[data-sheet]").forEach(function (x) { x.setAttribute("aria-selected", String(x === t)); });
+      $$("[data-sheet-panel]").forEach(function (p) { p.hidden = p.getAttribute("data-sheet-panel") !== n; });
+      fit();
+    });
+  });
+
+  /* scale the sheet to fit the preview column */
+  function fit() {
+    var z = $("#lh-zoom"), stage = z.parentNode, sheet = $("[data-sheet-panel]:not([hidden])");
+    z.style.zoom = 1;
+    var avail = stage.clientWidth - 48, w = sheet.offsetWidth;
+    z.style.zoom = w > avail ? (avail / w).toFixed(3) : 1;
+  }
+  window.addEventListener("resize", fit); setTimeout(fit, 50);
+
+  /* print */
+  function doPrint() { $("#lh-zoom").style.zoom = 1; window.print(); setTimeout(fit, 300); }
+  $("#lh-print").addEventListener("click", doPrint);
+  document.addEventListener("keydown", function (e) {
+    if ((e.ctrlKey || e.metaKey) && (e.key === "p" || e.key === "P")) { e.preventDefault(); doPrint(); }
+    if ((e.ctrlKey || e.metaKey) && (e.key === "s" || e.key === "S")) { e.preventDefault(); Tamargi.toast(Tamargi.lang() === "en" ? "Letterhead saved — new prescriptions use it" : "اتحفظت الترويسة — الروشتات الجديدة هتطلع بيها"); }
+  });
+})();
+</script>
+</body>
+</html>

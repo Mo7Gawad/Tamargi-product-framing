@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Reports & activity log — Tamargi">التقارير وسجل النشاط — تمرجي</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style>
+    /* page-specific CSS: tokens only */
+    .rp-filters { display: flex; flex-wrap: wrap; gap: var(--s-3); align-items: flex-end; }
+    .rp-filters .t-field { min-width: 150px; }
+    .rp-filters .rp-date { width: 150px; }
+    .rp-summary { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: var(--s-4); }
+    .rp-summary .t-stat-value { font-size: var(--fs-xl); }
+    .rp-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); margin-block-end: var(--s-3); }
+    .rp-head h2 { font-size: var(--fs-lg); margin: 0; }
+    .rp-reason { display: block; font-size: var(--fs-xs); color: var(--text-2); }
+    .rp-print-only { display: none; }
+    @media (max-width: 860px) { .rp-summary { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+    @media (max-width: 640px) { .rp-hide-sm { display: none; } .rp-filters .t-field, .rp-filters .rp-date { width: 100%; min-width: 0; } }
+    @media print {
+      .rp-filters, .t-tabs, .rp-no-print { display: none !important; }
+      .rp-print-only { display: block; margin-block-end: var(--s-3); }
+      .t-table-wrap { overflow: visible; border: 0; }
+    }
+  </style>
+</head>
+<body data-screen="reports">
+<main id="screen">
+  <div class="t-container">
+
+    <header class="t-screen-head">
+      <div>
+        <h1 data-en="Reports & activity log">التقارير وسجل النشاط</h1>
+        <p class="t-sub mb-0" data-en="Pick a report, set the dates, read it right here. Export only if your accountant needs a file.">اختار التقرير وحدد التاريخ واقرأه هنا على طول. صدّر ملف بس لو المحاسب محتاجه.</p>
+      </div>
+      <div class="t-actions"
+           data-note="Export inline: PDF uses the browser's print-to-PDF of exactly what is on screen (clinic letterhead on top); Excel downloads the same rows. No popup Crystal-style viewer with an English toolbar and parameters in the URL (NITCO v42/v103)."
+           data-note-ar="التصدير من نفس الصفحة: PDF بيطبع اللي على الشاشة بالظبط بترويسة العيادة، وExcel بينزّل نفس الصفوف. مفيش نافذة منبثقة إنجليزي والبيانات في الرابط زي NITCO.">
+        <a class="t-btn ghost" href="owner-dashboard.html"><svg class="t-icon sm flip"><use href="#i-arrow"/></svg><span data-en="Dashboard">لوحة المالك</span></a>
+        <button class="t-btn" type="button" data-toast="تم تنزيل ملف Excel" data-toast-en="Excel file downloaded"><svg class="t-icon sm"><use href="#i-download"/></svg><span data-en="Excel">Excel</span></button>
+        <button class="t-btn primary" type="button" id="rp-pdf"><svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Print / PDF">طباعة / PDF</span><span class="t-kbd">Ctrl P</span></button>
+      </div>
+    </header>
+
+    <!-- Tabs -->
+    <div class="t-tabs" role="tablist" aria-label="Reports" data-en-aria-label="Reports"
+         data-note="Six reports, not 50 in four dropdowns. They answer the owner's real questions: how much came in, who still owes, what was given away (discounts, credit notes), and who did what. Commission is Tier 2 (polyclinics)."
+         data-note-ar="ست تقارير بس مش 50 في 4 قوايم. بترد على أسئلة المالك الحقيقية: دخل كام، مين لسه عليه، إيه اللي اتخصم أو اترجع، ومين عمل إيه. العمولة للمجمعات (المرحلة 2).">
+      <button class="t-tab" role="tab" aria-selected="true" data-tab="income" data-en="Daily income">الدخل اليومي</button>
+      <button class="t-tab" role="tab" aria-selected="false" data-tab="debt" data-en="Unpaid & debt">غير المدفوع والمديونية</button>
+      <button class="t-tab" role="tab" aria-selected="false" data-tab="credits" data-en="Credit notes">المرتجعات</button>
+      <button class="t-tab" role="tab" aria-selected="false" data-tab="discounts" data-en="Discounts">الخصومات</button>
+      <button class="t-tab" role="tab" aria-selected="false" data-tab="commission"><span data-en="Doctor commission">عمولة الأطباء</span> <span class="t-tier" data-en="Tier 2">المرحلة ٢</span></button>
+      <button class="t-tab" role="tab" aria-selected="false" data-tab="log" data-en="Activity log">سجل النشاط</button>
+    </div>
+
+    <!-- Filters (shared by all tabs) -->
+    <form class="t-card sunk mb-4 rp-filters" onsubmit="return false"
+          data-note="One filter row, same for every report: quick periods (today, yesterday, this week, this month) instead of 12:00:00 AM date-time spinners; doctor and payment method default to 'All'. Results update as you change a filter, no 'Show' button."
+          data-note-ar="صف فلاتر واحد لكل التقارير: فترات سريعة بدل منتقي الوقت 12:00:00 ص، والطبيب وطريقة الدفع افتراضيًا «الكل». النتايج بتتحدّث أول ما تغيّر الفلتر من غير زرار «عرض».">
+      <div class="t-field">
+        <span class="t-label" data-en="Period">الفترة</span>
+        <div class="t-seg" role="group" id="rp-period" aria-label="Period" data-en-aria-label="Period">
+          <button type="button" aria-pressed="true" data-from="2026-11-14" data-to="2026-11-14" data-en="Today">النهارده</button>
+          <button type="button" aria-pressed="false" data-from="2026-11-13" data-to="2026-11-13" data-en="Yesterday">أمس</button>
+          <button type="button" aria-pressed="false" data-from="2026-11-14" data-to="2026-11-14" data-en="This week">الأسبوع</button>
+          <button type="button" aria-pressed="false" data-from="2026-11-01" data-to="2026-11-14" data-en="This month">الشهر</button>
+        </div>
+      </div>
+      <div class="t-field">
+        <label class="t-label" for="rp-from" data-en="From">من</label>
+        <input id="rp-from" class="t-input ltr rp-date" type="date" value="2026-11-14">
+      </div>
+      <div class="t-field">
+        <label class="t-label" for="rp-to" data-en="To">إلى</label>
+        <input id="rp-to" class="t-input ltr rp-date" type="date" value="2026-11-14">
+      </div>
+      <div class="t-field">
+        <label class="t-label" for="rp-doc" data-en="Doctor">الطبيب</label>
+        <select id="rp-doc" class="t-select">
+          <option data-en="All doctors">كل الأطباء</option>
+          <option data-en="Dr. Ahmed Selim">د. أحمد سليم</option>
+          <option data-en="Dr. Noha El-Sherbini">د. نهى الشربيني</option>
+        </select>
+      </div>
+      <div class="t-field">
+        <label class="t-label" for="rp-method" data-en="Payment method">طريقة الدفع</label>
+        <select id="rp-method" class="t-select">
+          <option data-en="All methods">كل الطرق</option>
+          <option data-en="Cash">نقدي</option>
+          <option data-en="InstaPay">إنستاباي</option>
+          <option data-en="Vodafone Cash">فودافون كاش</option>
+          <option data-en="From deposit">من الرصيد المقدّم</option>
+        </select>
+      </div>
+    </form>
+
+    <!-- Print header -->
+    <div class="rp-print-only">
+      <b data-en="Dr. Ahmed Selim Clinic — Mansoura">عيادة د. أحمد سليم — المنصورة</b><br>
+      <span class="t-small" data-en="Report printed 14/11/2026 21:40 by Dr. Ahmed Selim">طُبع 14/11/2026 21:40 بواسطة د. أحمد سليم</span> · <span id="rp-printperiod" class="t-small t-ltr">14/11/2026</span>
+    </div>
+
+    <!-- ============ INCOME ============ -->
+    <section data-panel="income" role="tabpanel">
+      <div class="rp-summary mb-4">
+        <div class="t-card t-stat"><span class="t-stat-label" data-en="Billed (after discount)">المطلوب (بعد الخصم)</span><span class="t-stat-value t-num">7,300<small data-en="EGP">ج.م</small></span></div>
+        <div class="t-card t-stat"><span class="t-stat-label" data-en="Collected">المحصّل</span><span class="t-stat-value t-num">6,850<small data-en="EGP">ج.م</small></span></div>
+        <div class="t-card t-stat"><span class="t-stat-label" data-en="Left as debt">اتساب مديونية</span><span class="t-stat-value"><span class="t-money debt">450<span class="cur" data-en="EGP">ج.م</span></span></span></div>
+        <div class="t-card t-stat"><span class="t-stat-label" data-en="Discounts given">خصومات</span><span class="t-stat-value t-num">330<small data-en="EGP">ج.م</small></span></div>
+      </div>
+
+      <div class="rp-head">
+        <h2 data-en="Income by">الدخل حسب</h2>
+        <div class="t-seg" role="group" id="rp-group" aria-label="Group by" data-en-aria-label="Group by">
+          <button type="button" aria-pressed="false" data-group="doctor" data-en="Doctor">الطبيب</button>
+          <button type="button" aria-pressed="true" data-group="service" data-en="Service">الخدمة</button>
+          <button type="button" aria-pressed="false" data-group="user" data-en="User">المستخدم</button>
+          <button type="button" aria-pressed="false" data-group="method" data-en="Payment method">طريقة الدفع</button>
+        </div>
+      </div>
+
+      <div class="t-table-wrap">
+        <!-- by service -->
+        <table class="t-table" data-grouped="service">
+          <thead><tr><th data-en="Service">الخدمة</th><th class="rp-hide-sm" data-en="Doctor">الطبيب</th><th class="num" data-en="Count">العدد</th><th class="num rp-hide-sm" data-en="Gross">الإجمالي</th><th class="num rp-hide-sm" data-en="Discount">الخصم</th><th class="num" data-en="Collected">المحصّل</th><th class="num" data-en="Debt">مديونية</th></tr></thead>
+          <tbody>
+            <tr><td><span class="t-name" data-en="Internal medicine consult">كشف باطنة</span></td><td class="rp-hide-sm" data-en="Dr. Ahmed">د. أحمد</td><td class="num">11</td><td class="num rp-hide-sm">3,300</td><td class="num rp-hide-sm">130</td><td class="num">3,170</td><td class="num">0</td></tr>
+            <tr><td><span class="t-name" data-en="Paid follow-up">إعادة كشف (مدفوعة)</span></td><td class="rp-hide-sm" data-en="Dr. Ahmed">د. أحمد</td><td class="num">4</td><td class="num rp-hide-sm">600</td><td class="num rp-hide-sm">0</td><td class="num">600</td><td class="num">0</td></tr>
+            <tr><td><span class="t-name" data-en="ECG">رسم قلب</span></td><td class="rp-hide-sm" data-en="Dr. Ahmed">د. أحمد</td><td class="num">3</td><td class="num rp-hide-sm">600</td><td class="num rp-hide-sm">100</td><td class="num">300</td><td class="num"><span class="t-money debt">200</span></td></tr>
+            <tr><td><span class="t-name" data-en="Wound dressing">غيار وتنظيف جرح</span></td><td class="rp-hide-sm" data-en="Dr. Ahmed">د. أحمد</td><td class="num">1</td><td class="num rp-hide-sm">280</td><td class="num rp-hide-sm">0</td><td class="num">280</td><td class="num">0</td></tr>
+            <tr><td><span class="t-name" data-en="Paediatrics consult">كشف أطفال</span></td><td class="rp-hide-sm" data-en="Dr. Noha">د. نهى</td><td class="num">10</td><td class="num rp-hide-sm">2,500</td><td class="num rp-hide-sm">100</td><td class="num">2,150</td><td class="num"><span class="t-money debt">250</span></td></tr>
+            <tr><td><span class="t-name" data-en="Nebuliser session">جلسة نيبولايزر</span></td><td class="rp-hide-sm" data-en="Dr. Noha">د. نهى</td><td class="num">2</td><td class="num rp-hide-sm">350</td><td class="num rp-hide-sm">0</td><td class="num">350</td><td class="num">0</td></tr>
+            <tr class="is-muted"><td><span class="t-name"><span class="t-chip free" data-en="Free">مجاني</span> <span data-en="Follow-up within 14 days">إعادة خلال 14 يوم</span></span></td><td class="rp-hide-sm" data-en="Both">الاتنين</td><td class="num">6</td><td class="num rp-hide-sm">0</td><td class="num rp-hide-sm">0</td><td class="num">0</td><td class="num">0</td></tr>
+          </tbody>
+          <tfoot><tr><td data-en="Total">الإجمالي</td><td class="rp-hide-sm"></td><td class="num">37</td><td class="num rp-hide-sm">7,630</td><td class="num rp-hide-sm">330</td><td class="num">6,850</td><td class="num">450</td></tr></tfoot>
+        </table>
+        <!-- by doctor -->
+        <table class="t-table" data-grouped="doctor" hidden>
+          <thead><tr><th data-en="Doctor">الطبيب</th><th class="num" data-en="Visits">الزيارات</th><th class="num rp-hide-sm" data-en="Free follow-ups">إعادة مجانية</th><th class="num rp-hide-sm" data-en="Gross">الإجمالي</th><th class="num rp-hide-sm" data-en="Discount">الخصم</th><th class="num" data-en="Collected">المحصّل</th><th class="num" data-en="Debt">مديونية</th></tr></thead>
+          <tbody>
+            <tr><td><span class="t-name" data-en="Dr. Ahmed Selim">د. أحمد سليم</span><span class="t-meta" data-en="Internal medicine">باطنة</span></td><td class="num">19</td><td class="num rp-hide-sm">4</td><td class="num rp-hide-sm">4,780</td><td class="num rp-hide-sm">230</td><td class="num">4,350</td><td class="num"><span class="t-money debt">200</span></td></tr>
+            <tr><td><span class="t-name" data-en="Dr. Noha El-Sherbini">د. نهى الشربيني</span><span class="t-meta" data-en="Paediatrics">أطفال</span></td><td class="num">12</td><td class="num rp-hide-sm">2</td><td class="num rp-hide-sm">2,850</td><td class="num rp-hide-sm">100</td><td class="num">2,500</td><td class="num"><span class="t-money debt">250</span></td></tr>
+          </tbody>
+          <tfoot><tr><td data-en="Total">الإجمالي</td><td class="num">31</td><td class="num rp-hide-sm">6</td><td class="num rp-hide-sm">7,630</td><td class="num rp-hide-sm">330</td><td class="num">6,850</td><td class="num">450</td></tr></tfoot>
+        </table>
+        <!-- by user -->
+        <table class="t-table" data-grouped="user" hidden>
+          <thead><tr><th data-en="Collected by">حصّل بواسطة</th><th class="rp-hide-sm" data-en="Shift">الوردية</th><th class="num" data-en="Receipts">إيصالات</th><th class="num" data-en="Cash">نقدي</th><th class="num rp-hide-sm" data-en="Other methods">طرق أخرى</th><th class="num" data-en="Total">الإجمالي</th><th data-en="Close">التقفيل</th></tr></thead>
+          <tbody>
+            <tr><td><span class="t-name" data-en="Sara Ramadan">سارة رمضان</span><span class="t-meta" data-en="Receptionist">استقبال</span></td><td class="rp-hide-sm t-ltr">09:00–13:05</td><td class="num">16</td><td class="num">3,120</td><td class="num rp-hide-sm">800</td><td class="num">3,920</td><td><a href="cash-close.html" class="t-chip done" data-en="Closed · −20">مقفولة · −20</a></td></tr>
+            <tr><td><span class="t-name" data-en="Menna Khaled">منة خالد</span><span class="t-meta" data-en="Receptionist">استقبال</span></td><td class="rp-hide-sm t-ltr">16:00–</td><td class="num">12</td><td class="num">2,630</td><td class="num rp-hide-sm">300</td><td class="num">2,930</td><td><span class="t-chip waiting" data-en="Open">مفتوحة</span></td></tr>
+          </tbody>
+          <tfoot><tr><td data-en="Total">الإجمالي</td><td class="rp-hide-sm"></td><td class="num">28</td><td class="num">5,750</td><td class="num rp-hide-sm">1,100</td><td class="num">6,850</td><td></td></tr></tfoot>
+        </table>
+        <!-- by method -->
+        <table class="t-table" data-grouped="method" hidden>
+          <thead><tr><th data-en="Payment method">طريقة الدفع</th><th class="num" data-en="Payments">عدد المدفوعات</th><th class="num" data-en="Amount">المبلغ</th><th class="num rp-hide-sm" data-en="Share">النسبة</th></tr></thead>
+          <tbody>
+            <tr><td data-en="Cash">نقدي</td><td class="num">24</td><td class="num">5,750</td><td class="num rp-hide-sm">84%</td></tr>
+            <tr><td data-en="InstaPay">إنستاباي</td><td class="num">2</td><td class="num">600</td><td class="num rp-hide-sm">9%</td></tr>
+            <tr><td data-en="Vodafone Cash">فودافون كاش</td><td class="num">1</td><td class="num">300</td><td class="num rp-hide-sm">4%</td></tr>
+            <tr><td data-en="From patient deposit">من رصيد المريض المقدّم</td><td class="num">1</td><td class="num">200</td><td class="num rp-hide-sm">3%</td></tr>
+          </tbody>
+          <tfoot><tr><td data-en="Total">الإجمالي</td><td class="num">28</td><td class="num">6,850</td><td class="num rp-hide-sm">100%</td></tr></tfoot>
+        </table>
+      </div>
+      <p class="t-small t-muted" style="margin-block-start:var(--s-2)" data-en="Amounts in EGP. Free follow-ups are counted as visits but not as revenue. Click a row in the full product to see its invoices.">المبالغ بالجنيه. الإعادة المجانية بتتحسب زيارة مش إيراد. في النسخة الكاملة اضغط على أي صف تشوف فواتيره.</p>
+    </section>
+
+    <!-- ============ DEBT & UNPAID ============ -->
+    <section data-panel="debt" role="tabpanel" hidden>
+      <div class="rp-summary mb-4">
+        <div class="t-card t-stat"><span class="t-stat-label" data-en="Total owed">إجمالي المديونية</span><span class="t-stat-value"><span class="t-money debt">3,240<span class="cur" data-en="EGP">ج.م</span></span></span></div>
+        <div class="t-card t-stat"><span class="t-stat-label" data-en="Patients owing">مرضى عليهم</span><span class="t-stat-value t-num">14</span></div>
+        <div class="t-card t-stat"><span class="t-stat-label" data-en="Older than 60 days">أقدم من 60 يوم</span><span class="t-stat-value t-num">820<small data-en="EGP">ج.م</small></span></div>
+        <div class="t-card t-stat"><span class="t-stat-label" data-en="Deposits held">رصيد مقدّم محفوظ</span><span class="t-stat-value"><span class="t-money deposit">2,100<span class="cur" data-en="EGP">ج.م</span></span></span></div>
+      </div>
+      <div class="t-table-wrap">
+        <table class="t-table">
+          <thead><tr><th data-en="Patient">المريض</th><th class="num" data-en="0–30 days">0–30 يوم</th><th class="num rp-hide-sm" data-en="31–60">31–60</th><th class="num rp-hide-sm" data-en="60+">+60</th><th class="num" data-en="Total owed">إجمالي عليه</th><th class="rp-hide-sm" data-en="Open invoices">فواتير مفتوحة</th><th></th></tr></thead>
+          <tbody>
+            <tr><td><span class="t-name">محمود عبد الفتاح السيد الجمال</span><span class="t-meta t-ltr">0106 552 1903</span></td><td class="num">250</td><td class="num rp-hide-sm">400</td><td class="num rp-hide-sm">0</td><td class="num"><span class="t-money debt">650</span></td><td class="rp-hide-sm"><span class="t-chip partial" data-en="2 partial">2 جزئي</span></td><td class="actions"><a class="t-btn sm ghost" href="patient-account.html" data-en="Account">الحساب</a></td></tr>
+            <tr><td><span class="t-name">هبة سمير عبد الله النجار</span><span class="t-meta t-ltr">0128 004 7715</span></td><td class="num">450</td><td class="num rp-hide-sm">0</td><td class="num rp-hide-sm">0</td><td class="num"><span class="t-money debt">450</span></td><td class="rp-hide-sm"><span class="t-chip partial" data-en="1 partial">1 جزئي</span></td><td class="actions"><a class="t-btn sm ghost" href="patient-account.html" data-en="Account">الحساب</a></td></tr>
+            <tr><td><span class="t-name">رضا إبراهيم محمد الدسوقي</span><span class="t-meta t-ltr">0111 930 2264</span></td><td class="num">400</td><td class="num rp-hide-sm">0</td><td class="num rp-hide-sm">0</td><td class="num"><span class="t-money debt">400</span></td><td class="rp-hide-sm"><span class="t-chip unpaid" data-en="1 unpaid">1 غير مدفوعة</span></td><td class="actions"><a class="t-btn sm ghost" href="patient-account.html" data-en="Account">الحساب</a></td></tr>
+            <tr><td><span class="t-name">سعاد فتحي عبد المنعم الشربيني</span><span class="t-meta t-ltr">0100 718 3346</span></td><td class="num">0</td><td class="num rp-hide-sm">0</td><td class="num rp-hide-sm">350</td><td class="num"><span class="t-money debt">350</span></td><td class="rp-hide-sm"><span class="t-chip partial" data-en="1 partial">1 جزئي</span></td><td class="actions"><a class="t-btn sm ghost" href="patient-account.html" data-en="Account">الحساب</a></td></tr>
+            <tr><td><span class="t-name">أحمد مصطفى حسن البدراوي</span><span class="t-meta t-ltr">0155 260 8812</span></td><td class="num">0</td><td class="num rp-hide-sm">0</td><td class="num rp-hide-sm">300</td><td class="num"><span class="t-money debt">300</span></td><td class="rp-hide-sm"><span class="t-chip unpaid" data-en="1 unpaid">1 غير مدفوعة</span></td><td class="actions"><a class="t-btn sm ghost" href="patient-account.html" data-en="Account">الحساب</a></td></tr>
+            <tr class="is-muted"><td colspan="7" data-en="+ 9 more patients owing 1,090 EGP in total">+ 9 مرضى تانيين عليهم 1,090 ج.م</td></tr>
+          </tbody>
+          <tfoot><tr><td data-en="Total">الإجمالي</td><td class="num">1,550</td><td class="num rp-hide-sm">870</td><td class="num rp-hide-sm">820</td><td class="num">3,240</td><td class="rp-hide-sm"></td><td></td></tr></tfoot>
+        </table>
+      </div>
+      <p class="t-small t-muted" style="margin-block-start:var(--s-2)" data-en="Debt is created only when an invoice is collected partly; the remainder is recorded on the patient (no 'save without paying' trap).">المديونية بتتسجّل بس لما الفاتورة تتحصّل جزئيًا؛ الباقي بيتسجّل على المريض (مفيش «حفظ من غير دفع» زي NITCO).</p>
+    </section>
+
+    <!-- ============ CREDIT NOTES ============ -->
+    <section data-panel="credits" role="tabpanel" hidden>
+      <div class="rp-head">
+        <h2 data-en="Credit notes this month">مرتجعات الشهر ده</h2>
+        <span class="t-badge">3</span>
+        <span class="t-small t-muted t-end" data-en="Total credited: 550 EGP">إجمالي المرتجع: 550 ج.م</span>
+      </div>
+      <div class="t-table-wrap">
+        <table class="t-table">
+          <thead><tr><th data-en="Credit note">المرتجع</th><th data-en="Original invoice">الفاتورة الأصلية</th><th class="rp-hide-sm" data-en="Patient">المريض</th><th data-en="Reason">السبب</th><th class="rp-hide-sm" data-en="By">بواسطة</th><th class="num" data-en="Amount">المبلغ</th></tr></thead>
+          <tbody>
+            <tr><td><span class="t-chip credit t-ltr">CN-2611-0007</span><span class="t-meta" data-en="Today 18:12">النهارده 18:12</span></td><td><a class="t-ltr" href="invoice-detail.html">INV-2611-0402</a></td><td class="rp-hide-sm">ياسمين علي عبد الحميد</td><td data-en="Lab test not done">التحليل ماتعملش</td><td class="rp-hide-sm" data-en="Menna">منة</td><td class="num"><span class="t-money debt">−150</span></td></tr>
+            <tr><td><span class="t-chip credit t-ltr">CN-2611-0006</span><span class="t-meta" data-en="10 Nov">10 نوفمبر</span></td><td><a class="t-ltr" href="invoice-detail.html">INV-2611-0311</a></td><td class="rp-hide-sm">عمرو حسني فاروق</td><td data-en="Wrong service — consult instead of follow-up">خدمة غلط — كشف بدل إعادة</td><td class="rp-hide-sm" data-en="Dr. Ahmed">د. أحمد</td><td class="num"><span class="t-money debt">−150</span></td></tr>
+            <tr><td><span class="t-chip credit t-ltr">CN-2611-0005</span><span class="t-meta" data-en="3 Nov">3 نوفمبر</span></td><td><a class="t-ltr" href="invoice-detail.html">INV-2611-0098</a></td><td class="rp-hide-sm">نادية محمد السعيد</td><td data-en="Patient left before the doctor saw her">المريضة مشيت قبل الكشف</td><td class="rp-hide-sm" data-en="Menna">منة</td><td class="num"><span class="t-money debt">−250</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="t-small t-muted" style="margin-block-start:var(--s-2)" data-en="Issued invoices are never edited or deleted. Every correction is a credit note with a reason, linked to the original (NITCO v48–50).">الفواتير المصدرة مابتتعدلش ولا تتمسح. أي تصحيح = مرتجع بسبب ومربوط بالفاتورة الأصلية.</p>
+    </section>
+
+    <!-- ============ DISCOUNTS ============ -->
+    <section data-panel="discounts" role="tabpanel" hidden>
+      <div class="t-grid c2 mb-4">
+        <div class="t-card">
+          <div class="t-card-head"><h3 data-en="By reason">حسب السبب</h3></div>
+          <dl class="t-totals">
+            <dt data-en="Syndicate member (25%)">عضو نقابة (25%)</dt><dd>100</dd>
+            <dt data-en="Relative of staff">قريب موظف</dt><dd>100</dd>
+            <dt data-en="Doctor's decision">قرار الطبيب</dt><dd>100</dd>
+            <dt data-en="Elderly (10%)">كبار السن (10%)</dt><dd>30</dd>
+            <dt class="grand" data-en="Total (EGP)">الإجمالي (ج.م)</dt><dd class="grand">330</dd>
+          </dl>
+        </div>
+        <div class="t-card">
+          <div class="t-card-head"><h3 data-en="By user vs. their cap">حسب المستخدم مقابل الحد</h3></div>
+          <dl class="t-totals">
+            <dt data-en="Sara Ramadan · cap 15%">سارة رمضان · الحد 15%</dt><dd>130</dd>
+            <dt data-en="Menna Khaled · cap 20%">منة خالد · الحد 20%</dt><dd>100 <span class="t-chip danger" data-en="1 above cap">1 فوق الحد</span></dd>
+            <dt data-en="Dr. Ahmed Selim · no cap">د. أحمد سليم · بدون حد</dt><dd>100</dd>
+          </dl>
+        </div>
+      </div>
+      <div class="t-table-wrap">
+        <table class="t-table">
+          <thead><tr><th data-en="Time">الوقت</th><th data-en="Invoice">الفاتورة</th><th class="rp-hide-sm" data-en="Patient">المريض</th><th data-en="Reason">السبب</th><th class="rp-hide-sm" data-en="By">بواسطة</th><th class="num" data-en="Discount">الخصم</th></tr></thead>
+          <tbody>
+            <tr><td class="t-ltr">17:40</td><td><a class="t-ltr" href="invoice-detail.html">INV-2611-0418</a></td><td class="rp-hide-sm">خالد ممدوح عبد السلام</td><td><span data-en="Syndicate member 25%">عضو نقابة 25%</span><span class="rp-reason" data-en="⚠ Above Menna's 20% cap · approved by Dr. Ahmed">⚠ فوق حد منة 20% · بموافقة د. أحمد</span></td><td class="rp-hide-sm" data-en="Menna">منة</td><td class="num">100</td></tr>
+            <tr><td class="t-ltr">12:15</td><td><a class="t-ltr" href="invoice-detail.html">INV-2611-0409</a></td><td class="rp-hide-sm">إيمان شوقي المتولي</td><td data-en="Relative of staff">قريب موظف</td><td class="rp-hide-sm" data-en="Sara">سارة</td><td class="num">100</td></tr>
+            <tr><td class="t-ltr">11:02</td><td><a class="t-ltr" href="invoice-detail.html">INV-2611-0405</a></td><td class="rp-hide-sm">عبد الرحمن حامد زكي</td><td data-en="Doctor's decision">قرار الطبيب</td><td class="rp-hide-sm" data-en="Dr. Ahmed">د. أحمد</td><td class="num">100</td></tr>
+            <tr><td class="t-ltr">10:20</td><td><a class="t-ltr" href="invoice-detail.html">INV-2611-0403</a></td><td class="rp-hide-sm">فاطمة عبد العزيز رزق</td><td data-en="Elderly 10%">كبار السن 10%</td><td class="rp-hide-sm" data-en="Sara">سارة</td><td class="num">30</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ COMMISSION (Tier 2) ============ -->
+    <section data-panel="commission" role="tabpanel" hidden>
+      <div class="t-card" data-tier="2"
+           data-note="Doctor commission is Tier 2 (polyclinic plan): % or fixed amount per service, set once in Services & fees (NITCO v98 has 4 shares per service; we start with one). A solo clinic owner-doctor does not need it, so the tab only explains and upsells."
+           data-note-ar="عمولة الأطباء للمجمعات (المرحلة 2): نسبة أو مبلغ ثابت لكل خدمة. العيادة الفردية مش محتاجاها، فالتبويب بيشرح بس.">
+        <div class="t-card-head"><h2 data-en="Doctor share — today">نصيب الأطباء — النهارده</h2><span class="t-tier" data-en="Tier 2 — polyclinic plan">المرحلة ٢ — باقة المجمعات</span></div>
+        <div class="t-table-wrap">
+          <table class="t-table">
+            <thead><tr><th data-en="Doctor">الطبيب</th><th class="rp-hide-sm" data-en="Rule">القاعدة</th><th class="num" data-en="Net collected">صافي المحصّل</th><th class="num" data-en="Doctor share">نصيب الطبيب</th><th class="num rp-hide-sm" data-en="Clinic share">نصيب العيادة</th></tr></thead>
+            <tbody>
+              <tr><td data-en="Dr. Ahmed Selim (owner)">د. أحمد سليم (المالك)</td><td class="rp-hide-sm" data-en="Owner — no commission">مالك — بدون عمولة</td><td class="num">4,350</td><td class="num">—</td><td class="num rp-hide-sm">4,350</td></tr>
+              <tr><td data-en="Dr. Noha El-Sherbini">د. نهى الشربيني</td><td class="rp-hide-sm" data-en="40% of consults · 50 EGP per nebuliser">40% من الكشف · 50 ج.م لكل نيبولايزر</td><td class="num">2,500</td><td class="num">960</td><td class="num rp-hide-sm">1,540</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="t-card-foot"><a class="t-btn sm" href="subscription-plan.html" data-en="About the polyclinic plan">عن باقة المجمعات</a><a class="t-btn sm ghost" href="services-prices.html" data-en="Commission rules">قواعد العمولة</a></div>
+      </div>
+    </section>
+
+    <!-- ============ ACTIVITY LOG ============ -->
+    <section data-panel="log" role="tabpanel" hidden>
+      <div class="rp-head">
+        <h2 data-en="Who did what">مين عمل إيه</h2>
+        <div class="t-seg" role="group" id="rp-logfilter" aria-label="Action type" data-en-aria-label="Action type">
+          <button type="button" aria-pressed="true" data-log="all" data-en="All">الكل</button>
+          <button type="button" aria-pressed="false" data-log="money" data-en="Money">فلوس</button>
+          <button type="button" aria-pressed="false" data-log="discount" data-en="Discounts & credits">خصم ومرتجع</button>
+          <button type="button" aria-pressed="false" data-log="edit" data-en="Edits & settings">تعديلات وإعدادات</button>
+        </div>
+        <div class="t-field t-end" style="min-width:160px">
+          <label class="t-sr" for="rp-loguser" data-en="User">المستخدم</label>
+          <select id="rp-loguser" class="t-select"><option value="all" data-en="All users">كل المستخدمين</option><option value="sara" data-en="Sara Ramadan">سارة رمضان</option><option value="menna" data-en="Menna Khaled">منة خالد</option><option value="ahmed" data-en="Dr. Ahmed Selim">د. أحمد سليم</option><option value="noha" data-en="Dr. Noha El-Sherbini">د. نهى الشربيني</option></select>
+        </div>
+      </div>
+      <div class="t-table-wrap"
+           data-note="Activity log in plain Arabic sentences (not raw permission or table names): time, user, action, the record (linked) and the reason when one was required. Read-only; nobody, including the owner, can delete entries (NITCO v2/v64 audit, made readable)."
+           data-note-ar="سجل النشاط بجمل عربي واضحة: الوقت والمستخدم والإجراء والسجل (برابط) والسبب لو كان مطلوب. للقراءة بس ومحدش يقدر يمسحه حتى المالك.">
+        <table class="t-table" id="rp-logtable">
+          <thead><tr><th data-en="Time">الوقت</th><th data-en="User">المستخدم</th><th data-en="Action">الإجراء</th><th class="rp-hide-sm" data-en="Details">التفاصيل</th></tr></thead>
+          <tbody>
+            <tr data-kind="money" data-user="menna"><td class="t-ltr">18:20</td><td data-en="Menna Khaled">منة خالد</td><td><span class="t-chip paid" data-en="Collected">حصّلت</span></td><td class="rp-hide-sm"><span data-en="350 EGP cash on">350 ج.م نقدي على</span> <a class="t-ltr" href="invoice-detail.html">INV-2611-0421</a></td></tr>
+            <tr data-kind="discount" data-user="menna"><td class="t-ltr">18:12</td><td data-en="Menna Khaled">منة خالد</td><td><span class="t-chip credit" data-en="Issued credit note">أصدرت مرتجع</span></td><td class="rp-hide-sm"><span class="t-ltr">CN-2611-0007</span> <span data-en="−150 EGP · reason: lab test not done">−150 ج.م · السبب: التحليل ماتعملش</span></td></tr>
+            <tr data-kind="discount" data-user="menna"><td class="t-ltr">17:40</td><td data-en="Menna Khaled">منة خالد</td><td><span class="t-chip danger" data-en="Discount above cap">خصم فوق الحد</span></td><td class="rp-hide-sm"><a class="t-ltr" href="invoice-detail.html">INV-2611-0418</a> <span data-en="25% · syndicate member · approved by Dr. Ahmed (PIN)">25% · عضو نقابة · وافق د. أحمد (رمز سري)</span></td></tr>
+            <tr data-kind="money" data-user="menna"><td class="t-ltr">17:05</td><td data-en="Menna Khaled">منة خالد</td><td><span class="t-chip partial" data-en="Partial payment">دفع جزئي</span></td><td class="rp-hide-sm"><span data-en="Hiba El-Naggar paid 175 of 425 — 250 EGP recorded as debt">هبة النجار دفعت 175 من 425 — اتسجل 250 ج.م مديونية</span></td></tr>
+            <tr data-kind="money" data-user="menna"><td class="t-ltr">16:00</td><td data-en="Menna Khaled">منة خالد</td><td><span class="t-chip waiting" data-en="Opened shift">فتحت الوردية</span></td><td class="rp-hide-sm" data-en="Opening float 200 EGP">عهدة البداية 200 ج.م</td></tr>
+            <tr data-kind="money" data-user="sara"><td class="t-ltr">13:05</td><td data-en="Sara Ramadan">سارة رمضان</td><td><span class="t-chip done" data-en="Closed shift">قفلت الوردية</span></td><td class="rp-hide-sm"><span data-en="Counted 3,100 · expected 3,120 · short 20 · note: 'change for a 200 note'">معدود 3,100 · متوقع 3,120 · عجز 20 · ملاحظة: «فكّة 200»</span></td></tr>
+            <tr data-kind="edit" data-user="ahmed"><td class="t-ltr">11:30</td><td data-en="Dr. Ahmed Selim">د. أحمد سليم</td><td><span class="t-chip info" data-en="Changed price">غيّر سعر</span></td><td class="rp-hide-sm" data-en="ECG: 180 → 200 EGP (applies to new invoices only)">رسم قلب: 180 ← 200 ج.م (على الفواتير الجديدة بس)</td></tr>
+            <tr data-kind="edit" data-user="sara"><td class="t-ltr">10:48</td><td data-en="Sara Ramadan">سارة رمضان</td><td><span class="t-chip info" data-en="Edited patient">عدّلت بيانات مريض</span></td><td class="rp-hide-sm" data-en="File 1043: mobile changed">ملف 1043: تغيير رقم الموبايل</td></tr>
+            <tr data-kind="edit" data-user="sara"><td class="t-ltr">09:02</td><td data-en="Sara Ramadan">سارة رمضان</td><td><span class="t-chip plain" data-en="Signed in">دخلت</span></td><td class="rp-hide-sm" data-en="Reception PC · Chrome">جهاز الاستقبال · Chrome</td></tr>
+            <tr id="rp-logempty" class="is-muted" hidden><td colspan="4" data-en="No activity for this user and type in the selected period.">مفيش نشاط للمستخدم والنوع دول في الفترة دي.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+</main>
+<script src="../assets/shell.js"></script>
+<script>
+(function () {
+  function refreshNotes() { if (window.Tamargi) Tamargi.setState(undefined); }
+  function showTab(id) {
+    var ok = document.querySelector('[data-panel="' + id + '"]'); if (!ok) return;
+    document.querySelectorAll("[data-tab]").forEach(function (t) { t.setAttribute("aria-selected", String(t.getAttribute("data-tab") === id)); });
+    document.querySelectorAll("[data-panel]").forEach(function (p) { p.hidden = p.getAttribute("data-panel") !== id; });
+    try { history.replaceState(null, "", "#" + id); } catch (e) { /* file:// */ }
+    if (tabs) syncTabIndex();
+    refreshNotes();
+  }
+  function pressIn(group, btn) { group.querySelectorAll("button").forEach(function (b) { b.setAttribute("aria-pressed", String(b === btn)); }); }
+  document.addEventListener("click", function (e) {
+    var b;
+    if ((b = e.target.closest("[data-tab]"))) { showTab(b.getAttribute("data-tab")); return; }
+    if ((b = e.target.closest("[data-group]"))) {
+      pressIn(b.parentNode, b);
+      var g = b.getAttribute("data-group");
+      document.querySelectorAll("[data-grouped]").forEach(function (t) { t.hidden = t.getAttribute("data-grouped") !== g; });
+      return;
+    }
+    if ((b = e.target.closest("[data-log]"))) {
+      pressIn(b.parentNode, b);
+      filterLog();
+      return;
+    }
+    if ((b = e.target.closest("#rp-period button"))) {
+      pressIn(b.parentNode, b);
+      document.getElementById("rp-from").value = b.getAttribute("data-from");
+      document.getElementById("rp-to").value = b.getAttribute("data-to");
+      periodChanged();
+      return;
+    }
+    if (e.target.closest("#rp-pdf")) { window.print(); }
+  });
+  function en() { return window.Tamargi && Tamargi.lang() === "en"; }
+  function dmy(v) { var p = (v || "").split("-"); return p.length === 3 ? p[2] + "/" + p[1] + "/" + p[0] : v; }
+  function periodChanged() {
+    var f = document.getElementById("rp-from").value, t = document.getElementById("rp-to").value;
+    document.getElementById("rp-printperiod").textContent = f === t ? dmy(f) : dmy(f) + " – " + dmy(t);
+    if (window.Tamargi) Tamargi.toast(en() ? "Period updated (prototype: sample figures)" : "تم تغيير الفترة (نموذج: أرقام تجريبية)");
+  }
+  function filterLog() {
+    var kb = document.querySelector("#rp-logfilter [aria-pressed='true']");
+    var k = kb ? kb.getAttribute("data-log") : "all", u = document.getElementById("rp-loguser").value, shown = 0;
+    document.querySelectorAll("#rp-logtable tbody tr[data-kind]").forEach(function (r) {
+      r.hidden = (k !== "all" && r.getAttribute("data-kind") !== k) || (u !== "all" && r.getAttribute("data-user") !== u);
+      if (!r.hidden) shown++;
+    });
+    document.getElementById("rp-logempty").hidden = shown > 0;
+  }
+  document.addEventListener("change", function (e) {
+    var id = e.target && e.target.id;
+    if (id === "rp-from" || id === "rp-to") {
+      document.querySelectorAll("#rp-period button").forEach(function (x) { x.setAttribute("aria-pressed", "false"); });
+      periodChanged();
+    } else if (id === "rp-doc" || id === "rp-method") {
+      if (window.Tamargi) Tamargi.toast(en() ? "Filter applied (prototype: sample figures)" : "تم تطبيق الفلتر (نموذج: أرقام تجريبية)");
+    } else if (id === "rp-loguser") { filterLog(); }
+  });
+  // Tabs: roving tabindex + arrow keys (direction follows RTL/LTR)
+  var tabs = Array.prototype.slice.call(document.querySelectorAll("[data-tab]"));
+  tabs.forEach(function (t) {
+    var id = t.getAttribute("data-tab"), p = document.querySelector('[data-panel="' + id + '"]');
+    t.id = "rp-tab-" + id; t.setAttribute("aria-controls", "rp-panel-" + id);
+    if (p) { p.id = "rp-panel-" + id; p.setAttribute("aria-labelledby", t.id); }
+  });
+  function syncTabIndex() { tabs.forEach(function (t) { t.tabIndex = t.getAttribute("aria-selected") === "true" ? 0 : -1; }); }
+  syncTabIndex();
+  document.addEventListener("keydown", function (e) {
+    var t = e.target.closest && e.target.closest("[data-tab]"); if (!t) return;
+    var i = tabs.indexOf(t), rtl = document.documentElement.dir === "rtl", n = -1;
+    if (e.key === "ArrowRight") n = i + (rtl ? -1 : 1);
+    else if (e.key === "ArrowLeft") n = i + (rtl ? 1 : -1);
+    else if (e.key === "Home") n = 0; else if (e.key === "End") n = tabs.length - 1;
+    if (n < 0 && e.key !== "Home") { if (e.key.indexOf("Arrow") === 0) n = tabs.length - 1; else return; }
+    n = (n + tabs.length) % tabs.length;
+    e.preventDefault(); showTab(tabs[n].getAttribute("data-tab")); syncTabIndex(); tabs[n].focus();
+  });
+  var h = (location.hash || "").replace("#", "");
+  if (h && h.indexOf("state=") !== 0) showTab(h);
+})();
+</script>
+</body>
+</html>

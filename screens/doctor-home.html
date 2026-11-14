@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Doctor's day — Tamargi">يوم الطبيب — تمرجي</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style>
+    /* doctor-home: tokens only */
+    .dh-stats .t-card { padding: var(--s-4); }
+    .dh-stats .t-stat-value { font-size: var(--fs-2xl); }
+    @media (max-width: 860px) { .dh-stats.t-grid.c4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    .dh-next { border: 1px solid var(--primary-line); }
+    .dh-next-top { display: flex; gap: var(--s-4); align-items: center; flex-wrap: wrap; }
+    .dh-next-name { font-size: var(--fs-xl); font-weight: var(--fw-sb); line-height: 1.25; }
+    .dh-vitals { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: var(--s-2); }
+    .dh-vital { padding: var(--s-2) var(--s-3); border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface-sunk); }
+    .dh-vital .k { display: block; font-size: var(--fs-xs); color: var(--text-3); }
+    .dh-vital .v { font-weight: var(--fw-sb); font-variant-numeric: tabular-nums; }
+    .dh-vital.high { background: var(--danger-bg); border-color: var(--danger-line); color: var(--danger-fg); }
+    .dh-vital.high .k { color: var(--danger-fg); }
+    .dh-last { padding: var(--s-3); border-radius: var(--r-sm); background: var(--surface-sunk); font-size: var(--fs-sm); }
+    .dh-q { display: flex; flex-direction: column; gap: var(--s-2); padding: var(--s-3); }
+    .dh-q .t-qcard { cursor: pointer; text-decoration: none; color: inherit; }
+    .dh-q .t-qcard:focus-visible { outline: 2px solid var(--focus); }
+    .dh-qside { display: flex; flex-direction: column; align-items: flex-end; gap: var(--s-1); }
+    .dh-qtags { display: flex; flex-wrap: wrap; gap: var(--s-1); margin-block-start: 2px; }
+    .dh-qtags .t-chip { height: 20px; padding-inline: 8px; }
+    .dh-fu li { display: flex; align-items: center; gap: var(--s-3); padding-block: var(--s-2); border-block-end: 1px solid var(--line); }
+    .dh-fu li:last-child { border-block-end: 0; }
+    .dh-fu { list-style: none; margin: 0; padding: 0; }
+    @media (max-width: 640px) {
+      .dh-qside .t-btn { display: none; }
+      .dh-next-actions .t-btn { flex: 1; }
+    }
+  </style>
+</head>
+<body data-screen="doctor-home">
+<main id="screen">
+<div class="t-container">
+
+  <header class="t-screen-head">
+    <div>
+      <h1 data-en="Good evening, Dr. Ahmed">مساء الخير يا دكتور أحمد</h1>
+      <p class="t-sub mb-0" data-en="Saturday 14 Nov · evening shift 5:00–11:00 pm · Internal medicine">السبت ١٤ نوفمبر · الفترة المسائية ٥:٠٠–١١:٠٠ م · باطنة</p>
+    </div>
+    <div class="t-actions">
+      <a class="t-btn" href="appointments-calendar.html"><svg class="t-icon sm"><use href="#i-calendar"/></svg><span data-en="Appointments">المواعيد</span></a>
+      <a class="t-btn" href="patient-search.html"><svg class="t-icon sm"><use href="#i-search"/></svg><span data-en="Find patient">بحث عن مريض</span><span class="t-kbd">Ctrl K</span></a>
+    </div>
+  </header>
+
+  <!-- Today counters -->
+  <section class="t-grid c4 dh-stats mb-4" aria-label="اليوم" data-en-aria-label="Today"
+           data-note="Today counters: seen, waiting, booked still to come, no-shows. The doctor's own waiting-list KPIs (NITCO v24–30) reduced to four numbers that matter tonight; each opens the filtered list."
+           data-note-ar="عدادات اليوم: اتكشف، منتظر، حجوزات لسه جاية، مجاش. مؤشرات قائمة انتظار NITCO مختصرة لأربع أرقام بس.">
+    <a class="t-card" href="#queue" style="text-decoration:none;color:inherit">
+      <div class="t-stat"><span class="t-stat-label" data-en="Seen">اتكشف</span><span class="t-stat-value">11</span></div>
+    </a>
+    <a class="t-card" href="#queue" style="text-decoration:none;color:inherit">
+      <div class="t-stat"><span class="t-stat-label" data-en="Waiting now">منتظر دلوقتي</span><span class="t-stat-value" style="color:var(--waiting-fg)">5</span></div>
+    </a>
+    <a class="t-card" href="appointments-calendar.html" style="text-decoration:none;color:inherit">
+      <div class="t-stat"><span class="t-stat-label" data-en="Booked, still to come">حجوزات لسه جاية</span><span class="t-stat-value">4</span></div>
+    </a>
+    <a class="t-card" href="appointments-calendar.html" style="text-decoration:none;color:inherit">
+      <div class="t-stat"><span class="t-stat-label" data-en="No-shows">مجاش</span><span class="t-stat-value" style="color:var(--left-fg)">2</span></div>
+    </a>
+  </section>
+
+  <div data-state="default">
+  <div class="t-split aside-end">
+    <div class="t-stack lg">
+
+      <!-- Next patient -->
+      <section class="t-card raised dh-next" id="nextCard" aria-labelledby="nextTitle"
+               data-note="Next-patient card: everything the doctor needs before the patient walks in (allergy, chronic conditions, debt, free follow-up, nurse's vitals, last visit). Two steps to start a visit: Call next, then Start visit."
+               data-note-ar="كارت المريض التالي: كل اللي الدكتور محتاجه قبل ما المريض يدخل. خطوتين بس: نادي، ثم ابدأ الكشف.">
+        <div class="t-card-head">
+          <h2 id="nextTitle" data-en="Next patient">المريض التالي</h2>
+          <span class="t-chip info" id="nextChip" data-en="Ready · vitals done">جاهز · العلامات الحيوية اتاخدت</span>
+          <div class="t-actions"><span class="t-faint t-small" data-en="Waited 25 min">مستني ٢٥ د</span></div>
+        </div>
+
+        <div class="dh-next-top mb-4">
+          <span class="t-ticket waiting" id="nextTicket"><b>A-16</b><span data-en="ticket">تذكرة</span></span>
+          <div class="t-grow">
+            <div class="dh-next-name">منى عبد الرحمن السيد الشناوي</div>
+            <div class="t-banner-facts">
+              <span><b>٣٤</b> <span data-en="yrs · F">سنة · أنثى</span></span>
+              <span><span data-en="File">ملف</span> <b class="t-ltr">1043</b></span>
+              <span class="t-ltr">0100 234 5678</span>
+              <span data-en="Booked 7:00 pm">حجز ٧:٠٠ م</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="t-row tight mb-4">
+          <span class="t-allergy"><svg class="t-icon sm"><use href="#i-alert"/></svg><span data-en="Allergy: Penicillin (severe)">حساسية: بنسلين (شديدة)</span></span>
+          <span class="t-flag" data-en="Hypertension · Hypothyroidism">ضغط مرتفع · قصور الغدة الدرقية</span>
+          <span class="t-balance followup" data-en="Free follow-up (until 16 Nov)">استشارة مجانية (حتى ١٦ نوفمبر)</span>
+          <span class="t-balance debt" data-en="Owes 40 EGP">عليها ٤٠ ج.م</span>
+        </div>
+
+        <div class="t-stack">
+          <div>
+            <div class="t-row between mb-2">
+              <h3 class="t-small" style="font-size:var(--fs-sm)" data-en="Vitals by Nurse Samar · 7:18 pm">العلامات الحيوية — الممرضة سمر · ٧:١٨ م</h3>
+              <span class="t-chip danger plain" data-en="1 value out of range">قيمة واحدة خارج المعدل</span>
+            </div>
+            <div class="dh-vitals">
+              <div class="dh-vital high"><span class="k" data-en="BP · high">الضغط · مرتفع</span><span class="v t-ltr">150/95</span></div>
+              <div class="dh-vital"><span class="k" data-en="Pulse">النبض</span><span class="v t-ltr">88</span></div>
+              <div class="dh-vital"><span class="k" data-en="Temp °C">الحرارة °م</span><span class="v t-ltr">37.1</span></div>
+              <div class="dh-vital"><span class="k">SpO₂ %</span><span class="v t-ltr">98</span></div>
+              <div class="dh-vital"><span class="k" data-en="Weight kg">الوزن كجم</span><span class="v t-ltr">72</span></div>
+            </div>
+          </div>
+          <div class="dh-last">
+            <b data-en="Nurse note:">ملاحظة التمريض:</b> <span data-en="Headache for 3 days, says she missed Concor twice this week.">صداع من ٣ أيام، بتقول نسيت الكونكور مرتين الأسبوع ده.</span><br>
+            <b data-en="Last visit 2 Nov:">آخر زيارة ٢ نوفمبر:</b> <span data-en="Essential hypertension (I10) — Concor 5 mg once daily, ECG done.">ضغط مرتفع (I10) — كونكور ٥ مجم مرة يوميًا، رسم قلب.</span>
+          </div>
+        </div>
+
+        <div class="t-row tight mt-4 dh-next-actions">
+          <button class="t-btn primary lg" type="button" id="callNext" aria-keyshortcuts="F4">
+            <svg class="t-icon"><use href="#i-call"/></svg><span id="callNextLabel" data-en="Call next">نادي على التالي</span><span class="t-kbd" id="callNextKbd">F4</span>
+          </button>
+          <a class="t-btn lg" href="patient-file.html"><svg class="t-icon"><use href="#i-file"/></svg><span data-en="Open file">فتح الملف</span></a>
+          <button class="t-btn ghost lg" type="button" data-toast="اتأجلت منى لبعد المريض اللي بعدها" data-toast-en="Mona moved one place back"><span data-en="Later">بعدين</span></button>
+        </div>
+      </section>
+
+      <!-- Queue -->
+      <section class="t-card flush" id="queue" aria-labelledby="qTitle">
+        <div class="t-card-head">
+          <h2 id="qTitle" data-en="Tonight's queue">دور الليلة</h2>
+          <span class="t-badge">7</span>
+          <div class="t-actions">
+            <div class="t-seg" role="group" aria-label="فلتر" data-en-aria-label="Filter">
+              <button type="button" aria-pressed="true" data-qf="all" data-en="All">الكل</button>
+              <button type="button" aria-pressed="false" data-qf="open" data-en="Still to see">لسه</button>
+              <button type="button" aria-pressed="false" data-qf="done" data-en="Done">خلص</button>
+            </div>
+          </div>
+        </div>
+        <div class="dh-q" id="qList"
+             data-note="Queue with status chips (colour + word) and wait time. Payment is soft information only (Unpaid chip): the doctor is never blocked from opening a visit. Beats NITCO v29–30, where an unpaid visit cannot be opened."
+             data-note-ar="الدور بحالات مكتوبة ووقت الانتظار. الدفع معلومة بس، ومش بيقفل الكشف على الدكتور (عكس NITCO اللي بيمنع فتح زيارة مش مدفوعة).">
+
+          <a class="t-qcard" href="visit-note.html" data-q="open">
+            <span class="t-ticket inroom"><b>A-15</b></span>
+            <div class="t-grow">
+              <div class="t-qname">كريم محمود عبد العزيز</div>
+              <div class="t-qmeta"><span data-en="New consult · walk-in · 29 yrs M">كشف جديد · بدون حجز · ٢٩ سنة · ذكر</span></div>
+              <div class="dh-qtags"><span class="t-chip paid" data-en="Paid">مدفوع</span></div>
+            </div>
+            <div class="dh-qside"><span class="t-chip inroom" data-en="In room">في الكشف</span><span class="t-btn sm soft" data-en="Resume visit">كمّل الكشف</span></div>
+          </a>
+
+          <a class="t-qcard is-next" href="patient-file.html" data-q="open">
+            <span class="t-ticket waiting"><b>A-16</b></span>
+            <div class="t-grow">
+              <div class="t-qname">منى عبد الرحمن السيد الشناوي</div>
+              <div class="t-qmeta"><span data-en="Free follow-up · booked 7:00 · waited 25 min">استشارة مجانية · حجز ٧:٠٠ · مستنية ٢٥ د</span></div>
+              <div class="dh-qtags"><span class="t-chip free" data-en="Free follow-up">استشارة مجانية</span><span class="t-chip debt" data-en="Owes 40">عليها ٤٠</span><span class="t-chip danger plain" data-en="BP high">ضغط عالي</span></div>
+            </div>
+            <div class="dh-qside"><span class="t-chip info" data-en="Ready">جاهز</span><span class="t-btn sm ghost" data-en="Open file">فتح الملف</span></div>
+          </a>
+
+          <a class="t-qcard" href="patient-file.html" data-q="open">
+            <span class="t-ticket waiting"><b>A-17</b></span>
+            <div class="t-grow">
+              <div class="t-qname">يوسف إبراهيم حسن المنياوي</div>
+              <div class="t-qmeta"><span data-en="New consult · booked 7:30 · waited 14 min">كشف جديد · حجز ٧:٣٠ · مستني ١٤ د</span></div>
+              <div class="dh-qtags"><span class="t-chip unpaid" data-en="Not paid yet">لسه مدفعش</span></div>
+            </div>
+            <div class="dh-qside"><span class="t-chip waiting" data-en="Waiting">منتظر</span><span class="t-btn sm ghost" data-en="Open file">فتح الملف</span></div>
+          </a>
+
+          <a class="t-qcard" href="patient-file.html" data-q="open">
+            <span class="t-ticket waiting"><b>A-18</b></span>
+            <div class="t-grow">
+              <div class="t-qname">سعاد محمد عبد الله النجار</div>
+              <div class="t-qmeta"><span data-en="New consult · walk-in · at nurse now">كشف جديد · بدون حجز · عند التمريض</span></div>
+              <div class="dh-qtags"><span class="t-chip paid" data-en="Paid">مدفوع</span><span class="t-chip plain" data-en="Diabetic">سكر</span></div>
+            </div>
+            <div class="dh-qside"><span class="t-chip waiting" data-en="Waiting · vitals">منتظر · قياسات</span><span class="t-btn sm ghost" data-en="Open file">فتح الملف</span></div>
+          </a>
+
+          <a class="t-qcard" href="patient-file.html" data-q="open">
+            <span class="t-ticket waiting"><b>A-19</b></span>
+            <div class="t-grow">
+              <div class="t-qname">حسن السيد مصطفى البدراوي</div>
+              <div class="t-qmeta"><span data-en="Follow-up (paid) · walk-in · waited 6 min">متابعة بأجر · بدون حجز · مستني ٦ د</span></div>
+              <div class="dh-qtags"><span class="t-chip partial" data-en="Part paid">دفع جزء</span><span class="t-chip debt" data-en="Owes 150">عليه ١٥٠</span></div>
+            </div>
+            <div class="dh-qside"><span class="t-chip waiting" data-en="Waiting">منتظر</span><span class="t-btn sm ghost" data-en="Open file">فتح الملف</span></div>
+          </a>
+
+          <a class="t-qcard" href="patient-file.html" data-q="open">
+            <span class="t-ticket"><b>—</b></span>
+            <div class="t-grow">
+              <div class="t-qname">ريم أشرف فتحي الجمل</div>
+              <div class="t-qmeta"><span data-en="Booked 9:00 pm · confirmed by phone">حجز ٩:٠٠ م · اتأكد بالتليفون</span></div>
+            </div>
+            <div class="dh-qside"><span class="t-chip confirmed" data-en="Confirmed">مؤكد</span></div>
+          </a>
+
+          <a class="t-qcard" href="patient-file.html" data-q="done" style="opacity:.75">
+            <span class="t-ticket done"><b>A-14</b></span>
+            <div class="t-grow">
+              <div class="t-qname">عبد الحميد رمضان الشافعي</div>
+              <div class="t-qmeta"><span data-en="Finished 6:52 pm · Rx printed">خلص ٦:٥٢ م · الروشتة اتطبعت</span></div>
+            </div>
+            <div class="dh-qside"><span class="t-chip done" data-en="Done">انتهى</span></div>
+          </a>
+
+          <a class="t-qcard" href="patient-file.html" data-q="done" style="opacity:.75">
+            <span class="t-ticket done"><b>A-11</b></span>
+            <div class="t-grow">
+              <div class="t-qname">نجلاء فؤاد إسماعيل عوض</div>
+              <div class="t-qmeta"><span data-en="Left before being seen · 6:10 pm">مشيت قبل الكشف · ٦:١٠ م</span></div>
+            </div>
+            <div class="dh-qside"><span class="t-chip left" data-en="Left">مشي</span></div>
+          </a>
+        </div>
+      </section>
+    </div>
+
+    <!-- Aside -->
+    <aside class="t-stack lg">
+      <section class="t-card">
+        <div class="t-card-head"><h3 data-en="In the room now">في الكشف دلوقتي</h3></div>
+        <div class="t-row">
+          <span class="t-avatar">ك م</span>
+          <div class="t-grow">
+            <div style="font-weight:var(--fw-m)">كريم محمود عبد العزيز</div>
+            <div class="t-small t-faint"><span data-en="Started 7:21 · draft autosaved">بدأ ٧:٢١ · المسودة محفوظة</span></div>
+          </div>
+        </div>
+        <a class="t-btn soft block mt-4" href="visit-note.html"><svg class="t-icon sm"><use href="#i-edit"/></svg><span data-en="Resume visit">كمّل الكشف</span></a>
+      </section>
+
+      <section class="t-card" aria-labelledby="fuTitle"
+               data-note="Follow-ups due today: patients whose follow-up date is today, with whether they arrived, are booked, or have not booked. Free ones (inside the follow-up window, NITCO v13/v62) are marked so no consult fee is charged by mistake."
+               data-note-ar="المتابعات المستحقة النهارده: مين وصل ومين حاجز ومين لسه محجزش. المجانية متعلّمة عشان محدش يتحاسب على كشف بالغلط.">
+        <div class="t-card-head"><h3 id="fuTitle" data-en="Follow-ups due today">متابعات النهارده</h3><span class="t-badge muted">4</span></div>
+        <ul class="dh-fu">
+          <li>
+            <div class="t-grow"><div class="t-small" style="font-weight:var(--fw-m)">منى عبد الرحمن الشناوي</div><div class="t-hint" data-en="From 2 Nov · hypertension">من ٢ نوفمبر · ضغط</div></div>
+            <span class="t-chip free" data-en="Free">مجانية</span><span class="t-chip arrived" data-en="Arrived">وصلت</span>
+          </li>
+          <li>
+            <div class="t-grow"><div class="t-small" style="font-weight:var(--fw-m)">ريم أشرف الجمل</div><div class="t-hint" data-en="From 31 Oct · anaemia">من ٣١ أكتوبر · أنيميا</div></div>
+            <span class="t-chip free" data-en="Free">مجانية</span><span class="t-chip confirmed" data-en="9:00 pm">٩:٠٠ م</span>
+          </li>
+          <li>
+            <div class="t-grow"><div class="t-small" style="font-weight:var(--fw-m)">محمود عادل شحاتة</div><div class="t-hint" data-en="From 17 Oct · diabetes · window ended">من ١٧ أكتوبر · سكر · المدة خلصت</div></div>
+            <span class="t-chip booked" data-en="Booked 10:00">حجز ١٠:٠٠</span>
+          </li>
+          <li>
+            <div class="t-grow"><div class="t-small" style="font-weight:var(--fw-m)">فاطمة الزهراء علي درويش</div><div class="t-hint" data-en="From 5 Nov · gastritis">من ٥ نوفمبر · التهاب معدة</div></div>
+            <span class="t-chip free" data-en="Free">مجانية</span>
+            <button class="t-btn sm ghost" type="button" data-toast="اتبعتت رسالة تذكير في الشات" data-toast-en="Reminder sent in web chat" data-en="Remind">فكّرها</button>
+          </li>
+        </ul>
+      </section>
+
+      <div class="t-alert info"
+           data-note="Payment never blocks the doctor. Unpaid and part-paid patients show a soft chip; reception collects after the visit if the clinic allows it (setting in Clinic rules)."
+           data-note-ar="الدفع عمره ما يقفل على الدكتور. المريض اللي مدفعش بيظهر بعلامة بس، والاستقبال يحصّل بعد الكشف.">
+        <svg class="t-icon"><use href="#i-info"/></svg>
+        <span data-en="Unpaid is information, not a lock. You can see anyone; reception collects at checkout.">«لسه مدفعش» معلومة مش قفل. تقدر تكشف على أي حد، والاستقبال يحصّل في الآخر.</span>
+      </div>
+    </aside>
+  </div>
+  </div>
+
+  <!-- Empty state -->
+  <div data-state="empty">
+    <section class="t-card">
+      <div class="t-empty">
+        <div class="t-empty-art"><svg class="t-icon"><use href="#i-queue"/></svg></div>
+        <h3 data-en="No one is waiting yet">مفيش حد مستني لسه</h3>
+        <p data-en="Your first booking tonight is at 5:30 pm. Patients appear here as soon as reception checks them in.">أول حجز الليلة الساعة ٥:٣٠ م. المرضى هيظهروا هنا أول ما الاستقبال يسجّل وصولهم.</p>
+        <div class="t-row tight">
+          <a class="t-btn primary" href="appointments-calendar.html"><span data-en="See tonight's bookings">شوف حجوزات الليلة</span></a>
+          <a class="t-btn" href="settings-templates.html"><span data-en="Prepare visit templates">جهّز قوالب الكشف</span></a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+</div>
+</main>
+<script src="../assets/shell.js"></script>
+<script>
+(function () {
+  var en = function () { return window.Tamargi && Tamargi.lang() === "en"; };
+  var called = false;
+  var btn = document.getElementById("callNext");
+  function callNext() {
+    if (!called) {
+      called = true;
+      var chip = document.getElementById("nextChip");
+      chip.className = "t-chip called";
+      chip.setAttribute("data-en", "Called · on the screen");
+      chip.setAttribute("data-ar", "نودي عليها · ظاهرة على الشاشة");
+      chip.textContent = en() ? "Called · on the screen" : "نودي عليها · ظاهرة على الشاشة";
+      document.getElementById("nextTicket").className = "t-ticket called";
+      var lbl = document.getElementById("callNextLabel");
+      lbl.setAttribute("data-en", "Start visit"); lbl.setAttribute("data-ar", "ابدأ الكشف");
+      lbl.textContent = en() ? "Start visit" : "ابدأ الكشف";
+      document.getElementById("callNextKbd").textContent = "Enter";
+      Tamargi.toast(en() ? "A-16 called — shown on the waiting-room screen" : "نودي على A-16 — ظاهر على شاشة الانتظار");
+    } else {
+      location.href = "visit-note.html";
+    }
+  }
+  btn.addEventListener("click", callNext);
+  document.addEventListener("keydown", function (e) {
+    var typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
+    if (typing) return;
+    if (e.key === "F4") { e.preventDefault(); callNext(); }
+    if (e.key === "Enter" && called && e.target === document.body) location.href = "visit-note.html";
+  });
+  /* queue filter */
+  document.querySelectorAll("[data-qf]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var f = b.getAttribute("data-qf");
+      document.querySelectorAll("[data-qf]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      document.querySelectorAll("#qList [data-q]").forEach(function (c) {
+        c.hidden = !(f === "all" || c.getAttribute("data-q") === f);
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>

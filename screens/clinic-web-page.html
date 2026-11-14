@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Dr. Ahmed Selim Clinic — Mansoura">عيادة د. أحمد سليم — المنصورة</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style>
+    /* page-specific CSS: tokens only. Mobile-first public page. */
+    /* public page is phone-first: drop the prototype role switcher on narrow screens so the shell bar fits 390px */
+    @media (max-width: 480px) { .t-topbar #t-role, .t-topbar [data-shell-search] { display: none; } .t-topbar { min-width: 0; } }
+    .cw { max-width: 720px; margin-inline: auto; display: flex; flex-direction: column; gap: var(--s-4); }
+    .cw-hero { text-align: center; padding: var(--s-8) var(--s-5) var(--s-6); }
+    .cw-logo { width: 76px; height: 76px; margin: 0 auto var(--s-3); border-radius: 50%; border: 2px solid var(--primary); color: var(--primary); display: grid; place-items: center; font-family: var(--font-letterhead); font-size: 34px; }
+    .cw-hero h1 { font-family: var(--font-letterhead); font-size: var(--fs-3xl); color: var(--primary); font-weight: 700; }
+    [dir="ltr"] .cw-hero h1 { font-family: var(--font-en); font-size: var(--fs-2xl); }
+    .cw-open { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-sm); font-weight: var(--fw-m); color: var(--success-fg); }
+    .cw-open::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+    .cw-cta { display: flex; flex-direction: column; gap: var(--s-2); max-width: 360px; margin: var(--s-5) auto 0; }
+    .cw-doc { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: var(--s-3); align-items: start; }
+    .cw-doc + .cw-doc { border-block-start: 1px solid var(--line); padding-block-start: var(--s-4); margin-block-start: var(--s-4); }
+    .cw-hours td, .cw-hours th { height: 40px; }
+    .cw-hours tr.is-today td { background: var(--primary-soft); font-weight: var(--fw-sb); }
+    .cw-map { display: block; height: 140px; border-radius: var(--r-md); border: 1px solid var(--line); background:
+      repeating-linear-gradient(0deg, var(--surface-sunk) 0 22px, var(--line) 22px 23px),
+      repeating-linear-gradient(90deg, var(--surface-sunk) 0 30px, var(--line) 30px 31px); position: relative; }
+    .cw-pin { position: absolute; inset-block-start: 38%; inset-inline-start: 50%; transform: translate(50%, -50%); width: 28px; height: 28px; border-radius: 50% 50% 50% 0; background: var(--primary); rotate: -45deg; box-shadow: var(--e-2); }
+    [dir="ltr"] .cw-pin { transform: translate(-50%, -50%); }
+    .cw-foot { text-align: center; font-size: var(--fs-xs); color: var(--text-3); padding-block: var(--s-4) var(--s-12); }
+    /* chat panel */
+    .cw-chat { position: fixed; inset-block-end: var(--s-4); inset-inline-start: var(--s-4); z-index: 65; width: min(380px, calc(100vw - 32px)); height: min(560px, calc(100vh - 96px)); display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--e-3); overflow: hidden; }
+    .cw-chat-head { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-3) var(--s-4); background: var(--primary); color: var(--text-on-primary); }
+    .cw-chat-head .t-btn { color: inherit; margin-inline-start: auto; }
+    .cw-chat-body { flex: 1; overflow-y: auto; padding: var(--s-4); display: flex; flex-direction: column; gap: var(--s-2); background: var(--surface-sunk); }
+    .cw-msg { max-width: 82%; padding: var(--s-2) var(--s-3); border-radius: var(--r-md); font-size: var(--fs-sm); line-height: 1.5; }
+    .cw-msg.in { align-self: flex-start; background: var(--surface); border: 1px solid var(--line); border-end-start-radius: var(--r-xs); }
+    .cw-msg.out { align-self: flex-end; background: var(--primary); color: var(--text-on-primary); border-end-end-radius: var(--r-xs); }
+    .cw-msg time { display: block; font-size: 10px; opacity: .7; margin-block-start: 2px; }
+    .cw-quick { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+    .cw-chat-foot { display: flex; gap: var(--s-2); padding: var(--s-3); border-block-start: 1px solid var(--line); background: var(--surface); }
+    @media (max-width: 560px) { .cw-chat { inset: 0; width: 100%; height: 100%; border-radius: 0; border: 0; } .cw-hero h1 { font-size: var(--fs-2xl); } }
+  </style>
+</head>
+<body data-screen="clinic-web-page" data-shell="bare">
+<main id="screen">
+  <div class="t-container">
+    <div class="cw">
+
+      <section class="t-card cw-hero" aria-labelledby="cw-name"
+               data-note="Public page generated from the clinic's own settings (profile, letterhead, schedules, fees). No extra setup. Mobile-first, Arabic default with an English toggle; most patients open it from a link on a phone."
+               data-note-ar="الصفحة العامة بتتعمل من إعدادات العيادة نفسها (البيانات، الترويسة، المواعيد، الأسعار). من غير إعداد زيادة. مصممة للموبايل الأول، بالعربي ومعاها إنجليزي؛ أغلب المرضى بيفتحوها من لينك على الموبايل.">
+        <div class="cw-logo" aria-hidden="true">أ</div>
+        <h1 id="cw-name" data-en="Dr. Ahmed Selim Clinic">عيادة د. أحمد سليم</h1>
+        <p class="t-muted mb-2" data-en="Internal medicine & gastroenterology · Paediatrics">باطنة وجهاز هضمي · أطفال</p>
+        <span class="cw-open" id="cw-open" data-en="Open now · until 11 pm">مفتوح دلوقتي · لحد ١١ م</span>
+        <div class="cw-cta">
+          <button class="t-btn primary lg block" type="button" id="cw-start"
+                  data-note="One clear action: start a web chat to book. The receptionist answers it in the chat inbox and books from the conversation. WhatsApp joins the same inbox later (founder decision: web chat first). No online self-booking in MVP."
+                  data-note-ar="أكشن واحد واضح: ابدأ شات عشان تحجز. الاستقبال بترد من صندوق الرسائل وتحجز من المحادثة. واتساب هيدخل نفس الصندوق بعدين (قرار: الشات الأول). مفيش حجز ذاتي في النسخة الأولى."><svg class="t-icon"><use href="#i-chat"/></svg><span data-en="Chat with the clinic to book">كلّم العيادة واحجز</span></button>
+          <a class="t-btn lg block" href="tel:01001234567"><svg class="t-icon"><use href="#i-phone"/></svg><span data-en="Call">اتصل</span> <span class="t-ltr">0100 123 4567</span></a>
+        </div>
+      </section>
+
+      <section class="t-card" aria-labelledby="cw-docs-h">
+        <div class="t-card-head"><h2 id="cw-docs-h" data-en="Doctors">الأطباء</h2></div>
+        <div class="cw-doc">
+          <span class="t-avatar" style="width:48px;height:48px">أس</span>
+          <div>
+            <b data-en="Dr. Ahmed Selim Abdelhamid">د. أحمد سليم عبد الحميد</b>
+            <div class="t-small t-muted" data-en="Consultant of internal medicine & gastroenterology · MD, Mansoura University">استشاري الباطنة والجهاز الهضمي · دكتوراه جامعة المنصورة</div>
+            <div class="t-row tight mt-2">
+              <span class="t-chip plain" data-en="Sat–Thu 5–11 pm">السبت–الخميس ٥–١١ م</span>
+              <span class="t-chip plain" data-fee data-en="Consult 300 EGP">الكشف ٣٠٠ ج.م</span>
+              <span class="t-chip free" data-fee data-en="Free follow-up within 14 days">استشارة مجانية خلال ١٤ يوم</span>
+            </div>
+          </div>
+        </div>
+        <div class="cw-doc">
+          <span class="t-avatar" style="width:48px;height:48px">نش</span>
+          <div>
+            <b data-en="Dr. Noha El-Sherbini">د. نهى الشربيني</b>
+            <div class="t-small t-muted" data-en="Paediatrics specialist">أخصائي طب الأطفال</div>
+            <div class="t-row tight mt-2">
+              <span class="t-chip plain" data-en="Sat, Mon, Wed 10 am–2 pm">السبت والاتنين والأربع ١٠ ص–٢ م</span>
+              <span class="t-chip plain" data-fee data-en="Consult 250 EGP">الكشف ٢٥٠ ج.م</span>
+            </div>
+          </div>
+        </div>
+        <p class="t-hint mt-4 mb-0" data-fee data-en="Fees shown by the clinic's choice. Payment at the clinic, in cash.">الأسعار معروضة باختيار العيادة. الدفع في العيادة، كاش.</p>
+      </section>
+
+      <section class="t-card flush" aria-labelledby="cw-hours-h"
+               data-note="Working hours are read from the doctor schedules (split shifts, Friday off, Ramadan hours, leaves), so the page is never out of date. Today's row is highlighted; a doctor on leave shows 'on leave' instead of hours."
+               data-note-ar="المواعيد بتتقري من جداول الأطباء (الفترتين، إجازة الجمعة، مواعيد رمضان، الإجازات)، فالصفحة عمرها ما بتبقى قديمة. صف النهارده متعلّم؛ والدكتور اللي في إجازة بيظهر 'إجازة' بدل المواعيد.">
+        <div class="t-card-head"><h2 id="cw-hours-h" data-en="Working hours">مواعيد العمل</h2></div>
+        <div class="t-table-wrap" style="border:0;border-radius:0">
+          <table class="t-table cw-hours">
+            <thead><tr><th data-en="Day">اليوم</th><th data-en="Dr. Ahmed">د. أحمد</th><th data-en="Dr. Noha">د. نهى</th></tr></thead>
+            <tbody>
+              <tr class="is-today"><td><span data-en="Saturday (today)">السبت (النهارده)</span></td><td>5:00 – 11:00 <span data-en="pm">م</span></td><td>10:00 – 2:00</td></tr>
+              <tr><td data-en="Sunday">الأحد</td><td>5:00 – 11:00 <span data-en="pm">م</span></td><td class="t-faint">—</td></tr>
+              <tr><td data-en="Monday">الاتنين</td><td>5:00 – 11:00 <span data-en="pm">م</span></td><td>10:00 – 2:00</td></tr>
+              <tr><td data-en="Tuesday">التلات</td><td>5:00 – 11:00 <span data-en="pm">م</span></td><td class="t-faint">—</td></tr>
+              <tr><td data-en="Wednesday">الأربع</td><td>5:00 – 11:00 <span data-en="pm">م</span></td><td><span class="t-chip plain" data-en="On leave 18 Nov">إجازة ١٨ نوفمبر</span></td></tr>
+              <tr><td data-en="Thursday">الخميس</td><td>5:00 – 11:00 <span data-en="pm">م</span></td><td class="t-faint">—</td></tr>
+              <tr class="is-muted"><td data-en="Friday">الجمعة</td><td colspan="2"><span data-en="Closed">مقفول</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="t-card" aria-labelledby="cw-addr-h">
+        <div class="t-card-head"><h2 id="cw-addr-h" data-en="Address">العنوان</h2></div>
+        <p class="mb-2" data-en="12 El-Gomhoreya St., El-Nour Tower, 3rd floor — opposite El-Shefaa Pharmacy, Mansoura">١٢ شارع الجمهورية، برج النور، الدور الثالث — أمام صيدلية الشفاء، المنصورة</p>
+        <a class="cw-map mb-4" href="https://www.google.com/maps/search/?api=1&amp;query=El-Gomhoreya+St+Mansoura" target="_blank" rel="noopener" aria-label="Open in maps" data-en-aria-label="Open in maps"><span class="cw-pin" aria-hidden="true"></span></a>
+        <div class="t-row tight">
+          <a class="t-btn" href="https://www.google.com/maps/search/?api=1&amp;query=El-Gomhoreya+St+Mansoura" target="_blank" rel="noopener"><svg class="t-icon sm"><use href="#i-globe"/></svg><span data-en="Directions in Google Maps">الاتجاهات على خرائط جوجل</span></a>
+          <button class="t-btn ghost" type="button" data-toast="اتنسخ العنوان" data-toast-en="Address copied"><svg class="t-icon sm"><use href="#i-copy"/></svg><span data-en="Copy address">انسخ العنوان</span></button>
+        </div>
+      </section>
+
+      <p class="cw-foot" data-note="Quiet footer: no ads, no other clinics, no marketplace. The page belongs to the clinic (product rule: Tamargi is a business tool, not a booking marketplace)."
+         data-note-ar="فوتر هادي: من غير إعلانات ولا عيادات تانية ولا سوق حجز. الصفحة ملك العيادة (قاعدة: تمرجي أداة شغل، مش منصة حجز)."><span data-en="Page by the clinic · made with Tamargi">صفحة العيادة · معمولة بتمرجي</span></p>
+    </div>
+  </div>
+</main>
+
+<!-- Web chat -->
+<section class="cw-chat" id="cw-chat" hidden aria-label="Chat with the clinic" data-en-aria-label="Chat with the clinic" role="dialog">
+  <header class="cw-chat-head">
+    <span class="t-avatar sm" style="background:var(--surface);color:var(--primary)">أ</span>
+    <div><b class="t-small" data-en="Dr. Ahmed Selim Clinic">عيادة د. أحمد سليم</b><div style="font-size:var(--fs-xs);opacity:.85" data-en="Usually replies in a few minutes">بترد عادة في دقايق</div></div>
+    <button class="t-btn icon ghost" type="button" id="cw-close" aria-label="Close chat" data-en-aria-label="Close chat" title="إغلاق" data-en-title="Close"><svg class="t-icon"><use href="#i-close"/></svg></button>
+  </header>
+  <div class="cw-chat-body" id="cw-body" aria-live="polite">
+    <div class="cw-msg in"><span data-en="Hello! This is the clinic reception. How can we help?">أهلًا بيك! معاك استقبال العيادة. نقدر نساعدك إزاي؟</span><time>9:14</time></div>
+    <div class="cw-quick" id="cw-quick">
+      <button class="t-pick" type="button" data-q="book" data-en="Book a consult">أحجز كشف</button>
+      <button class="t-pick" type="button" data-q="fu" data-en="Book a follow-up">أحجز استشارة</button>
+      <button class="t-pick" type="button" data-q="hours" data-en="Hours today">مواعيد النهارده</button>
+      <button class="t-pick" type="button" data-q="fee" data-en="Prices">الأسعار</button>
+    </div>
+    <form class="t-card" id="cw-form" hidden style="padding:var(--s-3)" onsubmit="return false">
+      <div class="t-stack">
+        <div class="t-field"><label class="t-label" for="cw-n"><span data-en="Patient name">اسم المريض</span><span class="req">*</span></label><input id="cw-n" class="t-input" autocomplete="name"></div>
+        <div class="t-field"><label class="t-label" for="cw-m"><span data-en="Mobile">الموبايل</span><span class="req">*</span></label><input id="cw-m" class="t-input ltr" inputmode="tel" placeholder="01xxxxxxxxx" aria-describedby="cw-m-msg"><span id="cw-m-msg" class="t-hint" data-en="The clinic confirms on this number.">العيادة هتأكد على الرقم ده.</span></div>
+        <div class="t-field"><span class="t-label" data-en="Doctor & preferred day">الدكتور واليوم المناسب</span>
+          <select class="t-select" id="cw-d" aria-label="Doctor" data-en-aria-label="Doctor"><option data-en="Dr. Ahmed — today (Sat)">د. أحمد — النهارده (السبت)</option><option data-en="Dr. Ahmed — tomorrow (Sun)">د. أحمد — بكرة (الأحد)</option><option data-en="Dr. Noha — Monday morning">د. نهى — الاتنين الصبح</option></select></div>
+        <button class="t-btn primary block" type="button" id="cw-send-form"><span data-en="Send booking request">ابعت طلب الحجز</span></button>
+      </div>
+    </form>
+  </div>
+  <div class="cw-chat-foot">
+    <label class="t-sr" for="cw-text" data-en="Message">رسالة</label>
+    <input id="cw-text" class="t-input" placeholder="اكتب رسالتك" data-en-placeholder="Type a message" autocomplete="off">
+    <button class="t-btn primary icon" type="button" id="cw-send" aria-label="إرسال" data-en-aria-label="Send" title="إرسال" data-en-title="Send"><svg class="t-icon flip"><use href="#i-send"/></svg></button>
+  </div>
+</section>
+
+<script src="../assets/shell.js"></script>
+<script>
+(function () {
+  var L = function () { return window.Tamargi && Tamargi.lang() === "en"; };
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var chat = $("#cw-chat"), body = $("#cw-body");
+  function now() { var d = new Date(); return d.getHours() + ":" + ("0" + d.getMinutes()).slice(-2); }
+  function msg(dir, ar, en) {
+    var n = document.createElement("div"); n.className = "cw-msg " + dir;
+    var s = document.createElement("span"); s.setAttribute("data-ar", ar); s.setAttribute("data-en", en || ar); s.textContent = L() ? (en || ar) : ar;
+    var t = document.createElement("time"); t.textContent = now();
+    n.appendChild(s); n.appendChild(t); body.insertBefore(n, $("#cw-form").hidden ? null : $("#cw-form")); body.scrollTop = body.scrollHeight;
+  }
+  function open() { chat.hidden = false; $("#cw-text").focus(); }
+  $("#cw-start").addEventListener("click", open);
+  $("#cw-close").addEventListener("click", function () { chat.hidden = true; $("#cw-start").focus(); });
+
+  var REPLIES = {
+    book: [["عايز أحجز كشف", "I'd like to book a consult"], ["تمام ابعتلنا الاسم والموبايل واليوم اللي يناسبك، والاستقبال هتأكد معاك.", "Sure. Send the name, mobile and a day that suits you; reception will confirm."], true],
+    fu: [["عايز أحجز استشارة", "I'd like a follow-up"], ["لو الكشف كان من أقل من ١٤ يوم، الاستشارة مجانية. ابعتلنا الاسم والموبايل.", "If the consult was less than 14 days ago, the follow-up is free. Send the name and mobile."], true],
+    hours: [["مواعيد النهارده إيه؟", "What are today's hours?"], ["النهارده السبت: د. أحمد من ٥ لـ ١١ م، ود. نهى من ١٠ ص لـ ٢ م.", "Today (Saturday): Dr. Ahmed 5–11 pm, Dr. Noha 10 am–2 pm."], false],
+    fee: [["الكشف بكام؟", "How much is a consult?"], ["كشف د. أحمد ٣٠٠ ج.م، وكشف د. نهى ٢٥٠ ج.م. الاستشارة مجانية خلال ١٤ يوم.", "Dr. Ahmed's consult is 300 EGP, Dr. Noha's 250 EGP. Follow-up free within 14 days."], false]
+  };
+  $("#cw-quick").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-q]"); if (!b) return;
+    var r = REPLIES[b.getAttribute("data-q")];
+    msg("out", r[0][0], r[0][1]);
+    setTimeout(function () { msg("in", r[1][0], r[1][1]); if (r[2]) { $("#cw-form").hidden = false; body.appendChild($("#cw-form")); body.scrollTop = body.scrollHeight; $("#cw-n").focus(); } }, 500);
+  });
+  $("#cw-send-form").addEventListener("click", function () {
+    var n = $("#cw-n").value.trim(), m = $("#cw-m").value.replace(/\s/g, ""), hint = $("#cw-m-msg");
+    var okM = /^01[0125]\d{8}$/.test(m);
+    $("#cw-m").classList.toggle("is-invalid", !okM); $("#cw-n").classList.toggle("is-invalid", !n);
+    if (!okM) { hint.className = "t-error"; hint.setAttribute("data-ar", "اكتب موبايل مصري ١١ رقم يبدأ بـ 01."); hint.setAttribute("data-en", "Enter an 11-digit Egyptian mobile starting with 01."); hint.textContent = L() ? hint.getAttribute("data-en") : hint.getAttribute("data-ar"); return; }
+    if (!n) return;
+    var d = $("#cw-d").options[$("#cw-d").selectedIndex].textContent;
+    $("#cw-form").hidden = true;
+    msg("out", n + " · " + m + " · " + d);
+    setTimeout(function () { msg("in", "وصلنا طلبك الاستقبال هتكلمك على " + m + " تأكد الميعاد.", "Request received. Reception will call " + m + " to confirm the time."); }, 500);
+  });
+  function sendText() {
+    var v = $("#cw-text").value.trim(); if (!v) return;
+    msg("out", v); $("#cw-text").value = "";
+    setTimeout(function () { msg("in", "شكرًا! حد من الاستقبال هيرد عليك حالًا.", "Thanks! Someone from reception will reply shortly."); }, 600);
+  }
+  $("#cw-send").addEventListener("click", sendText);
+  $("#cw-text").addEventListener("keydown", function (e) { if (e.key === "Enter") sendText(); });
+})();
+</script>
+</body>
+</html>

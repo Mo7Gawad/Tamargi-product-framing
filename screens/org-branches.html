@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Organization & branches — Tamargi">المؤسسة والفروع — تمرجي</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style>
+    /* page-specific CSS: tokens only */
+    .ob-tree { display: flex; flex-wrap: wrap; align-items: stretch; gap: var(--s-2); }
+    .ob-level { flex: 1 1 180px; display: flex; flex-direction: column; gap: 4px; padding: var(--s-3) var(--s-4); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); }
+    .ob-level .k { font-size: var(--fs-xs); color: var(--text-3); font-weight: var(--fw-sb); }
+    .ob-level b { font-size: var(--fs-md); }
+    .ob-level p { margin: 0; font-size: var(--fs-xs); color: var(--text-2); }
+    .ob-level.org { border-color: var(--primary-line); background: var(--primary-soft); }
+    .ob-arrow { align-self: center; color: var(--primary); font-weight: var(--fw-b); }
+    [dir="ltr"] .ob-arrow { transform: scaleX(-1); }
+    .ob-branches { display: grid; gap: var(--s-4); grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+    .ob-branch { display: flex; flex-direction: column; gap: var(--s-3); }
+    .ob-branch .t-dl { font-size: var(--fs-sm); }
+    .ob-counts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-2); }
+    .ob-counts > div { padding: var(--s-2) var(--s-3); border-radius: var(--r-sm); background: var(--surface-sunk); border: 1px solid var(--line); }
+    .ob-counts b { display: block; font-size: var(--fs-xl); font-variant-numeric: tabular-nums; line-height: 1.2; }
+    .ob-counts span { font-size: var(--fs-xs); color: var(--text-2); }
+    .ob-add { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--s-2); text-align: center; min-height: 260px; border: 2px dashed var(--line-strong); background: transparent; color: var(--text-2); cursor: pointer; font: inherit; border-radius: var(--r-md); }
+    .ob-add:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-soft); }
+    .ob-add .t-icon { width: 28px; height: 28px; }
+    .ob-branch.is-current { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
+    .ob-cur { display: none; }
+    .ob-branch.is-current .ob-cur { display: inline-flex; }
+    .ob-usage { display: grid; gap: var(--s-3); }
+    .ob-usage .t-row { font-size: var(--fs-sm); }
+    .ob-scope td:nth-child(2), .ob-scope th:nth-child(2) { white-space: nowrap; }
+    .ob-lvl { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding-inline: 8px; border-radius: var(--r-xs); font-size: var(--fs-xs); font-weight: var(--fw-m); }
+    .ob-lvl.org { background: var(--primary-soft); color: var(--primary); }
+    .ob-lvl.br { background: var(--waiting-bg); color: var(--waiting-fg); }
+    .ob-lvl.both { background: var(--inroom-bg); color: var(--inroom-fg); }
+  </style>
+</head>
+<body data-screen="org-branches" data-org="nile">
+<main id="screen">
+  <div class="t-container">
+
+    <header class="t-screen-head">
+      <div>
+        <h1><span data-en="Organization & branches">المؤسسة والفروع</span> <span class="t-tier">Tier 2</span></h1>
+        <p class="t-sub mb-0" data-en="Who the customer is (the organization), where it works (branches) and what each branch shares or keeps to itself.">مين العميل (المؤسسة)، بيشتغل فين (الفروع)، وكل فرع بيشارك إيه وبيحتفظ بإيه لنفسه.</p>
+      </div>
+      <div class="t-actions">
+        <a class="t-btn" href="rooms.html"><svg class="t-icon sm"><use href="#i-door"/></svg><span data-en="Rooms">الغرف</span></a>
+        <a class="t-btn" href="doctors-branches.html"><svg class="t-icon sm"><use href="#i-users"/></svg><span data-en="Doctors">الأطباء</span></a>
+        <button class="t-btn primary" type="button" data-open="#ob-add"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="Add branch">ضيف فرع</span><span class="t-kbd">B</span></button>
+      </div>
+    </header>
+
+    <!-- Hierarchy explainer -->
+    <section class="t-card sunk mb-4" aria-label="Hierarchy" data-en-aria-label="Hierarchy"
+             data-note="Three fixed words, used the same way in the schema, the price list and the UI: Organization (the customer: legal entity, subscription, PDPL data controller) → Branch (a physical address) → Room (a bookable room, dental chair or laser room). In Egypt 'clinic' can mean any of the three, so the product never uses it as a level name."
+             data-note-ar="٣ كلمات ثابتة بنفس المعنى في قاعدة البيانات والأسعار والشاشات: المؤسسة (العميل: الكيان القانوني والاشتراك والمسؤول عن البيانات) ← الفرع (عنوان فعلي) ← الغرفة (غرفة أو كرسي أسنان أو غرفة ليزر بتتحجز). كلمة 'عيادة' في مصر ممكن تعني أي واحدة منهم، فمش بنستخدمها كاسم مستوى.">
+      <div class="ob-tree">
+        <div class="ob-level org"><span class="k" data-en="1 · ORGANIZATION (the customer)">١ · المؤسسة (العميل)</span><b data-en="Nile Medical Centre">مجمع النيل الطبي</b><p data-en="Legal entity, subscription, one patient file, data owner">الكيان القانوني، الاشتراك، ملف مريض واحد، صاحب البيانات</p></div>
+        <span class="ob-arrow" aria-hidden="true">←</span>
+        <div class="ob-level"><span class="k" data-en="2 · BRANCH (an address)">٢ · الفرع (عنوان)</span><b data-en="Toreil · University">توريل · الجامعة</b><p data-en="Own queue, cash drawer, stock store, letterhead phone">دور وخزنة ومخزن وتليفون ترويسة لكل فرع</p></div>
+        <span class="ob-arrow" aria-hidden="true">←</span>
+        <div class="ob-level"><span class="k" data-en="3 · ROOM / CHAIR (bookable)">٣ · الغرفة / الكرسي (بيتحجز)</span><b data-en="8 rooms">٨ غرف</b><p data-en="Shared by doctors by time slot; specialty is the doctor's">بيشترك فيها الأطباء بالميعاد؛ التخصص بتاع الطبيب</p></div>
+      </div>
+    </section>
+
+    <div data-state="polyclinic">
+      <div class="t-split aside-end">
+        <div class="t-stack lg">
+
+          <!-- Branch cards -->
+          <section aria-labelledby="ob-br-h">
+            <div class="t-row between mb-2">
+              <h2 id="ob-br-h" style="font-size:var(--fs-lg)" data-en="Branches">الفروع</h2>
+              <span class="t-small t-muted" data-en="The branch picked in the top bar filters every other screen. Owner can pick All branches.">الفرع اللي بتختاره فوق بيفلتر باقي الشاشات. المالك يقدر يختار كل الفروع.</span>
+            </div>
+            <div class="ob-branches">
+              <article class="t-card ob-branch" data-br="tor"
+                       data-note="A branch is a soft scope, not a wall: it filters queue, cash, stock and reports, but the patient file is one per organization. A patient seen in Toreil and later in University keeps one history (one file no.)."
+                       data-note-ar="الفرع نطاق عمل مش حيطة: بيفلتر الدور والخزنة والمخزون والتقارير، لكن ملف المريض واحد للمؤسسة كلها. المريض اللي كشف في توريل وبعدين في الجامعة ليه تاريخ واحد ورقم ملف واحد.">
+                <div class="t-row between">
+                  <div class="t-row tight"><svg class="t-icon"><use href="#i-pin"/></svg><h3 data-en="Mansoura - Toreil">المنصورة - توريل</h3></div>
+                  <span class="t-row tight"><span class="t-chip info plain ob-cur" data-en="You are here">إنت هنا</span><span class="t-chip paid" data-en="Active">شغّال</span></span>
+                </div>
+                <dl class="t-dl">
+                  <dt data-en="Address">العنوان</dt><dd data-en="Al-Yasmine Tower, 2nd floor, Toreil, Mansoura">برج الياسمين، الدور التاني، توريل، المنصورة</dd>
+                  <dt data-en="Governorate">المحافظة</dt><dd data-en="Dakahlia">الدقهلية</dd>
+                  <dt data-en="Phone">التليفون</dt><dd><span class="t-ltr">0100 000 1234</span></dd>
+                  <dt data-en="Hours">المواعيد</dt><dd data-en="Sat–Thu, 10 am–11 pm">السبت–الخميس، ١٠ ص–١١ م</dd>
+                  <dt data-en="Manager">مدير الفرع</dt><dd data-en="Rehab Samir (branch manager)">رحاب سمير (مدير فرع)</dd>
+                </dl>
+                <div class="ob-counts">
+                  <div><b>5</b><span data-en="rooms">غرف</span></div>
+                  <div><b>4</b><span data-en="doctors">أطباء</span></div>
+                  <div><b>6</b><span data-en="staff">موظفين</span></div>
+                </div>
+                <div class="t-row tight">
+                  <a class="t-btn sm" href="rooms.html" data-en="Rooms">الغرف</a>
+                  <a class="t-btn sm" href="stock.html" data-en="Stock store">المخزن</a>
+                  <button class="t-btn sm ghost t-end" type="button" data-open="#ob-add" data-en="Edit">تعديل</button>
+                </div>
+              </article>
+
+              <article class="t-card ob-branch" data-br="gam">
+                <div class="t-row between">
+                  <div class="t-row tight"><svg class="t-icon"><use href="#i-pin"/></svg><h3 data-en="Mansoura - University">المنصورة - الجامعة</h3></div>
+                  <span class="t-row tight"><span class="t-chip info plain ob-cur" data-en="You are here">إنت هنا</span><span class="t-chip paid" data-en="Active">شغّال</span></span>
+                </div>
+                <dl class="t-dl">
+                  <dt data-en="Address">العنوان</dt><dd data-en="Al-Nada Tower, 1st floor, University St., Mansoura">برج الندى، الدور الأول، شارع الجامعة، المنصورة</dd>
+                  <dt data-en="Governorate">المحافظة</dt><dd data-en="Dakahlia">الدقهلية</dd>
+                  <dt data-en="Phone">التليفون</dt><dd><span class="t-ltr">0100 000 5678</span></dd>
+                  <dt data-en="Hours">المواعيد</dt><dd data-en="Sat–Thu, 4 pm–11 pm">السبت–الخميس، ٤ م–١١ م</dd>
+                  <dt data-en="Opened">اتفتح</dt><dd data-en="Sep 2026">سبتمبر ٢٠٢٦</dd>
+                </dl>
+                <div class="ob-counts">
+                  <div><b>3</b><span data-en="rooms">غرف</span></div>
+                  <div><b>3</b><span data-en="doctors">أطباء</span></div>
+                  <div><b>4</b><span data-en="staff">موظفين</span></div>
+                </div>
+                <div class="t-row tight">
+                  <a class="t-btn sm" href="rooms.html" data-en="Rooms">الغرف</a>
+                  <a class="t-btn sm" href="stock.html" data-en="Stock store">المخزن</a>
+                  <button class="t-btn sm ghost t-end" type="button" data-open="#ob-add" data-en="Edit">تعديل</button>
+                </div>
+              </article>
+
+              <button class="ob-add" type="button" data-open="#ob-add"
+                      data-note="Plan limits are visible where you act, not discovered at checkout: the add card says how many branches the plan still allows (2 of 3)."
+                      data-note-ar="حدود الباقة ظاهرة مكان ما بتتصرف: كارت الإضافة بيقول الباقة لسه مسموح فيها كام فرع (٢ من ٣).">
+                <svg class="t-icon"><use href="#i-plus"/></svg>
+                <b data-en="Add a branch">ضيف فرع</b>
+                <span class="t-small" data-en="1 more branch included in your plan (2 of 3 used)">فاضل فرع واحد في باقتك (٢ من ٣)</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- What is org-wide vs per branch -->
+          <section class="t-card flush" aria-labelledby="ob-scope-h"
+                   data-note="The segregation rule in one table. Between organizations there is a hard wall (separate data controllers under PDPL, row-level security on tenant_id, no cross-org reads ever). Inside one organization, branches are scopes for daily work and money, not separate databases."
+                   data-note-ar="قاعدة الفصل في جدول واحد. بين مؤسسة ومؤسسة فيه حيطة صلبة (كل واحدة مسؤولة عن بياناتها قانونًا، وفصل على مستوى كل صف، ومفيش قراءة بين المؤسسات أبدًا). جوه المؤسسة الواحدة، الفروع نطاقات للشغل اليومي والفلوس، مش قواعد بيانات منفصلة.">
+            <div class="t-card-head"><h2 id="ob-scope-h" data-en="What is shared across branches, and what is per branch">إيه المشترك بين الفروع، وإيه الخاص بكل فرع</h2></div>
+            <div class="t-table-wrap" style="border:0;border-radius:0">
+              <table class="t-table ob-scope">
+                <thead><tr><th data-en="Data">البيانات</th><th data-en="Lives at">مستواها</th><th data-en="What it means">يعني إيه</th></tr></thead>
+                <tbody>
+                  <tr><td data-en="Patient file">ملف المريض</td><td><span class="ob-lvl org" data-en="Organization">المؤسسة</span></td><td data-en="One file per patient for all branches. Every visit shows the branch it happened in.">ملف واحد للمريض في كل الفروع. كل زيارة مكتوب عليها الفرع اللي حصلت فيه.</td></tr>
+                  <tr><td data-en="Doctors & specialties">الأطباء والتخصصات</td><td><span class="ob-lvl org" data-en="Organization">المؤسسة</span></td><td data-en="A doctor is added once and scheduled in one or more branches.">الطبيب بيتضاف مرة واحدة ويتجدول في فرع أو أكتر.</td></tr>
+                  <tr><td data-en="Services & prices">الخدمات والأسعار</td><td><span class="ob-lvl both" data-en="Org + branch override">المؤسسة + سعر للفرع</span></td><td data-en="One price list; a branch may override a price (NITCO v60/61/99).">قايمة أسعار واحدة؛ الفرع ممكن يبقى له سعر مختلف.</td></tr>
+                  <tr><td data-en="Queue & appointments">الدور والمواعيد</td><td><span class="ob-lvl br" data-en="Branch">الفرع</span></td><td data-en="Each branch runs its own queue and room bookings.">كل فرع ليه دوره وحجز غرفه.</td></tr>
+                  <tr><td data-en="Cash drawer & shift close">الخزنة وتقفيل الوردية</td><td><span class="ob-lvl br" data-en="Branch">الفرع</span></td><td data-en="Money is counted where it is held. Owner sees all branches combined.">الفلوس بتتعد مكان ما هي موجودة. المالك يشوف الفروع مجمّعة.</td></tr>
+                  <tr><td data-en="Stock store">المخزن</td><td><span class="ob-lvl br" data-en="Branch">الفرع</span></td><td data-en="One store per branch; transfers between branches are logged.">مخزن لكل فرع؛ التحويل بين الفروع بيتسجل.</td></tr>
+                  <tr><td data-en="Equipment">الأجهزة</td><td><span class="ob-lvl br" data-en="Branch / room">الفرع / الغرفة</span></td><td data-en="Each device sits in a branch and usually a room.">كل جهاز في فرع وغالبًا في غرفة.</td></tr>
+                  <tr><td data-en="Letterhead & phone">الترويسة والتليفون</td><td><span class="ob-lvl both" data-en="Org name + branch details">اسم المؤسسة + بيانات الفرع</span></td><td data-en="Rx prints the organization name with the branch address and phone.">الروشتة بتطبع اسم المؤسسة وعنوان وتليفون الفرع.</td></tr>
+                  <tr><td data-en="Subscription & activity log">الاشتراك وسجل النشاط</td><td><span class="ob-lvl org" data-en="Organization">المؤسسة</span></td><td data-en="One bill; the log can be filtered by branch.">فاتورة واحدة؛ السجل بيتفلتر بالفرع.</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="t-card-foot">
+              <svg class="t-icon sm"><use href="#i-lock"/></svg>
+              <span class="t-small" data-en="Between two organizations nothing is shared: not patients, not prices, not stock. A doctor who works in both sees each one separately after switching.">بين مؤسستين مفيش أي حاجة مشتركة: لا مرضى ولا أسعار ولا مخزون. الطبيب اللي بيشتغل في الاتنين بيشوف كل واحدة لوحدها بعد التبديل.</span>
+            </div>
+          </section>
+        </div>
+
+        <!-- Aside: org profile + plan usage -->
+        <aside class="t-stack">
+          <section class="t-card" aria-labelledby="ob-org-h"
+                   data-note="Organization profile = the legal and billing identity (NITCO v71/76 calls these 'activities / legal entities' with their own tax IDs). One org per legal entity in v1; a group with two companies opens two organizations."
+                   data-note-ar="بيانات المؤسسة = الهوية القانونية والفوترة (في NITCO اسمها 'الأنشطة / الكيانات القانونية' وليها بطاقة ضريبية). مؤسسة واحدة لكل كيان قانوني في النسخة الأولى؛ مجموعة فيها شركتين تفتح مؤسستين.">
+            <div class="t-card-head"><h2 id="ob-org-h" data-en="Organization profile">بيانات المؤسسة</h2><div class="t-actions"><button class="t-btn sm ghost" type="button" data-toast="التعديل بيتسجل في سجل النشاط" data-toast-en="Edits are logged in the activity log" data-en="Edit">تعديل</button></div></div>
+            <dl class="t-dl">
+              <dt data-en="Trade name">الاسم التجاري</dt><dd data-en="Nile Medical Centre">مجمع النيل الطبي</dd>
+              <dt data-en="Legal name">الاسم القانوني</dt><dd data-en="Nile Medical Services LLC">شركة النيل للخدمات الطبية ش.م.م</dd>
+              <dt data-en="Commercial reg.">السجل التجاري</dt><dd><span class="t-ltr">45678</span> <span data-en="— Mansoura">— المنصورة</span></dd>
+              <dt data-en="Tax ID">البطاقة الضريبية</dt><dd><span class="t-ltr">512-384-907</span></dd>
+              <dt data-en="Medical director">المدير الطبي</dt><dd data-en="Dr. Hesham Fouad El-Banna">د. هشام فؤاد البنا</dd>
+              <dt data-en="Data controller">مسؤول البيانات</dt><dd data-en="This organization (PDPL)">المؤسسة دي (قانون حماية البيانات)</dd>
+            </dl>
+          </section>
+
+          <section class="t-card" aria-labelledby="ob-plan-h">
+            <div class="t-card-head"><h2 id="ob-plan-h" data-en="Plan usage">استخدام الباقة</h2><div class="t-actions"><a class="t-btn sm" href="subscription-plan.html" data-en="Plan">الباقة</a></div></div>
+            <p class="t-small mb-2"><b data-en="Polyclinic plan">باقة المجمعات</b> <span class="t-muted" data-en="· renews 1 Dec">· بتتجدد ١ ديسمبر</span></p>
+            <div class="ob-usage">
+              <div><div class="t-row between"><span data-en="Branches">الفروع</span><b class="t-num">2 / 3</b></div><div class="t-meter"><i style="width:67%"></i></div></div>
+              <div><div class="t-row between"><span data-en="Users">المستخدمين</span><b class="t-num">17 / 20</b></div><div class="t-meter warn"><i style="width:85%"></i></div></div>
+              <div><div class="t-row between"><span data-en="Rooms">الغرف</span><b class="t-num">8</b></div><span class="t-hint" data-en="Rooms are not limited.">الغرف مش محدودة.</span></div>
+            </div>
+          </section>
+
+          <section class="t-card sunk">
+            <h3 class="mb-2" style="font-size:var(--fs-sm)" data-en="People with access to more than one branch">ناس ليهم صلاحية على أكتر من فرع</h3>
+            <ul class="t-small" style="margin:0;padding-inline-start:var(--s-5)">
+              <li data-en="Dr. Hesham El-Banna — owner, all branches">د. هشام البنا — مالك، كل الفروع</li>
+              <li data-en="Dr. Ahmed Selim — doctor, Toreil + University">د. أحمد سليم — طبيب، توريل + الجامعة</li>
+              <li data-en="Rehab Samir — branch manager, Toreil">رحاب سمير — مدير فرع، توريل</li>
+            </ul>
+            <a class="t-small" href="settings-users-roles.html" data-en="Roles per branch">الأدوار لكل فرع</a>
+          </section>
+        </aside>
+      </div>
+    </div>
+
+    <!-- Solo clinic state: same model, levels hidden -->
+    <div data-state="solo">
+      <div class="t-card" style="max-width:760px"
+           data-note="A solo clinic is 1 organization, 1 branch, 1 room. Setup never asks about branches or rooms; this screen collapses to the clinic's address and one upgrade line. Adding a 2nd branch later is a switch, not a migration (every record already carries branch_id)."
+           data-note-ar="العيادة الفردية = مؤسسة واحدة وفرع واحد وغرفة واحدة. التجهيز مبيسألش عن فروع ولا غرف؛ الشاشة دي بتبقى عنوان العيادة وسطر ترقية. إضافة فرع تاني بعدين تفعيل مش نقل بيانات (كل سجل عليه الفرع من الأول).">
+        <div class="t-card-head"><h2 data-en="Dr. Ahmed Selim Clinic">عيادة د. أحمد سليم</h2><div class="t-actions"><span class="t-chip paid" data-en="Active">شغّال</span></div></div>
+        <dl class="t-dl mb-4">
+          <dt data-en="Address">العنوان</dt><dd data-en="12 Gomhoreya St., 3rd floor, Mansoura">١٢ شارع الجمهورية، الدور التالت، المنصورة</dd>
+          <dt data-en="Phone">التليفون</dt><dd><span class="t-ltr">0100 000 4321</span></dd>
+          <dt data-en="Plan">الباقة</dt><dd data-en="Clinic plan · 1 branch · 6 users">باقة العيادة · فرع واحد · ٦ مستخدمين</dd>
+        </dl>
+        <div class="t-alert info"><svg class="t-icon"><use href="#i-info"/></svg>
+          <span data-en="Opening a second location? The polyclinic plan adds branches, rooms and doctors per branch. Your patients, prices and history stay as they are.">هتفتح مكان تاني؟ باقة المجمعات بتضيف فروع وغرف وأطباء لكل فرع. مرضاك وأسعارك وتاريخك بيفضلوا زي ما هم.</span>
+          <div class="t-actions"><a class="t-btn sm" href="subscription-plan.html" data-en="Compare plans">قارن الباقات</a></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Add-branch modal -->
+<div class="t-scrim" id="ob-add" hidden>
+  <div class="t-modal" role="dialog" aria-modal="true" aria-labelledby="ob-add-h">
+    <div class="t-modal-head">
+      <h2 id="ob-add-h" data-en="Add a branch">ضيف فرع</h2>
+      <button class="t-btn icon ghost" type="button" data-close aria-label="Close" data-en-aria-label="Close" title="إغلاق" data-en-title="Close"><svg class="t-icon"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="t-modal-body t-stack lg"
+         data-note="Six fields, then the branch exists. Rooms, doctors, prices and the stock store are added from their own screens; the new branch copies the organization price list by default. NITCO asks for the branch on every user and service even with one branch (v60, 65)."
+         data-note-ar="٦ خانات والفرع يبقى موجود. الغرف والأطباء والأسعار والمخزن بيتضافوا من شاشاتهم؛ الفرع الجديد بياخد قايمة أسعار المؤسسة تلقائي. NITCO بيسأل عن الفرع في كل مستخدم وخدمة حتى لو فرع واحد.">
+      <div class="t-form-grid">
+        <div class="t-field span-2"><label class="t-label" for="ob-name"><span data-en="Branch name">اسم الفرع</span><span class="req">*</span></label><input id="ob-name" class="t-input" placeholder="مثلًا: المنصورة - حي الجامعة" data-en-placeholder="e.g. Mansoura - University district"><span class="t-hint" data-en="Shown in the top bar and on receipts.">بيظهر فوق في البرنامج وعلى الإيصال.</span></div>
+        <div class="t-field"><label class="t-label" for="ob-gov"><span data-en="Governorate">المحافظة</span><span class="req">*</span></label><select id="ob-gov" class="t-select"><option data-en="Dakahlia" selected>الدقهلية</option><option data-en="Gharbia">الغربية</option><option data-en="Damietta">دمياط</option><option data-en="Cairo">القاهرة</option></select></div>
+        <div class="t-field"><label class="t-label" for="ob-phone"><span data-en="Branch phone">تليفون الفرع</span><span class="req">*</span></label><input id="ob-phone" class="t-input ltr" inputmode="tel" placeholder="01xxxxxxxxx"></div>
+        <div class="t-field span-2"><label class="t-label" for="ob-addr"><span data-en="Address with a landmark">العنوان وعلامة مميزة</span><span class="req">*</span></label><input id="ob-addr" class="t-input" placeholder="اسم البرج والدور وعلامة قريبة" data-en-placeholder="Tower, floor and a nearby landmark"></div>
+        <div class="t-field"><label class="t-label" for="ob-hours" data-en="Opening hours">المواعيد</label><input id="ob-hours" class="t-input" value="السبت–الخميس، ٤ م–١١ م" data-en-placeholder="Sat–Thu, 4–11 pm"></div>
+        <div class="t-field"><span class="t-label" data-en="Prices">الأسعار</span>
+          <div class="t-seg" role="group"><button type="button" aria-pressed="true" data-en="Same as organization">زي المؤسسة</button><button type="button" aria-pressed="false" data-en="Copy from Toreil">انسخ من توريل</button></div></div>
+      </div>
+      <div class="t-alert warning"><svg class="t-icon"><use href="#i-alert"/></svg><span data-en="This uses your last branch slot (3 of 3).">ده آخر فرع متاح في باقتك (٣ من ٣).</span></div>
+    </div>
+    <div class="t-modal-foot">
+      <button class="t-btn ghost" type="button" data-close data-en="Cancel">إلغاء</button>
+      <button class="t-btn primary" type="button" data-close data-toast="اتضاف الفرع — كمّل بالغرف والأطباء" data-toast-en="Branch added — next: rooms and doctors"><span data-en="Add branch">ضيف الفرع</span><span class="t-kbd">Enter</span></button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/shell.js"></script>
+<script>
+(function () {
+  /* highlight the branch picked in the top bar (this screen lists every branch, it is not filtered) */
+  function mark() {
+    var sc = window.Tamargi && Tamargi.scope ? Tamargi.scope() : { branch: "" };
+    Array.prototype.forEach.call(document.querySelectorAll("[data-br]"), function (c) { c.classList.toggle("is-current", c.getAttribute("data-br") === sc.branch); });
+  }
+  document.addEventListener("tamargi:scope", mark); mark();
+  document.addEventListener("keydown", function (e) {
+    var typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
+    if (!typing && (e.key === "b" || e.key === "B") && !e.ctrlKey && !e.altKey && !e.metaKey) { e.preventDefault(); document.getElementById("ob-add").hidden = false; document.getElementById("ob-name").focus(); }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll(".t-scrim"), function (s) { s.addEventListener("click", function (e) { if (e.target === s) s.hidden = true; }); });
+  Array.prototype.forEach.call(document.querySelectorAll(".t-modal .t-seg"), function (g) {
+    g.addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; Array.prototype.forEach.call(g.querySelectorAll("button"), function (x) { x.setAttribute("aria-pressed", String(x === b)); }); });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Doctor hours &amp; leaves — Tamargi">مواعيد عمل الطبيب والإجازات — تمرجي</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style>
+    /* Doctor hours & leaves: tokens only */
+    .ds-settings { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--s-4); padding: var(--s-4) var(--s-5); border-block-end: 1px solid var(--line); background: var(--surface-sunk); }
+    .per { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .per .t-input { width: 104px; height: 34px; font-size: var(--fs-sm); padding-inline: var(--s-2); }
+    .per .sep { color: var(--text-3); }
+    .wk-day { font-weight: var(--fw-m); white-space: nowrap; }
+    .row-err { display: block; font-size: var(--fs-xs); color: var(--danger-fg); margin-block-start: 2px; }
+    .t-table tr.is-off td { background: var(--surface-sunk); color: var(--text-3); }
+    .t-table td { padding-block: 6px; }
+    .pv-slots { display: flex; flex-wrap: wrap; gap: 6px; }
+    .pv-slot { display: inline-flex; align-items: center; gap: 4px; height: 26px; padding-inline: 8px; border-radius: var(--r-xs); border: 1px solid var(--line); background: var(--surface-sunk); font-size: var(--fs-xs); font-variant-numeric: tabular-nums; }
+    .pv-slot i { font-style: normal; color: var(--text-3); }
+    .pv-slot.night { border-style: dashed; }
+    .pv-slot.leave { background: var(--left-bg); color: var(--left-fg); border-color: var(--left-line); text-decoration: line-through; }
+    .pv-h { font-size: var(--fs-xs); color: var(--text-2); font-weight: var(--fw-m); margin: var(--s-3) 0 var(--s-2); }
+    .sticky-aside { position: sticky; top: calc(var(--topbar-h) + var(--s-4)); }
+    .anchor { scroll-margin-top: calc(var(--topbar-h) + var(--s-4)); }
+  </style>
+</head>
+<body data-screen="doctor-schedule">
+<main id="screen">
+  <div class="t-container">
+
+    <header class="t-screen-head">
+      <div>
+        <h1 data-en="Doctor hours &amp; leaves">مواعيد عمل الطبيب والإجازات</h1>
+        <p class="t-sub mb-0" data-en="Set the weekly hours once, add Ramadan or summer hours and leaves, and booking will always offer the right slots.">حدد مواعيد الأسبوع مرة واحدة، وضيف مواعيد رمضان أو الصيف والإجازات، والحجز هيعرض المواعيد الصح دايمًا.</p>
+      </div>
+      <div class="t-actions">
+        <div class="t-seg" role="group" aria-label="Doctor" data-en-aria-label="Doctor">
+          <button type="button" data-doc="ahmed" aria-pressed="true" data-en="Dr. Ahmed Selim">د. أحمد سليم</button>
+          <button type="button" data-doc="mona" aria-pressed="false" data-en="Dr. Mona El-Sherbiny">د. منى الشربيني</button>
+        </div>
+        <button class="t-btn" type="button" data-open="#leave-modal"><svg class="t-icon sm"><use href="#i-calendar"/></svg><span data-en="Add leave">إضافة إجازة</span></button>
+        <button class="t-btn primary" type="button" id="save"><svg class="t-icon sm"><use href="#i-check"/></svg><span data-en="Save hours">حفظ المواعيد</span><span class="t-kbd">Ctrl S</span></button>
+      </div>
+    </header>
+
+    <nav class="t-tabs" aria-label="Sections" data-en-aria-label="Sections">
+      <a class="t-tab is-on" href="#weekly" data-en="Weekly hours">ساعات العمل الأسبوعية</a>
+      <a class="t-tab" href="#exceptions" data-en="Exception periods">فترات استثنائية</a>
+      <a class="t-tab" href="#leaves"><span data-en="Leaves">الإجازات</span> <span class="t-badge" id="lv-badge">1</span></a>
+    </nav>
+
+    <div class="t-split aside-end">
+      <div class="t-stack lg">
+
+        <!-- Weekly hours -->
+        <section class="t-card flush anchor" id="weekly">
+          <div class="t-card-head">
+            <h2 data-en="Weekly hours">ساعات العمل الأسبوعية</h2>
+            <div class="t-actions">
+              <button class="t-btn sm" type="button" id="copy-sat"><svg class="t-icon sm"><use href="#i-copy"/></svg><span data-en="Copy Saturday to working days">انسخ السبت لكل أيام الشغل</span></button>
+            </div>
+          </div>
+          <div class="ds-settings"
+               data-note="Slot length and patients per slot are what booking uses. Overbooking above the limit stays possible but is marked and logged, because Egyptian clinics routinely squeeze patients in (NITCO v57 'book more than one patient' flag, v102)."
+               data-note-ar="مدة الميعاد وعدد المرضى في الميعاد هما اللي الحجز بيستخدمهم. الحجز الزيادة ممكن بس بيتعلم ويتسجل.">
+            <div class="t-field">
+              <label class="t-label" for="slot-len" data-en="Slot length">مدة الميعاد</label>
+              <select id="slot-len" class="t-select">
+                <option value="10" data-en="10 min">١٠ دقايق</option>
+                <option value="15" data-en="15 min">١٥ دقيقة</option>
+                <option value="20" data-en="20 min">٢٠ دقيقة</option>
+                <option value="30" selected data-en="30 min">٣٠ دقيقة</option>
+              </select>
+            </div>
+            <div class="t-field">
+              <label class="t-label" for="per-slot" data-en="Patients per slot">عدد المرضى في الميعاد</label>
+              <div class="t-input-affix"><input id="per-slot" class="t-input ltr" type="number" min="1" max="6" value="2"><span class="t-affix" data-en="patients">مريض</span></div>
+            </div>
+            <div class="t-field">
+              <span class="t-label" data-en="Above the limit">فوق العدد</span>
+              <label class="t-switch"><input type="checkbox" checked> <span data-en="Allow overbooking with a warning">اسمح بالحجز الزيادة بتحذير</span></label>
+            </div>
+          </div>
+          <div class="t-table-wrap" style="border:0;border-radius:0"
+               data-note="Weekly grid: up to two periods per day for the classic Egyptian split day (10–1 and 5–9), and a period may run past midnight as ONE period (Wed 5 pm – 1 am). NITCO forces a split into 12:00–00:59 + 21:00–23:59:59 and 7 separate add passes (v57, v102)."
+               data-note-ar="جدول الأسبوع: لحد فترتين في اليوم (١٠–١ و ٥–٩)، والفترة ممكن تعدي نص الليل كفترة واحدة (الأربعاء ٥ م – ١ ص) من غير تقسيم.">
+            <table class="t-table">
+              <thead><tr>
+                <th data-en="Day">اليوم</th><th data-en="Working">شغال</th><th data-en="Period 1">الفترة الأولى</th><th data-en="Period 2">الفترة التانية</th><th class="num" data-en="Slots">المواعيد</th>
+              </tr></thead>
+              <tbody id="wk-body"></tbody>
+            </table>
+          </div>
+          <div class="t-card-foot t-small t-muted"><svg class="t-icon sm"><use href="#i-info"/></svg><span data-en="Valid from today, open-ended. Existing bookings are kept; booking shows the new hours as soon as you save.">سارية من النهارده ومن غير تاريخ نهاية. الحجوزات الموجودة بتفضل زي ما هي؛ والحجز بيشوف المواعيد الجديدة أول ما تحفظ.</span></div>
+        </section>
+
+        <!-- Exceptions -->
+        <section class="t-card flush anchor" id="exceptions"
+                 data-note="Exception periods (Ramadan, summer) replace the weekly hours only between two dates, then the normal week comes back by itself. No splitting of the base schedule into before/after rows (NITCO v102 does), and the same screen as the weekly hours (NITCO v57 needs a separate modal)."
+                 data-note-ar="الفترات الاستثنائية (رمضان، الصيف) بتغير مواعيد الأسبوع بين تاريخين بس، وبعدها الأسبوع العادي بيرجع لوحده.">
+          <div class="t-card-head">
+            <h2 data-en="Exception periods">فترات استثنائية</h2>
+            <div class="t-actions"><button class="t-btn sm" type="button" data-toast="نموذج: نفس جدول الأسبوع بتاريخ بداية ونهاية" data-toast-en="Prototype: same weekly grid with a start and end date"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="Add period">إضافة فترة</span></button></div>
+          </div>
+          <div class="t-table-wrap" style="border:0;border-radius:0">
+            <table class="t-table">
+              <thead><tr><th data-en="Name">الاسم</th><th data-en="Dates">التاريخ</th><th data-en="Hours">المواعيد</th><th data-en="Status">الحالة</th><th></th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><span class="t-name" data-en="Ramadan 1448">رمضان ١٤٤٨</span><span class="t-meta" data-en="Sat – Thu">السبت – الخميس</span></td>
+                  <td><span class="t-ltr">08/02/2027 → 09/03/2027</span></td>
+                  <td><span data-en="1–4 pm and 9 pm – 1 am">١–٤ م و ٩ م – ١ ص</span><span class="t-meta" data-en="After iftar; second period runs past midnight">بعد الفطار؛ الفترة التانية بتعدي نص الليل</span></td>
+                  <td><span class="t-chip booked" data-en="Upcoming">قادمة</span></td>
+                  <td class="actions"><button class="t-btn sm ghost" type="button" data-en="Edit" data-toast="نموذج: نفس جدول الأسبوع بتاريخ بداية ونهاية" data-toast-en="Prototype: same weekly grid with a start and end date">تعديل</button></td>
+                </tr>
+                <tr>
+                  <td><span class="t-name" data-en="Summer hours">مواعيد الصيف</span><span class="t-meta" data-en="Sat – Wed">السبت – الأربعاء</span></td>
+                  <td><span class="t-ltr">01/07/2027 → 31/08/2027</span></td>
+                  <td><span data-en="6–11 pm only">٦–١١ م بس</span></td>
+                  <td><span class="t-chip booked" data-en="Upcoming">قادمة</span></td>
+                  <td class="actions"><button class="t-btn sm ghost" type="button" data-en="Edit" data-toast="نموذج: نفس جدول الأسبوع بتاريخ بداية ونهاية" data-toast-en="Prototype: same weekly grid with a start and end date">تعديل</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="t-card-foot">
+            <label class="t-check" style="opacity:.6"><input type="checkbox" disabled> <span data-en="Apply to all doctors">طبّق على كل الأطباء</span></label>
+            <span class="t-tier" data-en="Later">لاحقًا</span>
+          </div>
+        </section>
+
+        <!-- Leaves -->
+        <section class="t-card flush anchor" id="leaves"
+                 data-note="Leaves (full or partial day) close the slots immediately and list every booking inside them, with one decision per patient: move, cancel and tell them in chat, or keep. NITCO v58 blocks the slots but never warns about existing bookings."
+                 data-note-ar="الإجازة (يوم كامل أو جزء من يوم) بتقفل المواعيد فورًا وبتعرض كل الحجوزات اللي جواها، وقرار لكل مريض: نقل، إلغاء وإبلاغ في الشات، أو سيبه.">
+          <div class="t-card-head">
+            <h2 data-en="Leaves">الإجازات</h2>
+            <div class="t-actions"><button class="t-btn sm" type="button" data-open="#leave-modal"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="Add leave">إضافة إجازة</span></button></div>
+          </div>
+          <div class="t-table-wrap" style="border:0;border-radius:0">
+            <table class="t-table">
+              <thead><tr><th data-en="Dates">التاريخ</th><th data-en="Type">النوع</th><th data-en="Bookings inside">حجوزات جوه الإجازة</th><th></th></tr></thead>
+              <tbody>
+                <tr id="lv-row-1" data-for="ahmed">
+                  <td><span class="t-name" data-en="Thu 19 Nov 2026">الخميس ١٩ نوفمبر ٢٠٢٦</span><span class="t-meta" data-en="Medical conference, Cairo">مؤتمر طبي، القاهرة</span></td>
+                  <td><span data-en="Partial · 5–9 pm">جزء من اليوم · ٥–٩ م</span></td>
+                  <td id="lv-status-1"><span class="t-chip unpaid" data-en="4 bookings need a decision">٤ حجوزات محتاجة قرار</span></td>
+                  <td class="actions"><button class="t-btn sm soft" type="button" data-open="#leave-modal" data-en="Review bookings">راجع الحجوزات</button></td>
+                </tr>
+                <tr data-for="ahmed">
+                  <td><span class="t-name" data-en="24 – 26 Dec 2026">٢٤ – ٢٦ ديسمبر ٢٠٢٦</span><span class="t-meta" data-en="Travel">سفر</span></td>
+                  <td><span data-en="Full days">أيام كاملة</span></td>
+                  <td><span class="t-chip paid" data-en="No bookings">مفيش حجوزات</span></td>
+                  <td class="actions"><button class="t-btn sm ghost" type="button" data-en="Edit" data-toast="نموذج: التعديل بيفتح نفس نموذج الإجازة" data-toast-en="Prototype: edit opens the same leave form">تعديل</button></td>
+                </tr>
+                <tr class="is-muted" data-for="ahmed">
+                  <td><span data-en="Thu 1 Oct 2026">الخميس ١ أكتوبر ٢٠٢٦</span></td>
+                  <td><span data-en="Full day">يوم كامل</span></td>
+                  <td><span class="t-chip done" data-en="Past · 3 moved">انتهت · ٣ اتنقلوا</span></td>
+                  <td></td>
+                </tr>
+                <tr data-for="mona" hidden>
+                  <td><span class="t-name" data-en="Sat 14 Nov 2026 (today)">السبت ١٤ نوفمبر ٢٠٢٦ (النهارده)</span><span class="t-meta" data-en="Personal">ظرف شخصي</span></td>
+                  <td><span data-en="Partial · 5–7 pm">جزء من اليوم · ٥–٧ م</span></td>
+                  <td><span class="t-chip paid" data-en="No bookings">مفيش حجوزات</span></td>
+                  <td class="actions"><button class="t-btn sm ghost" type="button" data-en="Edit" data-toast="نموذج: التعديل بيفتح نفس نموذج الإجازة" data-toast-en="Prototype: edit opens the same leave form">تعديل</button></td>
+                </tr>
+                <tr data-for="mona" hidden>
+                  <td><span class="t-name" data-en="Mon 16 Nov 2026">الاثنين ١٦ نوفمبر ٢٠٢٦</span></td>
+                  <td><span data-en="Full day">يوم كامل</span></td>
+                  <td><span class="t-chip paid" data-en="No bookings">مفيش حجوزات</span></td>
+                  <td class="actions"><button class="t-btn sm ghost" type="button" data-en="Edit" data-toast="نموذج: التعديل بيفتح نفس نموذج الإجازة" data-toast-en="Prototype: edit opens the same leave form">تعديل</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- Preview -->
+      <aside>
+        <div class="t-card sticky-aside"
+             data-note="Live preview of the slots reception will see for the chosen day, recalculated as you type, with errors (overlapping periods) shown before saving. NITCO only refreshes the grid after a manual reload (v102)."
+             data-note-ar="معاينة مباشرة للمواعيد اللي الاستقبال هيشوفها لليوم المختار، بتتحسب وإنت بتكتب، والأخطاء (فترات متداخلة) بتبان قبل الحفظ.">
+          <div class="t-card-head"><h3 data-en="Slots preview">معاينة المواعيد</h3></div>
+          <label class="t-sr" for="pv-day" data-en="Day">اليوم</label>
+          <select id="pv-day" class="t-select mb-4"></select>
+          <div id="pv"></div>
+          <hr>
+          <a class="t-btn block" href="appointment-book.html"><svg class="t-icon sm"><use href="#i-eye"/></svg><span data-en="See it as reception does">شوفها زي الاستقبال</span></a>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Leave modal (one level deep) -->
+    <div class="t-scrim" id="leave-modal" hidden>
+      <div class="t-modal lg" role="dialog" aria-modal="true" aria-labelledby="lv-title">
+        <div class="t-modal-head">
+          <h2 id="lv-title" data-en="Leave — Dr. Ahmed Selim">إجازة — د. أحمد سليم</h2>
+          <button class="t-btn icon ghost" type="button" data-close aria-label="Close" title="إغلاق" data-en-title="Close" data-en-aria-label="Close"><svg class="t-icon"><use href="#i-close"/></svg></button>
+        </div>
+        <div class="t-modal-body t-stack lg">
+          <div class="t-form-grid">
+            <div class="t-field span-2">
+              <span class="t-label" data-en="Leave type">نوع الإجازة</span>
+              <div class="t-seg" role="group" id="lv-type">
+                <button type="button" aria-pressed="false" data-lv="full" data-en="Full day(s)">يوم كامل أو أكتر</button>
+                <button type="button" aria-pressed="true" data-lv="partial" data-en="Part of a day">جزء من يوم</button>
+              </div>
+            </div>
+            <div class="t-field">
+              <label class="t-label" for="lv-from"><span data-en="From date">من تاريخ</span><span class="req">*</span></label>
+              <input id="lv-from" class="t-input ltr" type="date" value="2026-11-19">
+            </div>
+            <div class="t-field">
+              <label class="t-label" for="lv-to"><span data-en="To date">لحد تاريخ</span><span class="req">*</span></label>
+              <input id="lv-to" class="t-input ltr" type="date" value="2026-11-19">
+            </div>
+            <div class="t-field lv-times">
+              <label class="t-label" for="lv-t1" data-en="From time">من الساعة</label>
+              <input id="lv-t1" class="t-input ltr" type="time" value="17:00">
+            </div>
+            <div class="t-field lv-times">
+              <label class="t-label" for="lv-t2" data-en="To time">لحد الساعة</label>
+              <input id="lv-t2" class="t-input ltr" type="time" value="21:00">
+            </div>
+            <div class="t-field span-2">
+              <label class="t-label" for="lv-note"><span data-en="Note">ملاحظة</span><span class="opt" data-en="optional">اختياري</span></label>
+              <input id="lv-note" class="t-input" value="مؤتمر طبي، القاهرة" data-en-placeholder="e.g. conference">
+            </div>
+          </div>
+
+          <div>
+            <div class="t-alert warning mb-4">
+              <svg class="t-icon"><use href="#i-alert"/></svg>
+              <span data-en="This leave has <b>4 bookings</b> inside it. They are not cancelled on their own: choose what happens to each patient.">الإجازة دي فيها <b>٤ حجوزات</b>. مش هتتلغي لوحدها: اختار هيحصل إيه لكل مريض.</span>
+            </div>
+            <div class="t-table-wrap">
+              <table class="t-table">
+                <thead><tr><th data-en="Patient">المريض</th><th data-en="Time">الميعاد</th><th data-en="What to do">هنعمل إيه</th></tr></thead>
+                <tbody>
+                  <tr><td><span class="t-name">إيمان صلاح الجندي</span><span class="t-meta t-ltr">0112 650 3398</span></td><td><span data-en="5:00 pm · follow-up">٥:٠٠ م · متابعة</span></td>
+                    <td><select class="t-select lv-act" aria-label="هنعمل إيه" data-en-aria-label="What to do"><option value="move" data-en="Move to Sat 21, 5:00 pm">نقل للسبت ٢١، ٥:٠٠ م</option><option value="cancel" data-en="Cancel and tell in chat">إلغاء وإبلاغ في الشات</option><option value="keep" data-en="Keep (doctor will see)">سيبه (الدكتور هيشوفه)</option></select></td></tr>
+                  <tr><td><span class="t-name">طارق ممدوح غنيم</span><span class="t-meta t-ltr">0114 905 2271</span></td><td><span data-en="5:30 pm · new">٥:٣٠ م · جديد</span></td>
+                    <td><select class="t-select lv-act" aria-label="هنعمل إيه" data-en-aria-label="What to do"><option value="move" data-en="Move to Sat 21, 5:30 pm">نقل للسبت ٢١، ٥:٣٠ م</option><option value="cancel" data-en="Cancel and tell in chat">إلغاء وإبلاغ في الشات</option><option value="keep" data-en="Keep (doctor will see)">سيبه (الدكتور هيشوفه)</option></select></td></tr>
+                  <tr><td><span class="t-name">نادية حسن عبد السلام</span><span class="t-meta t-ltr">0106 338 1190</span></td><td><span data-en="7:00 pm · new">٧:٠٠ م · جديد</span></td>
+                    <td><select class="t-select lv-act" aria-label="هنعمل إيه" data-en-aria-label="What to do"><option value="move" data-en="Move to Sat 21, 6:00 pm">نقل للسبت ٢١، ٦:٠٠ م</option><option value="cancel" selected data-en="Cancel and tell in chat">إلغاء وإبلاغ في الشات</option><option value="keep" data-en="Keep (doctor will see)">سيبه (الدكتور هيشوفه)</option></select></td></tr>
+                  <tr><td><span class="t-name">شريف عادل مصطفى</span><span class="t-meta t-ltr">0101 893 2207</span></td><td><span data-en="8:30 pm · new">٨:٣٠ م · جديد</span></td>
+                    <td><select class="t-select lv-act" aria-label="هنعمل إيه" data-en-aria-label="What to do"><option value="move" data-en="Move to Sat 21, 6:30 pm">نقل للسبت ٢١، ٦:٣٠ م</option><option value="cancel" data-en="Cancel and tell in chat">إلغاء وإبلاغ في الشات</option><option value="keep" data-en="Keep (doctor will see)">سيبه (الدكتور هيشوفه)</option></select></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <label class="t-check mt-4"><input type="checkbox" checked> <span data-en="Message every affected patient in their chat with the new time">ابعت رسالة لكل مريض متأثر في الشات بالميعاد الجديد</span></label>
+          </div>
+        </div>
+        <div class="t-modal-foot">
+          <button class="t-btn ghost" type="button" data-close data-en="Cancel">إلغاء</button>
+          <button class="t-btn primary" type="button" id="lv-save"><span data-en="Save leave and apply 4 decisions">احفظ الإجازة ونفّذ ٤ قرارات</span><span class="t-kbd">Enter</span></button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  function lang() { if (window.Tamargi) return Tamargi.lang(); try { return localStorage.getItem("tamargi.lang") || "ar"; } catch (e) { return "ar"; } }
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;"); }
+  function bi(ar, en, tag) { tag = tag || "span"; return "<" + tag + ' data-ar="' + esc(ar) + '" data-en="' + esc(en) + '">' + (lang() === "en" ? en : ar) + "</" + tag + ">"; }
+  function toM(t) { if (!t) return null; var p = t.split(":"); return +p[0] * 60 + +p[1]; }
+  function mm(m) { var h = Math.floor(m / 60) % 24, x = m % 60; return (h % 12 || 12) + ":" + (x < 10 ? "0" : "") + x; }
+  function ap(m) { return Math.floor(m / 60) % 24 >= 12; }
+
+  var DAYN = [["السبت", "Saturday"], ["الأحد", "Sunday"], ["الاثنين", "Monday"], ["الثلاثاء", "Tuesday"], ["الأربعاء", "Wednesday"], ["الخميس", "Thursday"], ["الجمعة", "Friday"]];
+  var DATA = {
+    ahmed: { slot: 30, per: 2, week: [
+      [["10:00", "13:00"], ["17:00", "21:00"]], [["10:00", "13:00"], ["17:00", "21:00"]], [["17:00", "21:00"], null],
+      [["10:00", "13:00"], ["17:00", "21:00"]], [["17:00", "01:00"], null], [["10:00", "13:00"], ["17:00", "21:00"]], null] },
+    mona: { slot: 30, per: 1, week: [
+      [["17:00", "22:00"], null], [["17:00", "22:00"], null], [["17:00", "22:00"], null], [["17:00", "22:00"], null], [["17:00", "22:00"], null], null, null] }
+  };
+  var doc = "ahmed", M = JSON.parse(JSON.stringify(DATA[doc])), undo = null, leaveDone = false;
+
+  function span(p) { if (!p || !p[0] || !p[1]) return null; var a = toM(p[0]), b = toM(p[1]); if (b <= a) b += 1440; return [a, b]; }
+  function dayInfo(i) {
+    var w = M.week[i]; if (!w) return { off: true, slots: [], err: null };
+    var s1 = span(w[0]), s2 = span(w[1]), err = null, slots = [];
+    if (s1 && s2 && s2[0] < s1[1]) err = ["الفترة التانية بتبدأ قبل ما الأولى تخلص.", "Period 2 starts before period 1 ends."];
+    [s1, s2].forEach(function (s, k) { if (!s) return; var list = []; for (var m = s[0]; m + M.slot <= s[1]; m += M.slot) list.push(m); slots.push({ k: k, a: s[0], b: s[1], list: list }); });
+    return { off: false, slots: slots, err: err };
+  }
+  function count(i) { return dayInfo(i).slots.reduce(function (n, s) { return n + s.list.length; }, 0); }
+  function timeIn(i, k, f) { var w = M.week[i], v = w && w[k] ? w[k][f] : ""; return '<input class="t-input ltr" type="time" value="' + v + '" data-i="' + i + '" data-k="' + k + '" data-f="' + f + '" aria-label="' + esc((lang() === "en" ? DAYN[i][1] + " period " + (k + 1) + (f ? " to" : " from") : DAYN[i][0] + " الفترة " + (k ? "التانية" : "الأولى") + (f ? " لحد" : " من"))) + '">'; }
+  function nightTag(i, k) { var w = M.week[i]; return w && w[k] && toM(w[k][1]) <= toM(w[k][0]) ? ' <span class="t-chip info plain">' + bi("بتعدي نص الليل +١", "past midnight +1") + "</span>" : ""; }
+
+  function renderWeek() {
+    var h = "";
+    for (var i = 0; i < 7; i++) {
+      var w = M.week[i], inf = dayInfo(i);
+      h += '<tr class="' + (w ? "" : "is-off") + '" data-row="' + i + '"><td class="wk-day">' + bi(DAYN[i][0], DAYN[i][1]) + "</td>" +
+        '<td><label class="t-switch"><input type="checkbox" data-on="' + i + '"' + (w ? " checked" : "") + '><span class="t-sr">' + bi("شغال", "Working") + "</span></label></td>";
+      if (!w) { h += '<td colspan="2" class="t-faint">' + bi(i === 6 ? "العيادة مقفولة" : "إجازة أسبوعية", i === 6 ? "Clinic closed" : "Weekly day off") + '</td><td class="num">—</td></tr>'; continue; }
+      h += '<td><div class="per">' + timeIn(i, 0, 0) + '<span class="sep">–</span>' + timeIn(i, 0, 1) + nightTag(i, 0) + "</div></td>";
+      h += "<td>" + (w[1] ? '<div class="per">' + timeIn(i, 1, 0) + '<span class="sep">–</span>' + timeIn(i, 1, 1) + nightTag(i, 1) +
+        '<button class="t-btn sm ghost" type="button" data-rm="' + i + '">' + bi("شيل", "Remove") + "</button></div>" :
+        '<button class="t-btn sm ghost" type="button" data-add2="' + i + '"><svg class="t-icon sm"><use href="#i-plus"/></svg>' + bi("فترة تانية", "Second period") + "</button>") +
+        (inf.err ? '<span class="row-err">' + bi(inf.err[0], inf.err[1]) + "</span>" : "") + "</td>";
+      h += '<td class="num" data-count="' + i + '">' + count(i) + " × " + M.per + "</td></tr>";
+    }
+    document.getElementById("wk-body").innerHTML = h;
+  }
+
+  function renderPreviewDays() {
+    var sel = document.getElementById("pv-day"), cur = sel.value || "0", h = "";
+    for (var i = 0; i < 7; i++) h += '<option value="' + i + '" data-ar="' + DAYN[i][0] + '" data-en="' + DAYN[i][1] + '">' + (lang() === "en" ? DAYN[i][1] : DAYN[i][0]) + "</option>";
+    sel.innerHTML = h; sel.value = cur;
+  }
+
+  function renderPreview() {
+    var i = +document.getElementById("pv-day").value, inf = dayInfo(i), h = "";
+    if (inf.off) { document.getElementById("pv").innerHTML = '<p class="t-muted t-small">' + bi("مفيش مواعيد في اليوم ده.", "No slots on this day.") + "</p>"; return; }
+    if (inf.err) h += '<div class="t-alert danger mb-4"><svg class="t-icon"><use href="#i-alert"/></svg><span>' + bi(inf.err[0] + " صلّحها قبل الحفظ.", inf.err[1] + " Fix it before saving.") + "</span></div>";
+    var n = 0;
+    inf.slots.forEach(function (s) {
+      h += '<div class="pv-h">' + bi((s.k ? "الفترة التانية " : "الفترة الأولى ") + mm(s.a) + (ap(s.a) ? " م" : " ص") + " – " + mm(s.b) + (ap(s.b) ? " م" : " ص"), (s.k ? "Period 2 " : "Period 1 ") + mm(s.a) + (ap(s.a) ? " pm" : " am") + " – " + mm(s.b) + (ap(s.b) ? " pm" : " am")) + '</div><div class="pv-slots">';
+      s.list.forEach(function (m) { n++; h += '<span class="pv-slot' + (m >= 1440 ? " night" : "") + '"><span class="t-ltr">' + mm(m) + "</span><i>×" + M.per + "</i></span>"; });
+      h += "</div>";
+    });
+    h += '<p class="t-small mt-4 mb-0"><b>' + bi(n + " ميعاد × " + M.per + " = " + n * M.per + " مريض", n + " slots × " + M.per + " = " + n * M.per + " patients") + "</b></p>";
+    if (doc === "ahmed" && i === 5) h += '<p class="t-small t-muted mb-0">' + bi("الخميس ١٩ نوفمبر: إجازة ٥–٩ م، فهيبقى ٦ مواعيد بس.", "Thu 19 Nov: leave 5–9 pm, so only 6 slots that day.") + "</p>";
+    document.getElementById("pv").innerHTML = h;
+  }
+
+  function refreshAll() { renderWeek(); renderPreview(); }
+  renderPreviewDays(); refreshAll();
+
+  document.addEventListener("input", function (e) {
+    var t = e.target;
+    if (t.id === "per-slot" && +t.value >= 1) { M.per = +t.value; refreshAll(); return; }
+    if (t.matches("[data-i]")) {
+      var i = +t.dataset.i, k = +t.dataset.k, f = +t.dataset.f;
+      M.week[i][k][f] = t.value;
+      var c = document.querySelector('[data-count="' + i + '"]'); if (c) c.textContent = count(i) + " × " + M.per;
+      renderPreview();
+    }
+  });
+  document.addEventListener("change", function (e) {
+    var t = e.target;
+    if (t.matches("[data-on]")) { var i = +t.dataset.on; M.week[i] = t.checked ? [["17:00", "21:00"], null] : null; refreshAll(); return; }
+    if (t.id === "slot-len") { M.slot = +t.value; refreshAll(); return; }
+    if (t.id === "per-slot") { M.per = Math.max(1, +t.value || 1); refreshAll(); return; }
+    if (t.id === "pv-day") { renderPreview(); }
+  });
+  document.addEventListener("focusout", function (e) { if (e.target.matches && e.target.matches("[data-i]")) setTimeout(function () { if (!document.activeElement || !document.activeElement.matches("[data-i]")) renderWeek(); }, 0); });
+  document.addEventListener("click", function (e) {
+    var b;
+    if ((b = e.target.closest("[data-add2]"))) { M.week[+b.dataset.add2][1] = ["17:00", "21:00"]; refreshAll(); return; }
+    if ((b = e.target.closest("[data-rm]"))) { M.week[+b.dataset.rm][1] = null; refreshAll(); return; }
+    if ((b = e.target.closest(".t-toast-action")) && undo) { undo(); undo = null; b.closest(".t-toast").remove(); Tamargi.toast(lang() === "en" ? "Undone" : "اتلغى التغيير"); return; }
+    if ((b = e.target.closest("#copy-sat"))) {
+      var snap = JSON.parse(JSON.stringify(M.week)); undo = function () { M.week = snap; refreshAll(); };
+      for (var i = 1; i < 6; i++) if (M.week[i]) M.week[i] = JSON.parse(JSON.stringify(M.week[0]));
+      refreshAll(); Tamargi.toast(lang() === "en" ? "Saturday copied to working days" : "اتنسخ السبت لكل أيام الشغل", lang() === "en" ? "Undo" : "تراجع"); return;
+    }
+    if ((b = e.target.closest("[data-doc]"))) {
+      doc = b.dataset.doc; M = JSON.parse(JSON.stringify(DATA[doc]));
+      document.getElementById("slot-len").value = M.slot; document.getElementById("per-slot").value = M.per;
+      Array.prototype.forEach.call(document.querySelectorAll("[data-doc]"), function (n) { n.setAttribute("aria-pressed", String(n === b)); });
+      Array.prototype.forEach.call(document.querySelectorAll("#leaves [data-for]"), function (n) { n.hidden = n.getAttribute("data-for") !== doc; });
+      document.getElementById("lv-badge").textContent = doc === "ahmed" && !leaveDone ? "1" : "0";
+      document.getElementById("lv-badge").hidden = !(doc === "ahmed" && !leaveDone);
+      var tt = document.getElementById("lv-title");
+      tt.setAttribute("data-ar", doc === "ahmed" ? "إجازة — د. أحمد سليم" : "إجازة — د. منى الشربيني");
+      tt.setAttribute("data-en", doc === "ahmed" ? "Leave — Dr. Ahmed Selim" : "Leave — Dr. Mona El-Sherbiny");
+      tt.innerHTML = tt.getAttribute(lang() === "en" ? "data-en" : "data-ar");
+      refreshAll(); return;
+    }
+    if ((b = e.target.closest(".t-tabs .t-tab"))) { Array.prototype.forEach.call(document.querySelectorAll(".t-tabs .t-tab"), function (n) { n.classList.toggle("is-on", n === b); }); return; }
+    if ((b = e.target.closest("[data-lv]"))) {
+      Array.prototype.forEach.call(document.querySelectorAll("[data-lv]"), function (n) { n.setAttribute("aria-pressed", String(n === b)); });
+      Array.prototype.forEach.call(document.querySelectorAll(".lv-times"), function (n) { n.hidden = b.dataset.lv === "full"; }); return;
+    }
+    if (e.target.closest("#lv-save")) { saveLeave(); return; }
+    if (e.target.closest("#save")) { save(); }
+  });
+  function save() {
+    var bad = []; for (var i = 0; i < 7; i++) if (dayInfo(i).err) bad.push(i);
+    if (bad.length) { document.getElementById("pv-day").value = bad[0]; renderPreview(); Tamargi.toast(lang() === "en" ? "Fix the overlapping periods first" : "صلّح الفترات المتداخلة الأول"); return; }
+    Tamargi.toast(lang() === "en" ? "Hours saved · booking uses them now" : "اتحفظت المواعيد · الحجز بيستخدمها من دلوقتي");
+  }
+  function saveLeave() {
+    var acts = Array.prototype.map.call(document.querySelectorAll(".lv-act"), function (s) { return s.value; });
+    var mv = acts.filter(function (a) { return a === "move"; }).length, cx = acts.filter(function (a) { return a === "cancel"; }).length;
+    document.getElementById("leave-modal").hidden = true;
+    var cell = document.getElementById("lv-status-1"), prev = cell.innerHTML;
+    leaveDone = true; document.getElementById("lv-badge").hidden = true;
+    undo = function () { cell.innerHTML = prev; leaveDone = false; document.getElementById("lv-badge").hidden = doc !== "ahmed"; };
+    cell.innerHTML = '<span class="t-chip paid">' + bi(mv + " اتنقلوا · " + cx + " اتلغى وأُبلغ", mv + " moved · " + cx + " cancelled & told") + "</span>";
+    Tamargi.toast(lang() === "en" ? "Leave saved · " + mv + " moved, " + cx + " cancelled, patients messaged" : "اتحفظت الإجازة · " + mv + " اتنقلوا و" + cx + " اتلغى، والمرضى اتبعتلهم", lang() === "en" ? "Undo" : "تراجع");
+  }
+  document.addEventListener("keydown", function (e) {
+    if ((e.ctrlKey || e.metaKey) && (e.key === "s" || e.key === "S")) { e.preventDefault(); save(); }
+    var m = document.getElementById("leave-modal");
+    if (e.key === "Enter" && !m.hidden && e.target.tagName !== "SELECT" && e.target.tagName !== "BUTTON") { e.preventDefault(); saveLeave(); }
+  });
+})();
+</script>
+<script src="../assets/shell.js"></script>
+</body>
+</html>

@@ -1,0 +1,817 @@
+/* =====================================================================
+   Tamargi design system — tamargi.css  (v1, 2026-11-14)
+   Arabic-first (dir="rtl" default), [dir="ltr"] supported.
+   Dark mode: prefers-color-scheme + [data-theme="dark"|"light"] on <html>.
+   Density: [data-density="compact"|"comfortable"] on <html> (compact default).
+   Spec: 01_Obsidian_Vault/07_UI_UX_Brand/design-system.md
+   Rule: use logical properties only (inline-start / inline-end), never left/right.
+   ===================================================================== */
+
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Amiri:wght@400;700&display=swap");
+
+/* ---------- 1. Tokens (light) ---------- */
+:root {
+  /* Ink: the blue of a clinic rubber stamp and a ballpoint prescription */
+  --ink-50:  #EEF1FB;
+  --ink-100: #DCE3F7;
+  --ink-200: #B7C4EE;
+  --ink-400: #5B73CF;
+  --ink-500: #3550B8;
+  --ink-600: #2944A8;   /* primary */
+  --ink-700: #1F3690;
+  --ink-800: #182A6E;
+
+  /* Neutrals: cool porcelain, tinted toward ink (never pure grey) */
+  --n-0:   #FFFFFF;
+  --n-25:  #F8F9FB;
+  --n-50:  #F2F4F8;
+  --n-100: #E8ECF2;
+  --n-200: #D6DCE6;
+  --n-300: #B9C2D1;
+  --n-500: #6B7588;
+  --n-600: #4E586C;
+  --n-700: #343D52;
+  --n-900: #172036;
+
+  /* Semantic roles */
+  --bg:            var(--n-50);
+  --surface:       var(--n-0);
+  --surface-sunk:  var(--n-25);
+  --surface-raise: var(--n-0);
+  --surface-hover: #F0F3FA;
+  --line:          var(--n-200);
+  --line-strong:   var(--n-300);
+  --text:          var(--n-900);
+  --text-2:        var(--n-600);
+  --text-3:        var(--n-500);
+  --text-on-primary: #FFFFFF;
+
+  --primary:       var(--ink-600);
+  --primary-hover: var(--ink-700);
+  --primary-soft:  var(--ink-50);
+  --primary-line:  var(--ink-200);
+  --focus:         #3D63F5;
+
+  /* Status (queue + system). Each has fg / bg / line. */
+  --waiting-fg: #8A5A0B;  --waiting-bg: #FBF0DA;  --waiting-line: #EBCB8B;  /* saffron */
+  --called-fg:  #1F3690;  --called-bg:  #E3E9FB;  --called-line:  #AFC0F0;  /* ink */
+  --inroom-fg:  #11684B;  --inroom-bg:  #DDF1E8;  --inroom-line:  #9ED3BC;  /* nile green */
+  --done-fg:    #4E586C;  --done-bg:    #ECEFF4;  --done-line:    #CDD4DF;  /* slate */
+  --left-fg:    #9A3423;  --left-bg:    #F8E4DF;  --left-line:    #E5B2A6;  /* brick */
+
+  --success-fg: #11684B;  --success-bg: #DDF1E8;
+  --warning-fg: #8A5A0B;  --warning-bg: #FBF0DA;
+  --danger:     #C0322B;  --danger-hover: #A1271F;
+  --danger-fg:  #A1271F;  --danger-bg:  #FCE6E3;  --danger-line: #F0B3AC;
+  --info-fg:    #1F3690;  --info-bg:    #E3E9FB;
+
+  --allergy-fg: #FFFFFF;  --allergy-bg: #C0322B;
+
+  /* Note (annotation) colour: magenta, deliberately outside the product palette */
+  --note: #C2187A;  --note-bg: #FCE7F3;
+
+  /* Type */
+  --font-ar: "IBM Plex Sans Arabic", "IBM Plex Sans", system-ui, sans-serif;
+  --font-en: "IBM Plex Sans", "IBM Plex Sans Arabic", system-ui, sans-serif;
+  --font-letterhead: "Amiri", "IBM Plex Sans Arabic", serif;
+  --font: var(--font-ar);
+
+  --fs-xs: 12px;  --fs-sm: 13px;  --fs-md: 15px;  --fs-lg: 17px;
+  --fs-xl: 20px;  --fs-2xl: 24px; --fs-3xl: 30px; --fs-4xl: 38px;
+  --lh-tight: 1.25; --lh: 1.6;
+  --fw-r: 400; --fw-m: 500; --fw-sb: 600; --fw-b: 700;
+
+  /* Space (4px base) */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 20px;
+  --s-6: 24px; --s-8: 32px; --s-10: 40px; --s-12: 48px; --s-16: 64px;
+
+  /* Radius: hierarchy, not one value for everything */
+  --r-xs: 4px;   /* chips inside tables, kbd */
+  --r-sm: 6px;   /* inputs, buttons */
+  --r-md: 10px;  /* cards, panels */
+  --r-lg: 14px;  /* modals, drawers */
+  --r-pill: 999px;
+
+  /* Elevation: navy-tinted, used sparingly */
+  --e-1: 0 1px 0 rgba(23,32,54,.04), 0 1px 2px rgba(23,32,54,.06);
+  --e-2: 0 2px 4px rgba(23,32,54,.06), 0 8px 24px rgba(23,32,54,.08);
+  --e-3: 0 12px 40px rgba(23,32,54,.18), 0 2px 6px rgba(23,32,54,.08);
+
+  /* Density */
+  --row-h: 44px;
+  --ctl-h: 38px;
+  --pad-card: var(--s-5);
+
+  /* Shell */
+  --topbar-h: 56px;
+  --sidenav-w: 248px;
+
+  --ease: cubic-bezier(.2,.7,.2,1);
+  --dur: 160ms;
+
+  color-scheme: light;
+}
+
+:root[data-density="comfortable"] { --row-h: 52px; --ctl-h: 44px; --pad-card: var(--s-6); }
+
+/* ---------- 1b. Tokens (dark) ---------- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1424; --surface: #151C30; --surface-sunk: #11182A; --surface-raise: #1B2440; --surface-hover: #1E2847;
+    --line: #2A3555; --line-strong: #3A4770;
+    --text: #E6EAF4; --text-2: #A9B2C8; --text-3: #8892AA; --text-on-primary: #0E1424;
+    --primary: #93A9F7; --primary-hover: #B2C2FA; --primary-soft: #1E2A52; --primary-line: #34478A; --focus: #8FB0FF;
+    --waiting-fg: #F2C66D; --waiting-bg: #3A2C10; --waiting-line: #6B521C;
+    --called-fg:  #B2C2FA; --called-bg:  #1E2A52; --called-line:  #34478A;
+    --inroom-fg:  #7FD8B3; --inroom-bg:  #0F3326; --inroom-line:  #1E5E46;
+    --done-fg:    #A9B2C8; --done-bg:    #1E2538; --done-line:    #323C57;
+    --left-fg:    #F2A795; --left-bg:    #3D1A14; --left-line:    #6E2E22;
+    --success-fg: #7FD8B3; --success-bg: #0F3326; --warning-fg: #F2C66D; --warning-bg: #3A2C10;
+    --danger: #F07A6E; --danger-hover: #F59A90; --danger-fg: #F59A90; --danger-bg: #3D1A17; --danger-line: #7A2D26;
+    --info-fg: #B2C2FA; --info-bg: #1E2A52;
+    --allergy-fg: #2A0A07; --allergy-bg: #F07A6E;
+    --note: #F472B6; --note-bg: #3B1029;
+    --e-1: 0 1px 0 rgba(0,0,0,.3); --e-2: 0 8px 24px rgba(0,0,0,.35); --e-3: 0 16px 48px rgba(0,0,0,.5);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1424; --surface: #151C30; --surface-sunk: #11182A; --surface-raise: #1B2440; --surface-hover: #1E2847;
+  --line: #2A3555; --line-strong: #3A4770;
+  --text: #E6EAF4; --text-2: #A9B2C8; --text-3: #8892AA; --text-on-primary: #0E1424;
+  --primary: #93A9F7; --primary-hover: #B2C2FA; --primary-soft: #1E2A52; --primary-line: #34478A; --focus: #8FB0FF;
+  --waiting-fg: #F2C66D; --waiting-bg: #3A2C10; --waiting-line: #6B521C;
+  --called-fg:  #B2C2FA; --called-bg:  #1E2A52; --called-line:  #34478A;
+  --inroom-fg:  #7FD8B3; --inroom-bg:  #0F3326; --inroom-line:  #1E5E46;
+  --done-fg:    #A9B2C8; --done-bg:    #1E2538; --done-line:    #323C57;
+  --left-fg:    #F2A795; --left-bg:    #3D1A14; --left-line:    #6E2E22;
+  --success-fg: #7FD8B3; --success-bg: #0F3326; --warning-fg: #F2C66D; --warning-bg: #3A2C10;
+  --danger: #F07A6E; --danger-hover: #F59A90; --danger-fg: #F59A90; --danger-bg: #3D1A17; --danger-line: #7A2D26;
+  --info-fg: #B2C2FA; --info-bg: #1E2A52;
+  --allergy-fg: #2A0A07; --allergy-bg: #F07A6E;
+  --note: #F472B6; --note-bg: #3B1029;
+  --e-1: 0 1px 0 rgba(0,0,0,.3); --e-2: 0 8px 24px rgba(0,0,0,.35); --e-3: 0 16px 48px rgba(0,0,0,.5);
+  color-scheme: dark;
+}
+
+/* ---------- 2. Base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+[dir="ltr"] { --font: var(--font-en); }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: var(--fs-md);
+  line-height: var(--lh);
+  font-feature-settings: "kern";
+  -webkit-font-smoothing: antialiased;
+}
+[dir="ltr"] body { line-height: 1.5; }
+h1, h2, h3, h4 { margin: 0; line-height: var(--lh-tight); font-weight: var(--fw-sb); color: var(--text); }
+h1 { font-size: var(--fs-2xl); }
+h2 { font-size: var(--fs-xl); }
+h3 { font-size: var(--fs-lg); }
+h4 { font-size: var(--fs-md); }
+p { margin: 0 0 var(--s-3); }
+a { color: var(--primary); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { color: var(--primary-hover); }
+small, .t-small { font-size: var(--fs-sm); }
+.t-muted { color: var(--text-2); }
+.t-faint { color: var(--text-3); }
+.t-num, .t-table td.num, .t-money { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+.t-ltr { direction: ltr; unicode-bidi: isolate; display: inline-block; }   /* phones, file nos, NID */
+hr, .t-divider { border: 0; border-top: 1px solid var(--line); margin: var(--s-4) 0; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--r-xs); }
+::selection { background: var(--ink-200); color: var(--n-900); }
+.t-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+[hidden] { display: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+/* ---------- 3. Icons (sprite injected by shell.js: <svg class="t-icon"><use href="#i-search"/></svg>) ---------- */
+.t-icon { width: 18px; height: 18px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; vertical-align: middle; }
+.t-icon.sm { width: 16px; height: 16px; }
+.t-icon.lg { width: 24px; height: 24px; }
+[dir="rtl"] .t-icon.flip { transform: scaleX(-1); }   /* directional icons: arrows, chevrons, send */
+
+/* ---------- 4. App shell (built by shell.js) ---------- */
+.t-app { display: grid; grid-template-columns: var(--sidenav-w) 1fr; grid-template-rows: var(--topbar-h) 1fr; min-height: 100vh; }
+.t-topbar {
+  grid-column: 1 / -1; position: sticky; top: 0; z-index: 40;
+  display: flex; align-items: center; gap: var(--s-3);
+  padding-inline: var(--s-4); background: var(--surface); border-block-end: 1px solid var(--line);
+}
+.t-brand { display: flex; align-items: center; gap: var(--s-2); font-weight: var(--fw-b); font-size: var(--fs-lg); color: var(--text); text-decoration: none; min-width: calc(var(--sidenav-w) - var(--s-4)); }
+.t-brand-mark { width: 30px; height: 30px; border-radius: 8px; background: var(--primary); color: var(--text-on-primary); display: grid; place-items: center; font-weight: var(--fw-b); font-size: 17px; }
+.t-clinic { display: flex; flex-direction: column; line-height: 1.2; }
+.t-clinic b { font-size: var(--fs-md); font-weight: var(--fw-sb); }
+.t-clinic span { font-size: var(--fs-xs); color: var(--text-3); }
+.t-topbar-search { flex: 1; max-width: 440px; margin-inline-start: var(--s-4); }
+.t-topbar-tools { display: flex; align-items: center; gap: var(--s-2); margin-inline-start: auto; }
+.t-trial-pill { font-size: var(--fs-xs); padding: 3px 10px; border-radius: var(--r-pill); background: var(--waiting-bg); color: var(--waiting-fg); border: 1px solid var(--waiting-line); white-space: nowrap; text-decoration: none; }
+
+.t-sidenav {
+  position: sticky; top: var(--topbar-h); height: calc(100vh - var(--topbar-h)); overflow-y: auto;
+  background: var(--surface); border-inline-end: 1px solid var(--line); padding: var(--s-3) var(--s-2) var(--s-8);
+}
+.t-nav-group { margin-block-end: var(--s-3); }
+.t-nav-group > h6 { margin: var(--s-3) var(--s-3) var(--s-1); font-size: var(--fs-xs); font-weight: var(--fw-sb); color: var(--text-3); }
+.t-nav-link {
+  display: flex; align-items: center; gap: var(--s-2); padding: 7px var(--s-3); border-radius: var(--r-sm);
+  color: var(--text-2); text-decoration: none; font-size: var(--fs-sm); line-height: 1.35;
+}
+.t-nav-link:hover { background: var(--surface-hover); color: var(--text); }
+.t-nav-link[aria-current="page"] { background: var(--primary-soft); color: var(--primary); font-weight: var(--fw-sb); box-shadow: inset 3px 0 0 var(--primary); }
+[dir="ltr"] .t-nav-link[aria-current="page"] { box-shadow: inset 3px 0 0 var(--primary); }
+[dir="rtl"] .t-nav-link[aria-current="page"] { box-shadow: inset -3px 0 0 var(--primary); }
+.t-nav-link.is-dim { opacity: .45; }
+.t-nav-link .t-nav-home { margin-inline-start: auto; font-size: 11px; color: var(--primary); }
+
+.t-main { min-width: 0; padding: var(--s-6) var(--s-6) var(--s-16); }
+.t-container { max-width: 1440px; margin-inline: auto; }
+.t-container.narrow { max-width: 880px; }
+
+/* Screen header */
+.t-screen-head { display: flex; align-items: flex-end; flex-wrap: wrap; gap: var(--s-3) var(--s-4); margin-block-end: var(--s-5); }
+.t-screen-head h1 { font-size: var(--fs-2xl); }
+.t-screen-head .t-sub { color: var(--text-2); font-size: var(--fs-sm); margin-block-start: var(--s-1); }
+.t-screen-head .t-actions { margin-inline-start: auto; display: flex; gap: var(--s-2); flex-wrap: wrap; }
+
+/* Spec strip (prototype only, shown with annotations) */
+.t-spec { display: none; margin-block-end: var(--s-4); padding: var(--s-3) var(--s-4); border: 1px dashed var(--note); border-radius: var(--r-md); background: var(--note-bg); font-size: var(--fs-sm); color: var(--text); }
+html.notes-on .t-spec { display: block; }
+.t-spec b { color: var(--note); }
+.t-states { display: inline-flex; gap: var(--s-1); margin-inline-start: var(--s-3); }
+
+/* Mobile shell */
+.t-menu-btn { display: none; }
+@media (max-width: 960px) {
+  .t-app { grid-template-columns: 1fr; }
+  .t-brand { min-width: 0; }
+  .t-clinic { display: none; }
+  .t-menu-btn { display: inline-flex; }
+  .t-sidenav { position: fixed; inset-block: var(--topbar-h) 0; inset-inline-start: 0; width: min(300px, 86vw); z-index: 45; transform: translateX(100%); transition: transform var(--dur) var(--ease); box-shadow: var(--e-3); }
+  [dir="ltr"] .t-sidenav { transform: translateX(-100%); }
+  html.nav-open .t-sidenav { transform: none; }
+  .t-topbar-search { display: none; }
+  .t-main { padding: var(--s-4) var(--s-4) var(--s-16); }
+  .t-topbar .t-hide-sm { display: none; }
+}
+
+/* ---------- 5. Layout helpers ---------- */
+.t-row { display: flex; align-items: center; gap: var(--s-3); flex-wrap: wrap; }
+.t-row.tight { gap: var(--s-2); }
+.t-row.between { justify-content: space-between; }
+.t-stack { display: flex; flex-direction: column; gap: var(--s-3); }
+.t-stack.lg { gap: var(--s-5); }
+.t-grow { flex: 1; min-width: 0; }
+.t-end { margin-inline-start: auto; }
+.t-grid { display: grid; gap: var(--s-4); }
+.t-grid.c2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.t-grid.c3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.t-grid.c4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+/* Patient file / visit: profile (start) | main | aside (end) */
+.t-split { display: grid; gap: var(--s-4); grid-template-columns: 300px minmax(0, 1fr); align-items: start; }
+.t-split.three { grid-template-columns: 280px minmax(0, 1fr) 320px; }
+.t-split.aside-end { grid-template-columns: minmax(0, 1fr) 340px; }
+@media (max-width: 1180px) { .t-split.three { grid-template-columns: 260px minmax(0, 1fr); } .t-split.three > :last-child { grid-column: 1 / -1; } }
+@media (max-width: 860px) {
+  .t-grid.c2, .t-grid.c3, .t-grid.c4, .t-split, .t-split.three, .t-split.aside-end { grid-template-columns: 1fr; }
+}
+@media (min-width: 861px) and (max-width: 1100px) { .t-grid.c4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* ---------- 6. Buttons ---------- */
+.t-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2);
+  height: var(--ctl-h); padding-inline: var(--s-4); border-radius: var(--r-sm);
+  border: 1px solid var(--line-strong); background: var(--surface); color: var(--text);
+  font: inherit; font-size: var(--fs-sm); font-weight: var(--fw-m); line-height: 1; white-space: nowrap;
+  cursor: pointer; text-decoration: none; transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.t-btn:hover { background: var(--surface-hover); color: var(--text); }
+.t-btn:active { transform: translateY(1px); }
+.t-btn[disabled], .t-btn.is-disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.t-btn.primary { background: var(--primary); border-color: var(--primary); color: var(--text-on-primary); }
+.t-btn.primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+.t-btn.soft { background: var(--primary-soft); border-color: var(--primary-line); color: var(--primary); }
+.t-btn.ghost { background: transparent; border-color: transparent; color: var(--text-2); }
+.t-btn.ghost:hover { background: var(--surface-hover); color: var(--text); }
+.t-btn.danger { background: var(--danger); border-color: var(--danger); color: #fff; }
+.t-btn.danger:hover { background: var(--danger-hover); }
+.t-btn.danger-ghost { background: transparent; border-color: var(--danger-line); color: var(--danger-fg); }
+.t-btn.sm { height: 30px; padding-inline: var(--s-3); font-size: var(--fs-xs); }
+.t-btn.lg { height: 48px; padding-inline: var(--s-6); font-size: var(--fs-md); }
+.t-btn.block { width: 100%; }
+.t-btn.icon { width: var(--ctl-h); padding: 0; }     /* icon-only buttons MUST have aria-label + title */
+.t-btn .t-kbd { margin-inline-start: var(--s-1); }
+.t-btn.primary .t-kbd { background: rgba(255,255,255,.18); border-color: rgba(255,255,255,.3); color: inherit; }
+.t-btn-group { display: inline-flex; }
+.t-btn-group .t-btn { border-radius: 0; }
+.t-btn-group .t-btn + .t-btn { margin-inline-start: -1px; }
+.t-btn-group .t-btn:first-child { border-start-start-radius: var(--r-sm); border-end-start-radius: var(--r-sm); }
+.t-btn-group .t-btn:last-child { border-start-end-radius: var(--r-sm); border-end-end-radius: var(--r-sm); }
+
+/* Keyboard hint */
+.t-kbd { display: inline-flex; align-items: center; min-width: 20px; height: 20px; padding-inline: 5px; border-radius: var(--r-xs); border: 1px solid var(--line-strong); border-block-end-width: 2px; background: var(--surface-sunk); color: var(--text-2); font-family: var(--font-en); font-size: 11px; font-weight: var(--fw-m); direction: ltr; }
+
+/* ---------- 7. Forms ---------- */
+.t-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.t-label { font-size: var(--fs-sm); font-weight: var(--fw-m); color: var(--text); }
+.t-label .req { color: var(--danger-fg); margin-inline-start: 2px; }
+.t-label .opt { color: var(--text-3); font-weight: var(--fw-r); margin-inline-start: var(--s-1); }
+.t-hint { font-size: var(--fs-xs); color: var(--text-3); }
+.t-error { font-size: var(--fs-xs); color: var(--danger-fg); }
+.t-input, .t-select, .t-textarea {
+  width: 100%; height: var(--ctl-h); padding-inline: var(--s-3);
+  border: 1px solid var(--line-strong); border-radius: var(--r-sm); background: var(--surface); color: var(--text);
+  font: inherit; font-size: var(--fs-md); transition: border-color var(--dur), box-shadow var(--dur);
+}
+.t-textarea { height: auto; min-height: 96px; padding-block: var(--s-2); resize: vertical; line-height: var(--lh); }
+.t-input::placeholder, .t-textarea::placeholder { color: var(--text-3); }
+.t-input:hover, .t-select:hover, .t-textarea:hover { border-color: var(--n-500); }
+.t-input:focus, .t-select:focus, .t-textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 22%, transparent); }
+.t-input.is-invalid, .t-field.is-invalid .t-input { border-color: var(--danger); }
+.t-input[readonly] { background: var(--surface-sunk); color: var(--text-2); }
+.t-input.ltr { direction: ltr; text-align: start; }
+[dir="rtl"] .t-input.ltr { text-align: end; }
+.t-select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--text-3) 50%), linear-gradient(135deg, var(--text-3) 50%, transparent 50%); background-size: 5px 5px; background-repeat: no-repeat; background-position: left 9px center, left 14px center; padding-inline-start: var(--s-3); padding-inline-end: 32px; }
+[dir="ltr"] .t-select { background-position: right 14px center, right 9px center; }
+.t-input-wrap { position: relative; display: flex; align-items: center; }
+.t-input-wrap > .t-icon { position: absolute; inset-inline-start: 11px; color: var(--text-3); pointer-events: none; }
+.t-input-wrap > .t-input { padding-inline-start: 36px; }
+.t-input-wrap > .t-kbd { position: absolute; inset-inline-end: 8px; }
+.t-input-wrap:has(> .t-kbd) > .t-input { padding-inline-end: 64px; }
+.t-input-affix { display: flex; }
+.t-input-affix .t-input { border-start-end-radius: 0; border-end-end-radius: 0; }
+.t-input-affix .t-affix { display: grid; place-items: center; padding-inline: var(--s-3); border: 1px solid var(--line-strong); border-inline-start: 0; border-start-end-radius: var(--r-sm); border-end-end-radius: var(--r-sm); background: var(--surface-sunk); color: var(--text-2); font-size: var(--fs-sm); }
+.t-form-grid { display: grid; gap: var(--s-4); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.t-form-grid .span-2 { grid-column: 1 / -1; }
+@media (max-width: 640px) { .t-form-grid { grid-template-columns: 1fr; } }
+.t-more { border-block-start: 1px dashed var(--line); padding-block-start: var(--s-3); }
+.t-more > summary { cursor: pointer; color: var(--primary); font-size: var(--fs-sm); font-weight: var(--fw-m); list-style: none; }
+.t-more > summary::-webkit-details-marker { display: none; }
+
+/* Big search (patient lookup) */
+.t-search-xl { position: relative; }
+.t-search-xl .t-input { height: 52px; font-size: var(--fs-lg); padding-inline-start: 46px; border-radius: var(--r-md); }
+.t-search-xl > .t-icon { position: absolute; inset-inline-start: 15px; top: 50%; transform: translateY(-50%); width: 22px; height: 22px; color: var(--text-3); }
+.t-search-xl > .t-kbd { position: absolute; inset-inline-end: 12px; top: 50%; transform: translateY(-50%); }
+
+/* Choice controls */
+.t-check { display: inline-flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); cursor: pointer; }
+.t-check input { width: 16px; height: 16px; accent-color: var(--primary); margin: 0; }
+.t-switch { position: relative; display: inline-flex; align-items: center; gap: var(--s-2); cursor: pointer; font-size: var(--fs-sm); }
+.t-switch input { appearance: none; width: 36px; height: 20px; border-radius: var(--r-pill); background: var(--n-300); position: relative; margin: 0; cursor: pointer; transition: background var(--dur); }
+.t-switch input::after { content: ""; position: absolute; top: 2px; inset-inline-start: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: var(--e-1); transition: inset-inline-start var(--dur) var(--ease); }
+.t-switch input:checked { background: var(--primary); }
+.t-switch input:checked::after { inset-inline-start: 18px; }
+
+/* Segmented control (sex, day/week, AR/EN) */
+.t-seg { display: inline-flex; padding: 3px; border-radius: var(--r-sm); background: var(--surface-sunk); border: 1px solid var(--line); gap: 2px; }
+.t-seg button, .t-seg label { border: 0; background: transparent; color: var(--text-2); font: inherit; font-size: var(--fs-sm); padding: 5px 12px; border-radius: 4px; cursor: pointer; }
+.t-seg [aria-pressed="true"], .t-seg .is-on, .t-seg input:checked + span { background: var(--surface); color: var(--text); box-shadow: var(--e-1); font-weight: var(--fw-m); }
+.t-seg input { position: absolute; opacity: 0; pointer-events: none; }
+
+/* Quick-pick chips (frequency, duration, text shortcuts) */
+.t-pick { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding-inline: 12px; border-radius: var(--r-pill); border: 1px solid var(--line-strong); background: var(--surface); color: var(--text); font: inherit; font-size: var(--fs-sm); cursor: pointer; }
+.t-pick:hover { border-color: var(--primary); color: var(--primary); }
+.t-pick.is-on { background: var(--primary-soft); border-color: var(--primary); color: var(--primary); font-weight: var(--fw-m); }
+
+/* ---------- 8. Cards & panels ---------- */
+.t-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--pad-card); }
+.t-card.flush { padding: 0; overflow: hidden; }
+.t-card.sunk { background: var(--surface-sunk); }
+.t-card.raised { box-shadow: var(--e-2); border-color: transparent; }
+.t-card-head { display: flex; align-items: center; gap: var(--s-3); margin-block-end: var(--s-4); }
+.t-card.flush > .t-card-head { margin: 0; padding: var(--s-4) var(--s-5); border-block-end: 1px solid var(--line); }
+.t-card-head h2, .t-card-head h3 { font-size: var(--fs-md); font-weight: var(--fw-sb); }
+.t-card-head .t-actions { margin-inline-start: auto; display: flex; gap: var(--s-2); }
+.t-card-body { padding: var(--s-4) var(--s-5); }
+.t-card-foot { padding: var(--s-3) var(--s-5); border-block-start: 1px solid var(--line); background: var(--surface-sunk); display: flex; gap: var(--s-2); align-items: center; }
+
+/* Definition list (patient facts) */
+.t-dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px var(--s-4); margin: 0; font-size: var(--fs-sm); }
+.t-dl dt { color: var(--text-3); }
+.t-dl dd { margin: 0; color: var(--text); }
+
+/* Stat (owner dashboard) */
+.t-stat { display: flex; flex-direction: column; gap: 2px; }
+.t-stat .t-stat-label { font-size: var(--fs-sm); color: var(--text-2); }
+.t-stat .t-stat-value { font-size: var(--fs-3xl); font-weight: var(--fw-sb); font-variant-numeric: tabular-nums; line-height: 1.1; }
+.t-stat .t-stat-value small { font-size: var(--fs-md); color: var(--text-3); font-weight: var(--fw-r); margin-inline-start: 4px; }
+.t-stat .t-delta { font-size: var(--fs-xs); }
+.t-delta.up { color: var(--success-fg); } .t-delta.down { color: var(--danger-fg); }
+
+/* ---------- 9. Tables ---------- */
+.t-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); }
+.t-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: var(--fs-sm); }
+.t-table th { position: sticky; top: 0; z-index: 1; background: var(--surface-sunk); color: var(--text-2); font-weight: var(--fw-m); text-align: start; padding: 10px var(--s-4); border-block-end: 1px solid var(--line); white-space: nowrap; }
+.t-table td { padding: 0 var(--s-4); height: var(--row-h); border-block-end: 1px solid var(--line); vertical-align: middle; }
+.t-table tr:last-child td { border-block-end: 0; }
+.t-table tbody tr:hover td { background: var(--surface-hover); }
+.t-table tr.is-selected td { background: var(--primary-soft); }
+.t-table tr.is-muted td { color: var(--text-3); }
+.t-table td.num, .t-table th.num { text-align: end; }
+.t-table td.actions { text-align: end; white-space: nowrap; }
+.t-table .t-name { font-weight: var(--fw-m); color: var(--text); }
+.t-table .t-meta { display: block; font-size: var(--fs-xs); color: var(--text-3); }
+.t-table tfoot td { background: var(--surface-sunk); font-weight: var(--fw-sb); }
+
+/* ---------- 10. Status chips (queue + appointment + invoice states) ---------- */
+.t-chip { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding-inline: 10px; border-radius: var(--r-pill); font-size: var(--fs-xs); font-weight: var(--fw-m); white-space: nowrap; border: 1px solid transparent; background: var(--done-bg); color: var(--done-fg); }
+.t-chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
+.t-chip.plain::before { display: none; }
+.t-chip.waiting { background: var(--waiting-bg); color: var(--waiting-fg); border-color: var(--waiting-line); }
+.t-chip.called  { background: var(--called-bg);  color: var(--called-fg);  border-color: var(--called-line); }
+.t-chip.called::before { animation: t-pulse 1.4s var(--ease) infinite; }
+.t-chip.inroom  { background: var(--inroom-bg);  color: var(--inroom-fg);  border-color: var(--inroom-line); }
+.t-chip.done    { background: var(--done-bg);    color: var(--done-fg);    border-color: var(--done-line); }
+.t-chip.left    { background: var(--left-bg);    color: var(--left-fg);    border-color: var(--left-line); }
+.t-chip.booked  { background: transparent; color: var(--text-2); border-color: var(--line-strong); }
+.t-chip.confirmed { background: var(--called-bg); color: var(--called-fg); border-color: var(--called-line); }
+.t-chip.paid    { background: var(--success-bg); color: var(--success-fg); }
+.t-chip.unpaid  { background: var(--warning-bg); color: var(--warning-fg); }
+.t-chip.void    { background: var(--done-bg); color: var(--done-fg); text-decoration: line-through; }
+.t-chip.danger  { background: var(--danger-bg); color: var(--danger-fg); border-color: var(--danger-line); }
+.t-chip.info    { background: var(--info-bg); color: var(--info-fg); }
+@keyframes t-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+
+/* Badge (counts) */
+.t-badge { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding-inline: 6px; border-radius: var(--r-pill); background: var(--primary); color: var(--text-on-primary); font-size: 11px; font-weight: var(--fw-sb); font-family: var(--font-en); }
+.t-badge.muted { background: var(--n-200); color: var(--n-700); }
+
+/* ---------- 11. Queue ticket — the signature element ----------
+   A printed paper ticket with notched edges. Ticket numbers are what
+   reception and patients actually say out loud ("A-17, please"). */
+.t-ticket {
+  --tk-bg: var(--surface); --tk-line: var(--line-strong);
+  position: relative; display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+  min-width: 64px; padding: 6px 12px; border: 1px solid var(--tk-line); border-radius: var(--r-xs);
+  background:
+    radial-gradient(circle at 0 50%, var(--bg) 5px, transparent 5.5px),
+    radial-gradient(circle at 100% 50%, var(--bg) 5px, transparent 5.5px),
+    var(--tk-bg);
+  font-family: var(--font-en); font-variant-numeric: tabular-nums; direction: ltr; line-height: 1;
+}
+.t-ticket b { font-size: var(--fs-xl); font-weight: var(--fw-b); letter-spacing: .02em; color: var(--text); }
+.t-ticket span { font-size: 10px; color: var(--text-3); margin-block-start: 3px; font-family: var(--font); }
+.t-ticket.waiting { --tk-bg: var(--waiting-bg); --tk-line: var(--waiting-line); }
+.t-ticket.called  { --tk-bg: var(--called-bg);  --tk-line: var(--called-line); }
+.t-ticket.inroom  { --tk-bg: var(--inroom-bg);  --tk-line: var(--inroom-line); }
+.t-ticket.done    { --tk-bg: var(--done-bg);    --tk-line: var(--done-line); }
+.t-ticket.done b  { color: var(--text-3); }
+.t-ticket.xl { min-width: 160px; padding: var(--s-4) var(--s-6); }
+.t-ticket.xl b { font-size: 56px; }
+
+/* Queue lane (reception home) */
+.t-lanes { display: grid; gap: var(--s-4); grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.t-lane { background: var(--surface-sunk); border: 1px solid var(--line); border-radius: var(--r-md); display: flex; flex-direction: column; min-height: 200px; }
+.t-lane-head { display: flex; align-items: center; gap: var(--s-2); padding: var(--s-3) var(--s-4); border-block-end: 1px solid var(--line); }
+.t-lane-head h3 { font-size: var(--fs-md); }
+.t-lane-body { padding: var(--s-2); display: flex; flex-direction: column; gap: var(--s-2); }
+.t-qcard { display: grid; grid-template-columns: auto 1fr auto; gap: var(--s-3); align-items: center; padding: var(--s-2) var(--s-3); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-sm); }
+.t-qcard:hover { border-color: var(--primary-line); }
+.t-qcard .t-qname { font-weight: var(--fw-m); }
+.t-qcard .t-qmeta { font-size: var(--fs-xs); color: var(--text-3); }
+.t-qcard.is-next { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
+
+/* ---------- 12. Patient banner (pinned on every clinical screen) ---------- */
+.t-banner {
+  position: sticky; top: var(--topbar-h); z-index: 30;
+  display: flex; align-items: center; flex-wrap: wrap; gap: var(--s-2) var(--s-5);
+  margin: calc(var(--s-6) * -1) calc(var(--s-6) * -1) var(--s-5);
+  padding: var(--s-3) var(--s-6); background: var(--surface); border-block-end: 1px solid var(--line);
+  box-shadow: 0 6px 12px -10px rgba(23,32,54,.25);
+}
+@media (max-width: 960px) { .t-banner { margin: calc(var(--s-4) * -1) calc(var(--s-4) * -1) var(--s-4); padding: var(--s-2) var(--s-4); } }
+.t-banner-id { display: flex; align-items: center; gap: var(--s-3); min-width: 0; }
+.t-avatar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--primary-soft); color: var(--primary); font-weight: var(--fw-sb); font-size: var(--fs-md); }
+.t-avatar.sm { width: 28px; height: 28px; font-size: var(--fs-xs); }
+.t-banner-name { font-size: var(--fs-lg); font-weight: var(--fw-sb); line-height: 1.2; }
+.t-banner-facts { display: flex; flex-wrap: wrap; gap: 2px var(--s-4); font-size: var(--fs-sm); color: var(--text-2); }
+.t-banner-facts b { color: var(--text); font-weight: var(--fw-m); }
+.t-banner-alerts { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-inline-start: auto; }
+.t-allergy { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding-inline: 10px; border-radius: var(--r-xs); background: var(--allergy-bg); color: var(--allergy-fg); font-size: var(--fs-sm); font-weight: var(--fw-sb); }
+.t-allergy.none { background: transparent; color: var(--text-3); border: 1px dashed var(--line-strong); font-weight: var(--fw-r); }
+.t-flag { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding-inline: 10px; border-radius: var(--r-xs); background: var(--warning-bg); color: var(--warning-fg); font-size: var(--fs-sm); font-weight: var(--fw-m); }
+/* micro banner for phones */
+@media (max-width: 640px) { .t-banner-facts span:nth-child(n+3) { display: none; } .t-banner-name { font-size: var(--fs-md); } }
+
+/* ---------- 13. Tabs ---------- */
+.t-tabs { display: flex; gap: var(--s-1); border-block-end: 1px solid var(--line); margin-block-end: var(--s-4); overflow-x: auto; }
+.t-tab { border: 0; background: none; font: inherit; font-size: var(--fs-sm); color: var(--text-2); padding: 10px var(--s-3); cursor: pointer; border-block-end: 2px solid transparent; margin-block-end: -1px; white-space: nowrap; text-decoration: none; }
+.t-tab:hover { color: var(--text); }
+.t-tab[aria-selected="true"], .t-tab.is-on { color: var(--primary); border-block-end-color: var(--primary); font-weight: var(--fw-sb); }
+
+/* ---------- 14. Timeline (visit history) ---------- */
+.t-timeline { list-style: none; margin: 0; padding: 0; position: relative; }
+.t-timeline::before { content: ""; position: absolute; inset-block: 6px; inset-inline-start: 7px; width: 2px; background: var(--line); }
+.t-timeline li { position: relative; padding-inline-start: 28px; padding-block-end: var(--s-4); }
+.t-timeline li::before { content: ""; position: absolute; inset-inline-start: 2px; top: 6px; width: 12px; height: 12px; border-radius: 50%; background: var(--surface); border: 2px solid var(--primary); }
+.t-timeline li.muted::before { border-color: var(--line-strong); }
+.t-timeline .t-when { font-size: var(--fs-xs); color: var(--text-3); }
+
+/* ---------- 15. Alerts, banners, toasts ---------- */
+.t-alert { display: flex; gap: var(--s-3); align-items: flex-start; padding: var(--s-3) var(--s-4); border-radius: var(--r-sm); border: 1px solid var(--line); background: var(--surface-sunk); font-size: var(--fs-sm); }
+.t-alert.info    { background: var(--info-bg); border-color: var(--called-line); color: var(--info-fg); }
+.t-alert.success { background: var(--success-bg); border-color: var(--inroom-line); color: var(--success-fg); }
+.t-alert.warning { background: var(--warning-bg); border-color: var(--waiting-line); color: var(--warning-fg); }
+.t-alert.danger  { background: var(--danger-bg); border-color: var(--danger-line); color: var(--danger-fg); }
+.t-alert b { color: inherit; }
+.t-alert .t-actions { margin-inline-start: auto; display: flex; gap: var(--s-2); }
+
+/* Severe interrupt: the ONLY blocking alert (allergy match, duplicate drug class). */
+.t-severe { border: 2px solid var(--danger); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--e-3); overflow: hidden; }
+.t-severe-head { background: var(--danger); color: #fff; padding: var(--s-3) var(--s-5); display: flex; gap: var(--s-2); align-items: center; font-weight: var(--fw-sb); }
+
+.t-toasts { position: fixed; inset-block-end: var(--s-5); inset-inline-start: 50%; transform: translateX(-50%); z-index: 80; display: flex; flex-direction: column; gap: var(--s-2); align-items: center; }
+[dir="rtl"] .t-toasts { transform: translateX(50%); }
+.t-toast { display: flex; align-items: center; gap: var(--s-3); min-width: 280px; max-width: 92vw; padding: var(--s-3) var(--s-4); border-radius: var(--r-md); background: var(--n-900); color: #fff; box-shadow: var(--e-3); font-size: var(--fs-sm); animation: t-toast-in 220ms var(--ease); }
+:root[data-theme="dark"] .t-toast { background: #E6EAF4; color: #0E1424; }
+.t-toast .t-toast-action { margin-inline-start: auto; color: #B2C2FA; background: none; border: 0; font: inherit; font-weight: var(--fw-sb); cursor: pointer; }
+.t-toast.inline { position: static; animation: none; }
+@keyframes t-toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ---------- 16. Modal & drawer ---------- */
+.t-scrim { position: fixed; inset: 0; background: rgba(14,20,36,.45); z-index: 60; display: grid; place-items: center; padding: var(--s-4); }
+.t-scrim.inline { position: relative; inset: auto; min-height: 420px; border-radius: var(--r-md); }   /* for showing a modal statically in a spec */
+.t-modal { width: min(560px, 100%); max-height: 90vh; overflow: auto; background: var(--surface); border-radius: var(--r-lg); box-shadow: var(--e-3); }
+.t-modal.lg { width: min(820px, 100%); }
+.t-modal-head { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-4) var(--s-5); border-block-end: 1px solid var(--line); }
+.t-modal-head h2 { font-size: var(--fs-lg); }
+.t-modal-head .t-btn { margin-inline-start: auto; }
+.t-modal-body { padding: var(--s-5); }
+.t-modal-foot { display: flex; gap: var(--s-2); justify-content: flex-end; padding: var(--s-3) var(--s-5); border-block-start: 1px solid var(--line); background: var(--surface-sunk); }
+.t-drawer { position: fixed; inset-block: 0; inset-inline-end: 0; width: min(480px, 100%); background: var(--surface); box-shadow: var(--e-3); z-index: 61; display: flex; flex-direction: column; }
+.t-drawer.inline { position: relative; inset: auto; width: 100%; max-width: 480px; border: 1px solid var(--line); border-radius: var(--r-lg); }
+.t-drawer .t-modal-body { flex: 1; overflow: auto; }
+
+/* ---------- 17. Empty / no-results / loading ---------- */
+.t-empty { display: flex; flex-direction: column; align-items: center; text-align: center; gap: var(--s-3); padding: var(--s-12) var(--s-6); color: var(--text-2); }
+.t-empty-art { width: 72px; height: 72px; border-radius: 50%; display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); }
+.t-empty-art .t-icon { width: 32px; height: 32px; }
+.t-empty h3 { color: var(--text); font-size: var(--fs-lg); }
+.t-empty p { max-width: 44ch; margin: 0; }
+.t-skeleton { background: linear-gradient(90deg, var(--n-100), var(--n-50), var(--n-100)); background-size: 200% 100%; animation: t-shimmer 1.2s linear infinite; border-radius: var(--r-xs); height: 12px; }
+@keyframes t-shimmer { to { background-position: -200% 0; } }
+
+/* ---------- 18. Stepper (onboarding) ---------- */
+.t-steps { display: flex; gap: var(--s-2); list-style: none; padding: 0; margin: 0 0 var(--s-6); counter-reset: step; flex-wrap: wrap; }
+.t-steps li { flex: 1; min-width: 120px; display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--text-3); padding-block-end: var(--s-2); border-block-end: 3px solid var(--line); counter-increment: step; }
+.t-steps li::before { content: counter(step); width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--n-100); color: var(--text-2); font-size: var(--fs-xs); font-weight: var(--fw-sb); font-family: var(--font-en); }
+.t-steps li.done { color: var(--text-2); border-color: var(--inroom-line); }
+.t-steps li.done::before { content: "\2713"; background: var(--inroom-bg); color: var(--inroom-fg); }
+.t-steps li.current { color: var(--text); font-weight: var(--fw-sb); border-color: var(--primary); }
+.t-steps li.current::before { background: var(--primary); color: var(--text-on-primary); }
+
+/* ---------- 19. Command palette (Ctrl+K) & shortcut menu (/) ---------- */
+.t-cmdk { width: min(620px, 100%); background: var(--surface); border-radius: var(--r-lg); box-shadow: var(--e-3); overflow: hidden; border: 1px solid var(--line); }
+.t-cmdk .t-input { border: 0; border-block-end: 1px solid var(--line); border-radius: 0; height: 52px; font-size: var(--fs-lg); }
+.t-menu { list-style: none; margin: 0; padding: var(--s-1); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); box-shadow: var(--e-2); min-width: 240px; }
+.t-menu li { display: flex; align-items: center; gap: var(--s-3); padding: 8px var(--s-3); border-radius: var(--r-sm); font-size: var(--fs-sm); cursor: pointer; }
+.t-menu li:hover, .t-menu li.is-active { background: var(--primary-soft); color: var(--primary); }
+.t-menu li .t-kbd, .t-menu li .t-faint { margin-inline-start: auto; }
+.t-menu .t-menu-sep { height: 1px; background: var(--line); padding: 0; margin: var(--s-1) 0; }
+
+/* ---------- 20. Rx line (prescription builder) ---------- */
+.t-rx-line { display: grid; grid-template-columns: 28px minmax(0, 2fr) repeat(3, minmax(0, 1fr)) auto; gap: var(--s-2); align-items: center; padding: var(--s-2) 0; border-block-end: 1px solid var(--line); }
+.t-rx-line .t-rx-no { font-family: var(--font-en); color: var(--text-3); font-size: var(--fs-sm); text-align: center; }
+.t-rx-drug { font-weight: var(--fw-sb); }
+.t-rx-drug small { display: block; font-weight: var(--fw-r); color: var(--text-3); }
+@media (max-width: 860px) { .t-rx-line { grid-template-columns: 28px 1fr; } .t-rx-line > :nth-child(n+3) { grid-column: 2; } }
+.t-fav { display: flex; align-items: center; gap: var(--s-2); width: 100%; padding: var(--s-2) var(--s-3); border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface); text-align: start; font: inherit; font-size: var(--fs-sm); cursor: pointer; color: var(--text); }
+.t-fav:hover { border-color: var(--primary); background: var(--primary-soft); }
+.t-fav small { display: block; color: var(--text-3); font-size: var(--fs-xs); }
+.t-fav .t-kbd { margin-inline-start: auto; }
+
+/* ---------- 21. Print sheets: prescription (A5) & receipt (80mm) ---------- */
+.t-print-stage { display: flex; justify-content: center; padding: var(--s-6); background: var(--n-100); border-radius: var(--r-md); }
+:root[data-theme="dark"] .t-print-stage { background: #0A0F1C; }
+.t-sheet { background: #fff; color: #172036; box-shadow: var(--e-2); font-family: var(--font-ar); }
+.t-sheet.a5 { width: 148mm; min-height: 210mm; padding: 12mm 12mm 10mm; display: flex; flex-direction: column; }
+.t-sheet.receipt { width: 80mm; padding: 6mm 5mm; font-size: 12px; }
+.t-letterhead { display: grid; grid-template-columns: 1fr auto 1fr; gap: 6mm; align-items: center; padding-block-end: 4mm; border-block-end: 2px solid var(--lh-accent, #2944A8); }
+.t-letterhead .lh-name { font-family: var(--font-letterhead); font-size: 22px; font-weight: 700; line-height: 1.2; color: var(--lh-accent, #2944A8); }
+.t-letterhead .lh-title { font-size: 11px; color: #4E586C; line-height: 1.5; }
+.t-letterhead .lh-logo { width: 18mm; height: 18mm; border-radius: 50%; border: 1.5px solid var(--lh-accent, #2944A8); display: grid; place-items: center; font-family: var(--font-letterhead); font-size: 20px; color: var(--lh-accent, #2944A8); }
+.t-letterhead .lh-en { direction: ltr; text-align: left; font-family: var(--font-en); }
+.t-letterhead .lh-en .lh-name { font-family: var(--font-en); font-size: 16px; }
+.t-rx-patient { display: flex; flex-wrap: wrap; gap: 2mm 8mm; padding-block: 3mm; font-size: 12px; border-block-end: 1px dashed #B9C2D1; }
+.t-rx-symbol { font-family: "Times New Roman", serif; font-size: 28px; font-style: italic; color: var(--lh-accent, #2944A8); direction: ltr; margin-block: 3mm 1mm; }
+.t-rx-items { list-style: none; margin: 0; padding: 0; flex: 1; }
+.t-rx-items li { padding-block: 2.5mm; border-block-end: 1px dotted #D6DCE6; }
+.t-rx-items .rx-drug { direction: ltr; text-align: left; font-family: var(--font-en); font-weight: 600; font-size: 13px; }
+.t-rx-items .rx-sig { font-size: 12.5px; color: #343D52; }
+.t-sheet-foot { margin-block-start: auto; padding-block-start: 3mm; border-block-start: 1px solid #D6DCE6; display: flex; justify-content: space-between; gap: 4mm; font-size: 10.5px; color: #4E586C; }
+.t-receipt-row { display: flex; justify-content: space-between; gap: 4mm; padding-block: 1mm; }
+.t-receipt-row.total { border-block-start: 1px dashed #6B7588; margin-block-start: 2mm; padding-block-start: 2mm; font-weight: 700; font-size: 14px; }
+
+@media print {
+  @page { margin: 0; }
+  body { background: #fff; }
+  .t-topbar, .t-sidenav, .t-screen-head, .t-spec, .t-notes-fab, .t-notes-panel, .t-note-pin, .no-print { display: none !important; }
+  .t-app { display: block; }
+  .t-main { padding: 0; }
+  .t-print-stage { padding: 0; background: none; }
+  .t-sheet { box-shadow: none; }
+}
+
+/* ---------- 22. Annotations (Figma-style spec callouts; prototype only) ---------- */
+:where([data-note]) { position: relative; }
+html.notes-on [data-note] { outline: 1.5px dashed var(--note); outline-offset: 3px; }
+.t-note-pin {
+  display: none; position: absolute; top: -11px; inset-inline-start: -11px; z-index: 35;
+  width: 22px; height: 22px; border-radius: 50%; background: var(--note); color: #fff;
+  font: 600 12px/22px var(--font-en); text-align: center; box-shadow: 0 0 0 2px var(--surface); cursor: help;
+}
+html.notes-on .t-note-pin { display: block; }
+.t-notes-fab {
+  position: fixed; inset-block-end: var(--s-5); inset-inline-end: var(--s-5); z-index: 70;
+  display: inline-flex; align-items: center; gap: var(--s-2); height: 44px; padding-inline: var(--s-4);
+  border-radius: var(--r-pill); border: 0; background: var(--note); color: #fff; font: inherit; font-size: var(--fs-sm); font-weight: var(--fw-sb);
+  box-shadow: var(--e-3); cursor: pointer;
+}
+.t-notes-fab .t-badge { background: #fff; color: var(--note); }
+.t-notes-panel {
+  position: fixed; inset-block-end: 76px; inset-inline-end: var(--s-5); z-index: 70; width: min(380px, calc(100vw - 32px)); max-height: 60vh; overflow: auto;
+  background: var(--surface); border: 1px solid var(--note); border-radius: var(--r-lg); box-shadow: var(--e-3); padding: var(--s-4); display: none;
+}
+html.notes-on .t-notes-panel { display: block; }
+.t-notes-panel h4 { color: var(--note); margin-block-end: var(--s-3); }
+.t-notes-panel ol { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--s-3); }
+.t-notes-panel li { display: grid; grid-template-columns: 22px 1fr; gap: var(--s-2); font-size: var(--fs-sm); cursor: pointer; }
+.t-notes-panel li span.n { width: 22px; height: 22px; border-radius: 50%; background: var(--note); color: #fff; font: 600 12px/22px var(--font-en); text-align: center; }
+.t-note-flash { animation: t-note-flash 1s var(--ease) 2; }
+@keyframes t-note-flash { 50% { outline-color: transparent; box-shadow: 0 0 0 6px var(--note-bg); } }
+
+/* Utility spacing (use sparingly) */
+.mt-0 { margin-block-start: 0 !important; } .mt-2 { margin-block-start: var(--s-2); } .mt-4 { margin-block-start: var(--s-4); } .mt-6 { margin-block-start: var(--s-6); }
+.mb-0 { margin-block-end: 0 !important; } .mb-2 { margin-block-end: var(--s-2); } .mb-4 { margin-block-end: var(--s-4); } .mb-6 { margin-block-end: var(--s-6); }
+.w-full { width: 100%; }
+
+/* ---------- 20. v1.1 additions (2026-11-14): money, appointment & invoice states, Tier 2 ----------
+   Source: NITCO eCarePlus teardown (03_Healthcare_Domain/competitors/nitco/). Copy their states,
+   beat their colour-only legends: every state below is colour + text (+ dot). */
+
+/* Appointment lifecycle (≤6 states): booked → confirmed → arrived → (queue states) | no-show | cancelled */
+.t-chip.arrived   { background: var(--inroom-bg); color: var(--inroom-fg); border-color: var(--inroom-line); }
+.t-chip.noshow    { background: var(--left-bg); color: var(--left-fg); border-color: var(--left-line); }
+.t-chip.cancelled { background: transparent; color: var(--text-3); border-color: var(--line); text-decoration: line-through; }
+.t-chip.cancelled::before { display: none; }
+
+/* Invoice / payment states: paid · partial (remainder = patient debt) · unpaid · void (credited) · credit note */
+.t-chip.partial { background: var(--warning-bg); color: var(--warning-fg); border-color: var(--waiting-line); }
+.t-chip.partial::before { background: linear-gradient(90deg, currentColor 50%, transparent 50%); border: 1px solid currentColor; }
+.t-chip.credit  { background: var(--info-bg); color: var(--info-fg); }
+.t-chip.debt    { background: var(--danger-bg); color: var(--danger-fg); border-color: var(--danger-line); }
+
+/* Visit type / pricing hints */
+.t-chip.free    { background: var(--success-bg); color: var(--success-fg); }          /* free follow-up inside window */
+.t-chip.free::before { display: none; }
+
+/* Money: tabular, sign-aware. Debt is what the patient owes the clinic; deposit is what the clinic holds for the patient. */
+.t-money { white-space: nowrap; font-weight: var(--fw-m); }
+.t-money .cur { font-size: .85em; color: var(--text-3); margin-inline-start: 3px; font-weight: var(--fw-r); }
+.t-money.debt    { color: var(--danger-fg); }
+.t-money.deposit { color: var(--success-fg); }
+.t-money.lg { font-size: var(--fs-2xl); font-weight: var(--fw-sb); }
+.t-money.xl { font-size: var(--fs-3xl); font-weight: var(--fw-b); letter-spacing: -.01em; }
+
+/* Balance pills inside the patient banner (debt / deposit / follow-up window) */
+.t-balance { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding-inline: 10px; border-radius: var(--r-xs); font-size: var(--fs-sm); font-weight: var(--fw-m); border: 1px solid var(--line); background: var(--surface); color: var(--text-2); }
+.t-balance.debt    { background: var(--danger-bg); color: var(--danger-fg); border-color: var(--danger-line); }
+.t-balance.deposit { background: var(--success-bg); color: var(--success-fg); border-color: transparent; }
+.t-balance.followup { background: var(--info-bg); color: var(--info-fg); border-color: transparent; }
+
+/* Payment lines (split payment): method · amount · remove; remainder row turns into debt */
+.t-paylines { display: flex; flex-direction: column; gap: var(--s-2); }
+.t-payline { display: grid; grid-template-columns: minmax(120px, 1fr) minmax(110px, 160px) auto; gap: var(--s-2); align-items: center; }
+.t-remainder { display: flex; justify-content: space-between; align-items: center; padding: var(--s-3); border-radius: var(--r-sm); background: var(--warning-bg); color: var(--warning-fg); font-weight: var(--fw-m); }
+.t-remainder.zero { background: var(--success-bg); color: var(--success-fg); }
+
+/* Totals block (invoice, cash close): label / value rows, last row emphasised */
+.t-totals { display: grid; grid-template-columns: 1fr auto; gap: var(--s-2) var(--s-4); font-size: var(--fs-sm); }
+.t-totals dt { color: var(--text-2); }
+.t-totals dd { margin: 0; text-align: end; font-variant-numeric: tabular-nums; }
+.t-totals .grand { font-size: var(--fs-lg); font-weight: var(--fw-sb); color: var(--text); border-block-start: 1px solid var(--line); padding-block-start: var(--s-2); }
+
+/* Tier 2 (polyclinic plan) marker — screens/sections not in the solo-clinic MVP */
+.t-tier { display: inline-flex; align-items: center; height: 20px; padding-inline: 8px; border-radius: var(--r-pill); font-size: 11px; font-weight: var(--fw-sb); background: var(--note-bg); color: var(--note); border: 1px dashed var(--note); white-space: nowrap; }
+.t-nav-link .t-tier { margin-inline-start: auto; height: 18px; font-size: 10px; padding-inline: 6px; }
+[data-tier="2"].t-card { border-style: dashed; }
+
+/* Immutable document stamp (posted invoice, closed cash day) */
+.t-stamp { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border: 2px solid currentColor; border-radius: var(--r-xs); color: var(--primary); font-weight: var(--fw-b); font-size: var(--fs-sm); transform: rotate(-2deg); }
+.t-stamp.void { color: var(--danger-fg); }
+
+/* ---------- 23. v1.2 additions (2026-11-14): tenancy switchers, branch scope, stock & equipment ----------
+   Organization (tenant) → Branch → Room. Org switcher sits in the brand slot, branch pill next to it.
+   Choosing a branch is a header action, never a login step (NITCO v65/71/76 pick the branch at login). */
+
+/* Org switcher (brand slot) */
+.t-brand .t-brand-mark { text-decoration: none; flex: none; }
+.t-scope-item { position: relative; min-width: 0; }
+.t-brand .t-scope-item { flex: 1; }
+.t-scope-btn { display: inline-flex; align-items: center; gap: var(--s-2); max-width: 100%; height: 42px; padding-inline: var(--s-2); border: 1px solid transparent; border-radius: var(--r-sm); background: transparent; color: var(--text); font: inherit; text-align: start; cursor: pointer; min-width: 0; }
+.t-scope-btn:hover { background: var(--surface-hover); border-color: var(--line); }
+.t-scope-btn[aria-expanded="true"] { background: var(--primary-soft); border-color: var(--primary-line); }
+.t-scope-btn.is-static { cursor: default; }
+.t-scope-btn.is-static:hover { background: transparent; border-color: transparent; }
+.t-scope-btn .t-scope-ico { display: none; color: var(--text-2); }
+.t-scope-txt { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
+.t-scope-txt b { font-size: var(--fs-md); font-weight: var(--fw-sb); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.t-scope-txt span { font-size: var(--fs-xs); color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Branch pill */
+.t-branch-pill { display: inline-flex; align-items: center; gap: 6px; height: 32px; max-width: 260px; padding-inline: 10px; border: 1px solid var(--line-strong); border-radius: var(--r-pill); background: var(--surface-sunk); color: var(--text); font: inherit; font-size: var(--fs-sm); font-weight: var(--fw-m); cursor: pointer; white-space: nowrap; flex: none; }
+.t-branch-pill:hover { border-color: var(--primary); }
+.t-branch-pill[aria-expanded="true"] { border-color: var(--primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 18%, transparent); }
+.t-branch-pill .t-icon { color: var(--text-2); }
+.t-branch-pill.is-all { background: var(--primary-soft); color: var(--primary); border-color: var(--primary-line); }
+.t-branch-pill.is-all .t-icon { color: var(--primary); }
+.t-branch-pill.is-static { cursor: default; background: transparent; border-style: dashed; }
+.t-branch-pill.is-static:hover { border-color: var(--line-strong); }
+.t-scope-label { overflow: hidden; text-overflow: ellipsis; }
+
+/* Switcher menus (reuse .t-menu) */
+.t-scope-menu { position: absolute; top: calc(100% + 6px); inset-inline-start: 0; z-index: 55; width: 320px; max-width: 92vw; }
+.t-scope-menu li { align-items: flex-start; }
+.t-scope-menu li > .t-icon { margin-block-start: 2px; color: var(--text-3); }
+.t-scope-menu li b { display: block; font-weight: var(--fw-m); }
+.t-scope-menu li small { display: block; font-size: var(--fs-xs); color: var(--text-3); }
+.t-scope-menu li[aria-checked="true"] { background: var(--primary-soft); color: var(--primary); }
+.t-scope-menu li[aria-checked="true"] b { font-weight: var(--fw-sb); }
+.t-scope-menu li[aria-checked="true"] > .t-icon:last-child { color: var(--primary); }
+.t-scope-menu li:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.t-scope-menu .t-menu-head { cursor: default; font-size: var(--fs-xs); color: var(--text-3); padding-block: 6px; }
+.t-scope-menu .t-menu-head:hover { background: none; color: var(--text-3); }
+
+/* Branch scope on content: [data-branch] filtered by shell.js; .t-only-all shows only under "all branches" */
+.is-other-branch { display: none !important; }
+html:not([data-scope-all]) .t-only-all { display: none !important; }
+.t-scope-alert { margin-block-end: var(--s-4); align-items: center; }
+
+/* Phase badge: post-v1 module (honest demos) */
+.t-tier.t-phase { background: var(--done-bg); color: var(--text-2); border-color: var(--line-strong); }
+
+/* Branch tag (inline): which branch a row belongs to */
+.t-branch-tag { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding-inline: 8px; border-radius: var(--r-xs); background: var(--surface-sunk); border: 1px solid var(--line); color: var(--text-2); font-size: var(--fs-xs); white-space: nowrap; }
+.t-branch-tag .t-icon { width: 13px; height: 13px; }
+
+/* Specialty tags: category colour + word (never colour alone). Specialty belongs to the DOCTOR, not the room. */
+.t-spec-tag { display: inline-flex; align-items: center; gap: 5px; height: 22px; padding-inline: 8px; border-radius: var(--r-pill); font-size: var(--fs-xs); font-weight: var(--fw-m); white-space: nowrap; border: 1px solid var(--line); background: var(--surface-sunk); color: var(--text-2); }
+.t-spec-tag::before { content: ""; width: 7px; height: 7px; border-radius: 2px; background: currentColor; flex: none; }
+.t-spec-tag.im    { background: var(--done-bg);    color: var(--done-fg);    border-color: var(--done-line); }     /* internal medicine */
+.t-spec-tag.derma { background: var(--called-bg);  color: var(--called-fg);  border-color: var(--called-line); }   /* dermatology / laser */
+.t-spec-tag.peds  { background: var(--inroom-bg);  color: var(--inroom-fg);  border-color: var(--inroom-line); }   /* paediatrics */
+.t-spec-tag.ent   { background: var(--waiting-bg); color: var(--waiting-fg); border-color: var(--waiting-line); }  /* ENT */
+.t-spec-tag.dent  { background: var(--left-bg);    color: var(--left-fg);    border-color: var(--left-line); }     /* dental */
+.t-spec-tag.gyn   { background: var(--note-bg);    color: var(--note);       border-color: var(--note); }          /* OB/GYN */
+
+/* Plan usage meter (branches 2/3, seats 14/20) */
+.t-meter { height: 8px; border-radius: var(--r-pill); background: var(--surface-sunk); border: 1px solid var(--line); overflow: hidden; }
+.t-meter > i { display: block; height: 100%; background: var(--primary); border-radius: inherit; }
+.t-meter.warn > i { background: var(--waiting-fg); }
+
+/* Stock & equipment states (word + colour) */
+.t-chip.low      { background: var(--waiting-bg); color: var(--waiting-fg); border-color: var(--waiting-line); }  /* below minimum */
+.t-chip.expiring { background: var(--warning-bg); color: var(--warning-fg); border-color: var(--waiting-line); }  /* expires within 60 days */
+.t-chip.expired  { background: var(--danger-bg);  color: var(--danger-fg);  border-color: var(--danger-line); }   /* expired: quarantine */
+.t-chip.ok       { background: var(--success-bg); color: var(--success-fg); border-color: var(--inroom-line); }
+.t-chip.service  { background: var(--success-bg); color: var(--success-fg); border-color: var(--inroom-line); }  /* in service */
+.t-chip.maint    { background: var(--waiting-bg); color: var(--waiting-fg); border-color: var(--waiting-line); }  /* under maintenance */
+.t-chip.oos      { background: var(--danger-bg);  color: var(--danger-fg);  border-color: var(--danger-line); }   /* out of service */
+
+/* Grid children may shrink below their content width (wide tables scroll inside .t-table-wrap instead of widening the page) */
+.t-split > *, .t-grid > * { min-width: 0; }
+
+/* Phones: keep the top bar inside 390px (switchers stay reachable) */
+@media (max-width: 960px) {
+  /* fix: .t-input-wrap (declared later in §7) re-showed the top-bar search on phones */
+  .t-topbar .t-topbar-search { display: none; }
+  .t-brand .t-scope-item { flex: 0 1 auto; }
+  .t-scope-txt span { display: none; }
+  .t-scope-txt b { max-width: 26vw; font-size: var(--fs-sm); }
+  .t-branch-pill { max-width: 30vw; }
+}
+@media (max-width: 640px) {
+  .t-topbar { gap: var(--s-1); padding-inline: var(--s-2); }
+  .t-topbar-tools { gap: var(--s-1); }
+  .t-scope-txt { display: none; }
+  .t-scope-btn .t-scope-ico { display: inline-block; }
+  .t-scope-btn { padding-inline: 6px; }
+  .t-branch-pill { max-width: 34vw; padding-inline: 8px; }
+  .t-scope-menu { position: fixed; top: calc(var(--topbar-h) + 4px); inset-inline: var(--s-2); width: auto; max-width: none; }
+  #t-role { max-width: 88px; padding-inline-end: 24px; }
+  .t-topbar [data-shell-lang] span { display: none; }
+  .t-topbar [data-shell-lang] { width: var(--ctl-h); padding: 0; }
+}
+@media (max-width: 420px) {
+  .t-brand .t-brand-mark { display: none; }
+  .t-topbar [data-shell-theme] { display: none; }
+  .t-branch-pill { max-width: 30vw; }
+}

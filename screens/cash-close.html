@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Cashier shift close — Tamargi">تقفيل الخزنة — تمرجي</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style>
+    .cc-den { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--s-2); }
+    .cc-den label { display: grid; grid-template-columns: 64px 1fr; align-items: center; gap: var(--s-2); padding: var(--s-2); border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface-sunk); }
+    .cc-note { font-family: var(--font-en); font-weight: var(--fw-sb); text-align: center; padding: 6px 4px; border-radius: var(--r-xs); background: var(--surface); border: 1px solid var(--line-strong); font-variant-numeric: tabular-nums; }
+    .cc-den .t-input { height: 32px; text-align: center; }
+    .cc-den small { grid-column: 1 / -1; font-size: var(--fs-xs); color: var(--text-3); text-align: end; }
+    .cc-diff { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) var(--s-4); border-radius: var(--r-sm); font-weight: var(--fw-sb); }
+    .cc-diff.ok { background: var(--success-bg); color: var(--success-fg); }
+    .cc-diff.short { background: var(--danger-bg); color: var(--danger-fg); }
+    .cc-diff.over { background: var(--warning-bg); color: var(--warning-fg); }
+    .cc-side { position: sticky; top: calc(var(--topbar-h) + var(--s-4)); }
+    @media (max-width: 860px) { .cc-side { position: static; } }
+    .cc-lock { display: flex; gap: var(--s-4); align-items: center; flex-wrap: wrap; }
+    .cc-owner { border-inline-start: 3px solid var(--primary); }
+  </style>
+</head>
+<body data-screen="cash-close">
+<main id="screen">
+  <div class="t-container">
+
+    <header class="t-screen-head">
+      <div>
+        <h1 data-en="Close the drawer">تقفيل الخزنة</h1>
+        <p class="t-sub mb-0"><span data-en="Shift of Sara Ramadan · opened Sat 14 Nov 9:00 am · float 500 EGP">وردية سارة رمضان · فتحت السبت ١٤ نوفمبر ٩:٠٠ ص · فكّة البداية ٥٠٠ ج.م</span></p>
+      </div>
+      <div class="t-actions">
+        <span data-state="counting"><span class="t-chip waiting" data-en="Shift open · counting">الوردية مفتوحة · جاري العد</span></span>
+        <span data-state="closed"><span class="t-stamp"><svg class="t-icon sm"><use href="#i-lock"/></svg><span data-en="Closed 10:05 pm · locked">اتقفلت ١٠:٠٥ م · مقفولة</span></span></span>
+        <a class="t-btn" href="reports.html"><svg class="t-icon sm"><use href="#i-download"/></svg><span data-en="Transactions list">قائمة الحركات</span></a>
+        <button class="t-btn" type="button" onclick="window.print()"><svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Print summary">طباعة الملخص</span></button>
+      </div>
+    </header>
+
+    <div class="t-split aside-end">
+      <div class="t-stack lg">
+
+        <!-- Expected vs counted by method -->
+        <section class="t-card flush"
+                 data-note="Expected totals by payment method come from collected payments only (Collect, not printing), so the number is trustworthy. Cash, card and InstaPay are counted; 'deposit used' is shown but not counted because no money moved today (NITCO v34, v74, v91: per-method close and handover report)."
+                 data-note-ar="المتوقع لكل طريقة دفع محسوب من التحصيل بس (مش الطباعة). الكاش والكارت وإنستاباي بيتعدّوا؛ «من الرصيد» ظاهر بس مش بيتعد لأن مفيش فلوس اتحركت النهارده.">
+          <div class="t-card-head"><h2 data-en="Expected vs counted">المتوقع مقابل الفعلي</h2></div>
+          <div class="t-table-wrap" style="border:0;border-radius:0">
+            <table class="t-table">
+              <thead><tr><th data-en="Method">الطريقة</th><th class="num" data-en="Payments">العمليات</th><th class="num" data-en="Expected">المتوقع</th><th class="num" data-en="Counted">الفعلي</th><th class="num" data-en="Difference">الفرق</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><span class="t-name"><svg class="t-icon sm"><use href="#i-cash"/></svg> <span data-en="Cash in drawer">كاش في الدرج</span></span><span class="t-meta" data-en="Float 500 + cash in 5,150 − refunds 100">فكّة ٥٠٠ + كاش داخل ٥١٥٠ − مرتجع ١٠٠</span></td>
+                  <td class="num">38</td><td class="num"><span class="t-money">5,550</span></td>
+                  <td class="num"><span class="t-money" id="cc-cash-counted">5,540</span><span class="t-meta" data-en="from counter below">من العدّاد تحت</span></td>
+                  <td class="num"><span class="t-money debt" id="cc-cash-diff">−10</span></td>
+                </tr>
+                <tr>
+                  <td><span class="t-name"><svg class="t-icon sm"><use href="#i-card"/></svg> <span data-en="Card (POS)">كارت (ماكينة)</span></span><span class="t-meta" data-en="Match against the POS settlement slip">قارن بإيصال تسوية الماكينة</span></td>
+                  <td class="num">4</td><td class="num"><span class="t-money">1,200</span></td>
+                  <td class="num"><input class="t-input ltr" style="height:32px;width:96px" value="1200" aria-label="Card counted" data-cc-other="1200" data-state="counting"><span class="t-money" data-state="closed">1,200</span></td>
+                  <td class="num"><span class="t-money" data-cc-od>0</span></td>
+                </tr>
+                <tr>
+                  <td><span class="t-name"><svg class="t-icon sm"><use href="#i-phone"/></svg> <span data-en="InstaPay">إنستاباي</span></span><span class="t-meta" data-en="Match against the clinic's bank app">قارن بتطبيق بنك العيادة</span></td>
+                  <td class="num">3</td><td class="num"><span class="t-money">650</span></td>
+                  <td class="num"><input class="t-input ltr" style="height:32px;width:96px" value="650" aria-label="InstaPay counted" data-cc-other="650" data-state="counting"><span class="t-money" data-state="closed">650</span></td>
+                  <td class="num"><span class="t-money" data-cc-od>0</span></td>
+                </tr>
+                <tr class="is-muted">
+                  <td><span class="t-name"><svg class="t-icon sm"><use href="#i-wallet"/></svg> <span data-en="Paid from deposits">مدفوع من الأرصدة المقدمة</span></span><span class="t-meta" data-en="Not counted: money was taken on earlier days">مش بيتعد: الفلوس اتاخدت قبل كده</span></td>
+                  <td class="num">2</td><td class="num"><span class="t-money">270</span></td><td class="num">—</td><td class="num">—</td>
+                </tr>
+              </tbody>
+              <tfoot><tr><td data-en="Total collected today (excl. float)">إجمالي المُحصَّل النهارده (من غير الفكّة)</td><td class="num">47</td><td class="num"><span class="t-money">6,900</span></td><td></td><td></td></tr></tfoot>
+            </table>
+          </div>
+        </section>
+
+        <!-- Denomination counter -->
+        <section class="t-card" data-state="counting"
+                 data-note="Denomination counter: type how many of each note; the total and the difference update live. Egyptian receptionists already count by note (the '200s for change' problem), so this mirrors what they do on paper."
+                 data-note-ar="عدّاد الفئات: اكتب عدد كل ورقة؛ الإجمالي والفرق بيتحدثوا لحظيًا. نفس طريقة العد على الورق.">
+          <div class="t-card-head">
+            <h2 data-en="Count the cash">عدّ الكاش</h2>
+            <div class="t-actions"><span class="t-small t-muted" data-en="Counted">الفعلي</span> <b class="t-money lg" id="cc-total">5,540</b></div>
+          </div>
+          <div class="cc-den" id="cc-den">
+            <label><span class="cc-note">200</span><input class="t-input ltr" inputmode="numeric" value="20" data-den="200" aria-label="200 EGP notes"><small>4,000</small></label>
+            <label><span class="cc-note">100</span><input class="t-input ltr" inputmode="numeric" value="10" data-den="100" aria-label="100 EGP notes"><small>1,000</small></label>
+            <label><span class="cc-note">50</span><input class="t-input ltr" inputmode="numeric" value="7" data-den="50" aria-label="50 EGP notes"><small>350</small></label>
+            <label><span class="cc-note">20</span><input class="t-input ltr" inputmode="numeric" value="6" data-den="20" aria-label="20 EGP notes"><small>120</small></label>
+            <label><span class="cc-note">10</span><input class="t-input ltr" inputmode="numeric" value="4" data-den="10" aria-label="10 EGP notes"><small>40</small></label>
+            <label><span class="cc-note">5</span><input class="t-input ltr" inputmode="numeric" value="3" data-den="5" aria-label="5 EGP notes"><small>15</small></label>
+            <label><span class="cc-note" data-en="Coins">فكّة معدن</span><input class="t-input ltr" inputmode="decimal" value="15" data-den="1" aria-label="Coins total in EGP"><small data-en="EGP total">إجمالي بالجنيه</small></label>
+          </div>
+        </section>
+
+        <!-- Money movements -->
+        <section class="t-card flush"
+                 data-note="Everything the owner asks about, with reasons: debts collected, deposits taken, refunds (credit notes) and every discount with its reason and who gave it. Discounts are the owner's #1 blind spot today ('assistant discounts he never sees')."
+                 data-note-ar="كل اللي المالك بيسأل عنه بأسبابه: مديونيات اتحصلت، مقدمات، مرتجعات، وكل خصم بسببه ومين اداه.">
+          <div class="t-card-head"><h2 data-en="Money in and out, with reasons">الداخل والخارج بالأسباب</h2></div>
+          <div class="t-card-body">
+            <div class="t-grid c2 mb-4">
+              <dl class="t-totals">
+                <dt data-en="Invoices collected (cash)">فواتير اتحصّلت (كاش)</dt><dd><span class="t-money">4,350</span></dd>
+                <dt data-en="Old debts collected · 4">مديونيات قديمة اتحصّلت · ٤</dt><dd><span class="t-money">300</span></dd>
+                <dt data-en="Deposits taken · 1">مقدمات اتاخدت · ١</dt><dd><span class="t-money deposit">500</span></dd>
+                <dt data-en="Cash refunds · CN-000036">مرتجع كاش · CN-000036</dt><dd><span class="t-money debt">−100</span></dd>
+              </dl>
+              <dl class="t-totals">
+                <dt data-en="Refund to deposit · CN-000037">مرتجع للرصيد · CN-000037</dt><dd><span class="t-money">250</span></dd>
+                <dt data-en="New debt created today · 3 invoices">مديونية جديدة النهارده · ٣ فواتير</dt><dd><span class="t-money debt">110</span></dd>
+                <dt data-en="Free follow-ups · 7 (list value)">متابعات مجانية · ٧ (بالسعر الأصلي)</dt><dd><span class="t-money">2,100</span></dd>
+                <dt data-en="Discounts given · 6">خصومات · ٦</dt><dd><span class="t-money">245</span></dd>
+              </dl>
+            </div>
+          </div>
+          <div class="t-table-wrap" style="border:0;border-radius:0;border-block-start:1px solid var(--line)">
+            <table class="t-table">
+              <thead><tr><th data-en="Invoice">الفاتورة</th><th data-en="Patient">المريض</th><th data-en="Reason">السبب</th><th data-en="By">بواسطة</th><th class="num" data-en="Discount">الخصم</th></tr></thead>
+              <tbody>
+                <tr><td class="t-ltr">INV-004812</td><td>كريم عبد العزيز</td><td data-en="Tier: Seniors 65+ (10%)">شريحة: كبار السن (١٠٪)</td><td data-en="Sara">سارة</td><td class="num">20</td></tr>
+                <tr><td class="t-ltr">INV-004809</td><td>فاطمة السيد الجمال</td><td data-en="Tier: Seniors 65+ (10%)">شريحة: كبار السن (١٠٪)</td><td data-en="Sara">سارة</td><td class="num">30</td></tr>
+                <tr><td class="t-ltr">INV-004804</td><td>محمد عادل الشربيني</td><td data-en="Tier: Seniors 65+ (10%)">شريحة: كبار السن (١٠٪)</td><td data-en="Sara">سارة</td><td class="num">30</td></tr>
+                <tr><td class="t-ltr">INV-004799</td><td>د. هاني رشاد البيلي</td><td data-en="Tier: Medical colleagues (20%)">شريحة: زملاء المهنة (٢٠٪)</td><td data-en="Sara">سارة</td><td class="num">60</td></tr>
+                <tr><td class="t-ltr">INV-004795</td><td>أم ياسين عبد الله</td><td data-en="Financial hardship · approved by Dr. Ahmed (PIN)">ظروف مادية · موافقة د. أحمد (رقم سري)</td><td data-en="Sara + owner">سارة + المالك</td><td class="num">55</td></tr>
+                <tr><td class="t-ltr">INV-004792</td><td>سعيد مصطفى القاضي</td><td data-en="Financial hardship">ظروف مادية</td><td data-en="Sara">سارة</td><td class="num">50</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- Close panel -->
+      <aside class="t-stack cc-side">
+        <section class="t-card" data-state="counting">
+          <div class="t-card-head"><h2 data-en="Result">النتيجة</h2></div>
+          <div class="cc-diff short" id="cc-diff"
+               data-note="Over/short is shown in words and colour (short = red, over = amber, balanced = green). Any difference needs a note before the shift can close; the note goes to the owner with the summary."
+               data-note-ar="الزيادة/العجز بالكلام واللون. أي فرق محتاج ملاحظة قبل التقفيل وبتروح للمالك مع الملخص.">
+            <span id="cc-diff-l" data-en="Short (missing)">عجز</span><span class="t-money"><span id="cc-diff-v">10</span> <span data-en="EGP">ج.م</span></span>
+          </div>
+          <div class="t-field mt-4" id="cc-note-f">
+            <label class="t-label" for="cc-note"><span data-en="Explain the difference">اشرح الفرق</span><span class="req">*</span></label>
+            <textarea id="cc-note" class="t-textarea" style="min-height:72px" placeholder="مثال: فكّة ١٠ ج.م اديتها لمريض ونسيت أسجلها" data-en-placeholder="e.g. gave 10 EGP change and forgot to record it"></textarea>
+            <span class="t-error" id="cc-note-err" hidden data-en="A note is required when counted ≠ expected.">الملاحظة مطلوبة لما الفعلي ≠ المتوقع.</span>
+          </div>
+          <div class="t-field mt-4">
+            <label class="t-label" for="cc-next" data-en="Leave as float for tomorrow">فكّة للوردية الجاية</label>
+            <div class="t-input-affix"><input id="cc-next" class="t-input ltr" value="500" inputmode="decimal"><span class="t-affix" data-en="EGP">ج.م</span></div>
+            <span class="t-hint" data-en="The rest (5,040) goes to the owner.">الباقي (٥٬٠٤٠) يتسلم للمالك.</span>
+          </div>
+          <button class="t-btn primary block lg mt-4" type="button" id="cc-close"
+                  data-note="Close shift locks every payment in it: no more collecting or crediting on this shift. Reopening needs the owner's PIN and a reason, and is logged."
+                  data-note-ar="تقفيل الوردية بيقفل كل المدفوعات فيها. إعادة الفتح محتاجة رقم المالك السري وسبب وبتتسجل.">
+            <svg class="t-icon"><use href="#i-lock"/></svg><span data-en="Close shift">تقفيل الوردية</span><span class="t-kbd">F10</span>
+          </button>
+          <p class="t-hint mt-2 mb-0" style="text-align:center" data-en="After closing, new payments open a new shift automatically.">بعد التقفيل، أي تحصيل جديد بيفتح وردية جديدة لوحده.</p>
+        </section>
+
+        <section class="t-card" data-state="closed">
+          <div class="cc-lock mb-4">
+            <span class="t-stamp"><svg class="t-icon sm"><use href="#i-lock"/></svg><span data-en="Closed · locked">مقفولة</span></span>
+            <span class="t-small t-muted" data-en="14/11/2026 10:05 pm · Sara Ramadan">14/11/2026 10:05 م · سارة رمضان</span>
+          </div>
+          <dl class="t-totals mb-4">
+            <dt data-en="Cash expected">الكاش المتوقع</dt><dd>5,550</dd>
+            <dt data-en="Cash counted">الكاش الفعلي</dt><dd>5,540</dd>
+            <dt data-en="Short">عجز</dt><dd><span class="t-money debt">−10</span></dd>
+            <dt data-en="Handed to owner">اتسلم للمالك</dt><dd>5,040</dd>
+            <dt data-en="Float left">فكّة متروكة</dt><dd>500</dd>
+          </dl>
+          <p class="t-small t-muted" data-en="Note: “Gave 10 EGP change and forgot to record it.”">الملاحظة: «فكّة ١٠ ج.م اديتها لمريض ونسيت أسجلها».</p>
+          <button class="t-btn block" type="button" data-open="#cc-reopen"><svg class="t-icon sm"><use href="#i-lock"/></svg><span data-en="Reopen (owner only)">إعادة فتح (المالك فقط)</span></button>
+        </section>
+
+        <section class="t-card sunk cc-owner"
+                 data-note="The same summary is pushed to the owner dashboard the moment the shift closes, answering 'where is today's money?' on the owner's phone at 11 pm."
+                 data-note-ar="نفس الملخص بيوصل لوحة المالك أول ما الوردية تتقفل: «فلوس النهارده فين؟» على موبايل المالك.">
+          <h3 class="mb-2" data-en="What the owner sees">اللي المالك بيشوفه</h3>
+          <p class="t-small mb-2" data-en="“Sara closed: 6,900 collected (cash 5,050 net · card 1,200 · InstaPay 650), short 10 with note, 6 discounts = 245, 2 credit notes.”">«سارة قفلت: ٦٬٩٠٠ اتحصّل (كاش ٥٬٠٥٠ صافي · كارت ١٬٢٠٠ · إنستاباي ٦٥٠)، عجز ١٠ بملاحظة، ٦ خصومات = ٢٤٥، مرتجعين.»</p>
+          <span data-state="counting" class="t-small t-faint" data-en="Sent when you close the shift.">بيتبعت لما تقفل الوردية.</span>
+          <span data-state="closed" class="t-small"><span class="t-chip paid" data-en="Sent 10:05 pm">اتبعت ١٠:٠٥ م</span> <a href="owner-dashboard.html" data-en="Open owner dashboard">فتح لوحة المالك</a></span>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Reopen (owner) -->
+  <div class="t-scrim" id="cc-reopen" hidden>
+    <div class="t-modal" role="dialog" aria-labelledby="cc-ro-h">
+      <div class="t-modal-head">
+        <h2 id="cc-ro-h" data-en="Reopen Sara's shift?">إعادة فتح وردية سارة؟</h2>
+        <button class="t-btn icon ghost" type="button" data-close aria-label="Close" title="Close"><svg class="t-icon"><use href="#i-close"/></svg></button>
+      </div>
+      <div class="t-modal-body t-stack">
+        <p class="t-muted mb-0" data-en="Only the owner can reopen a closed shift. The original close stays in the log next to the new one.">المالك بس يقدر يعيد فتح وردية مقفولة. التقفيل الأصلي بيفضل في السجل جنب الجديد.</p>
+        <div class="t-field">
+          <label class="t-label" for="cc-ro-r"><span data-en="Reason">السبب</span><span class="req">*</span></label>
+          <input id="cc-ro-r" class="t-input" placeholder="مثال: كارت اتسجل كاش بالغلط" data-en-placeholder="e.g. a card payment was recorded as cash">
+        </div>
+        <div class="t-field">
+          <label class="t-label" for="cc-ro-p" data-en="Owner PIN">الرقم السري للمالك</label>
+          <input id="cc-ro-p" class="t-input ltr" type="password" inputmode="numeric" maxlength="4" placeholder="••••" style="max-width:140px;letter-spacing:.3em">
+        </div>
+      </div>
+      <div class="t-modal-foot">
+        <button class="t-btn" type="button" data-close data-en="Cancel">إلغاء</button>
+        <button class="t-btn danger" type="button" id="cc-ro-ok" data-en="Reopen shift">إعادة فتح</button>
+      </div>
+    </div>
+  </div>
+</main>
+<script src="../assets/shell.js"></script>
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var en = function () { return window.Tamargi && Tamargi.lang() === "en"; };
+  var EXPECTED = 5550;
+  var f = function (n) { return n.toLocaleString("en-US"); };
+  function calc() {
+    var t = 0;
+    $$("#cc-den input").forEach(function (i) {
+      var d = +i.getAttribute("data-den"), n = parseFloat(i.value) || 0, v = d === 1 ? n : d * n;
+      t += v; if (d !== 1) $("small", i.parentNode).textContent = f(v);
+    });
+    $("#cc-total").textContent = f(t);
+    $("#cc-cash-counted").textContent = f(t);
+    var diff = t - EXPECTED, box = $("#cc-diff"), lbl = $("#cc-diff-l");
+    $("#cc-cash-diff").textContent = (diff > 0 ? "+" : "") + f(diff);
+    $("#cc-cash-diff").className = "t-money" + (diff < 0 ? " debt" : "");
+    box.className = "cc-diff " + (diff === 0 ? "ok" : diff < 0 ? "short" : "over");
+    var ar = diff === 0 ? "مظبوط" : diff < 0 ? "عجز" : "زيادة", en_ = diff === 0 ? "Balanced" : diff < 0 ? "Short (missing)" : "Over (extra)";
+    lbl.setAttribute("data-ar", ar); lbl.setAttribute("data-en", en_); lbl.innerHTML = en() ? en_ : ar;
+    $("#cc-diff-v").textContent = f(Math.abs(diff));
+    $$("[data-cc-other]").forEach(function (i, k) {
+      var d = (parseFloat(i.value) || 0) - (+i.getAttribute("data-cc-other"));
+      var od = $$("[data-cc-od]")[k]; od.textContent = (d > 0 ? "+" : "") + f(d); od.className = "t-money" + (d < 0 ? " debt" : "");
+    });
+    return diff;
+  }
+  function anyDiff() {
+    var d = calc() !== 0;
+    $$("[data-cc-other]").forEach(function (i) { if ((parseFloat(i.value) || 0) !== +i.getAttribute("data-cc-other")) d = true; });
+    return d;
+  }
+  document.addEventListener("input", function (e) { if (e.target.closest("#cc-den") || e.target.hasAttribute("data-cc-other")) { calc(); } if (e.target.id === "cc-note") $("#cc-note-err").hidden = true; });
+  function close() {
+    if (anyDiff() && !$("#cc-note").value.trim()) { $("#cc-note-err").hidden = false; $("#cc-note").focus(); return; }
+    Tamargi.setState("closed"); window.scrollTo({ top: 0, behavior: "smooth" });
+    Tamargi.toast(en() ? "Shift closed and locked — summary sent to the owner" : "الوردية اتقفلت — الملخص اتبعت للمالك");
+  }
+  document.addEventListener("click", function (e) {
+    if (e.target.closest("#cc-close")) close();
+    if (e.target.closest("#cc-ro-ok")) {
+      if (!$("#cc-ro-r").value.trim() || ($("#cc-ro-p").value || "").length < 4) { $("#cc-ro-r").classList.toggle("is-invalid", !$("#cc-ro-r").value.trim()); $("#cc-ro-p").classList.add("is-invalid"); return; }
+      $("#cc-reopen").hidden = true; Tamargi.setState("counting");
+      Tamargi.toast(en() ? "Shift reopened by Dr. Ahmed — logged" : "د. أحمد أعاد فتح الوردية — اتسجل");
+    }
+    if (e.target.closest("[data-shell-lang]")) setTimeout(calc, 0);
+  });
+  document.addEventListener("keydown", function (e) { if (e.key === "F10") { e.preventDefault(); if (!$("#cc-close").closest("[hidden]")) close(); } });
+  calc();
+})();
+</script>
+</body>
+</html>

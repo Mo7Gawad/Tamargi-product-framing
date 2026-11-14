@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Patient search — Tamargi">البحث عن مريض — تمرجي</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style>
+    /* patient-search: page-specific, tokens only */
+    /* local fix: .t-kbd is direction:ltr, which flips its logical inset inside RTL search boxes */
+    .t-search-xl > .t-kbd { direction: inherit; unicode-bidi: isolate; }
+    .t-search-xl .t-input { padding-inline-end: 84px; }
+    .ps-norm { display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: center; margin-block: var(--s-3) var(--s-5); font-size: var(--fs-xs); color: var(--text-3); }
+    .ps-norm code { font-family: var(--font); background: var(--surface-sunk); border: 1px solid var(--line); border-radius: var(--r-xs); padding: 1px 6px; color: var(--text-2); }
+    .ps-table tbody tr { cursor: pointer; }
+    .ps-table tbody tr:focus-visible td { background: var(--primary-soft); }
+    .ps-table mark { background: var(--waiting-bg); color: inherit; border-radius: 2px; padding-inline: 1px; }
+    .ps-pills { display: flex; flex-wrap: wrap; gap: 4px; }
+    .ps-keys { display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-4); padding: var(--s-3) var(--s-5); border-block-start: 1px solid var(--line); background: var(--surface-sunk); font-size: var(--fs-xs); color: var(--text-2); }
+    .ps-keys span { display: inline-flex; align-items: center; gap: 6px; }
+    .ps-count { font-size: var(--fs-sm); color: var(--text-2); }
+    @media (max-width: 760px) { .ps-hide-sm { display: none; } }
+  </style>
+</head>
+<body data-screen="patient-search">
+<main id="screen">
+  <div class="t-container narrow" style="max-width:1080px">
+
+    <header class="t-screen-head">
+      <div>
+        <h1 data-en="Patient search">البحث عن مريض</h1>
+        <p class="t-sub mb-0" data-en="One box for name, mobile, national ID or file number. Spelling differences don't matter.">خانة واحدة للاسم أو الموبايل أو الرقم القومي أو رقم الملف. اختلاف الإملاء مش مشكلة.</p>
+      </div>
+      <div class="t-actions">
+        <a class="t-btn primary" href="patient-quick-register.html" id="ps-new"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="New patient">مريض جديد</span><span class="t-kbd">F4</span></a>
+      </div>
+    </header>
+
+    <div class="t-search-xl"
+         data-note="One omnibox replaces NITCO's 14–20-field search modal (v8, v31, v44, v90, v94: Arabic + English name parts × 4, ID, card no.). It matches name, mobile (any part, spaces ignored), 14-digit NID and file no., and normalises Arabic: ة=ه, ى=ي, أ/إ/آ=ا, 'عبد الله' = 'عبدالله', Arabic-Indic digits = Western."
+         data-note-ar="خانة بحث واحدة بدل نافذة البحث ذات ١٤–٢٠ خانة في NITCO. بتدور في الاسم والموبايل (أي جزء) والرقم القومي ورقم الملف، وبتوحّد الإملاء: ة=ه، ى=ي، أ/إ/آ=ا، «عبد الله» = «عبدالله».">
+      <svg class="t-icon"><use href="#i-search"/></svg>
+      <input class="t-input" id="ps-q" type="search" autocomplete="off" value="محمد عبد الله" aria-describedby="ps-norm"
+             placeholder="اكتب الاسم أو الموبايل أو الرقم القومي أو رقم الملف"
+             data-en-placeholder="Type a name, mobile, national ID or file no.">
+      <span class="t-kbd">Ctrl K</span>
+    </div>
+    <div class="ps-norm" id="ps-norm">
+      <span data-en="Finds both spellings:">بيلاقي الكتابتين:</span>
+      <code>هبة = هبه</code><code>مني = منى</code><code>إسراء = اسراء</code><code>عبد الله = عبدالله</code><code class="t-ltr">٠١٠ = 010</code>
+    </div>
+
+    <!-- ===== STATE: results ===== -->
+    <section class="t-card flush" data-state="results">
+      <div class="t-card-head">
+        <h2 class="ps-count" id="ps-count" data-en="2 patients match">٢ مرضى مطابقين</h2>
+        <div class="t-actions"><span class="t-small t-faint" data-en="Sorted by last visit">مترتبين بآخر زيارة</span></div>
+      </div>
+      <div class="t-table-wrap" style="border:0;border-radius:0">
+        <table class="t-table ps-table" role="grid" aria-label="Results" data-en-aria-label="Results">
+          <thead><tr>
+            <th data-en="Patient">المريض</th>
+            <th class="ps-hide-sm" data-en="Age · sex">السن · النوع</th>
+            <th data-en="Mobile">الموبايل</th>
+            <th class="ps-hide-sm" data-en="Last visit">آخر زيارة</th>
+            <th data-note="Money and follow-up status are visible in the result row (NITCO shows debt and advances only after opening the invoice: v89, v90). Text pills, never colour alone."
+                data-note-ar="الفلوس وحالة المتابعة ظاهرين في صف النتيجة نفسه (في NITCO بتظهر بس بعد فتح الفاتورة). كلام مش لون بس."><span data-en="Account">الحساب</span></th>
+            <th></th>
+          </tr></thead>
+          <tbody id="ps-body"></tbody>
+        </table>
+      </div>
+      <div class="ps-keys"
+           data-note="Keyboard-first: ↑/↓ moves, Enter opens the file, Alt+Q adds the selected patient to the queue with visit type and fee auto-filled (reception-queue drawer). No mouse needed for the most frequent action."
+           data-note-ar="الكيبورد أولًا: الأسهم للتنقل، Enter يفتح الملف، Alt+Q يضيف المريض للدور بنوع الزيارة والسعر جاهزين.">
+        <span><span class="t-kbd">↑</span><span class="t-kbd">↓</span><span data-en="move">تنقّل</span></span>
+        <span><span class="t-kbd">Enter</span><span data-en="open file">فتح الملف</span></span>
+        <span><span class="t-kbd">Alt Q</span><span data-en="add to queue">إضافة للدور</span></span>
+        <span><span class="t-kbd">Esc</span><span data-en="clear">مسح</span></span>
+      </div>
+    </section>
+
+    <!-- ===== STATE: recent (before typing) ===== -->
+    <section class="t-card flush" data-state="recent">
+      <div class="t-card-head">
+        <h2 data-en="Recent patients">آخر المرضى</h2>
+        <div class="t-actions"><span class="t-small t-faint" data-en="Seen or searched today">اتشافوا أو اتدوّر عليهم النهارده</span></div>
+      </div>
+      <div class="t-table-wrap" style="border:0;border-radius:0"
+           data-note="Before typing, the list shows today's recent patients, so a returning patient (paying after the visit, asking for a receipt copy) is one click away."
+           data-note-ar="قبل الكتابة بيظهر آخر مرضى النهارده، عشان اللي راجع يدفع أو ياخد نسخة إيصال يبقى بضغطة واحدة.">
+        <table class="t-table ps-table">
+          <thead><tr><th data-en="Patient">المريض</th><th class="ps-hide-sm" data-en="Age · sex">السن · النوع</th><th data-en="Mobile">الموبايل</th><th class="ps-hide-sm" data-en="Today">النهارده</th><th data-en="Account">الحساب</th><th></th></tr></thead>
+          <tbody id="ps-recent"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== STATE: no results ===== -->
+    <section class="t-card" data-state="no-results">
+      <div class="t-empty"
+           data-note="No-results is a next step, not a dead end: 'Register' carries what was typed (name or mobile) into Quick register, so nothing is typed twice. NITCO needs closing the modal, New, and retyping into a 40-field form (v41, v94)."
+           data-note-ar="مفيش نتايج = خطوة جاية مش طريق مسدود: «سجّل» بياخد اللي اتكتب (الاسم أو الموبايل) لشاشة التسجيل السريع من غير إعادة كتابة.">
+        <div class="t-empty-art"><svg class="t-icon"><use href="#i-user"/></svg></div>
+        <h3 id="ps-none-h" data-en="No patient matches">مفيش مريض بالبيانات دي</h3>
+        <p data-en="Check the mobile number, or try only the first and last name. If this is a new patient, register them now; what you typed is carried over.">راجع رقم الموبايل، أو جرّب الاسم الأول والأخير بس. لو مريض جديد سجّله دلوقتي، واللي كتبته هيتنقل معاك.</p>
+        <div class="t-row tight">
+          <a class="t-btn primary" id="ps-reg" href="patient-quick-register.html?q=%D8%A5%D8%A8%D8%B1%D8%A7%D9%87%D9%8A%D9%85%20%D8%A7%D9%84%D8%B3%D9%8A%D8%AF%20%D8%B9%D9%88%D8%B6"><svg class="t-icon sm"><use href="#i-plus"/></svg><span id="ps-reg-label">سجّل «إبراهيم السيد عوض»</span><span class="t-kbd">F4</span></a>
+          <button class="t-btn" type="button" id="ps-clear"><span data-en="Clear search">مسح البحث</span></button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+<script src="../assets/shell.js"></script>
+<script>
+(function () {
+  "use strict";
+  var T = window.Tamargi;
+  function en() { return T.lang() === "en"; }
+  function tx(ar, e) { return '<span data-ar="' + ar + '" data-en="' + e + '">' + (en() ? e : ar) + "</span>"; }
+
+  /* Fake patients — no real people */
+  var P = [
+    { n: "محمد عبد الله إبراهيم العشري", age: 52, sx: ["ذكر", "M"], mob: "01227781190", nid: "27403151200435", file: "0871", last: ["٢ نوفمبر · د. أحمد", "2 Nov · Dr. Ahmed"], dep: 200, ord: 3 },
+    { n: "محمد عبدالله فوزي الجندي", age: 29, sx: ["ذكر", "M"], mob: "01114402233", nid: "29705081201117", file: "1310", last: ["١١ نوفمبر · د. أحمد", "11 Nov · Dr. Ahmed"], fu: ["متابعة مجانية حتى ٢٥ نوفمبر", "Free follow-up until 25 Nov"], ord: 1 },
+    { n: "منى عبد الرحمن السيد الشناوي", age: 34, sx: ["أنثى", "F"], mob: "01002345678", nid: "29203121201882", file: "1043", last: ["٥ نوفمبر · د. أحمد", "5 Nov · Dr. Ahmed"], debt: 40, fu: ["متابعة مجانية حتى ١٩ نوفمبر", "Free follow-up until 19 Nov"], ord: 2 },
+    { n: "هبة محمود عبد الله سرور", age: 41, sx: ["أنثى", "F"], mob: "01550093317", nid: "28509221200764", file: "0655", last: ["١٣ سبتمبر · د. أحمد", "13 Sep · Dr. Ahmed"], ord: 6 },
+    { n: "ريم أحمد عبد الفتاح زكي", age: 5, sx: ["أنثى", "F"], mob: "01093320145", nid: "", file: "2214", last: ["٨ نوفمبر · د. هبة", "8 Nov · Dr. Heba"], fu: ["متابعة مجانية حتى ١٨ نوفمبر", "Free follow-up until 18 Nov"], child: true, ord: 4 },
+    { n: "عبد الله فتحي القط", age: 63, sx: ["ذكر", "M"], mob: "01006617742", nid: "26301011200291", file: "0412", last: ["٣ نوفمبر · د. أحمد", "3 Nov · Dr. Ahmed"], debt: 150, ord: 5 },
+    { n: "أسماء عبد العاطي المرسي", age: 27, sx: ["أنثى", "F"], mob: "01282230456", nid: "29908141201553", file: "1502", last: ["النهارده · د. أحمد", "Today · Dr. Ahmed"], ord: 0, today: ["انتهت ٧:٠٥ · مدفوع", "Done 7:05 · paid"] },
+    { n: "إسراء محمد الشربيني", age: 31, sx: ["أنثى", "F"], mob: "01019874456", nid: "29502271201345", file: "1188", last: ["٢٠ أكتوبر · د. هبة", "20 Oct · Dr. Heba"], ord: 7 },
+    { n: "كريم محمود عبد العزيز", age: 38, sx: ["ذكر", "M"], mob: "01224408812", nid: "28806051201239", file: "1620", last: ["النهارده · د. أحمد", "Today · Dr. Ahmed"], debt: 150, ord: 0, today: ["انتهى · مطلوب ١٥٠", "Done · owes 150"] },
+    { n: "سامية فؤاد البدراوي", age: 46, sx: ["أنثى", "F"], mob: "01061122093", nid: "", file: "1621", last: ["النهارده · د. أحمد", "Today · Dr. Ahmed"], ord: 0, today: ["في الكشف", "In room"] }
+  ];
+
+  /* Arabic normaliser that keeps a map back to the original string (for highlighting) */
+  function nchar(c) {
+    if (/[أإآٱ]/.test(c)) return "ا"; if (c === "ة") return "ه"; if (c === "ى" || c === "ئ") return "ي"; if (c === "ؤ") return "و";
+    var k = c.charCodeAt(0); if (k >= 1632 && k <= 1641) return String(k - 1632); return c;
+  }
+  function nmap(s) { var out = "", map = []; for (var i = 0; i < s.length; i++) { if (/\s/.test(s[i])) continue; out += nchar(s[i]); map.push(i); } return { s: out, map: map }; }
+  function hl(name, q) {
+    var N = nmap(name), i = N.s.indexOf(q); if (!q || i < 0) return name;
+    var a = N.map[i], b = N.map[i + q.length - 1] + 1;
+    return name.slice(0, a) + "<mark>" + name.slice(a, b) + "</mark>" + name.slice(b);
+  }
+  function fmtMob(m) { return m.slice(0, 4) + " " + m.slice(4, 7) + " " + m.slice(7); }
+  function pills(p) {
+    var h = "";
+    if (p.debt) h += '<span class="t-chip debt plain">' + tx("عليه " + p.debt + " ج.م", "Owes " + p.debt + " EGP") + "</span>";
+    if (p.dep) h += '<span class="t-chip paid plain">' + tx("رصيد " + p.dep + " ج.م", "Deposit " + p.dep + " EGP") + "</span>";
+    if (p.fu) h += '<span class="t-chip free">' + tx(p.fu[0], p.fu[1]) + "</span>";
+    return h || '<span class="t-faint t-small">' + tx("صفر", "Clear") + "</span>";
+  }
+  function row(p, q, recent) {
+    return '<tr tabindex="-1" data-file="' + p.file + '">' +
+      '<td><span class="t-name">' + hl(p.n, q) + '</span><span class="t-meta">' + tx("ملف", "File") + ' <span class="t-ltr">' + p.file + "</span>" + (p.nid ? ' · <span class="t-ltr">' + p.nid.slice(0, 1) + "•••••••••" + p.nid.slice(-4) + "</span>" : "") + (p.child ? " · " + tx("طفل — رقم ولي الأمر", "Child — guardian's phone") : "") + "</span></td>" +
+      '<td class="ps-hide-sm">' + p.age + " · " + tx(p.sx[0], p.sx[1]) + "</td>" +
+      '<td><span class="t-ltr">' + fmtMob(p.mob) + "</span></td>" +
+      '<td class="ps-hide-sm">' + (recent && p.today ? tx(p.today[0], p.today[1]) : tx(p.last[0], p.last[1])) + "</td>" +
+      '<td><div class="ps-pills">' + pills(p) + "</div></td>" +
+      '<td class="actions"><button class="t-btn sm soft" type="button" data-q>' + tx("إضافة للدور", "Add to queue") + "</button></td></tr>";
+  }
+
+  var input = document.getElementById("ps-q"), body = document.getElementById("ps-body"), sel = 0, hits = [];
+  function search() {
+    var raw = input.value.trim(), q = nmap(raw).s;
+    if (!q) { T.setState("recent"); return; }
+    var digits = /^[0-9]+$/.test(q);
+    hits = P.filter(function (p) { return digits ? (p.mob.indexOf(q) > -1 || p.nid.indexOf(q) > -1 || p.file.indexOf(q) > -1) : nmap(p.n).s.indexOf(q) > -1; })
+            .sort(function (a, b) { return a.ord - b.ord; });
+    if (!hits.length) {
+      document.getElementById("ps-reg").href = "patient-quick-register.html?q=" + encodeURIComponent(raw);
+      var lbl = document.getElementById("ps-reg-label");
+      lbl.setAttribute("data-ar", "سجّل «" + raw + "»"); lbl.setAttribute("data-en", "Register “" + raw + "”");
+      lbl.innerHTML = en() ? lbl.getAttribute("data-en") : lbl.getAttribute("data-ar");
+      T.setState("no-results"); return;
+    }
+    body.innerHTML = hits.map(function (p) { return row(p, digits ? "" : q); }).join("");
+    var c = document.getElementById("ps-count"), n = hits.length;
+    c.setAttribute("data-ar", n + (n === 1 ? " مريض مطابق" : " مرضى مطابقين")); c.setAttribute("data-en", n + (n === 1 ? " patient matches" : " patients match"));
+    c.innerHTML = en() ? c.getAttribute("data-en") : c.getAttribute("data-ar");
+    sel = 0; mark(); T.setState("results");
+  }
+  function mark() {
+    var rows = document.querySelectorAll("[data-state]:not([hidden]) tbody tr");
+    Array.prototype.forEach.call(rows, function (r, i) { r.classList.toggle("is-selected", i === sel); });
+  }
+  document.getElementById("ps-recent").innerHTML = P.filter(function (p) { return p.today; }).concat(P.filter(function (p) { return p.ord === 1 || p.ord === 2; })).map(function (p) { return row(p, "", true); }).join("");
+
+  input.addEventListener("input", search);
+  document.getElementById("ps-clear").addEventListener("click", function () { input.value = ""; search(); input.focus(); });
+
+  /* Spec-strip state switcher: keep the input in sync */
+  document.addEventListener("click", function (e) {
+    var s = e.target.closest("[data-set-state]");
+    if (s) {
+      var v = s.getAttribute("data-set-state");
+      input.value = v === "results" ? "محمد عبد الله" : v === "no-results" ? "إبراهيم السيد عوض" : "";
+      search(); return;
+    }
+    var q = e.target.closest("[data-q]");
+    if (q) { e.stopPropagation(); addToQueue(q.closest("tr")); return; }
+    var tr = e.target.closest(".ps-table tbody tr");
+    if (tr) location.href = "patient-file.html";
+  });
+  function addToQueue(tr) {
+    var p = P.filter(function (x) { return x.file === tr.getAttribute("data-file"); })[0];
+    var d = p.child ? "د. هبة" : "د. أحمد", de = p.child ? "Dr. Heba" : "Dr. Ahmed";
+    var t = (p.child ? "B-10" : "A-19");
+    var typeAr = p.fu ? "متابعة مجانية" : "كشف " + (p.child ? 250 : 300) + " ج.م", typeEn = p.fu ? "free follow-up" : "consult " + (p.child ? 250 : 300) + " EGP";
+    T.toast(en() ? "Added to " + de + "'s queue — " + t + " · " + typeEn : "اتضاف لدور " + d + " — " + t + " · " + typeAr);
+  }
+
+  window.addEventListener("keydown", function (e) {
+    var rows = document.querySelectorAll("[data-state]:not([hidden]) tbody tr");
+    if ((e.ctrlKey || e.metaKey) && (e.key === "k" || e.key === "K")) { e.preventDefault(); e.stopPropagation(); input.focus(); input.select(); return; }
+    if (e.key === "F4") { e.preventDefault(); location.href = document.getElementById("ps-reg").href.indexOf("q=") > -1 && !hits.length ? document.getElementById("ps-reg").href : "patient-quick-register.html"; return; }
+    if (e.target && e.target.hasAttribute && e.target.hasAttribute("data-shell-search")) return;
+    if (e.key === "ArrowDown" && rows.length) { sel = Math.min(sel + 1, rows.length - 1); mark(); e.preventDefault(); }
+    else if (e.key === "ArrowUp" && rows.length) { sel = Math.max(sel - 1, 0); mark(); e.preventDefault(); }
+    else if (e.key === "Enter" && rows.length && document.activeElement === input) { e.preventDefault(); location.href = "patient-file.html"; }
+    else if (e.altKey && (e.key === "q" || e.key === "Q") && rows[sel]) { e.preventDefault(); addToQueue(rows[sel]); }
+    else if (e.key === "Escape" && document.activeElement === input) { input.value = ""; search(); }
+  }, true);
+
+  /* Initial state from hash or default */
+  var h = (location.hash.match(/state=([\w-]+)/) || [])[1];
+  if (h === "no-results") input.value = "إبراهيم السيد عوض"; else if (h === "recent") input.value = "";
+  search(); input.focus();
+})();
+</script>
+</body>
+</html>

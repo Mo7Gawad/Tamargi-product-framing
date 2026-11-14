@@ -1,0 +1,187 @@
+<!doctype html>
+<!--
+  TAMARGI SCREEN TEMPLATE — copy this file into screens/<file-name>.html
+  Rules for designers (full spec: 01_Obsidian_Vault/07_UI_UX_Brand/design-system.md)
+  1. Keep <html lang="ar" dir="rtl">. Arabic is the authored text; put English in data-en="…".
+     Attributes: data-en-placeholder, data-en-title, data-en-aria-label.
+  2. Link ../assets/tamargi.css in <head> and ../assets/shell.js at the end of <body>.
+     (This template sits one level up, so it uses assets/… instead of ../assets/…)
+  3. Everything goes inside <main id="screen"><div class="t-container">…</div></main>.
+     shell.js wraps it with the top bar + side nav. Do NOT build your own top bar or nav.
+  4. Start with .t-screen-head (h1 + one-line .t-sub + .t-actions). Clinical screens put the
+     .t-banner (patient banner) BEFORE .t-screen-head so it pins under the top bar.
+  5. Explain features with data-note="English text" (+ optional data-note-ar). Pins are numbered
+     automatically in DOM order. 4–8 notes per screen; say what it does and why (which research
+     finding or NITCO weakness it answers).
+  6. Alternative states of the same screen (empty, no-results, error) are siblings with
+     data-state="name". The first one is the default; a switcher appears in the spec strip.
+  7. Use only classes from tamargi.css (t-*) + inline SVG icons via <svg class="t-icon"><use href="#i-NAME"/></svg>.
+     Use logical CSS only (margin-inline-start, not margin-left). Any page-specific CSS goes in a
+     small <style> block and must use tokens (var(--…)), never raw hex.
+  8. Realistic Egyptian data: 4-part Arabic names, 01xxxxxxxxx mobiles (wrap in .t-ltr), EGP amounts,
+     Dakahlia places. Fake data only — no real patients.
+  9. Primary action per screen: one .t-btn.primary, with its keyboard hint (.t-kbd).
+ 10. Competitor knowledge: before designing, open the NITCO notes for your area
+     (01_Obsidian_Vault/03_Healthcare_Domain/competitors/nitco/feature-catalog.md, ui-patterns.md,
+     videos/NNN_*.md). Borrow their DATA and BUSINESS RULES (fields, statuses, validations); never
+     their UX (icon walls, colour-only status, 15-field search modals, paid-on-print, hard blocks).
+     When a feature comes from that teardown, say so in its data-note, e.g. "(NITCO v89: …)".
+ 11. Polyclinic-only features: mark the section with data-tier="2" and a <span class="t-tier">Tier 2</span>.
+     Money: <span class="t-money debt">40<span class="cur">ج.م</span></span>; invoice states: .t-chip.paid/partial/unpaid/void/credit;
+     appointment states: .t-chip.booked/confirmed/arrived/noshow/cancelled.
+-->
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Screen template — Tamargi">قالب الشاشة — تمرجي</title>
+  <link rel="stylesheet" href="assets/tamargi.css">
+  <style>
+    /* page-specific CSS: tokens only */
+    .tpl-legend { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+  </style>
+</head>
+<body data-screen="_screen-template">
+<main id="screen">
+
+  <!-- (A) Patient banner: only on clinical screens (patient file, visit, prescription, vitals, checkout) -->
+  <section class="t-banner" aria-label="Patient" data-en-aria-label="Patient"
+           data-note="Patient banner: pinned under the top bar on every clinical screen. Name, age/sex, file no., phone and allergies are always visible to prevent wrong-patient errors (NHS CUI pattern)."
+           data-note-ar="شريط المريض: ثابت أسفل الشريط العلوي في كل شاشة طبية. الاسم والسن ورقم الملف والموبايل والحساسية ظاهرين دائمًا لمنع الخطأ في المريض.">
+    <div class="t-banner-id">
+      <span class="t-avatar">م ع</span>
+      <div>
+        <div class="t-banner-name">منى عبد الرحمن السيد الشناوي</div>
+        <div class="t-banner-facts">
+          <span><b>٣٤</b> <span data-en="yrs · F">سنة · أنثى</span></span>
+          <span><span data-en="File">ملف</span> <b class="t-ltr">1043</b></span>
+          <span class="t-ltr">0100 234 5678</span>
+          <span data-en="Last visit 2 Nov">آخر زيارة ٢ نوفمبر</span>
+        </div>
+      </div>
+    </div>
+    <div class="t-banner-alerts">
+      <span class="t-allergy">⚠ <span data-en="Penicillin">حساسية: بنسلين</span></span>
+      <span class="t-flag" data-en="Pregnant — 2nd trimester">حامل — الثلث الثاني</span>
+      <span class="t-balance debt" data-en="Owes 40 EGP">عليها ٤٠ ج.م</span>
+      <span class="t-balance followup"
+            data-note="Balance and follow-up pills come from NITCO's patient header (v24–29, v89): debt, deposit and the free follow-up window are visible before anyone bills. We show them as labelled pills, not 15 grey read-only boxes."
+            data-note-ar="رصيد المريض ومدة المتابعة المجانية ظاهرين قبل التحصيل (مأخوذ من رأس ملف المريض في NITCO) لكن كبطاقات واضحة بدل ١٥ خانة رمادية."
+            data-en="Free follow-up until 16 Nov">استشارة مجانية حتى ١٦ نوفمبر</span>
+    </div>
+  </section>
+
+  <div class="t-container">
+
+    <!-- (B) Screen head: title, one-line purpose, actions (one primary) -->
+    <header class="t-screen-head">
+      <div>
+        <h1 data-en="Screen title">عنوان الشاشة</h1>
+        <p class="t-sub mb-0" data-en="One sentence that says what this screen is for, from the user's point of view.">جملة واحدة تشرح وظيفة الشاشة من وجهة نظر المستخدم.</p>
+      </div>
+      <div class="t-actions">
+        <button class="t-btn" type="button">
+          <svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Print">طباعة</span>
+        </button>
+        <button class="t-btn primary" type="button" data-toast="تمت الإضافة للدور" data-toast-en="Added to queue"
+                data-note="One primary action per screen, always with its keyboard shortcut shown. Frequent actions take 3 steps or fewer.">
+          <svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="Add to queue">إضافة للدور</span><span class="t-kbd">F2</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- (C) Content. Two states shown with data-state -->
+    <div class="t-split aside-end">
+      <section class="t-card flush">
+        <div class="t-card-head">
+          <h2 data-en="Today's queue — Dr. Ahmed">دور اليوم — د. أحمد</h2>
+          <div class="t-actions"><span class="t-badge">3</span></div>
+        </div>
+
+        <div data-state="default">
+          <div class="t-table-wrap" style="border:0;border-radius:0">
+            <table class="t-table">
+              <thead><tr>
+                <th data-en="Ticket">الرقم</th><th data-en="Patient">المريض</th><th data-en="Status">الحالة</th><th class="num" data-en="Waited">الانتظار</th><th></th>
+              </tr></thead>
+              <tbody>
+                <tr>
+                  <td><span class="t-ticket inroom"><b>A-15</b></span></td>
+                  <td><span class="t-name">كريم محمود عبد العزيز</span><span class="t-meta t-ltr">0122 870 4411</span></td>
+                  <td><span class="t-chip inroom" data-en="In room">في الكشف</span></td>
+                  <td class="num">12 <span data-en="min">د</span></td>
+                  <td class="actions"><button class="t-btn sm ghost" type="button" data-en="Open file">فتح الملف</button></td>
+                </tr>
+                <tr class="is-selected">
+                  <td><span class="t-ticket called"><b>A-16</b></span></td>
+                  <td><span class="t-name">منى عبد الرحمن الشناوي</span><span class="t-meta t-ltr">0100 234 5678</span></td>
+                  <td><span class="t-chip called" data-en="Called"
+                            data-note="Queue states use one fixed colour each, everywhere: waiting (saffron), called (ink, pulsing dot), in room (green), done (slate), left (brick). Always colour + text, never colour alone.">نودي عليه</span></td>
+                  <td class="num">25 <span data-en="min">د</span></td>
+                  <td class="actions"><button class="t-btn sm ghost" type="button" data-en="Open file">فتح الملف</button></td>
+                </tr>
+                <tr>
+                  <td><span class="t-ticket waiting"><b>A-17</b></span></td>
+                  <td><span class="t-name">يوسف إبراهيم حسن</span><span class="t-meta" data-en="Follow-up · booked 7:30">استشارة · حجز ٧:٣٠</span></td>
+                  <td><span class="t-chip waiting" data-en="Waiting">منتظر</span></td>
+                  <td class="num">8 <span data-en="min">د</span></td>
+                  <td class="actions"><button class="t-btn sm ghost" type="button" data-en="Open file">فتح الملف</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div data-state="empty">
+          <div class="t-empty" data-note="Empty states are an invitation to act: say what is missing and give the one action that fixes it. No mood illustrations.">
+            <div class="t-empty-art"><svg class="t-icon"><use href="#i-queue"/></svg></div>
+            <h3 data-en="No one in the queue yet">مفيش حد في الدور لسه</h3>
+            <p data-en="Add the first patient who walks in, or check in a booked appointment.">ضيف أول مريض يوصل، أو سجّل حضور موعد محجوز.</p>
+            <div class="t-row tight">
+              <button class="t-btn primary" type="button"><span data-en="Add walk-in">إضافة مريض</span><span class="t-kbd">F2</span></button>
+              <button class="t-btn" type="button" data-en="Today's appointments">مواعيد اليوم</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="t-stack">
+        <div class="t-card">
+          <div class="t-card-head"><h3 data-en="Components legend">دليل المكونات</h3></div>
+          <div class="tpl-legend mb-4">
+            <span class="t-chip waiting" data-en="Waiting">منتظر</span>
+            <span class="t-chip called" data-en="Called">نودي عليه</span>
+            <span class="t-chip inroom" data-en="In room">في الكشف</span>
+            <span class="t-chip done" data-en="Done">انتهى</span>
+            <span class="t-chip left" data-en="Left">مشي</span>
+          </div>
+          <div class="t-stack">
+            <div class="t-field">
+              <label class="t-label" for="tpl-phone"><span data-en="Mobile">الموبايل</span><span class="req">*</span></label>
+              <input id="tpl-phone" class="t-input ltr" inputmode="tel" placeholder="01xxxxxxxxx">
+              <span class="t-hint" data-en="Phone is the main lookup key in Egypt.">الموبايل هو مفتاح البحث الأساسي.</span>
+            </div>
+            <div class="t-field">
+              <span class="t-label" data-en="Sex">النوع</span>
+              <div class="t-seg" role="group">
+                <button type="button" aria-pressed="true" data-en="Female">أنثى</button>
+                <button type="button" aria-pressed="false" data-en="Male">ذكر</button>
+              </div>
+            </div>
+            <div class="t-alert warning" data-note="Non-blocking warnings sit inline. Only severe alerts (allergy match) interrupt with a modal.">
+              <svg class="t-icon"><use href="#i-alert"/></svg>
+              <span data-en="Possible duplicate: same mobile as file 0871.">احتمال تكرار: نفس الموبايل مسجل في ملف 0871.</span>
+            </div>
+          </div>
+        </div>
+        <div class="t-card sunk">
+          <p class="t-small t-muted mb-0" data-en="Use the state switcher in the spec strip (turn on Annotations) to see the empty state.">استخدم مبدّل الحالات في شريط المواصفات (شغّل ملاحظات التصميم) لرؤية الحالة الفارغة.</p>
+        </div>
+      </aside>
+    </div>
+
+  </div>
+</main>
+<script src="assets/shell.js"></script>
+</body>
+</html>

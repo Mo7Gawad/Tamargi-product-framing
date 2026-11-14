@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Patient account — Tamargi">حساب المريض — تمرجي</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style>
+    .pa-bal { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-4); }
+    @media (max-width: 860px) { .pa-bal { grid-template-columns: 1fr; } }
+    .pa-bal .t-card { display: flex; flex-direction: column; gap: var(--s-2); }
+    .pa-bal .t-card.debt { border-color: var(--danger-line); }
+    .pa-doc { font-family: var(--font-en); direction: ltr; unicode-bidi: isolate; display: inline-block; font-weight: var(--fw-m); }
+    .pa-choice { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-3); }
+    @media (max-width: 520px) { .pa-choice { grid-template-columns: 1fr; } }
+    .pa-opt { display: flex; gap: var(--s-3); align-items: flex-start; padding: var(--s-3) var(--s-4); border: 1.5px solid var(--line-strong); border-radius: var(--r-md); cursor: pointer; background: var(--surface); }
+    .pa-opt:hover { border-color: var(--primary-line); }
+    .pa-opt:has(input:checked) { border-color: var(--primary); background: var(--primary-soft); }
+    .pa-opt input { margin-block-start: 4px; accent-color: var(--primary); }
+    .pa-opt b { display: block; }
+    .pa-opt small { display: block; color: var(--text-2); font-size: var(--fs-xs); }
+    .pa-open { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-3) 0; border-block-end: 1px solid var(--line); }
+    .pa-open:last-child { border-block-end: 0; }
+    @media print {
+      .t-banner, .pa-bal, .pa-side, .t-tabs { display: none !important; }
+      .t-split { display: block; }
+      .pa-print-head { display: block !important; }
+      .t-table-wrap { border: 0; }
+    }
+    .pa-print-head { display: none; margin-block-end: var(--s-4); }
+  </style>
+</head>
+<body data-screen="patient-account">
+<main id="screen">
+
+  <section class="t-banner" aria-label="Patient" data-en-aria-label="Patient">
+    <div class="t-banner-id">
+      <span class="t-avatar">ك ع</span>
+      <div>
+        <div class="t-banner-name">كريم محمود عبد العزيز</div>
+        <div class="t-banner-facts">
+          <span><b>67</b> <span data-en="yrs · M">سنة · ذكر</span></span>
+          <span><span data-en="File">ملف</span> <b class="t-ltr">0872</b></span>
+          <span class="t-ltr">0122 870 4411</span>
+          <span data-en="Talkha, Dakahlia">طلخا، الدقهلية</span>
+        </div>
+      </div>
+    </div>
+    <div class="t-banner-alerts">
+      <span class="t-allergy none" data-en="No known allergies">لا حساسية معروفة</span>
+      <span class="t-balance debt" data-en="Owes 90 EGP">عليه ٩٠ ج.م</span>
+      <span class="t-balance deposit" data-en="Deposit 150 EGP">رصيد مقدم ١٥٠ ج.م</span>
+    </div>
+  </section>
+
+  <div class="t-container">
+    <header class="t-screen-head">
+      <div>
+        <h1 data-en="Patient account">حساب المريض</h1>
+        <p class="t-sub mb-0" data-en="Everything the patient paid, owes and left on deposit, in one ledger.">كل اللي المريض دفعه، وعليه، وسايبه رصيد مقدم، في كشف واحد.</p>
+      </div>
+      <div class="t-actions">
+        <a class="t-btn" href="patient-file.html"><svg class="t-icon sm"><use href="#i-file"/></svg><span data-en="Patient file">ملف المريض</span></a>
+        <button class="t-btn" type="button" id="pa-print"><svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Print statement">طباعة كشف الحساب</span></button>
+        <button class="t-btn" type="button" data-toast="كشف الحساب اتبعت في شات المريض (PDF)" data-toast-en="Statement sent in patient chat (PDF)"><svg class="t-icon sm"><use href="#i-send"/></svg><span data-en="Share">مشاركة</span></button>
+        <button class="t-btn primary" type="button" data-open="#pa-receive" id="pa-recv-btn"><svg class="t-icon sm"><use href="#i-cash"/></svg><span data-en="Receive payment">استلام مبلغ</span><span class="t-kbd">F8</span></button>
+      </div>
+    </header>
+
+    <div class="pa-print-head">
+      <h2 data-en="Account statement — Dr. Ahmed Selim Clinic">كشف حساب — عيادة د. أحمد سليم</h2>
+      <p class="t-muted mb-0">كريم محمود عبد العزيز · <span data-en="File">ملف</span> 0872 · <span data-en="1 Sep – 14 Nov 2026">١ سبتمبر – ١٤ نوفمبر ٢٠٢٦</span></p>
+    </div>
+
+    <div class="pa-bal mb-6"
+         data-note="Balance header: two separate buckets, never netted: debt (what the patient owes the clinic) and deposit (what the clinic holds for the patient). NITCO v84 shows how a single checkbox put 1,000 SAR in the wrong bucket; keeping them visibly apart prevents that."
+         data-note-ar="رأس الحساب: خانتين منفصلتين مايتخصموش من بعض: المديونية والرصيد المقدم. في NITCO علامة واحدة حطت ١٠٠٠ ريال في الخانة الغلط.">
+      <div class="t-card debt">
+        <span class="t-small t-muted" data-en="Debt owed to the clinic">مديونية على المريض</span>
+        <span class="t-money xl debt"><span id="pa-debt">90</span><span class="cur" data-en="EGP">ج.م</span></span>
+        <span class="t-small t-muted" data-en="From 2 invoices · oldest 28 Oct (17 days)">من فاتورتين · الأقدم ٢٨ أكتوبر (١٧ يوم)</span>
+      </div>
+      <div class="t-card">
+        <span class="t-small t-muted" data-en="Deposit held for the patient">رصيد مقدم للمريض</span>
+        <span class="t-money xl deposit"><span id="pa-dep">150</span><span class="cur" data-en="EGP">ج.م</span></span>
+        <span class="t-small t-muted" data-en="Can pay invoices; never goes below zero">يدفع منه الفواتير؛ ما ينزلش تحت الصفر</span>
+      </div>
+      <div class="t-card sunk">
+        <span class="t-small t-muted" data-en="Lifetime">إجمالي التعامل</span>
+        <span class="t-money lg">1,430<span class="cur" data-en="EGP">ج.م</span></span>
+        <span class="t-small t-muted" data-en="Net billed · 5 visits since Sep 2026">صافي الفواتير · ٥ زيارات من سبتمبر ٢٠٢٦</span>
+      </div>
+    </div>
+
+    <div class="t-split aside-end">
+      <section class="t-card flush">
+        <div class="t-card-head">
+          <h2 data-en="Ledger">كشف الحساب</h2>
+          <div class="t-actions">
+            <div class="t-seg" role="group" aria-label="Period">
+              <button type="button" aria-pressed="false" data-en="30 days">٣٠ يوم</button>
+              <button type="button" aria-pressed="true" data-en="All">الكل</button>
+            </div>
+          </div>
+        </div>
+        <div class="t-table-wrap" style="border:0;border-radius:0"
+             data-note="Ledger: invoices, payments, credit notes, deposits and debt receipts in one list, with two running balances (debt and deposit). Every document number opens the document. Replaces NITCO's separate voucher list, statement and reprint screens (v88, v91)."
+             data-note-ar="الكشف: الفواتير والمدفوعات والمرتجعات والإيداعات في قائمة واحدة برصيدين جاريين. كل رقم مستند بيفتحه.">
+          <table class="t-table">
+            <thead><tr>
+              <th data-en="Date">التاريخ</th><th data-en="Document">المستند</th><th data-en="Details">البيان</th>
+              <th class="num" data-en="Charged">عليه</th><th class="num" data-en="Paid">دفع</th>
+              <th class="num" data-en="Debt">المديونية</th><th class="num" data-en="Deposit">الرصيد</th>
+            </tr></thead>
+            <tbody id="pa-rows">
+              <tr><td class="t-ltr">15/09</td><td><a class="pa-doc" href="invoice-detail.html">INV-004102</a><span class="t-meta"><span class="t-chip paid" data-en="Paid">مدفوعة</span></span></td><td data-en="New consultation · cash">كشف جديد · كاش</td><td class="num">300</td><td class="num">300</td><td class="num">0</td><td class="num">0</td></tr>
+              <tr><td class="t-ltr">01/10</td><td><span class="pa-doc t-ltr">DEP-000211</span><span class="t-meta"><span class="t-chip info" data-en="Deposit">إيداع</span></span></td><td data-en="Advance for echo · cash">مقدم إيكو · كاش</td><td class="num">—</td><td class="num">550</td><td class="num">0</td><td class="num"><span class="t-money deposit">550</span></td></tr>
+              <tr><td class="t-ltr">03/10</td><td><a class="pa-doc" href="invoice-detail.html">INV-004390</a><span class="t-meta"><span class="t-chip paid" data-en="Paid">مدفوعة</span></span></td><td data-en="Echocardiogram · from deposit">إيكو على القلب · من الرصيد</td><td class="num">400</td><td class="num">400</td><td class="num">0</td><td class="num"><span class="t-money deposit">150</span></td></tr>
+              <tr><td class="t-ltr">03/10</td><td><a class="pa-doc" href="invoice-detail.html">CN-000029</a><span class="t-meta"><span class="t-chip credit" data-en="Credit note">مرتجع</span></span></td><td data-en="Colleague discount not applied · to deposit">خصم زميل متطبقش · للرصيد</td><td class="num">−50</td><td class="num">—</td><td class="num">0</td><td class="num"><span class="t-money deposit">200</span></td></tr>
+              <tr><td class="t-ltr">28/10</td><td><a class="pa-doc" href="invoice-detail.html">INV-004655</a><span class="t-meta"><span class="t-chip partial" data-en="Partial">جزئي</span></span></td><td data-en="New consultation · paid 240 cash">كشف جديد · دفع ٢٤٠ كاش</td><td class="num">300</td><td class="num">240</td><td class="num"><span class="t-money debt">60</span></td><td class="num">200</td></tr>
+              <tr><td class="t-ltr">04/11</td><td><a class="pa-doc" href="invoice-detail.html">INV-004721</a><span class="t-meta"><span class="t-chip paid" data-en="Paid">مدفوعة</span></span></td><td data-en="New consultation · cash (starts free follow-up to 18 Nov)">كشف جديد · كاش (بداية المتابعة المجانية حتى ١٨ نوفمبر)</td><td class="num">300</td><td class="num">300</td><td class="num"><span class="t-money debt">60</span></td><td class="num">200</td></tr>
+              <tr class="is-selected"><td class="t-ltr">14/11</td><td><a class="pa-doc" href="invoice-detail.html">INV-004812</a><span class="t-meta"><span class="t-chip partial" data-en="Partial">جزئي</span></span></td><td data-en="Free follow-up + ECG + nebuliser, −10% seniors · 100 cash + 50 deposit">متابعة مجانية + رسم قلب + نيبولايزر، −١٠٪ كبار السن · ١٠٠ كاش + ٥٠ رصيد</td><td class="num">180</td><td class="num">150</td><td class="num"><span class="t-money debt">90</span></td><td class="num"><span class="t-money deposit">150</span></td></tr>
+            </tbody>
+            <tfoot><tr><td colspan="3" data-en="Balance today">الرصيد النهارده</td><td class="num">1,430</td><td class="num"></td><td class="num"><span class="t-money debt" id="pa-debt-f">90</span></td><td class="num"><span class="t-money deposit" id="pa-dep-f">150</span></td></tr></tfoot>
+          </table>
+        </div>
+      </section>
+
+      <aside class="t-stack pa-side">
+        <section class="t-card"
+                 data-note="Pay an open invoice from the deposit in one click. The button is disabled when the deposit is smaller than what is due, with the reason shown, so the deposit can never go negative (NITCO v84 rule)."
+                 data-note-ar="ادفع فاتورة مفتوحة من الرصيد بضغطة. الزرار بيتقفل لو الرصيد أقل من المطلوب، والسبب ظاهر، عشان الرصيد مايبقاش سالب.">
+          <div class="t-card-head"><h3 data-en="Open invoices">فواتير عليها باقي</h3><div class="t-actions"><span class="t-badge muted">2</span></div></div>
+          <div id="pa-open">
+            <div class="pa-open" data-due="60" data-inv="INV-004655">
+              <div class="t-grow"><span class="pa-doc">INV-004655</span><div class="t-small t-muted"><span data-en="28 Oct · due">٢٨ أكتوبر · الباقي</span> <b class="t-money debt">60</b></div></div>
+              <button class="t-btn sm soft" type="button" data-payfrom><svg class="t-icon sm"><use href="#i-wallet"/></svg><span data-en="Pay 60 from deposit">ادفع ٦٠ من الرصيد</span></button>
+            </div>
+            <div class="pa-open" data-due="30" data-inv="INV-004812">
+              <div class="t-grow"><span class="pa-doc">INV-004812</span><div class="t-small t-muted"><span data-en="14 Nov · due">١٤ نوفمبر · الباقي</span> <b class="t-money debt">30</b></div></div>
+              <button class="t-btn sm soft" type="button" data-payfrom><svg class="t-icon sm"><use href="#i-wallet"/></svg><span data-en="Pay 30 from deposit">ادفع ٣٠ من الرصيد</span></button>
+            </div>
+          </div>
+          <p class="t-hint mt-2 mb-0" id="pa-open-hint" data-en="Oldest debt first is the clinic default.">الأقدم الأول هو افتراضي العيادة.</p>
+        </section>
+        <section class="t-card sunk">
+          <h3 class="mb-2" data-en="Rules for this clinic">قواعد العيادة</h3>
+          <ul class="t-small t-muted" style="margin:0;padding-inline-start:18px">
+            <li data-en="Debt alert in the banner from 1 EGP">تنبيه المديونية في الشريط من ١ ج.م</li>
+            <li data-en="Deposit refunds in cash need the owner">رد الرصيد كاش محتاج المالك</li>
+            <li data-en="Debt is per patient, not per doctor (MVP)">المديونية على المريض مش على الدكتور (النسخة الأولى)</li>
+          </ul>
+          <a class="t-small" href="settings-clinic.html" data-en="Change in clinic rules">تعديل في قواعد العيادة</a>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Receive payment -->
+  <div class="t-scrim" id="pa-receive" hidden>
+    <div class="t-modal" role="dialog" aria-labelledby="pa-r-h">
+      <div class="t-modal-head">
+        <h2 id="pa-r-h" data-en="Receive payment">استلام مبلغ</h2>
+        <button class="t-btn icon ghost" type="button" data-close aria-label="Close" title="Close"><svg class="t-icon"><use href="#i-close"/></svg></button>
+      </div>
+      <div class="t-modal-body t-stack lg">
+        <div class="t-field"
+             data-note="Explicit choice, not a checkbox: two big options say exactly where the money goes. NITCO uses one 'دفعات مقدمة' tick and a trainer spends a whole video (v84) on fixing receipts saved in the wrong bucket."
+             data-note-ar="اختيار واضح مش علامة صح: اختيارين كبار بيقولوا الفلوس رايحة فين. في NITCO علامة واحدة وفيديو كامل لتصليح الغلط.">
+          <span class="t-label" data-en="What is this money for?">الفلوس دي لإيه؟</span>
+          <div class="pa-choice" role="radiogroup">
+            <label class="pa-opt"><input type="radio" name="pa-kind" value="debt" checked>
+              <span><b data-en="Settle debt">سداد مديونية</b><small data-en="Owes 90 · oldest invoice first">عليه ٩٠ · الأقدم الأول</small></span></label>
+            <label class="pa-opt"><input type="radio" name="pa-kind" value="deposit">
+              <span><b data-en="Add to deposit">إضافة للرصيد المقدم</b><small data-en="For a future procedure or visit">لعملية أو زيارة جاية</small></span></label>
+          </div>
+        </div>
+        <div class="t-form-grid">
+          <div class="t-field">
+            <label class="t-label" for="pa-amt"><span data-en="Amount">المبلغ</span><span class="req">*</span></label>
+            <div class="t-input-affix"><input id="pa-amt" class="t-input ltr" value="90" inputmode="decimal"><span class="t-affix" data-en="EGP">ج.م</span></div>
+          </div>
+          <div class="t-field">
+            <span class="t-label" data-en="Method">الطريقة</span>
+            <div class="t-seg" role="group" id="pa-meth">
+              <button type="button" aria-pressed="true" data-en="Cash">كاش</button>
+              <button type="button" aria-pressed="false" data-en="Card">كارت</button>
+              <button type="button" aria-pressed="false" data-en="InstaPay">إنستاباي</button>
+            </div>
+          </div>
+        </div>
+        <div class="t-alert info" id="pa-msg"><svg class="t-icon"><use href="#i-info"/></svg><span id="pa-msg-t" data-en="Closes INV-004655 (60) and INV-004812 (30). Debt becomes 0.">هيقفل INV-004655 (٦٠) و INV-004812 (٣٠). المديونية هتبقى ٠.</span></div>
+        <div class="t-field">
+          <label class="t-label" for="pa-note"><span data-en="Note">ملاحظة</span><span class="opt" data-en="(optional)">(اختياري)</span></label>
+          <input id="pa-note" class="t-input" placeholder="مثال: ابنه دفع عنه" data-en-placeholder="e.g. paid by his son">
+        </div>
+      </div>
+      <div class="t-modal-foot">
+        <button class="t-btn" type="button" data-close data-en="Cancel">إلغاء</button>
+        <button class="t-btn primary" type="button" id="pa-ok"><span data-en="Receive">استلام</span> <span class="t-money" id="pa-ok-amt">90</span><span class="t-kbd">Enter</span></button>
+      </div>
+    </div>
+  </div>
+</main>
+<script src="../assets/shell.js"></script>
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var en = function () { return window.Tamargi && Tamargi.lang() === "en"; };
+  var debt = 90, dep = 150;
+
+  function paint() {
+    $("#pa-debt").textContent = debt; $("#pa-dep").textContent = dep;
+    $("#pa-debt-f").textContent = debt; $("#pa-dep-f").textContent = dep;
+    $$(".t-banner .t-balance.debt").forEach(function (b) { b.setAttribute("data-ar", "عليه " + debt + " ج.م"); b.setAttribute("data-en", "Owes " + debt + " EGP"); b.innerHTML = en() ? "Owes " + debt + " EGP" : "عليه " + debt + " ج.م"; b.hidden = debt <= 0; });
+    $$(".t-banner .t-balance.deposit").forEach(function (b) { b.setAttribute("data-ar", "رصيد مقدم " + dep + " ج.م"); b.setAttribute("data-en", "Deposit " + dep + " EGP"); b.innerHTML = en() ? "Deposit " + dep + " EGP" : "رصيد مقدم " + dep + " ج.م"; });
+    $$("#pa-open .pa-open").forEach(function (r) {
+      var due = +r.getAttribute("data-due"), b = $("[data-payfrom]", r);
+      b.disabled = due > dep;
+      b.title = due > dep ? (en() ? "Deposit is less than the amount due" : "الرصيد أقل من المطلوب") : "";
+    });
+    if (!$("#pa-open .pa-open")) $("#pa-open-hint").innerHTML = en() ? "No open invoices." : "مفيش فواتير عليها باقي.";
+    msg();
+  }
+  function msg() {
+    var kind = ($('input[name="pa-kind"]:checked') || {}).value, amt = parseFloat($("#pa-amt").value) || 0, t, cls = "info";
+    $("#pa-ok-amt").textContent = amt;
+    if (kind === "deposit") t = en() ? "Deposit will become " + (dep + amt) + " EGP. Debt stays " + debt + "." : "الرصيد هيبقى " + (dep + amt) + " ج.م. المديونية تفضل " + debt + ".";
+    else if (amt > debt) { cls = "warning"; t = en() ? "That is " + (amt - debt) + " more than the debt. Choose “Add to deposit” for the extra, or lower the amount." : "ده أكتر من المديونية بـ " + (amt - debt) + ". اختار «إضافة للرصيد» للزيادة أو قلّل المبلغ."; }
+    else t = en() ? "Debt will become " + (debt - amt) + " EGP (oldest invoice first)." : "المديونية هتبقى " + (debt - amt) + " ج.م (الأقدم الأول).";
+    var m = $("#pa-msg"); m.className = "t-alert " + cls; $("#pa-msg-t").textContent = t;
+    $("#pa-ok").disabled = amt <= 0 || (kind === "debt" && amt > debt);
+  }
+  function addRow(doc, chip, chipCls, detail, ch, pd) {
+    var tr = document.createElement("tr");
+    tr.innerHTML = '<td class="t-ltr">14/11</td><td><span class="pa-doc">' + doc + '</span><span class="t-meta"><span class="t-chip ' + chipCls + '">' + chip + "</span></span></td><td>" + detail + '</td><td class="num">' + ch + '</td><td class="num">' + pd + '</td><td class="num"><span class="t-money debt">' + debt + '</span></td><td class="num"><span class="t-money deposit">' + dep + "</span></td>";
+    $$("#pa-rows tr").forEach(function (r) { r.classList.remove("is-selected"); });
+    tr.className = "is-selected"; $("#pa-rows").appendChild(tr);
+  }
+  document.addEventListener("input", function (e) { if (e.target.id === "pa-amt") msg(); });
+  document.addEventListener("change", function (e) { if (e.target.name === "pa-kind") msg(); });
+  document.addEventListener("click", function (e) {
+    var b;
+    if ((b = e.target.closest("#pa-meth button"))) { $$("#pa-meth button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); return; }
+    if ((b = e.target.closest("[data-payfrom]"))) {
+      var row = b.closest(".pa-open"), due = +row.getAttribute("data-due");
+      if (due > dep) return;
+      dep -= due; debt -= due;
+      addRow("PAY-" + row.getAttribute("data-inv").slice(4), en() ? "From deposit" : "من الرصيد", "info", (en() ? "Paid " : "سداد ") + row.getAttribute("data-inv") + (en() ? " from deposit" : " من الرصيد"), "—", due);
+      row.remove(); paint();
+      Tamargi.toast(en() ? "Paid " + due + " from deposit" : "اتدفع " + due + " من الرصيد"); return;
+    }
+    if (e.target.closest("#pa-ok")) {
+      var kind = $('input[name="pa-kind"]:checked').value, amt = parseFloat($("#pa-amt").value) || 0;
+      if (kind === "deposit") { dep += amt; addRow("DEP-000248", en() ? "Deposit" : "إيداع", "info", en() ? "Deposit · cash" : "إيداع · كاش", "—", amt); }
+      else { debt -= amt; addRow("RCV-000193", en() ? "Debt receipt" : "سداد مديونية", "paid", en() ? "Debt settled · cash" : "سداد مديونية · كاش", "—", amt); if (debt === 0) $$("#pa-open .pa-open").forEach(function (r) { r.remove(); }); }
+      $("#pa-receive").hidden = true; paint();
+      Tamargi.toast(en() ? "Received " + amt + " EGP — receipt ready to print" : "اتستلم " + amt + " ج.م — الإيصال جاهز للطباعة", en() ? "Print" : "طباعة"); return;
+    }
+    if (e.target.closest("#pa-print")) { window.print(); return; }
+    if (e.target.closest("[data-shell-lang]")) setTimeout(paint, 0);
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "F8") { e.preventDefault(); $("#pa-recv-btn").click(); }
+    if (e.key === "Enter" && !$("#pa-receive").hidden && e.target.tagName !== "BUTTON") { e.preventDefault(); $("#pa-ok").click(); }
+  });
+  paint();
+})();
+</script>
+</body>
+</html>

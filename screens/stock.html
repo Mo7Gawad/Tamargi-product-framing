@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Clinic stock — Tamargi">مخزون العيادة — تمرجي</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style>
+    /* page-specific CSS: tokens only */
+    .st-kpis { display: grid; gap: var(--s-3); grid-template-columns: repeat(4, minmax(0, 1fr)); margin-block-end: var(--s-4); }
+    .st-kpis .t-card { padding: var(--s-3) var(--s-4); }
+    .st-kpis .t-stat-value { font-size: var(--fs-2xl); }
+    .st-kpis .is-warn .t-stat-value { color: var(--warning-fg); }
+    .st-kpis .is-danger .t-stat-value { color: var(--danger-fg); }
+    @media (max-width: 760px) { .st-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    .st-toolbar { display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: center; margin-block-end: var(--s-3); }
+    .st-toolbar .t-input-wrap { flex: 1 1 240px; max-width: 360px; }
+    .st-qty { font-variant-numeric: tabular-nums; font-weight: var(--fw-sb); }
+    .st-qty small { font-weight: var(--fw-r); color: var(--text-3); margin-inline-start: 4px; }
+    .st-flags { display: flex; flex-wrap: wrap; gap: 4px; }
+    .st-cold { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding-inline: 8px; border-radius: var(--r-xs); background: var(--info-bg); color: var(--info-fg); font-size: var(--fs-xs); }
+    .st-in { color: var(--success-fg); font-weight: var(--fw-sb); font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate; display: inline-block; }
+    .st-out { color: var(--danger-fg); font-weight: var(--fw-sb); font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate; display: inline-block; }
+    .st-lines .t-input, .st-lines .t-select { height: 34px; font-size: var(--fs-sm); }
+    .st-lines td { padding-block: 6px; height: auto; }
+    .st-diff-0 { color: var(--text-3); }
+    .st-diff-neg { color: var(--danger-fg); font-weight: var(--fw-sb); }
+    .st-diff-pos { color: var(--success-fg); font-weight: var(--fw-sb); }
+    .st-count { width: 90px; }
+  </style>
+</head>
+<body data-screen="stock" data-org="nile">
+<main id="screen">
+  <div class="t-container">
+
+    <header class="t-screen-head">
+      <div>
+        <h1><span data-en="Clinic stock">مخزون العيادة</span> <span class="t-tier t-phase" data-en="Later phase">مرحلة لاحقة</span></h1>
+        <p class="t-sub mb-0"><span data-en="Injections, vaccines and consumables used in visits. Store:">الحقن واللقاحات والمستلزمات اللي بتتصرف في الكشف. المخزن:</span> <b data-branch-name></b></p>
+      </div>
+      <div class="t-actions">
+        <button class="t-btn" type="button" data-toast="التحويل بين الفروع: صرف من مخزن واستلام في التاني، الاتنين بيتسجلوا" data-toast-en="Transfer: issued from one store, received in the other, both logged"><svg class="t-icon sm"><use href="#i-swap"/></svg><span data-en="Transfer to branch">تحويل لفرع</span></button>
+        <button class="t-btn primary" type="button" data-goto-tab="receive"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="Receive from supplier">استلام من مورد</span><span class="t-kbd">F2</span></button>
+      </div>
+    </header>
+
+    <div class="t-alert info mb-4"
+         data-note="Scope guard: this is clinic stock, not a pharmacy. Items are used during a visit (an injection, a vaccine, dental anaesthetic) and appear on that visit's invoice. Selling medicines over the counter needs a separate pharmacy licence in Egypt (Law 127/1955), so there is no retail sale screen. Pending domain verification (T3)."
+         data-note-ar="حدود الموديول: ده مخزون عيادة مش صيدلية. الأصناف بتتصرف جوه الكشف (حقنة، لقاح، بنج أسنان) وبتظهر في فاتورة الزيارة. بيع الأدوية للجمهور محتاج ترخيص صيدلية منفصل في مصر (قانون ١٢٧ لسنة ١٩٥٥)، فمفيش شاشة بيع. لسه محتاج تأكيد من مراجعة المجال.">
+      <svg class="t-icon"><use href="#i-info"/></svg>
+      <span data-en="Clinic stock, not a pharmacy: items are used inside a visit and billed on that visit. No over-the-counter sales.">مخزون عيادة مش صيدلية: الصنف بيتصرف جوه الكشف وبيتحسب على فاتورة الزيارة. مفيش بيع للجمهور.</span>
+    </div>
+
+    <div class="st-kpis" aria-live="polite">
+      <div class="t-card t-stat"><span class="t-stat-label" data-en="Items in store">أصناف في المخزن</span><span class="t-stat-value t-num" id="k-items">0</span></div>
+      <div class="t-card t-stat is-warn"><span class="t-stat-label" data-en="Below minimum">قرب يخلص</span><span class="t-stat-value t-num" id="k-low">0</span></div>
+      <div class="t-card t-stat is-warn"><span class="t-stat-label" data-en="Expire within 60 days">ينتهي خلال ٦٠ يوم</span><span class="t-stat-value t-num" id="k-exp">0</span></div>
+      <div class="t-card t-stat is-danger"><span class="t-stat-label" data-en="Expired (quarantine)">منتهي (اعزله)</span><span class="t-stat-value t-num" id="k-dead">0</span></div>
+    </div>
+
+    <div class="t-tabs" role="tablist">
+      <button class="t-tab" role="tab" aria-selected="true" data-tab="items" data-en="Items">الأصناف</button>
+      <button class="t-tab" role="tab" aria-selected="false" data-tab="receive" data-en="Receive from supplier">استلام من مورد</button>
+      <button class="t-tab" role="tab" aria-selected="false" data-tab="moves" data-en="Stock movements">حركة المخزون</button>
+      <button class="t-tab" role="tab" aria-selected="false" data-tab="count" data-en="Stock count">جرد</button>
+    </div>
+
+    <!-- ============ ITEMS ============ -->
+    <section data-panel="items">
+      <div class="st-toolbar">
+        <div class="t-input-wrap"><svg class="t-icon"><use href="#i-search"/></svg><input class="t-input" type="search" id="st-q" placeholder="اسم الصنف أو رقم التشغيلة" data-en-placeholder="Item name or batch no."></div>
+        <div class="t-seg" role="group" id="st-filter" aria-label="Filter" data-en-aria-label="Filter">
+          <button type="button" aria-pressed="true" data-f="all" data-en="All">الكل</button>
+          <button type="button" aria-pressed="false" data-f="low" data-en="Low">قرب يخلص</button>
+          <button type="button" aria-pressed="false" data-f="exp" data-en="Expiring">قرب ينتهي</button>
+          <button type="button" aria-pressed="false" data-f="dead" data-en="Expired">منتهي</button>
+        </div>
+      </div>
+      <div class="t-table-wrap"
+           data-note="Quantity is per branch store, and every quantity is made of batches with an expiry date. The row shows the NEAREST expiry, because that batch must be used first (first-expiry, first-out). Low-stock and expiry are words plus colour, never colour alone."
+           data-note-ar="الكمية لكل مخزن فرع، وكل كمية متقسمة تشغيلات ليها تاريخ انتهاء. الصف بيعرض أقرب انتهاء لأن التشغيلة دي لازم تتصرف الأول. قرب يخلص وقرب ينتهي كلمة ولون، مش لون بس.">
+        <table class="t-table" id="st-items">
+          <thead><tr>
+            <th data-en="Item">الصنف</th>
+            <th class="t-only-all" data-en="Store">المخزن</th>
+            <th class="num" data-en="Qty">الكمية</th>
+            <th class="num" data-en="Min">الحد الأدنى</th>
+            <th data-en="Nearest expiry · batch">أقرب انتهاء · التشغيلة</th>
+            <th data-en="Status">الحالة</th>
+            <th></th>
+          </tr></thead>
+          <tbody>
+            <tr data-branch="tor" data-s="ok"><td><span class="t-name" data-en="Diclofenac 75 mg injection">ديكلوفيناك ٧٥ مجم حقن</span><span class="t-meta" data-en="Injections">حقن</span></td><td class="t-only-all"><span class="t-branch-tag" data-en="Toreil">توريل</span></td><td class="num"><span class="st-qty">46<small data-en="amp">أمبول</small></span></td><td class="num">20</td><td><span class="t-ltr">03/2027</span> · <span class="t-ltr t-faint">DK-2611</span></td><td><span class="t-chip ok" data-en="OK">متوفر</span></td><td class="actions"><button class="t-btn sm ghost" type="button" data-goto-tab="moves" data-en="Movements">الحركة</button></td></tr>
+            <tr data-branch="tor" data-s="low"><td><span class="t-name" data-en="Ceftriaxone 1 g vial">سيفترياكسون ١ جم فيال</span><span class="t-meta" data-en="Injections">حقن</span></td><td class="t-only-all"><span class="t-branch-tag" data-en="Toreil">توريل</span></td><td class="num"><span class="st-qty">12<small data-en="vial">فيال</small></span></td><td class="num">20</td><td><span class="t-ltr">01/2027</span> · <span class="t-ltr t-faint">CF-5512</span></td><td><span class="t-chip low" data-en="Low: 8 below min">قرب يخلص: ناقص ٨</span></td><td class="actions"><button class="t-btn sm" type="button" data-goto-tab="receive" data-en="Reorder">اطلب</button></td></tr>
+            <tr data-branch="tor" data-s="exp"><td><span class="t-name" data-en="Vitamin B12 ampoule">فيتامين ب١٢ أمبول</span><span class="t-meta" data-en="Injections">حقن</span></td><td class="t-only-all"><span class="t-branch-tag" data-en="Toreil">توريل</span></td><td class="num"><span class="st-qty">30<small data-en="amp">أمبول</small></span></td><td class="num">10</td><td><span class="t-ltr">12/2026</span> · <span class="t-ltr t-faint">B12-0934</span></td><td><span class="t-chip expiring" data-en="Expires 31 Dec (47 days)">ينتهي ٣١ ديسمبر (٤٧ يوم)</span></td><td class="actions"><button class="t-btn sm ghost" type="button" data-goto-tab="moves" data-en="Movements">الحركة</button></td></tr>
+            <tr data-branch="tor" data-s="ok"><td><span class="t-name" data-en="Seasonal flu vaccine">لقاح الإنفلونزا الموسمي</span><span class="t-meta"><span class="st-cold" data-en="Fridge 2–8 °C">ثلاجة ٢–٨°</span></span></td><td class="t-only-all"><span class="t-branch-tag" data-en="Toreil">توريل</span></td><td class="num"><span class="st-qty">8<small data-en="dose">جرعة</small></span></td><td class="num">5</td><td><span class="t-ltr">02/2027</span> · <span class="t-ltr t-faint">FL-26-07</span></td><td><span class="t-chip ok" data-en="OK">متوفر</span></td><td class="actions"><a class="t-btn sm ghost" href="equipment.html" data-en="Fridge log">سجل الثلاجة</a></td></tr>
+            <tr data-branch="tor" data-s="low"><td><span class="t-name" data-en="Laser gel (5 L)">جل ليزر (٥ لتر)</span><span class="t-meta" data-en="Laser consumables">مستلزمات ليزر</span></td><td class="t-only-all"><span class="t-branch-tag" data-en="Toreil">توريل</span></td><td class="num"><span class="st-qty">1<small data-en="can">جركن</small></span></td><td class="num">2</td><td><span class="t-ltr">06/2028</span> · <span class="t-ltr t-faint">LG-118</span></td><td><span class="t-chip low" data-en="Low: 1 below min">قرب يخلص: ناقص ١</span></td><td class="actions"><button class="t-btn sm" type="button" data-goto-tab="receive" data-en="Reorder">اطلب</button></td></tr>
+            <tr data-branch="tor" data-s="ok"><td><span class="t-name" data-en="Syringe 5 ml">سرنجة ٥ مل</span><span class="t-meta" data-en="Consumables">مستلزمات</span></td><td class="t-only-all"><span class="t-branch-tag" data-en="Toreil">توريل</span></td><td class="num"><span class="st-qty">180<small data-en="pcs">قطعة</small></span></td><td class="num">100</td><td><span class="t-ltr">09/2029</span> · <span class="t-ltr t-faint">SY5-77</span></td><td><span class="t-chip ok" data-en="OK">متوفر</span></td><td class="actions"><button class="t-btn sm ghost" type="button" data-goto-tab="moves" data-en="Movements">الحركة</button></td></tr>
+            <tr data-branch="tor" data-s="ok"><td><span class="t-name" data-en="Exam gloves M (box of 100)">جوانتي فحص M (علبة ١٠٠)</span><span class="t-meta" data-en="Consumables">مستلزمات</span></td><td class="t-only-all"><span class="t-branch-tag" data-en="Toreil">توريل</span></td><td class="num"><span class="st-qty">9<small data-en="box">علبة</small></span></td><td class="num">5</td><td><span class="t-ltr">04/2028</span> · <span class="t-ltr t-faint">GL-M-21</span></td><td><span class="t-chip ok" data-en="OK">متوفر</span></td><td class="actions"><button class="t-btn sm ghost" type="button" data-goto-tab="moves" data-en="Movements">الحركة</button></td></tr>
+            <tr data-branch="tor" data-s="dead"><td><span class="t-name" data-en="Saline 0.9% 500 ml">محلول ملح ٠٫٩٪ ٥٠٠ مل</span><span class="t-meta" data-en="IV fluids">محاليل</span></td><td class="t-only-all"><span class="t-branch-tag" data-en="Toreil">توريل</span></td><td class="num"><span class="st-qty">4<small data-en="bag">كيس</small></span></td><td class="num">6</td><td><span class="t-ltr">10/2026</span> · <span class="t-ltr t-faint">NS-4410</span></td><td><span class="t-chip expired" data-en="Expired — quarantined, cannot be issued">منتهي — معزول، مينفعش يتصرف</span></td><td class="actions"><button class="t-btn sm danger-ghost" type="button" data-toast="اتسجل هالك ٤ أكياس بسبب الانتهاء" data-toast-en="4 bags written off as expired" data-en="Write off">هالك</button></td></tr>
+            <tr data-branch="gam" data-s="exp low"><td><span class="t-name" data-en="Lidocaine 2% dental cartridge">ليدوكايين ٢٪ كارتريدج أسنان</span><span class="t-meta" data-en="Dental">أسنان</span></td><td class="t-only-all"><span class="t-branch-tag" data-en="University">الجامعة</span></td><td class="num"><span class="st-qty">14<small data-en="cart.">كارتريدج</small></span></td><td class="num">20</td><td><span class="t-ltr">11/2026</span> · <span class="t-ltr t-faint">LD-2207</span></td><td><div class="st-flags"><span class="t-chip expiring" data-en="Expires 30 Nov (16 days)">ينتهي ٣٠ نوفمبر (١٦ يوم)</span><span class="t-chip low" data-en="Low: 6 below">ناقص ٦</span></div></td><td class="actions"><button class="t-btn sm" type="button" data-goto-tab="receive" data-en="Reorder">اطلب</button></td></tr>
+            <tr data-branch="gam" data-s="ok"><td><span class="t-name" data-en="Suture 3/0">خيط جراحي ٣/٠</span><span class="t-meta" data-en="Consumables">مستلزمات</span></td><td class="t-only-all"><span class="t-branch-tag" data-en="University">الجامعة</span></td><td class="num"><span class="st-qty">20<small data-en="pcs">قطعة</small></span></td><td class="num">10</td><td><span class="t-ltr">07/2028</span> · <span class="t-ltr t-faint">SU3-09</span></td><td><span class="t-chip ok" data-en="OK">متوفر</span></td><td class="actions"><button class="t-btn sm ghost" type="button" data-goto-tab="moves" data-en="Movements">الحركة</button></td></tr>
+            <tr data-branch="gam" data-s="ok"><td><span class="t-name" data-en="Composite filling A2">حشو كومبوزيت A2</span><span class="t-meta" data-en="Dental">أسنان</span></td><td class="t-only-all"><span class="t-branch-tag" data-en="University">الجامعة</span></td><td class="num"><span class="st-qty">6<small data-en="syr.">سرنجة</small></span></td><td class="num">4</td><td><span class="t-ltr">08/2027</span> · <span class="t-ltr t-faint">CA2-31</span></td><td><span class="t-chip ok" data-en="OK">متوفر</span></td><td class="actions"><button class="t-btn sm ghost" type="button" data-goto-tab="moves" data-en="Movements">الحركة</button></td></tr>
+            <tr data-branch="gam" data-s="ok"><td><span class="t-name" data-en="Diclofenac 75 mg injection">ديكلوفيناك ٧٥ مجم حقن</span><span class="t-meta" data-en="Injections">حقن</span></td><td class="t-only-all"><span class="t-branch-tag" data-en="University">الجامعة</span></td><td class="num"><span class="st-qty">15<small data-en="amp">أمبول</small></span></td><td class="num">10</td><td><span class="t-ltr">05/2027</span> · <span class="t-ltr t-faint">DK-2588</span></td><td><span class="t-chip ok" data-en="OK">متوفر</span></td><td class="actions"><button class="t-btn sm ghost" type="button" data-goto-tab="moves" data-en="Movements">الحركة</button></td></tr>
+            <tr data-branch="gam" data-s="low"><td><span class="t-name" data-en="Exam gloves M (box of 100)">جوانتي فحص M (علبة ١٠٠)</span><span class="t-meta" data-en="Consumables">مستلزمات</span></td><td class="t-only-all"><span class="t-branch-tag" data-en="University">الجامعة</span></td><td class="num"><span class="st-qty">4<small data-en="box">علبة</small></span></td><td class="num">5</td><td><span class="t-ltr">04/2028</span> · <span class="t-ltr t-faint">GL-M-21</span></td><td><span class="t-chip low" data-en="Low: 1 below min">قرب يخلص: ناقص ١</span></td><td class="actions"><button class="t-btn sm" type="button" data-toast="اتعمل طلب تحويل ٣ علب من توريل" data-toast-en="Transfer request: 3 boxes from Toreil" data-en="Ask Toreil">اطلب من توريل</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="t-empty" id="st-none" hidden>
+        <div class="t-empty-art"><svg class="t-icon"><use href="#i-box"/></svg></div>
+        <h3 data-en="No items match">مفيش أصناف مطابقة</h3>
+        <p data-en="Try another name or clear the filter.">جرّب اسم تاني أو شيل الفلتر.</p>
+      </div>
+      <p class="t-hint mt-2" data-en="The same item has its own quantity in each branch store. Owner sees both stores under All branches.">نفس الصنف ليه كمية مستقلة في مخزن كل فرع. المالك يشوف المخزنين في كل الفروع.</p>
+    </section>
+
+    <!-- ============ RECEIVE ============ -->
+    <section data-panel="receive" hidden>
+      <div class="t-split aside-end">
+        <div class="t-card"
+             data-note="Receiving = one supplier invoice, one store, several lines; every line needs a batch number and an expiry date, because expiry drives the warnings and the issue order. A photo of the supplier invoice is attached instead of typing every field. No purchase orders or approvals in this phase (NITCO's two-tier request approval, v45/111, is not needed in a clinic)."
+             data-note-ar="الاستلام = فاتورة مورد واحدة لمخزن واحد وكذا سطر؛ كل سطر لازم رقم تشغيلة وتاريخ انتهاء، لأن الانتهاء هو اللي بيحرّك التنبيهات وترتيب الصرف. بتتصور فاتورة المورد بدل ما تكتب كل خانة. مفيش أوامر شراء ولا موافقات في المرحلة دي.">
+          <div class="t-card-head"><h2 data-en="Receive from supplier">استلام من مورد</h2></div>
+          <div class="t-form-grid mb-4">
+            <div class="t-field"><label class="t-label" for="rc-sup"><span data-en="Supplier">المورد</span><span class="req">*</span></label>
+              <select id="rc-sup" class="t-select"><option data-en="Delta Medical Supplies Co.">شركة الدلتا للمستلزمات الطبية</option><option data-en="Al-Shorouk Pharma & Supplies">مؤسسة الشروق للأدوية والمستلزمات</option><option data-en="+ New supplier">+ مورد جديد</option></select></div>
+            <div class="t-field"><label class="t-label" for="rc-inv"><span data-en="Supplier invoice no.">رقم فاتورة المورد</span><span class="req">*</span></label><input id="rc-inv" class="t-input ltr" value="DMS-88412"></div>
+            <div class="t-field"><label class="t-label" for="rc-store" data-en="Into store">في مخزن</label>
+              <select id="rc-store" class="t-select"><option value="tor" data-en="Toreil store">مخزن توريل</option><option value="gam" data-en="University store">مخزن الجامعة</option></select></div>
+            <div class="t-field"><label class="t-label" for="rc-date" data-en="Received on">تاريخ الاستلام</label><input id="rc-date" class="t-input ltr" type="date" value="2026-11-14"></div>
+          </div>
+          <div class="t-table-wrap">
+            <table class="t-table st-lines">
+              <thead><tr><th data-en="Item">الصنف</th><th data-en="Batch">التشغيلة</th><th data-en="Expiry">الانتهاء</th><th class="num" data-en="Qty">الكمية</th><th class="num" data-en="Unit cost">سعر الوحدة</th><th class="num" data-en="Total">الإجمالي</th></tr></thead>
+              <tbody id="rc-lines">
+                <tr><td><select class="t-select" aria-label="Item" data-en-aria-label="Item"><option data-en="Ceftriaxone 1 g vial">سيفترياكسون ١ جم فيال</option></select></td><td><input class="t-input ltr" value="CF-5598" aria-label="Batch" data-en-aria-label="Batch"></td><td><input class="t-input ltr" type="month" value="2027-08" aria-label="Expiry" data-en-aria-label="Expiry"></td><td class="num"><input class="t-input ltr rc-q" type="number" value="30" style="width:80px" aria-label="Qty" data-en-aria-label="Qty"></td><td class="num"><input class="t-input ltr rc-c" type="number" value="38" style="width:90px" aria-label="Unit cost" data-en-aria-label="Unit cost"></td><td class="num"><span class="t-money rc-t">1140</span></td></tr>
+                <tr><td><select class="t-select" aria-label="Item" data-en-aria-label="Item"><option data-en="Laser gel (5 L)">جل ليزر (٥ لتر)</option></select></td><td><input class="t-input ltr" value="LG-131" aria-label="Batch" data-en-aria-label="Batch"></td><td><input class="t-input ltr" type="month" value="2028-10" aria-label="Expiry" data-en-aria-label="Expiry"></td><td class="num"><input class="t-input ltr rc-q" type="number" value="3" style="width:80px" aria-label="Qty" data-en-aria-label="Qty"></td><td class="num"><input class="t-input ltr rc-c" type="number" value="420" style="width:90px" aria-label="Unit cost" data-en-aria-label="Unit cost"></td><td class="num"><span class="t-money rc-t">1260</span></td></tr>
+                <tr><td><select class="t-select" aria-label="Item" data-en-aria-label="Item"><option data-en="Vitamin B12 ampoule">فيتامين ب١٢ أمبول</option></select></td><td><input class="t-input ltr" value="B12-1002" aria-label="Batch" data-en-aria-label="Batch"></td><td><input class="t-input ltr is-invalid" type="month" value="2027-01" aria-label="Expiry" data-en-aria-label="Expiry"></td><td class="num"><input class="t-input ltr rc-q" type="number" value="20" style="width:80px" aria-label="Qty" data-en-aria-label="Qty"></td><td class="num"><input class="t-input ltr rc-c" type="number" value="12" style="width:90px" aria-label="Unit cost" data-en-aria-label="Unit cost"></td><td class="num"><span class="t-money rc-t">240</span></td></tr>
+              </tbody>
+              <tfoot><tr><td colspan="5"><button class="t-btn sm ghost" type="button" data-toast="سطر جديد" data-toast-en="New line"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="Add line">ضيف سطر</span></button></td><td class="num"><span class="t-money" id="rc-total">2640</span><span class="t-small t-muted" data-en=" EGP"> ج.م</span></td></tr></tfoot>
+            </table>
+          </div>
+          <div class="t-alert warning mt-4"><svg class="t-icon"><use href="#i-alert"/></svg><span data-en="Line 3 expires in less than 90 days (Jan 2027). Accept anyway or return to the supplier.">السطر ٣ بينتهي في أقل من ٩٠ يوم (يناير ٢٠٢٧). استلمه برضه ولا رجّعه للمورد.</span></div>
+        </div>
+        <aside class="t-stack">
+          <div class="t-card">
+            <h3 class="mb-2" style="font-size:var(--fs-sm)" data-en="Supplier invoice photo">صورة فاتورة المورد</h3>
+            <button class="t-btn block" type="button" data-toast="امسح الكود بالموبايل وصوّر الفاتورة" data-toast-en="Scan the code with your phone and photograph the invoice"><svg class="t-icon sm"><use href="#i-phone"/></svg><span data-en="Attach from phone">ارفع من الموبايل</span></button>
+            <p class="t-hint mt-2 mb-0" data-en="Kept with the receipt for audit and supplier disputes.">بتتحفظ مع الاستلام للمراجعة ولو فيه خلاف مع المورد.</p>
+          </div>
+          <div class="t-card sunk">
+            <dl class="t-totals">
+              <dt data-en="Lines">السطور</dt><dd>3</dd>
+              <dt data-en="Units">الوحدات</dt><dd id="rc-units">53</dd>
+              <dt class="grand" data-en="Total">الإجمالي</dt><dd class="grand"><span class="t-money" id="rc-total2">2640</span></dd>
+            </dl>
+            <p class="t-hint mt-2 mb-0" data-en="Paying the supplier is outside Tamargi in this phase (cash book).">دفع فلوس المورد بره تمرجي في المرحلة دي (دفتر الخزنة).</p>
+          </div>
+          <button class="t-btn primary block" type="button" data-toast="اتسجل الاستلام — الكميات زادت في المخزن" data-toast-en="Receipt saved — store quantities updated"><span data-en="Save receipt">سجّل الاستلام</span><span class="t-kbd">Ctrl S</span></button>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ============ MOVEMENTS ============ -->
+    <section data-panel="moves" hidden>
+      <div class="t-table-wrap"
+           data-note="Every quantity change is a movement row that cannot be edited: receive, issue in a visit, transfer between branches, count adjustment, write-off. 'Issued in visit' links to the visit and its invoice, so the owner can trace each injection to a patient bill (NITCO v46/101 links clinic ↔ store and service consumables)."
+           data-note-ar="كل تغيير في الكمية سطر حركة مبيتعدلش: استلام، صرف في زيارة، تحويل بين الفروع، تسوية جرد، هالك. 'صرف في زيارة' مربوط بالزيارة وفاتورتها، فالمالك يقدر يتتبع كل حقنة لحد فاتورة المريض.">
+        <table class="t-table">
+          <thead><tr><th data-en="When">إمتى</th><th data-en="Type">النوع</th><th data-en="Item · batch">الصنف · التشغيلة</th><th class="num" data-en="Qty">الكمية</th><th data-en="Reference">المرجع</th><th data-en="By">بواسطة</th><th class="t-only-all" data-en="Store">المخزن</th></tr></thead>
+          <tbody>
+            <tr data-branch="tor"><td><span data-en="Today 8:40 pm">النهارده ٨:٤٠ م</span></td><td><span class="t-chip done" data-en="Issued in visit">صرف في زيارة</span></td><td><span class="t-name" data-en="Diclofenac 75 mg">ديكلوفيناك ٧٥ مجم</span><span class="t-meta t-ltr">DK-2611</span></td><td class="num"><span class="st-out">−1</span></td><td><a href="visit-note.html" class="t-ltr">V-10432</a> · <a href="invoice-detail.html" class="t-ltr">INV-T-2291</a></td><td data-en="Samar (nurse)">سمر (تمريض)</td><td class="t-only-all"><span class="t-branch-tag" data-en="Toreil">توريل</span></td></tr>
+            <tr data-branch="tor"><td><span data-en="Today 8:40 pm">النهارده ٨:٤٠ م</span></td><td><span class="t-chip done" data-en="Issued in visit">صرف في زيارة</span></td><td><span class="t-name" data-en="Syringe 5 ml">سرنجة ٥ مل</span><span class="t-meta t-ltr">SY5-77</span></td><td class="num"><span class="st-out">−1</span></td><td><a href="visit-note.html" class="t-ltr">V-10432</a> · <a href="invoice-detail.html" class="t-ltr">INV-T-2291</a></td><td data-en="Samar (nurse)">سمر (تمريض)</td><td class="t-only-all"><span class="t-branch-tag" data-en="Toreil">توريل</span></td></tr>
+            <tr data-branch="tor"><td><span data-en="Today 7:15 pm">النهارده ٧:١٥ م</span></td><td><span class="t-chip done" data-en="Issued in visit">صرف في زيارة</span></td><td><span class="t-name" data-en="Seasonal flu vaccine">لقاح الإنفلونزا الموسمي</span><span class="t-meta t-ltr">FL-26-07</span></td><td class="num"><span class="st-out">−1</span></td><td><a href="visit-note.html" class="t-ltr">V-10427</a> · <a href="invoice-detail.html" class="t-ltr">INV-T-2288</a></td><td data-en="Dr. Marwa Hegazy">د. مروة حجازي</td><td class="t-only-all"><span class="t-branch-tag" data-en="Toreil">توريل</span></td></tr>
+            <tr data-branch="gam"><td><span data-en="Today 6:05 pm">النهارده ٦:٠٥ م</span></td><td><span class="t-chip done" data-en="Issued in visit">صرف في زيارة</span></td><td><span class="t-name" data-en="Lidocaine 2% cartridge">ليدوكايين ٢٪ كارتريدج</span><span class="t-meta t-ltr">LD-2207</span></td><td class="num"><span class="st-out">−2</span></td><td><a href="visit-note.html" class="t-ltr">V-10398</a> · <a href="invoice-detail.html" class="t-ltr">INV-G-0817</a></td><td data-en="Dr. Yasser El-Shafei">د. ياسر الشافعي</td><td class="t-only-all"><span class="t-branch-tag" data-en="University">الجامعة</span></td></tr>
+            <tr data-branch="tor gam"><td><span data-en="13 Nov 1:20 pm">١٣ نوفمبر ١:٢٠ م</span></td><td><span class="t-chip info" data-en="Transfer">تحويل</span></td><td><span class="t-name" data-en="Diclofenac 75 mg">ديكلوفيناك ٧٥ مجم</span><span class="t-meta t-ltr">DK-2588</span></td><td class="num"><span class="st-out">−10</span> / <span class="st-in">+10</span></td><td data-en="Toreil → University · TR-0042">توريل ← الجامعة · <span class="t-ltr">TR-0042</span></td><td data-en="Rehab Samir">رحاب سمير</td><td class="t-only-all"><span class="t-branch-tag" data-en="Both">الاتنين</span></td></tr>
+            <tr data-branch="tor"><td><span data-en="12 Nov 11:00 am">١٢ نوفمبر ١١:٠٠ ص</span></td><td><span class="t-chip paid" data-en="Received">استلام</span></td><td><span class="t-name" data-en="Vitamin B12 ampoule">فيتامين ب١٢ أمبول</span><span class="t-meta t-ltr">B12-0934</span></td><td class="num"><span class="st-in">+30</span></td><td data-en="Delta Medical · DMS-88107">الدلتا للمستلزمات · <span class="t-ltr">DMS-88107</span></td><td data-en="Rehab Samir">رحاب سمير</td><td class="t-only-all"><span class="t-branch-tag" data-en="Toreil">توريل</span></td></tr>
+            <tr data-branch="tor"><td><span data-en="1 Nov 9:30 am">١ نوفمبر ٩:٣٠ ص</span></td><td><span class="t-chip danger" data-en="Quarantined (expired)">عزل (منتهي)</span></td><td><span class="t-name" data-en="Saline 0.9% 500 ml">محلول ملح ٠٫٩٪</span><span class="t-meta t-ltr">NS-4410</span></td><td class="num">0</td><td data-en="Auto on expiry date">تلقائي يوم الانتهاء</td><td data-en="System">النظام</td><td class="t-only-all"><span class="t-branch-tag" data-en="Toreil">توريل</span></td></tr>
+            <tr data-branch="tor"><td><span data-en="31 Oct 10:15 pm">٣١ أكتوبر ١٠:١٥ م</span></td><td><span class="t-chip partial" data-en="Count adjustment">تسوية جرد</span></td><td><span class="t-name" data-en="Exam gloves M">جوانتي فحص M</span><span class="t-meta t-ltr">GL-M-21</span></td><td class="num"><span class="st-out">−1</span></td><td data-en="October count · reason: used, not recorded">جرد أكتوبر · السبب: اتصرف ومتسجلش</td><td data-en="Dr. Hesham (approved)">د. هشام (وافق)</td><td class="t-only-all"><span class="t-branch-tag" data-en="Toreil">توريل</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="t-alert mt-4"><svg class="t-icon"><use href="#i-info"/></svg><span data-en="How 'Issued in visit' happens: the doctor or nurse adds 'IM injection' in the visit; its recipe (1 ampoule + 1 syringe) is deducted from this branch's store, first-expiry first. The injection appears as a line on the visit invoice.">إزاي 'صرف في زيارة' بيحصل: الطبيب أو التمريض يضيف 'حقنة عضل' في الكشف؛ مكوناتها (أمبول + سرنجة) بتتخصم من مخزن الفرع ده، الأقرب انتهاءً الأول. الحقنة بتظهر سطر في فاتورة الزيارة.</span></div>
+    </section>
+
+    <!-- ============ COUNT ============ -->
+    <section data-panel="count" hidden>
+      <div class="t-row between mb-4">
+        <div class="t-row tight"><span class="t-chip waiting" data-en="November count — open">جرد نوفمبر — مفتوح</span><span class="t-small t-muted" data-en="Started today by Rehab Samir · 3 of 8 items counted">بدأته رحاب سمير النهارده · ٣ من ٨ أصناف اتعدّوا</span></div>
+        <div class="t-row tight">
+          <button class="t-btn" type="button" data-toast="اتطبعت ورقة الجرد" data-toast-en="Count sheet printed"><svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Print sheet">اطبع ورقة الجرد</span></button>
+          <button class="t-btn primary" type="button" data-toast="اتبعت للمالك للموافقة على الفروقات" data-toast-en="Sent to the owner to approve differences"><span data-en="Send for approval">ابعت للموافقة</span></button>
+        </div>
+      </div>
+      <div class="t-table-wrap"
+           data-note="Blind-ish count: the counter types what is on the shelf; the difference and a required reason appear per line. Differences post as 'count adjustment' movements only after the owner approves, so stock and cash can be reconciled the same night."
+           data-note-ar="الجرد: اللي بيعد بيكتب الموجود على الرف؛ الفرق والسبب الإجباري بيظهروا لكل سطر. الفروقات بتتسجل حركة 'تسوية جرد' بعد موافقة المالك بس.">
+        <table class="t-table" id="st-count">
+          <thead><tr><th data-en="Item · batch">الصنف · التشغيلة</th><th class="t-only-all" data-en="Store">المخزن</th><th class="num" data-en="System">في السيستم</th><th class="num" data-en="Counted">المعدود</th><th class="num" data-en="Difference">الفرق</th><th data-en="Reason">السبب</th></tr></thead>
+          <tbody>
+            <tr data-branch="tor"><td><span class="t-name" data-en="Diclofenac 75 mg">ديكلوفيناك ٧٥ مجم</span><span class="t-meta t-ltr">DK-2611</span></td><td class="t-only-all"><span class="t-branch-tag" data-en="Toreil">توريل</span></td><td class="num" data-sys="46">46</td><td class="num"><input class="t-input ltr st-count" type="number" value="45" aria-label="Counted" data-en-aria-label="Counted"></td><td class="num st-d"></td><td><select class="t-select" aria-label="Reason" data-en-aria-label="Reason"><option data-en="Used, not recorded">اتصرف ومتسجلش</option><option data-en="Broken / damaged">اتكسر / تالف</option><option data-en="Count error">غلط في العد</option></select></td></tr>
+            <tr data-branch="tor"><td><span class="t-name" data-en="Ceftriaxone 1 g">سيفترياكسون ١ جم</span><span class="t-meta t-ltr">CF-5512</span></td><td class="t-only-all"><span class="t-branch-tag" data-en="Toreil">توريل</span></td><td class="num" data-sys="12">12</td><td class="num"><input class="t-input ltr st-count" type="number" value="12" aria-label="Counted" data-en-aria-label="Counted"></td><td class="num st-d"></td><td><span class="t-faint">—</span></td></tr>
+            <tr data-branch="tor"><td><span class="t-name" data-en="Seasonal flu vaccine">لقاح الإنفلونزا</span><span class="t-meta t-ltr">FL-26-07</span></td><td class="t-only-all"><span class="t-branch-tag" data-en="Toreil">توريل</span></td><td class="num" data-sys="8">8</td><td class="num"><input class="t-input ltr st-count" type="number" value="8" aria-label="Counted" data-en-aria-label="Counted"></td><td class="num st-d"></td><td><span class="t-faint">—</span></td></tr>
+            <tr data-branch="tor"><td><span class="t-name" data-en="Syringe 5 ml">سرنجة ٥ مل</span><span class="t-meta t-ltr">SY5-77</span></td><td class="t-only-all"><span class="t-branch-tag" data-en="Toreil">توريل</span></td><td class="num" data-sys="180">180</td><td class="num"><input class="t-input ltr st-count" type="number" placeholder="—" aria-label="Counted" data-en-aria-label="Counted"></td><td class="num st-d"></td><td><span class="t-faint">—</span></td></tr>
+            <tr data-branch="gam"><td><span class="t-name" data-en="Lidocaine 2% cartridge">ليدوكايين ٢٪ كارتريدج</span><span class="t-meta t-ltr">LD-2207</span></td><td class="t-only-all"><span class="t-branch-tag" data-en="University">الجامعة</span></td><td class="num" data-sys="14">14</td><td class="num"><input class="t-input ltr st-count" type="number" value="16" aria-label="Counted" data-en-aria-label="Counted"></td><td class="num st-d"></td><td><select class="t-select" aria-label="Reason" data-en-aria-label="Reason"><option data-en="Count error">غلط في العد</option><option data-en="Received, not recorded">اتستلم ومتسجلش</option></select></td></tr>
+            <tr data-branch="gam"><td><span class="t-name" data-en="Composite filling A2">حشو كومبوزيت A2</span><span class="t-meta t-ltr">CA2-31</span></td><td class="t-only-all"><span class="t-branch-tag" data-en="University">الجامعة</span></td><td class="num" data-sys="6">6</td><td class="num"><input class="t-input ltr st-count" type="number" placeholder="—" aria-label="Counted" data-en-aria-label="Counted"></td><td class="num st-d"></td><td><span class="t-faint">—</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<script src="../assets/shell.js"></script>
+<script>
+(function () {
+  "use strict";
+  var L = function () { return window.Tamargi && Tamargi.lang() === "en"; };
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var AD = "٠١٢٣٤٥٦٧٨٩";
+  function num(n) { return L() ? String(n) : String(n).replace(/\d/g, function (d) { return AD[d]; }); }
+
+  /* tabs */
+  function showTab(n) {
+    $$(".t-tab[data-tab]").forEach(function (x) { x.setAttribute("aria-selected", String(x.getAttribute("data-tab") === n)); });
+    $$("[data-panel]").forEach(function (p) { p.hidden = p.getAttribute("data-panel") !== n; });
+    if (window.Tamargi) Tamargi.setState(undefined);
+  }
+  $$(".t-tab[data-tab]").forEach(function (t) { t.addEventListener("click", function () { showTab(t.getAttribute("data-tab")); }); });
+  document.addEventListener("click", function (e) { var b = e.target.closest("[data-goto-tab]"); if (b) { showTab(b.getAttribute("data-goto-tab")); window.scrollTo({ top: 0, behavior: "smooth" }); } });
+
+  /* items: filter + search + KPIs (respect branch scope) */
+  var filter = "all";
+  function applyItems() {
+    var q = ($("#st-q").value || "").trim().toLowerCase(), shown = 0;
+    var k = { items: 0, low: 0, exp: 0, dead: 0 };
+    $$("#st-items tbody tr").forEach(function (r) {
+      var inScope = !r.classList.contains("is-other-branch");
+      var s = r.getAttribute("data-s").split(" ");
+      if (inScope) { k.items++; s.forEach(function (x) { if (k[x] !== undefined) k[x]++; }); }
+      var okF = filter === "all" || s.indexOf(filter) > -1;
+      var okQ = !q || r.textContent.toLowerCase().indexOf(q) > -1;
+      r.hidden = !(okF && okQ);
+      if (inScope && okF && okQ) shown++;
+    });
+    $("#st-none").hidden = shown > 0;
+    $("#k-items").textContent = num(k.items); $("#k-low").textContent = num(k.low); $("#k-exp").textContent = num(k.exp); $("#k-dead").textContent = num(k.dead);
+  }
+  $("#st-q").addEventListener("input", applyItems);
+  $("#st-filter").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return; filter = b.getAttribute("data-f");
+    $$("#st-filter button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); applyItems();
+  });
+
+  /* receive: line totals */
+  function recalc() {
+    var tot = 0, units = 0;
+    $$("#rc-lines tr").forEach(function (r) {
+      var q = +$(".rc-q", r).value || 0, c = +$(".rc-c", r).value || 0; tot += q * c; units += q;
+      $(".rc-t", r).textContent = (q * c).toLocaleString("en-US");
+    });
+    $("#rc-total").textContent = tot.toLocaleString("en-US"); $("#rc-total2").textContent = tot.toLocaleString("en-US"); $("#rc-units").textContent = units;
+  }
+  $("#rc-lines").addEventListener("input", recalc); recalc();
+
+  /* count: differences */
+  function diffs() {
+    $$("#st-count tbody tr").forEach(function (r) {
+      var sys = +r.querySelector("[data-sys]").getAttribute("data-sys"), v = $(".st-count", r).value, d = $(".st-d", r);
+      if (v === "") { d.textContent = "—"; d.className = "num st-d st-diff-0"; return; }
+      var n = +v - sys; d.textContent = (n > 0 ? "+" : n < 0 ? "−" : "") + Math.abs(n);
+      d.className = "num st-d " + (n < 0 ? "st-diff-neg" : n > 0 ? "st-diff-pos" : "st-diff-0");
+    });
+  }
+  $("#st-count").addEventListener("input", diffs); diffs();
+
+  /* default receive store follows the branch picked in the top bar */
+  function syncStore() { var sc = Tamargi.scope(); if (sc.branch === "tor" || sc.branch === "gam") $("#rc-store").value = sc.branch; applyItems(); }
+  document.addEventListener("tamargi:scope", syncStore); syncStore();
+
+  document.addEventListener("keydown", function (e) { if (e.key === "F2") { e.preventDefault(); showTab("receive"); } });
+})();
+</script>
+</body>
+</html>

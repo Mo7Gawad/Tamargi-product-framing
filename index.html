@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Tamargi prototype hub">تمرجي — دليل النموذج</title>
+  <link rel="stylesheet" href="assets/tamargi.css">
+  <style>
+    /* Hub-only styles. Tokens only. */
+    .hub { max-width: 1280px; margin-inline: auto; padding: var(--s-6) var(--s-4) var(--s-16); }
+    .hub section { margin-block-start: var(--s-12); scroll-margin-top: calc(var(--topbar-h) + 60px); }
+    .hub h2.sec { font-size: var(--fs-xl); font-weight: var(--fw-b); display: flex; align-items: center; gap: var(--s-2); margin: 0 0 var(--s-1); }
+    .hub .sec-sub { color: var(--text-2); margin: 0 0 var(--s-5); max-width: 72ch; }
+    .hero { display: grid; grid-template-columns: 1.4fr 1fr; gap: var(--s-6); align-items: start; }
+    .hero h1 { font-size: var(--fs-4xl); line-height: var(--lh-tight); margin: 0 0 var(--s-3); letter-spacing: -.01em; }
+    .hero h1 .ink { color: var(--primary); }
+    .hero p.lead { font-size: var(--fs-lg); color: var(--text-2); margin: 0 0 var(--s-4); max-width: 60ch; }
+    .facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-3); }
+    .facts .t-card { padding: var(--s-4); }
+    .facts .t-stat-value { font-size: var(--fs-3xl); }
+    .pillrow { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-block-end: var(--s-5); }
+    .jump { position: sticky; top: var(--topbar-h); z-index: 20; background: var(--bg); border-block-end: 1px solid var(--line); margin-block-start: var(--s-8); }
+    .jump .t-tabs { margin: 0; border: 0; scrollbar-width: none; }
+    .jump .t-tabs::-webkit-scrollbar { display: none; }
+    /* Screen map */
+    .filters { display: flex; flex-wrap: wrap; gap: var(--s-3); align-items: center; margin-block-end: var(--s-5); }
+    .filters .t-seg { flex-wrap: wrap; }
+    .grp { margin-block-end: var(--s-8); }
+    .grp-head { display: flex; align-items: baseline; gap: var(--s-3); margin-block-end: var(--s-3); }
+    .grp-head h3 { font-size: var(--fs-lg); margin: 0; }
+    .grp-head .t-muted { font-size: var(--fs-sm); }
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--s-4); }
+    .scard { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; text-decoration: none; color: inherit; box-shadow: var(--e-1); transition: box-shadow var(--dur) var(--ease), border-color var(--dur) var(--ease); }
+    .scard:hover { border-color: var(--primary-line); box-shadow: var(--e-2); }
+    .scard:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+    .thumb { position: relative; aspect-ratio: 16 / 10; background: var(--surface-sunk); border-block-end: 1px solid var(--line); overflow: hidden; direction: ltr; }
+    .thumb iframe { position: absolute; top: 0; left: 0; width: 1440px; height: 900px; border: 0; transform-origin: 0 0; pointer-events: none; background: var(--bg); }
+    .thumb .ph { position: absolute; inset: 0; display: grid; place-items: center; color: var(--text-3); }
+    .thumb .ph .t-icon { width: 40px; height: 40px; }
+    .scard-body { padding: var(--s-3) var(--s-4) var(--s-4); display: flex; flex-direction: column; gap: 6px; }
+    .scard-title { font-weight: var(--fw-sb); display: flex; align-items: center; gap: var(--s-2); }
+    .scard-file { font-family: var(--font-en); font-size: var(--fs-xs); color: var(--text-3); direction: ltr; text-align: start; }
+    .scard-meta { display: flex; flex-wrap: wrap; gap: 4px; }
+    .scard-meta .t-chip { height: 22px; }
+    .is-hidden { display: none !important; }
+    /* Journeys */
+    .jr { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--s-5); margin-block-end: var(--s-4); box-shadow: var(--e-1); }
+    .jr-head { display: flex; align-items: center; gap: var(--s-3); flex-wrap: wrap; margin-block-end: var(--s-4); }
+    .jr-head .num { display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: var(--r-sm); background: var(--primary); color: var(--text-on-primary); font-weight: var(--fw-b); font-family: var(--font-en); }
+    .jr-head h3 { margin: 0; font-size: var(--fs-lg); }
+    .jr-head p { margin: 0; color: var(--text-2); font-size: var(--fs-sm); flex-basis: 100%; }
+    .steps-row { display: flex; gap: var(--s-2); overflow-x: auto; padding-block-end: var(--s-2); list-style: none; margin: 0; padding-inline: 0; }
+    .steps-row li { flex: 0 0 200px; display: flex; align-items: stretch; gap: var(--s-2); }
+    .steps-row li + li::before { content: "←"; align-self: center; color: var(--primary); font-weight: var(--fw-b); }
+    [dir="ltr"] .steps-row li + li::before { content: "→"; }
+    .step { flex: 1; display: flex; flex-direction: column; gap: 4px; padding: var(--s-3); border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface-sunk); text-decoration: none; color: inherit; }
+    .step:hover { border-color: var(--primary); background: var(--primary-soft); }
+    .step .n { font-family: var(--font-en); font-size: var(--fs-xs); color: var(--text-3); }
+    .step .who { font-size: var(--fs-xs); font-weight: var(--fw-sb); color: var(--primary); }
+    .step .what { font-size: var(--fs-sm); }
+    .step .scr { font-family: var(--font-en); font-size: 11px; color: var(--text-3); direction: ltr; text-align: start; }
+    /* Features */
+    .feat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: var(--s-4); }
+    .feat-grid .t-card { padding: 0; overflow: hidden; }
+    .feat-grid .t-card-head { margin: 0; padding: var(--s-3) var(--s-4); border-block-end: 1px solid var(--line); }
+    .feat { list-style: none; margin: 0; padding: 0; }
+    .feat li { display: grid; grid-template-columns: 1fr auto; gap: var(--s-2); padding: 8px var(--s-4); border-block-end: 1px solid var(--line); font-size: var(--fs-sm); align-items: center; }
+    .feat li:last-child { border-block-end: 0; }
+    .feat a { font-family: var(--font-en); font-size: 11px; color: var(--text-3); direction: ltr; display: block; text-align: start; }
+    .prio { font-size: 11px; font-weight: var(--fw-sb); padding: 2px 8px; border-radius: var(--r-pill); white-space: nowrap; }
+    .prio.must { background: var(--primary); color: var(--text-on-primary); }
+    .prio.should { background: var(--info-bg); color: var(--info-fg); }
+    .prio.later { background: var(--done-bg); color: var(--done-fg); }
+    .prio.tier2 { background: var(--warning-bg); color: var(--warning-fg); }
+    /* NITCO */
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); }
+    .t-table td small { color: var(--text-3); display: block; }
+    /* Design system */
+    .sw { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--s-3); }
+    .sw div { border: 1px solid var(--line); border-radius: var(--r-sm); overflow: hidden; background: var(--surface); font-size: var(--fs-xs); }
+    .sw i { display: block; height: 56px; }
+    .sw span { display: block; padding: 6px 8px; font-family: var(--font-en); direction: ltr; text-align: start; }
+    .typo > div { display: flex; align-items: baseline; gap: var(--s-4); padding-block: 6px; border-block-end: 1px dashed var(--line); }
+    .typo code { font-family: var(--font-en); font-size: var(--fs-xs); color: var(--text-3); min-width: 90px; direction: ltr; }
+    .lh-demo { font-family: var(--font-letterhead); font-size: 26px; font-weight: 700; color: var(--primary); }
+    .gaps li { margin-block: 6px; }
+    /* Multi-branch & stock section */
+    .mt-tree { display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: stretch; margin-block-end: var(--s-5); }
+    .mt-tree > div { flex: 1 1 200px; padding: var(--s-3) var(--s-4); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); }
+    .mt-tree > div:first-child { background: var(--primary-soft); border-color: var(--primary-line); }
+    .mt-tree .k { display: block; font-size: var(--fs-xs); color: var(--text-3); font-weight: var(--fw-sb); }
+    .mt-tree b { display: block; }
+    .mt-tree p { margin: 4px 0 0; font-size: var(--fs-sm); color: var(--text-2); }
+    .mt-tree .arr { flex: 0 0 auto; align-self: center; color: var(--primary); font-weight: var(--fw-b); }
+    [dir="ltr"] .mt-tree .arr { transform: scaleX(-1); }
+    .mt-cards { display: grid; gap: var(--s-3); grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+    .mt-card { display: flex; flex-direction: column; gap: 6px; padding: var(--s-4); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); text-decoration: none; color: inherit; box-shadow: var(--e-1); }
+    .mt-card:hover { border-color: var(--primary-line); box-shadow: var(--e-2); }
+    .mt-card .ttl { display: flex; align-items: center; gap: var(--s-2); font-weight: var(--fw-sb); flex-wrap: wrap; }
+    .mt-card p { margin: 0; font-size: var(--fs-sm); color: var(--text-2); }
+    .mt-card .f { font-family: var(--font-en); font-size: var(--fs-xs); color: var(--text-3); direction: ltr; text-align: start; }
+    @media (max-width: 860px) {
+      .hero, .two { grid-template-columns: 1fr; }
+      .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .hero h1 { font-size: var(--fs-3xl); }
+      .feat-grid { grid-template-columns: 1fr; }
+      .steps-row li { flex-basis: 170px; }
+    }
+  </style>
+</head>
+<body data-shell="bare" data-screen="index">
+<main id="screen">
+<div class="hub">
+
+  <!-- ===== Summary ===== -->
+  <header class="hero">
+    <div>
+      <div class="pillrow">
+        <span class="t-chip info plain" data-en="Design sprint 1 · closed 14 Nov 2026">سبرنت التصميم ١ · اتقفل ١٤ نوفمبر ٢٠٢٦</span>
+        <span class="t-chip plain" data-en="Clickable prototype · AR / EN · light / dark">نموذج تفاعلي · عربي / إنجليزي · فاتح / داكن</span>
+      </div>
+      <h1><span class="ink" data-en="Tamargi">تمرجي</span> <span data-en="— the clinic, run from one screen per role">— العيادة كلها، شاشة واحدة لكل دور</span></h1>
+      <p class="lead" data-en="An Arabic-first clinic system for Egyptian solo and 2-doctor clinics that run on paper and cash today. Reception runs a live queue, the doctor writes the visit and prints the Rx on the clinic letterhead, the cashier collects and closes the drawer, the owner sees today's money on the phone.">نظام عيادات عربي أولًا للعيادات المصرية الفردية وعيادات الطبيبين اللي شغالة النهارده بالورق والكاش. الاستقبال بيشغّل دور مباشر، والطبيب بيكتب الكشف ويطبع الروشتة على ترويسة العيادة، والخزنة بتحصّل وتقفل الدرج، والمالك بيشوف فلوس النهارده على موبايله.</p>
+      <div class="t-row tight">
+        <a class="t-btn primary" href="#journeys"><svg class="t-icon sm"><use href="#i-check"/></svg><span data-en="Walk the 5 journeys">امشي في الرحلات الخمسة</span></a>
+        <a class="t-btn" href="screens/reception-queue.html"><svg class="t-icon sm"><use href="#i-queue"/></svg><span data-en="Open reception home">افتح شاشة الاستقبال</span></a>
+        <a class="t-btn ghost" href="screens/doctor-home.html"><svg class="t-icon sm"><use href="#i-home"/></svg><span data-en="Open doctor home">افتح يوم الطبيب</span></a>
+      </div>
+      <p class="t-muted" style="font-size:var(--fs-sm);margin-block-start:var(--s-4)" data-en="Tip: inside any screen press Alt+N to show the numbered design notes, and use the state switcher in the spec strip to see empty / error / alternative states.">نصيحة: جوه أي شاشة اضغط Alt+N عشان تظهر ملاحظات التصميم المرقّمة، واستخدم مبدّل الحالات عشان تشوف الحالة الفاضية والبديلة.</p>
+    </div>
+    <div class="facts">
+      <div class="t-card t-stat"><span class="t-stat-label" data-en="Screens built">شاشة جاهزة</span><span class="t-stat-value t-num">35</span></div>
+      <div class="t-card t-stat"><span class="t-stat-label" data-en="Apps / groups">مجموعات</span><span class="t-stat-value t-num">8</span></div>
+      <div class="t-card t-stat"><span class="t-stat-label" data-en="User journeys">رحلة مستخدم</span><span class="t-stat-value t-num">5</span></div>
+      <div class="t-card t-stat"><span class="t-stat-label" data-en="Screen states">حالة شاشة</span><span class="t-stat-value t-num">33</span></div>
+      <div class="t-card t-stat"><span class="t-stat-label" data-en="Design notes">ملاحظة تصميم</span><span class="t-stat-value t-num">168</span></div>
+      <div class="t-card t-stat"><span class="t-stat-label" data-en="Notes citing NITCO">ملاحظة من NITCO</span><span class="t-stat-value t-num">117</span></div>
+    </div>
+  </header>
+
+  <nav class="jump" aria-label="Sections" data-en-aria-label="Sections">
+    <div class="t-tabs">
+      <a class="t-tab" href="#screens" data-en="Screen map">خريطة الشاشات</a>
+      <a class="t-tab" href="#multi" data-en="Branches & stock">تعدد الفروع والمخزون</a>
+      <a class="t-tab" href="#journeys" data-en="Journeys">الرحلات</a>
+      <a class="t-tab" href="#features" data-en="Features by app">المزايا حسب التطبيق</a>
+      <a class="t-tab" href="#nitco" data-en="What we learned from NITCO">اللي اتعلمناه من NITCO</a>
+      <a class="t-tab" href="#design-system" data-en="Design system">نظام التصميم</a>
+      <a class="t-tab" href="#gaps" data-en="Known gaps">نواقص معروفة</a>
+    </div>
+  </nav>
+
+  <!-- ===== Screen map ===== -->
+  <section id="screens">
+    <h2 class="sec"><svg class="t-icon"><use href="#i-template"/></svg><span data-en="Screen map">خريطة الشاشات</span></h2>
+    <p class="sec-sub" data-en="All 35 screens, grouped by app area. Filter by role to see one person's day. Each card is a live, scaled-down render of the real screen.">كل الشاشات الخمسة وتلاتين، متقسمة حسب جزء التطبيق. فلتر بالدور عشان تشوف يوم شخص واحد. كل كارت معاينة حيّة مصغّرة للشاشة الحقيقية.</p>
+    <div class="filters">
+      <div class="t-seg" role="group" id="roleFilter" aria-label="Role" data-en-aria-label="Role"></div>
+      <label class="t-row tight" style="font-size:var(--fs-sm)"><input type="checkbox" id="liveThumbs" checked> <span data-en="Live previews">معاينة حيّة</span></label>
+    </div>
+    <div id="screenMap"></div>
+  </section>
+
+  <!-- ===== Multi-branch & stock (tenancy round, 2026-11-14) ===== -->
+  <section id="multi">
+    <h2 class="sec"><svg class="t-icon"><use href="#i-building"/></svg><span data-en="Multi-branch, stock & equipment">تعدد الفروع والمخزون</span></h2>
+    <p class="sec-sub" data-en="Tamargi is multi-tenant: every customer is an organization with its own data. Inside it, branches and rooms organise daily work. The sample polyclinic (Nile Medical Centre, 2 branches, 8 rooms, 6 doctors) is fake data. Try the organization and branch switchers in the top bar of any screen.">تمرجي متعدد العملاء: كل عميل مؤسسة ليها بياناتها لوحدها. جواها، الفروع والغرف بتنظم الشغل اليومي. المجمع اللي في العينة (مجمع النيل الطبي، فرعين، ٨ غرف، ٦ أطباء) بيانات وهمية. جرّب مبدّل المؤسسة والفرع في الشريط اللي فوق في أي شاشة.</p>
+    <div class="mt-tree">
+      <div><span class="k" data-en="ORGANIZATION = the customer">المؤسسة = العميل</span><b data-en="Hard wall between organizations">حيطة صلبة بين المؤسسات</b><p data-en="Legal entity, subscription, data controller under PDPL. No data is ever shared between two organizations.">الكيان القانوني والاشتراك والمسؤول عن البيانات قانونًا. مفيش أي بيانات بتتشارك بين مؤسستين أبدًا.</p></div>
+      <span class="arr" aria-hidden="true">←</span>
+      <div><span class="k" data-en="BRANCH = an address">الفرع = عنوان</span><b data-en="Soft scope inside the organization">نطاق شغل جوه المؤسسة</b><p data-en="Own queue, cash drawer, stock store. The patient file stays one per organization.">دور وخزنة ومخزن لكل فرع. ملف المريض واحد للمؤسسة كلها.</p></div>
+      <span class="arr" aria-hidden="true">←</span>
+      <div><span class="k" data-en="ROOM / CHAIR = bookable">الغرفة / الكرسي = بتتحجز</span><b data-en="Shared by time slot">بتتشارك بالميعاد</b><p data-en="Has a type, not a specialty. Specialty belongs to the doctor.">ليها نوع مش تخصص. التخصص بتاع الطبيب.</p></div>
+    </div>
+    <div class="mt-cards">
+      <a class="mt-card" href="screens/org-branches.html"><span class="ttl"><svg class="t-icon sm"><use href="#i-building"/></svg><span data-en="Organization & branches">المؤسسة والفروع</span><span class="t-tier">Tier 2</span></span><p data-en="Org profile, branch cards, plan usage (2 of 3 branches), what is shared vs per branch. Solo-clinic state included.">بيانات المؤسسة، كروت الفروع، استخدام الباقة (٢ من ٣ فروع)، إيه المشترك وإيه الخاص بكل فرع. فيها حالة العيادة الفردية.</p><span class="f">org-branches.html</span></a>
+      <a class="mt-card" href="screens/rooms.html"><span class="ttl"><svg class="t-icon sm"><use href="#i-door"/></svg><span data-en="Rooms & chairs">الغرف والعيادات</span><span class="t-tier">Tier 2</span></span><p data-en="Rooms per branch by type, weekly occupancy grid, computed conflicts (room double-booked, doctor in two branches).">الغرف لكل فرع بالنوع، جدول إشغال الأسبوع، وتعارضات بتتحسب لوحدها (غرفة محجوزة مرتين، طبيب في فرعين).</p><span class="f">rooms.html</span></a>
+      <a class="mt-card" href="screens/doctors-branches.html"><span class="ttl"><svg class="t-icon sm"><use href="#i-users"/></svg><span data-en="Doctors & branches">الأطباء والفروع</span><span class="t-tier">Tier 2</span></span><p data-en="Each doctor's specialties and pack, branches, rooms, hours and fee per branch. One doctor in 2 branches; one room shared by 3 specialties.">تخصصات كل طبيب وباقته، الفروع والغرف والمواعيد وسعر الكشف لكل فرع. طبيب في فرعين، وغرفة بـ٣ تخصصات.</p><span class="f">doctors-branches.html</span></a>
+      <a class="mt-card" href="screens/stock.html"><span class="ttl"><svg class="t-icon sm"><use href="#i-box"/></svg><span data-en="Clinic stock">مخزون العيادة</span><span class="t-tier t-phase" data-en="Later phase">مرحلة لاحقة</span></span><p data-en="Items per branch store with batch and expiry, low-stock and expiry flags, receive from supplier, movements (issued in visit, linked to the invoice), stock count. Not a pharmacy.">الأصناف لكل مخزن فرع بالتشغيلة والانتهاء، تنبيه النقص والانتهاء، استلام من مورد، الحركة (صرف في زيارة مربوط بالفاتورة)، الجرد. مش صيدلية.</p><span class="f">stock.html</span></a>
+      <a class="mt-card" href="screens/equipment.html"><span class="ttl"><svg class="t-icon sm"><use href="#i-device"/></svg><span data-en="Equipment register">سجل الأجهزة</span><span class="t-tier t-phase" data-en="Later phase">مرحلة لاحقة</span></span><p data-en="Devices per branch and room: in service / maintenance / out of service, next maintenance or calibration, warranty, log and files.">الأجهزة لكل فرع وغرفة: شغّال / في الصيانة / عطلان، الصيانة أو المعايرة الجاية، الضمان، السجل والملفات.</p><span class="f">equipment.html</span></a>
+      <a class="mt-card" href="screens/settings-users-roles.html"><span class="ttl"><svg class="t-icon sm"><use href="#i-users"/></svg><span data-en="Users & roles (updated)">المستخدمون والصلاحيات (اتحدّثت)</span></span><p data-en="Branches column, and roles per branch inside each person's drawer.">عمود الفروع، والأدوار لكل فرع جوه بيانات كل شخص.</p><span class="f">settings-users-roles.html</span></a>
+    </div>
+    <div class="t-alert info" style="margin-block-start:var(--s-4)"><svg class="t-icon"><use href="#i-info"/></svg><span data-en="Top bar on every screen: the organization switcher (for people who work in more than one organization, no sign-out) and the branch switcher (owner also gets All branches; a one-branch clinic shows the name only). The branch is never chosen at login.">الشريط اللي فوق في كل شاشة: مبدّل المؤسسة (للي بيشتغل في أكتر من مؤسسة، من غير تسجيل خروج) ومبدّل الفرع (المالك عنده كمان كل الفروع؛ العيادة بفرع واحد بيظهر اسمه بس). الفرع عمره ما بيتختار وقت الدخول.</span></div>
+  </section>
+
+  <!-- ===== Journeys ===== -->
+  <section id="journeys">
+    <h2 class="sec"><svg class="t-icon"><use href="#i-check"/></svg><span data-en="The 5 key user journeys">رحلات المستخدم الخمسة الأساسية</span></h2>
+    <p class="sec-sub" data-en="Click any step to open that screen in the right state. Each journey is the real order of work in a Mansoura evening clinic.">اضغط على أي خطوة عشان تفتح الشاشة في الحالة الصح. كل رحلة هي ترتيب الشغل الحقيقي في عيادة مسائية في المنصورة.</p>
+    <div id="journeyList"></div>
+  </section>
+
+  <!-- ===== Features ===== -->
+  <section id="features">
+    <h2 class="sec"><svg class="t-icon"><use href="#i-star"/></svg><span data-en="Features by app, with priority">المزايا حسب التطبيق والأولوية</span></h2>
+    <p class="sec-sub" data-en="From the product definition. Must = solo-clinic MVP. Should = MVP if time allows. Later = after launch. Tier 2 = polyclinic plan.">من تعريف المنتج. أساسي = نسخة العيادة الفردية. مهم = لو الوقت سمح. لاحقًا = بعد الإطلاق. المرحلة ٢ = باقة المجمعات.</p>
+    <div class="pillrow">
+      <span class="prio must" data-en="Must">أساسي</span><span class="prio should" data-en="Should">مهم</span><span class="prio tier2" data-en="Tier 2">المرحلة ٢</span><span class="prio later" data-en="Later">لاحقًا</span>
+    </div>
+    <div class="feat-grid" id="featGrid"></div>
+  </section>
+
+  <!-- ===== NITCO ===== -->
+  <section id="nitco">
+    <h2 class="sec"><svg class="t-icon"><use href="#i-search"/></svg><span data-en="What we learned from NITCO and how we used it">اللي اتعلمناه من NITCO وإزاي استخدمناه</span></h2>
+    <p class="sec-sub" data-en="NITCO eCarePlus is the Saudi market leader (850+ facilities) with an Egypt branch in Mansoura. We watched all 112 of its demo videos. Rule: borrow its data and business rules, reject its UX. 117 of our 168 design notes cite a NITCO video.">NITCO eCarePlus هو الأول في السوق السعودي (أكتر من ٨٥٠ منشأة) وعنده فرع في المنصورة. اتفرجنا على الـ ١١٢ فيديو بتوعه كلهم. القاعدة: ناخد البيانات وقواعد الشغل، ونرفض طريقة الاستخدام. ١١٧ من ١٦٨ ملاحظة تصميم عندنا بتستشهد بفيديو من NITCO.</p>
+    <div class="two">
+      <div class="t-card flush">
+        <div class="t-card-head"><h3 data-en="Borrowed: data and rules">أخدنا: البيانات والقواعد</h3></div>
+        <div class="t-table-wrap" style="border:0;border-radius:0">
+          <table class="t-table"><thead><tr><th data-en="Rule (NITCO video)">القاعدة (فيديو NITCO)</th><th data-en="Where in Tamargi">فين في تمرجي</th></tr></thead>
+          <tbody id="borrowRows"></tbody></table>
+        </div>
+      </div>
+      <div class="t-card flush">
+        <div class="t-card-head"><h3 data-en="Rejected: their UX, and our answer">رفضنا: طريقة استخدامهم، وردّنا</h3></div>
+        <div class="t-table-wrap" style="border:0;border-radius:0">
+          <table class="t-table"><thead><tr><th data-en="NITCO weakness">ضعف NITCO</th><th data-en="Tamargi answer">ردّ تمرجي</th></tr></thead>
+          <tbody id="beatRows"></tbody></table>
+        </div>
+      </div>
+    </div>
+    <div class="t-card" style="margin-block-start:var(--s-4)">
+      <div class="t-card-head"><h3 data-en="How the team uses the video notes from now on">إزاي الفريق يستخدم ملاحظات الفيديوهات من هنا ورايح</h3></div>
+      <ol id="nitcoRules" style="margin:0;padding-inline-start:var(--s-5)"></ol>
+    </div>
+  </section>
+
+  <!-- ===== Design system ===== -->
+  <section id="design-system">
+    <h2 class="sec"><svg class="t-icon"><use href="#i-edit"/></svg><span data-en="Design system preview">معاينة نظام التصميم</span></h2>
+    <p class="sec-sub" data-en="Ink blue of the doctor's ballpoint and the clinic stamp, on cool porcelain paper. One bold thing: the printed letterhead. Status is always a word plus a colour. Source: assets/tamargi.css.">أزرق حبر قلم الدكتور وختم العيادة، على ورق بورسلين هادي. حاجة واحدة جريئة: الترويسة المطبوعة. الحالة دايمًا كلمة ولون مع بعض. المصدر: assets/tamargi.css.</p>
+    <div class="t-grid c2">
+      <div class="t-card">
+        <div class="t-card-head"><h3 data-en="Colour tokens">ألوان النظام</h3></div>
+        <div class="sw" id="swatches"></div>
+      </div>
+      <div class="t-card">
+        <div class="t-card-head"><h3 data-en="Type scale · IBM Plex Sans Arabic / IBM Plex Sans">مقاسات الخط · IBM Plex Sans Arabic</h3></div>
+        <div class="typo">
+          <div><code>--fs-4xl 38</code><span class="t-num" style="font-size:var(--fs-4xl);font-weight:600">2,450 <span style="font-size:var(--fs-md)" data-en="EGP">ج.م</span></span></div>
+          <div><code>--fs-2xl 24</code><span style="font-size:var(--fs-2xl);font-weight:600" data-en="Today's queue">دور النهارده</span></div>
+          <div><code>--fs-lg 17</code><span style="font-size:var(--fs-lg);font-weight:600">منى عبد الرحمن السيد الشناوي</span></div>
+          <div><code>--fs-md 15</code><span data-en="Body, inputs and table cells.">النص والخانات والجداول.</span></div>
+          <div><code>--fs-sm 13</code><span class="t-muted" style="font-size:var(--fs-sm)" data-en="Labels and hints">العناوين الصغيرة والتلميحات</span></div>
+          <div><code>Amiri</code><span class="lh-demo" data-en="Dr. Ahmed Selim Clinic">عيادة د. أحمد سليم</span></div>
+        </div>
+      </div>
+      <div class="t-card">
+        <div class="t-card-head"><h3 data-en="Status chips (word + colour + dot)">شارات الحالة (كلمة + لون + نقطة)</h3></div>
+        <div class="t-stack">
+          <div class="t-row tight"><span class="t-muted" style="min-width:90px;font-size:var(--fs-sm)" data-en="Queue">الدور</span>
+            <span class="t-chip waiting" data-en="Waiting">منتظر</span><span class="t-chip called" data-en="Called">نودي عليه</span><span class="t-chip inroom" data-en="In room">في الكشف</span><span class="t-chip done" data-en="Done">خلص</span><span class="t-chip left" data-en="Left">مشي</span></div>
+          <div class="t-row tight"><span class="t-muted" style="min-width:90px;font-size:var(--fs-sm)" data-en="Appointment">الموعد</span>
+            <span class="t-chip booked" data-en="Booked">محجوز</span><span class="t-chip confirmed" data-en="Confirmed">مؤكد</span></div>
+          <div class="t-row tight"><span class="t-muted" style="min-width:90px;font-size:var(--fs-sm)" data-en="Invoice">الفاتورة</span>
+            <span class="t-chip paid" data-en="Paid">مدفوعة</span><span class="t-chip unpaid" data-en="Unpaid">غير مدفوعة</span><span class="t-chip void" data-en="Void">ملغاة</span><span class="t-chip danger" data-en="Debt">مديونية</span><span class="t-chip info" data-en="Credit note">إشعار دائن</span></div>
+        </div>
+      </div>
+      <div class="t-card">
+        <div class="t-card-head"><h3 data-en="Buttons, keys and money">الأزرار والاختصارات والمبالغ</h3></div>
+        <div class="t-stack">
+          <div class="t-row tight">
+            <button class="t-btn primary" type="button" data-toast="تم التحصيل" data-toast-en="Collected"><span data-en="Collect 300 EGP">حصّل ٣٠٠ ج.م</span><span class="t-kbd">F9</span></button>
+            <button class="t-btn" type="button" data-en="Print">طباعة</button>
+            <button class="t-btn ghost" type="button" data-en="Cancel">إلغاء</button>
+            <button class="t-btn danger" type="button" data-en="Credit note">إشعار دائن</button>
+          </div>
+          <div class="t-row tight"><span class="t-kbd">Ctrl K</span><span class="t-kbd">F2</span><span class="t-kbd">F4</span><span class="t-kbd">F9</span><span class="t-kbd">Alt 1…9</span><span class="t-tier">Tier 2</span></div>
+          <div class="t-row tight" style="font-size:var(--fs-xl)"><span class="t-money">300<span class="cur" data-en=" EGP"> ج.م</span></span><span class="t-money debt">40<span class="cur" data-en=" EGP"> ج.م</span></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="t-card" style="margin-block-start:var(--s-4);padding:0;overflow:hidden">
+      <section class="t-banner" style="position:static;margin:0" aria-label="Patient banner sample" data-en-aria-label="Patient banner sample">
+        <div class="t-banner-id">
+          <span class="t-avatar">م ع</span>
+          <div>
+            <div class="t-banner-name">منى عبد الرحمن السيد الشناوي</div>
+            <div class="t-banner-facts"><span><b>34</b> <span data-en="yrs · F">سنة · أنثى</span></span><span><span data-en="File">ملف</span> <b class="t-ltr">1043</b></span><span class="t-ltr">0100 234 5678</span></div>
+          </div>
+        </div>
+        <div class="t-banner-alerts">
+          <span class="t-allergy">⚠ <span data-en="Allergy: Penicillin (severe)">حساسية: بنسلين (شديدة)</span></span>
+          <span class="t-balance debt" data-en="Owes 40 EGP">عليها ٤٠ ج.م</span>
+          <span class="t-balance followup" data-en="Free follow-up until 16 Nov">استشارة مجانية حتى ١٦ نوفمبر</span>
+        </div>
+      </section>
+      <p class="t-muted" style="margin:0;padding:var(--s-3) var(--s-4);font-size:var(--fs-sm)" data-en="Patient banner: pinned on every clinical screen. Allergy is the only solid red in the product.">شريط المريض: ثابت في كل شاشة طبية. الحساسية هي اللون الأحمر المصمت الوحيد في المنتج.</p>
+    </div>
+  </section>
+
+  <!-- ===== Gaps ===== -->
+  <section id="gaps">
+    <h2 class="sec"><svg class="t-icon"><use href="#i-alert"/></svg><span data-en="Known gaps (from design review)">نواقص معروفة (من مراجعة التصميم)</span></h2>
+    <p class="sec-sub" data-en="Fixed inside screens where possible. What is left needs one pass on the shared files (tamargi.css, shell.js) or a product decision.">اتصلّح جوه الشاشات قدر الإمكان. الباقي محتاج مرور واحد على الملفات المشتركة أو قرار منتج.</p>
+    <div class="t-grid c3">
+      <div class="t-card"><div class="t-card-head"><h3 data-en="Shared shell & CSS">الإطار والـ CSS المشترك</h3></div><ul class="gaps" id="gapShared"></ul></div>
+      <div class="t-card"><div class="t-card-head"><h3 data-en="Sample data & behaviour">بيانات العينة والسلوك</h3></div><ul class="gaps" id="gapData"></ul></div>
+      <div class="t-card"><div class="t-card-head"><h3 data-en="Not yet tested">لسه ما اتختبرش</h3></div><ul class="gaps" id="gapTest"></ul></div>
+    </div>
+  </section>
+
+</div>
+</main>
+<script src="assets/shell.js"></script>
+<script>
+(function () {
+  "use strict";
+  var T = window.Tamargi || { screens: [], groups: [], lang: function () { return "ar"; } };
+  function L() { return T.lang ? T.lang() : "ar"; }
+  function tx(o) { return L() === "en" ? o.en : o.ar; }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function byFile(f) { return T.screens.filter(function (s) { return s.f === f; })[0]; }
+  function sname(f) { var s = byFile(f); return s ? tx(s) : f; }
+
+  var ROLES = [
+    { id: "all", ar: "الكل", en: "All" },
+    { id: "reception", ar: "الاستقبال", en: "Reception" },
+    { id: "doctor", ar: "الطبيب", en: "Doctor" },
+    { id: "nurse", ar: "التمريض", en: "Nurse" },
+    { id: "owner", ar: "المالك", en: "Owner" },
+    { id: "public", ar: "المريض", en: "Patient" }
+  ];
+  function roleName(id) { var r = ROLES.filter(function (x) { return x.id === id; })[0]; return r ? tx(r) : id; }
+  var STATES = {
+    "reception-queue": 2, "patient-search": 3, "patient-quick-register": 2, "chat-inbox": 2, "doctor-home": 2, "nurse-vitals": 2,
+    "patient-file": 2, "prescription-print": 3, "rx-favourites": 2, "appointments-calendar": 2, "appointment-book": 2,
+    "cashier-checkout": 2, "receipt-print": 2, "invoice-detail": 2, "cash-close": 2, "owner-dashboard": 2,
+    "onboarding-wizard": 3, "subscription-plan": 3, "org-branches": 2
+  };
+  var role = "all";
+  var live = true;
+
+  /* ---------- Screen map ---------- */
+  function renderRoles() {
+    document.getElementById("roleFilter").innerHTML = ROLES.map(function (r) {
+      return '<button type="button" data-role="' + r.id + '" aria-pressed="' + (r.id === role) + '">' + esc(tx(r)) + "</button>";
+    }).join("");
+  }
+  function renderMap() {
+    var out = "";
+    T.groups.forEach(function (g) {
+      var list = T.screens.filter(function (s) { return s.g === g.id; });
+      out += '<div class="grp" data-group="' + g.id + '"><div class="grp-head"><h3>' + esc(tx(g)) + '</h3><span class="t-muted">' + list.length + " " + (L() === "en" ? "screens" : "شاشات") + '</span></div><div class="cards">';
+      list.forEach(function (s) {
+        var home = s.home ? '<span class="t-chip inroom" style="height:22px">' + (L() === "en" ? "Home of " : "رئيسية ") + esc(roleName(s.home)) + "</span>" : "";
+        var st = STATES[s.f] ? '<span class="t-chip plain">' + STATES[s.f] + (L() === "en" ? " states" : " حالات") + "</span>" : "";
+        out += '<a class="scard" data-roles="' + s.roles.join(" ") + '" href="screens/' + s.f + '.html">' +
+          '<div class="thumb" aria-hidden="true">' + (live ? '<iframe tabindex="-1" loading="lazy" title="" src="screens/' + s.f + '.html"></iframe>' :
+            '<div class="ph"><svg class="t-icon"><use href="#i-' + s.icon + '"/></svg></div>') + "</div>" +
+          '<div class="scard-body"><div class="scard-title"><svg class="t-icon sm"><use href="#i-' + s.icon + '"/></svg>' + esc(tx(s)) +
+          (s.tier === 2 ? '<span class="t-tier">Tier 2</span>' : "") + (s.phase === "later" ? '<span class="t-tier t-phase">' + (L() === "en" ? "Later" : "مرحلة لاحقة") + "</span>" : "") + '</div><div class="scard-file">' + s.f + '.html</div><div class="scard-meta">' + home + st +
+          s.roles.map(function (r) { return '<span class="t-chip booked" style="height:22px">' + esc(roleName(r)) + "</span>"; }).join("") + "</div></div></a>";
+      });
+      out += "</div></div>";
+    });
+    document.getElementById("screenMap").innerHTML = out;
+    applyRole(); scaleThumbs();
+  }
+  function applyRole() {
+    Array.prototype.forEach.call(document.querySelectorAll(".scard"), function (c) {
+      c.classList.toggle("is-hidden", role !== "all" && c.getAttribute("data-roles").split(" ").indexOf(role) === -1);
+    });
+    Array.prototype.forEach.call(document.querySelectorAll(".grp"), function (g) {
+      g.classList.toggle("is-hidden", !g.querySelector(".scard:not(.is-hidden)"));
+    });
+    scaleThumbs();
+  }
+  function scaleThumbs() {
+    Array.prototype.forEach.call(document.querySelectorAll(".thumb iframe"), function (f) {
+      var w = f.parentNode.clientWidth; if (w) f.style.transform = "scale(" + (w / 1440) + ")";
+    });
+  }
+  window.addEventListener("resize", scaleThumbs);
+
+  /* ---------- Journeys ---------- */
+  var J = [
+    { ar: "مريض جاي من غير حجز — من الباب للروشتة", en: "Walk-in visit, door to prescription",
+      dar: "اللفة الأساسية: الاستقبال يضيفه للدور، الخزنة تحصّل، التمريض ياخد العلامات، الطبيب يكشف ويطبع الروشتة.", den: "The core loop: reception queues, cashier collects, nurse takes vitals, doctor sees and prints the Rx.",
+      steps: [
+        ["reception", "reception-queue", "", "Ctrl K → اسم أو موبايل → إضافة للدور (F2)", "Ctrl K → name or phone → Add to queue (F2)"],
+        ["reception", "patient-quick-register", "#state=new", "مريض جديد؟ ٥ خانات بس، وتحذير لو مكرر", "New patient? 5 fields, duplicate warning"],
+        ["reception", "cashier-checkout", "#state=draft", "الرسوم متعبّية لوحدها → حصّل (F9)", "Fee pre-filled → Collect (F9)"],
+        ["reception", "receipt-print", "", "إيصال A5 على ترويسة العيادة", "A5 receipt on the clinic letterhead"],
+        ["nurse", "nurse-vitals", "", "العلامات الحيوية → ابعت للطبيب", "Vitals → Send to doctor"],
+        ["doctor", "doctor-home", "", "نادي على اللي بعده (F4) → ابدأ الكشف", "Call next (F4) → Start visit"],
+        ["doctor", "visit-note", "", "SOAP بالاختصارات والقوالب؛ خدمة تروح للفاتورة", "SOAP with shortcuts; added service goes to the bill"],
+        ["doctor", "prescription-builder", "", "المفضلة: ضغطة واحدة للدوا والجرعة والمدة", "Favourites: one click drug, dose, duration"],
+        ["doctor", "prescription-print", "#state=prescription", "اطبع الروشتة (Ctrl P)", "Print the Rx (Ctrl P)"]
+      ] },
+    { ar: "موعد محجوز — من الشات للكشف", en: "Booked appointment, chat to visit",
+      dar: "المريض بيكتب في شات صفحة العيادة، الاستقبال يحجز، ولما يوصل يسجّل حضوره ويدخل الدور برسومه.", den: "Patient writes on the clinic page chat; reception books; arrival checks in and joins the queue with the fee.",
+      steps: [
+        ["public", "clinic-web-page", "", "صفحة العيادة: المواعيد والعنوان والشات", "Clinic page: hours, address, chat"],
+        ["reception", "chat-inbox", "#state=inbox", "رسالة → احجز من نفس المحادثة", "Message → Book from the conversation"],
+        ["reception", "appointment-book", "#state=existing-patient", "طبيب ويوم وميعاد فاضي → Enter", "Doctor, day, free slot → Enter"],
+        ["reception", "appointments-calendar", "#state=day", "وصل → تسجيل حضور", "Arrived → Check in"],
+        ["reception", "reception-queue", "", "بقى في الدور برسوم الكشف", "Now in the queue with the fee"],
+        ["reception", "cashier-checkout", "#state=draft", "حصّل وكمّل زي رحلة ١", "Collect and continue as journey 1"]
+      ] },
+    { ar: "متابعة مجانية داخل المدة", en: "Free follow-up inside the window",
+      dar: "المريض راجع خلال مدة المتابعة: السيستم يعرف لوحده إنها مجانية، والطبيب يكرر الروشتة بضغطة.", den: "Patient returns inside the window: the system knows it is free; the doctor repeats the Rx in one click.",
+      steps: [
+        ["reception", "patient-search", "#state=results", "دوّر بالموبايل → Alt+Q للدور", "Search by phone → Alt+Q to queue"],
+        ["reception", "reception-queue", "", "نوع الزيارة: متابعة، الرسوم صفر", "Visit type: follow-up, fee 0"],
+        ["doctor", "patient-file", "", "آخر زيارة وروشتة في صفحة واحدة", "Last visit and Rx on one page"],
+        ["doctor", "visit-note", "", "الملاحظة السابقة جاهزة؛ عدّل بس", "Previous note pre-loaded; edit only"],
+        ["doctor", "prescription-builder", "", "كرر آخر روشتة (Alt+R)", "Repeat last Rx (Alt+R)"],
+        ["reception", "appointment-book", "", "احجز المتابعة الجاية", "Book the next follow-up"]
+      ] },
+    { ar: "تقفيل الخزنة آخر اليوم", en: "Daily cash close",
+      dar: "الاستقبال يعدّ الدرج، الفرق يظهر بسبب، والمالك يشوف فلوس النهارده على موبايله الساعة ١١.", den: "Reception counts the drawer, any difference needs a note, the owner sees today's cash on the phone at 11 pm.",
+      steps: [
+        ["reception", "cash-close", "#state=counting", "المتوقع حسب طريقة الدفع → عدّ الفئات", "Expected by method → count notes"],
+        ["reception", "cash-close", "#state=closed", "قفل الوردية؛ الفرق بملاحظة", "Close shift; difference needs a note"],
+        ["owner", "owner-dashboard", "", "فلوس النهارده والاستثناءات", "Today's money and exceptions"],
+        ["owner", "invoice-detail", "#state=credited", "مراجعة إشعار دائن بسببه", "Review a credit note and its reason"],
+        ["owner", "reports", "", "الدخل حسب الطبيب والخدمة والمستخدم", "Income by doctor, service, user"]
+      ] },
+    { ar: "تجهيز العيادة والتجربة المجانية", en: "Clinic onboarding and free trial",
+      dar: "الطبيب يسجّل بالموبايل، يختار التخصص فتتحمّل القوالب، يمشي في ٥ خطوات، ويطبع روشتة تجربة.", den: "Doctor signs up by mobile, picks a specialty (templates pre-load), walks 5 steps and prints a test Rx.",
+      steps: [
+        ["owner", "onboarding-wizard", "#state=signup", "موبايل + كود → اسم العيادة والتخصص", "Mobile + OTP → clinic name, specialty"],
+        ["owner", "doctor-schedule", "", "مواعيد العمل والورديات", "Working hours and shifts"],
+        ["owner", "services-prices", "", "سعر الكشف والاستشارة ومدة المتابعة", "Consult and follow-up fees, window"],
+        ["owner", "settings-letterhead", "", "اللوجو والترويسة مع معاينة", "Logo and letterhead with preview"],
+        ["owner", "settings-users-roles", "", "ادعُ المساعدة بدور جاهز", "Invite the assistant with a preset role"],
+        ["owner", "prescription-print", "#state=prescription", "اطبع روشتة تجربة", "Print a test Rx"],
+        ["owner", "subscription-plan", "#state=trial", "١٤ يوم تجربة → اختار الباقة", "14-day trial → pick a plan"]
+      ] }
+  ];
+  function renderJourneys() {
+    document.getElementById("journeyList").innerHTML = J.map(function (j, i) {
+      var first = j.steps[0];
+      return '<article class="jr"><div class="jr-head"><span class="num">J' + (i + 1) + "</span><h3>" + esc(L() === "en" ? j.en : j.ar) + '</h3>' +
+        '<a class="t-btn sm" style="margin-inline-start:auto" href="screens/' + first[1] + ".html" + first[2] + '">' + (L() === "en" ? "Start journey" : "ابدأ الرحلة") + "</a>" +
+        "<p>" + esc(L() === "en" ? j.den : j.dar) + '</p></div><ol class="steps-row">' +
+        j.steps.map(function (s, k) {
+          return '<li><a class="step" href="screens/' + s[1] + ".html" + s[2] + '"><span class="n">' + (k + 1) + '</span><span class="who">' + esc(roleName(s[0])) + " · " + esc(sname(s[1])) +
+            '</span><span class="what">' + esc(L() === "en" ? s[4] : s[3]) + '</span><span class="scr">' + s[1] + "</span></a></li>";
+        }).join("") + "</ol></article>";
+    }).join("");
+  }
+
+  /* ---------- Features (product-definition.md §5) ---------- */
+  var PR = { M: ["must", "أساسي", "Must"], S: ["should", "مهم", "Should"], T: ["tier2", "المرحلة ٢", "Tier 2"], L: ["later", "لاحقًا", "Later"] };
+  var F = [
+    { ar: "الهوية والاشتراك (identity)", en: "identity", items: [
+      ["التسجيل بكود الموبايل وبدء التجربة", "Mobile OTP sign-up, clinic, trial start", "M", "onboarding-wizard"],
+      ["دعوة الفريق بأدوار جاهزة؛ أكتر من دور للمستخدم", "Staff invite, role presets, several roles per user", "M", "settings-users-roles"],
+      ["صلاحيات بالعربي البسيط؛ حد خصم لكل مستخدم", "Plain-Arabic capabilities; per-user discount cap", "M", "settings-users-roles"],
+      ["الاشتراك والدفع (فوري، فودافون كاش، إنستاباي)", "Subscription and payment (Fawry, Vodafone Cash, InstaPay)", "M", "subscription-plan"],
+      ["تبديل سريع بالـ PIN على جهاز الاستقبال", "PIN quick-switch on the reception PC", "S", ""],
+      ["مبدّل المؤسسة: حساب واحد في كذا مؤسسة", "Org switcher: one login, several organizations", "T", "org-branches"],
+      ["فروع ومبدّل فرع ومدير فرع؛ أدوار لكل فرع", "Branches, branch switcher, branch manager; roles per branch", "T", "settings-users-roles"] ] },
+    { ar: "المريض (patient)", en: "patient", items: [
+      ["بحث واحد بالاسم والموبايل والرقم القومي", "One omnibox: name, phone, NID, file no.", "M", "patient-search"],
+      ["تسجيل سريع ٥–٦ خانات وتحذير التكرار", "Quick register, 5–6 fields, duplicate warning", "M", "patient-quick-register"],
+      ["ملف في صفحة واحدة: زيارات وروشتات ومدفوعات", "One-page file: visits, Rx, payments timeline", "M", "patient-file"],
+      ["حساسية وأمراض مزمنة ومرفقات بالموبايل", "Allergies, chronic conditions, phone-QR attachments", "M", "patient-file"],
+      ["تنبيهات المريض للطبيب والخزنة", "Patient alerts for doctor and billing", "M", "patient-file"],
+      ["جهة تعاقد (شركة / نقابة) في الملف", "Corporate / syndicate payer on the file", "T", "patient-file"],
+      ["دمج الملفات المكررة؛ ربط الأسرة", "Duplicate merge; family link", "L", ""] ] },
+    { ar: "المواعيد (scheduling)", en: "scheduling", items: [
+      ["الدور المباشر كشاشة الاستقبال الرئيسية", "Live queue as reception home", "M", "reception-queue"],
+      ["جدول يوم/أسبوع لأكتر من طبيب", "Day/week calendar, multi-doctor", "M", "appointments-calendar"],
+      ["حجز بنوع الزيارة ومريض مؤقت بالموبايل", "Book by visit type; provisional patient on mobile", "M", "appointment-book"],
+      ["تسجيل الحضور يعمل الزيارة والفاتورة", "Check-in creates visit and bill", "M", "appointments-calendar"],
+      ["ورديات مقسومة، رمضان، إجازات بالتعارضات", "Split shifts, Ramadan hours, leaves with conflicts", "M", "doctor-schedule"],
+      ["قائمة المتابعات المستحقة", "Follow-ups due list", "S", "appointments-calendar"],
+      ["تذكير تلقائي على واتساب", "Automatic WhatsApp reminders", "L", ""] ] },
+    { ar: "الكشف (clinical)", en: "clinical", items: [
+      ["يوم الطبيب: اللي بعده وعدادات اليوم", "Doctor's day: next patient, today's counts", "M", "doctor-home"],
+      ["علامات حيوية فاضية لحد ما تتقاس", "Vitals blank until measured, range flags", "M", "nurse-vitals"],
+      ["SOAP باختصارات وقوالب التخصص وICD-10", "SOAP with shortcuts, specialty templates, ICD-10", "M", "visit-note"],
+      ["الخدمات من الكشف تروح للفاتورة لوحدها", "Services from the visit land on the bill", "M", "visit-note"],
+      ["روشتة بالمفضلة والروشتات الجاهزة", "Rx builder with favourites and Rx sets", "M", "prescription-builder"],
+      ["طباعة روشتة وإجازة مرضية وتقرير طبي", "Print Rx, sick-leave certificate, medical report", "M", "prescription-print"],
+      ["خطة علاج بجلسات", "Treatment plan with sessions", "T", "packages-plans"],
+      ["بحث الأدوية من كتالوجنا", "Drug catalogue search (own catalogue)", "L", ""] ] },
+    { ar: "الحسابات (billing)", en: "billing", items: [
+      ["تحصيل في شاشة واحدة والرسوم متعبّية", "One-screen checkout, fee auto-fill", "M", "cashier-checkout"],
+      ["تسعير المتابعة المجانية تلقائي", "Free follow-up auto-pricing", "M", "cashier-checkout"],
+      ["دفع مقسوم؛ الباقي يبقى مديونية", "Split payment; remainder becomes debt", "M", "cashier-checkout"],
+      ["إيصال A5 / 80 مم", "Receipt print A5 / 80 mm", "M", "receipt-print"],
+      ["فاتورة ما تتعدلش؛ التصحيح بإشعار دائن", "Immutable invoice; correction by credit note", "M", "invoice-detail"],
+      ["حساب المريض: مديونية وعربون", "Patient account: debt and deposit", "M", "patient-account"],
+      ["تقفيل الوردية بالمتوقع والمعدود", "Shift close, counted vs expected", "M", "cash-close"],
+      ["الخدمات والأسعار وشرائح الخصم", "Services, prices, discount tiers", "M", "services-prices"],
+      ["باقات وتقسيط", "Packages and installments", "T", "packages-plans"],
+      ["عمولة الطبيب", "Doctor commission", "L", "services-prices"] ] },
+    { ar: "المالك والتقارير", en: "owner & reports", items: [
+      ["لوحة المالك المباشرة (على الموبايل كمان)", "Live owner dashboard (works on phone)", "M", "owner-dashboard"],
+      ["تقارير الدخل والمديونية والخصومات", "Income, debt and discount reports", "M", "reports"],
+      ["سجل النشاط: مين عمل إيه", "Activity log: who did what", "M", "reports"] ] },
+    { ar: "صفحة العيادة (clinic-web)", en: "clinic-web", items: [
+      ["صفحة عامة للعيادة + شات", "Public clinic page + web chat", "M", "clinic-web-page"],
+      ["صندوق رسائل للاستقبال والحجز منه", "Reception chat inbox, book from chat", "M", "chat-inbox"],
+      ["حجز أونلاين ذاتي؛ واتساب في نفس الصندوق", "Online self-booking; WhatsApp in the inbox", "L", ""] ] },
+    { ar: "الفروع والمخزون والأجهزة", en: "branches, stock & equipment", items: [
+      ["المؤسسة والفروع وحدود الباقة", "Organization, branches, plan limits", "T", "org-branches"],
+      ["الغرف والكراسي وإشغالها والتعارضات", "Rooms and chairs, occupancy, conflicts", "T", "rooms"],
+      ["الطبيب في أكتر من فرع بسعر لكل فرع", "Doctor in several branches, fee per branch", "T", "doctors-branches"],
+      ["مخزون العيادة: تشغيلة وانتهاء وصرف في الزيارة", "Clinic stock: batch, expiry, issue in visit", "L", "stock"],
+      ["سجل الأجهزة: صيانة ومعايرة وضمان", "Equipment register: maintenance, calibration, warranty", "L", "equipment"] ] },
+    { ar: "الإعدادات", en: "settings", items: [
+      ["بيانات العيادة ومدة المتابعة وقواعد التسجيل", "Clinic profile, follow-up window, registration rules", "M", "settings-clinic"],
+      ["الترويسة: لوجو ونقابة وعنوان ومعاينة", "Letterhead: logo, syndicate no., preview", "M", "settings-letterhead"],
+      ["قوالب الكشف والاختصارات وباقات التخصص", "Visit templates, shortcuts, specialty packs", "M", "settings-templates"],
+      ["قائمة الجاهزية (من غير شروط مخفية)", "Readiness checklist, no hidden prerequisites", "M", "onboarding-wizard"] ] }
+  ];
+  function renderFeatures() {
+    document.getElementById("featGrid").innerHTML = F.map(function (a) {
+      var m = a.items.filter(function (i) { return i[2] === "M"; }).length;
+      return '<div class="t-card"><div class="t-card-head"><h3>' + esc(L() === "en" ? a.en : a.ar) + '</h3><div class="t-actions"><span class="t-badge">' + m + "/" + a.items.length + "</span></div></div><ul class=\"feat\">" +
+        a.items.map(function (i) {
+          var p = PR[i[2]];
+          return "<li><div>" + esc(L() === "en" ? i[1] : i[0]) + (i[3] ? '<a href="screens/' + i[3] + '.html">' + i[3] + "</a>" : "") + '</div><span class="prio ' + p[0] + '">' + (L() === "en" ? p[2] : p[1]) + "</span></li>";
+        }).join("") + "</ul></div>";
+    }).join("");
+  }
+
+  /* ---------- NITCO ---------- */
+  var BORROW = [
+    ["فاتورة في شاشة واحدة: مريض ← طبيب ← خدمات ← دفع", "One-screen invoice: patient → doctor → services → pay", "v35, 36, 89", "cashier-checkout"],
+    ["مدة متابعة مجانية تمنع رسوم كشف جديد", "Free follow-up window blocks a new consult fee", "v13, 62, 106", "settings-clinic"],
+    ["دفع مقسوم والباقي مديونية؛ عربون", "Split payment, remainder = debt; deposit wallet", "v32–36, 84, 88", "patient-account"],
+    ["فاتورة ثابتة؛ التصحيح بإشعار دائن وسبب", "Immutable invoice; credit note with reason", "v4, 48–50, 86", "invoice-detail"],
+    ["شرائح خصم وسبب وحد لكل مستخدم", "Discount tiers, reason, per-user cap", "v1, 53, 89", "services-prices"],
+    ["ورديات مقسومة ورمضان وإجازات بالتعارض", "Split shifts, Ramadan, leaves with conflicts", "v57, 58, 102", "doctor-schedule"],
+    ["قوالب كشف: تشخيص + أدوية + خدمات", "Visit templates: diagnosis + drugs + services", "v3", "settings-templates"],
+    ["تقفيل وردية الخزنة حسب طريقة الدفع", "Cashier shift close by payment method", "v34, 74, 91", "cash-close"],
+    ["إجازة مرضية وتقرير طبي مرقّمين", "Numbered sick-leave and medical report", "v23, 29", "prescription-print"]
+  ];
+  var BEAT = [
+    ["الدفع مربوط بالطباعة (حفظ = غير مدفوع)", "Paid status tied to printing", "زرار «حصّل» صريح", "An explicit Collect button"],
+    ["بحث بنافذة فيها ١٤–٢٠ خانة", "Search modal with 14–20 fields", "خانة بحث واحدة (Ctrl K)", "One omnibox (Ctrl K)"],
+    ["صفوف أيقونات من غير كلام وحالة باللون بس", "Unlabelled icon rows, colour-only status", "زرار الخطوة الجاية + شارة بكلمة", "One next-step button + worded chips"],
+    ["الطبيب ممنوع يفتح زيارة مش مدفوعة", "Doctor hard-blocked on unpaid visit", "تنبيه هادي بس", "Soft warning only"],
+    ["العلامات الحيوية متعبّية «طبيعي»", "Vitals prefilled as normal", "فاضية لحد ما تتقاس", "Blank until measured"],
+    ["ملاحظات نص حر بس، ١٤ تبويب لكل طبيب", "Free-text notes, 14 tabs for every doctor", "SOAP واختصارات وتبويب تخصص واحد", "SOAP, shortcuts, one specialty tab"],
+    ["إعداد عن طريق الدعم الفني وصفحات .aspx", "Support-led setup, .aspx permissions", "قائمة جاهزية وأدوار جاهزة", "Readiness checklist, role presets"],
+    ["شكل ٢٠١٨، كمبيوتر بس", "2018 look, desktop only", "متجاوب؛ لوحة المالك على الموبايل", "Responsive; owner dashboard on phone"]
+  ];
+  var RULES = [
+    ["قبل ما تصمم شاشة، افتح ملاحظات فيديوهات NITCO للجزء ده (video-index).", "Before designing a screen, open the NITCO video notes for that area (video-index)."],
+    ["انقل الخانات والحالات والتحققات وقواعد الفلوس — مش شكل الشاشة.", "Copy fields, statuses, validations and money rules — never the layout."],
+    ["قارن بقائمة «Beat» العشرة في ui-patterns §6 واعمل العكس.", "Check against the 10 'Beat' items in ui-patterns §6 and do the opposite."],
+    ["اكتب المصدر في ملاحظة التصميم، مثلًا (NITCO v89).", "Cite the source in the design note, e.g. (NITCO v89)."],
+    ["أي حاجة خاصة بالسعودية (NPHIES، ZATCA، تأمين) = بره النسخة الأولى.", "Anything Saudi-specific (NPHIES, ZATCA, insurance) = out of MVP."],
+    ["ميزة للمجمعات بس؟ علّمها Tier 2 ومتحطهاش في طريق العيادة الفردية.", "Polyclinic-only? Mark Tier 2 and keep it off the solo-clinic path."]
+  ];
+  function renderNitco() {
+    document.getElementById("borrowRows").innerHTML = BORROW.map(function (r) {
+      return "<tr><td>" + esc(L() === "en" ? r[1] : r[0]) + '<small class="t-ltr">NITCO ' + r[2] + '</small></td><td><a href="screens/' + r[3] + '.html">' + esc(sname(r[3])) + "</a></td></tr>";
+    }).join("");
+    document.getElementById("beatRows").innerHTML = BEAT.map(function (r) {
+      return "<tr><td>" + esc(L() === "en" ? r[1] : r[0]) + "</td><td><b>" + esc(L() === "en" ? r[3] : r[2]) + "</b></td></tr>";
+    }).join("");
+    document.getElementById("nitcoRules").innerHTML = RULES.map(function (r) { return "<li>" + esc(L() === "en" ? r[1] : r[0]) + "</li>"; }).join("");
+  }
+
+  /* ---------- Swatches ---------- */
+  var SW = ["--primary", "--primary-soft", "--bg", "--surface", "--line", "--text", "--text-2", "--focus", "--danger", "--allergy-bg", "--waiting-bg", "--called-bg", "--inroom-bg", "--done-bg", "--left-bg", "--note"];
+  function renderSwatches() {
+    document.getElementById("swatches").innerHTML = SW.map(function (v) { return '<div><i style="background:var(' + v + ')"></i><span>' + v + "</span></div>"; }).join("");
+  }
+
+  /* ---------- Gaps ---------- */
+  var GAPS = {
+    gapShared: [
+      ["الشريط العلوي أعرض من الموبايل (٣٩٠ بكسل)", "Top bar overflows at 390px phone width"],
+      ["تلميح Ctrl K بيغطي خانة البحث في العربي", "Ctrl K hint covers search placeholder in RTL"],
+      ["أيقونة البحث مستخبية ورا الخانة", "Search icon hidden behind the input"],
+      ["ناقص: شارات ready / warning / free", "Missing chips: ready, warning, free"],
+      ["ناقص: ورقة A4، شريط تقدّم، فقاعة شات", "Missing: A4 sheet, progress bar, chat bubble"],
+      ["ناقص أيقونات: رفع، موقع، رابط، واتساب", "Missing icons: upload, map-pin, link, whatsapp"],
+      ["إغلاق درج جوه نافذة بيسيب الخلفية", "Closing a nested drawer leaves the backdrop"],
+      ["الرمادي الخفيف على الخلفية تحت ٤٫٥:١", "Muted grey on sunk background below 4.5:1"]
+    ],
+    gapData: [
+      ["ورديات الخزنة مختلفة بين ٣ شاشات", "Cashier shifts differ across 3 screens"],
+      ["كارت الدور ١٥٠ والتحصيل ١٨٠", "Queue card says 150, checkout says 180"],
+      ["رقم الإشعار الدائن بشكلين", "Credit-note number in two formats"],
+      ["فلاتر الفترة في التقارير مش بتغيّر الأرقام", "Report period filters don't change figures"],
+      ["الشهادات من غير «إلغاء بسبب»", "Certificates lack cancel-with-reason"],
+      ["مفيش تبويب علامات حيوية في ملف المريض", "No Vitals tab in patient-file timeline"],
+      ["الشات بيخلط الأرقام العربي والإنجليزي", "Chat inbox mixes Arabic and Western digits"]
+    ],
+    gapTest: [
+      ["بعض الشاشات ما اتفتحتش في متصفح حقيقي", "Some screens never opened in a real browser"],
+      ["النقرات في الأدراج والنوافذ ما اتجربتش كلها", "Drawer and modal clicks not all tested"],
+      ["مفيش طباعة تجربة على ورق", "No test print on paper"],
+      ["مفيش اختبار مع موظفة استقبال حقيقية", "No test with a real receptionist yet"]
+    ]
+  };
+  function renderGaps() {
+    Object.keys(GAPS).forEach(function (k) {
+      document.getElementById(k).innerHTML = GAPS[k].map(function (g) { return "<li>" + esc(L() === "en" ? g[1] : g[0]) + "</li>"; }).join("");
+    });
+  }
+
+  function renderAll() { renderRoles(); renderMap(); renderJourneys(); renderFeatures(); renderNitco(); renderSwatches(); renderGaps(); }
+  renderAll();
+
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest ? e.target.closest("[data-role]") : null;
+    if (b) { role = b.getAttribute("data-role"); renderRoles(); applyRole(); return; }
+    if (e.target.closest && e.target.closest("[data-shell-lang]")) { setTimeout(renderAll, 0); }
+  });
+  document.getElementById("liveThumbs").addEventListener("change", function (e) { live = e.target.checked; renderMap(); });
+})();
+</script>
+</body>
+</html>

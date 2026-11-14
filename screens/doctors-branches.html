@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Doctors & branches — Tamargi">الأطباء والفروع — تمرجي</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style>
+    /* page-specific CSS: tokens only */
+    .db-list { display: grid; gap: var(--s-4); }
+    .db-doc { padding: 0; overflow: hidden; }
+    .db-doc-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); padding: var(--s-4) var(--s-5); }
+    .db-doc-head h3 { font-size: var(--fs-lg); }
+    .db-tags { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+    .db-pack { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-xs); color: var(--text-2); }
+    .db-doc .t-table td { height: 40px; }
+    .db-doc.is-multi { border-color: var(--primary-line); }
+    .db-shared { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-2); }
+    .db-shared > div { padding: var(--s-3); border-radius: var(--r-sm); border: 1px solid var(--line); background: var(--surface); display: flex; flex-direction: column; gap: 4px; font-size: var(--fs-sm); }
+    .db-shared .tm { font-weight: var(--fw-sb); font-variant-numeric: tabular-nums; }
+    @media (max-width: 640px) { .db-shared { grid-template-columns: 1fr; } .db-hide-sm { display: none; } }
+  </style>
+</head>
+<body data-screen="doctors-branches" data-org="nile">
+<main id="screen">
+  <div class="t-container">
+
+    <header class="t-screen-head">
+      <div>
+        <h1><span data-en="Doctors & branches">الأطباء والفروع</span> <span class="t-tier">Tier 2</span></h1>
+        <p class="t-sub mb-0"><span data-en="Each doctor's specialties, the branches and rooms they work in, hours and fee per branch. Showing:">تخصصات كل طبيب، والفروع والغرف اللي بيشتغل فيها، ومواعيده وسعر كشفه في كل فرع. المعروض:</span> <b data-branch-name></b></p>
+      </div>
+      <div class="t-actions">
+        <a class="t-btn" href="rooms.html"><svg class="t-icon sm"><use href="#i-door"/></svg><span data-en="Room occupancy">إشغال الغرف</span></a>
+        <button class="t-btn primary" type="button" data-open="#db-assign"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="Schedule doctor in a branch">جدول طبيب في فرع</span><span class="t-kbd">D</span></button>
+      </div>
+    </header>
+
+    <div class="t-split aside-end">
+      <div data-note="Specialty belongs to the DOCTOR (with their specialty pack of templates, ADR-016), not to the branch or the room. A doctor is added once to the organization and then scheduled per branch × room × time, each with its own consult fee. Dr. Ahmed works in both branches at different fees."
+           data-note-ar="التخصص بتاع الطبيب (ومعاه باقة قوالب تخصصه)، مش بتاع الفرع ولا الغرفة. الطبيب بيتضاف مرة واحدة للمؤسسة وبعدين يتجدول لكل فرع × غرفة × وقت، ولكل واحد سعر كشف. د. أحمد شغال في الفرعين بسعرين مختلفين.">
+        <div class="db-list" id="db-list"></div>
+      </div>
+
+      <aside class="t-stack">
+        <section class="t-card" aria-labelledby="db-shared-h" data-branch="tor"
+                 data-note="One room, three specialties: Toreil Consult room 3 hosts dermatology in the morning, paediatrics in the afternoon and ENT at night. Because the room has no specialty, nothing in setup has to change when a new doctor takes a free slot."
+                 data-note-ar="غرفة واحدة و٣ تخصصات: غرفة كشف ٣ في توريل فيها جلدية الصبح وأطفال العصر وأنف وأذن بالليل. لأن الغرفة ملهاش تخصص، مفيش حاجة في الإعداد بتتغير لما طبيب جديد ياخد ميعاد فاضي.">
+          <div class="t-card-head"><h2 id="db-shared-h" data-en="Shared room: Toreil · Consult room 3">غرفة مشتركة: توريل · غرفة كشف ٣</h2></div>
+          <div class="db-shared">
+            <div><span class="tm" data-en="10 am–2 pm">١٠ ص–٢ م</span><span data-en="Dr. Noha El-Sherbini">د. نهى الشربيني</span><span class="t-spec-tag derma" data-en="Dermatology">جلدية</span></div>
+            <div><span class="tm" data-en="2:30–6 pm">٢:٣٠–٦ م</span><span data-en="Dr. Marwa Hegazy">د. مروة حجازي</span><span class="t-spec-tag peds" data-en="Paediatrics">أطفال</span></div>
+            <div><span class="tm" data-en="7–11 pm">٧–١١ م</span><span data-en="Dr. Karim El-Desouky">د. كريم الدسوقي</span><span class="t-spec-tag ent" data-en="ENT">أنف وأذن</span></div>
+          </div>
+          <a class="t-small mt-2" style="display:inline-block" href="rooms.html" data-en="See the weekly grid and the Wednesday conflict">شوف جدول الأسبوع وتعارض يوم الأربع</a>
+        </section>
+
+        <section class="t-card sunk"
+                 data-note="Privacy across organizations: Dr. Ahmed also runs his own clinic (a separate organization). Nile Medical Centre never sees that membership, his patients there or his hours there. Only Dr. Ahmed sees both, in his own organization switcher."
+                 data-note-ar="الخصوصية بين المؤسسات: د. أحمد عنده عيادته الخاصة كمان (مؤسسة منفصلة). مجمع النيل عمره ما بيشوف العضوية دي ولا مرضاه هناك ولا مواعيده هناك. د. أحمد بس هو اللي بيشوف الاتنين في مبدّل المؤسسات بتاعه.">
+          <h3 class="mb-2" style="font-size:var(--fs-sm)"><svg class="t-icon sm"><use href="#i-lock"/></svg> <span data-en="What this organization can see">المؤسسة دي تقدر تشوف إيه</span></h3>
+          <p class="t-small mb-0" data-en="Only the hours, rooms and fees doctors have here. A doctor's work in other organizations stays private, even when it is the same person and the same phone number.">المواعيد والغرف والأسعار اللي الأطباء ليهم هنا بس. شغل الطبيب في مؤسسات تانية بيفضل خاص، حتى لو نفس الشخص ونفس رقم الموبايل.</p>
+        </section>
+
+        <section class="t-card">
+          <h3 class="mb-2" style="font-size:var(--fs-sm)" data-en="How booking uses this">الحجز بيستخدم ده إزاي</h3>
+          <ol class="t-small" style="margin:0;padding-inline-start:var(--s-5)">
+            <li data-en="Reception picks specialty or doctor; only doctors working in the current branch are offered.">الاستقبال يختار التخصص أو الطبيب؛ بيظهر بس الأطباء اللي شغالين في الفرع الحالي.</li>
+            <li data-en="The fee comes from the doctor's fee in that branch.">السعر بييجي من سعر الطبيب في الفرع ده.</li>
+            <li data-en="The room is filled from the schedule; reception never types it.">الغرفة بتتملا من الجدول؛ الاستقبال مبيكتبهاش.</li>
+          </ol>
+        </section>
+      </aside>
+    </div>
+
+  </div>
+</main>
+
+<!-- Assign doctor to branch -->
+<div class="t-scrim" id="db-assign" hidden>
+  <div class="t-modal" role="dialog" aria-modal="true" aria-labelledby="db-as-h">
+    <div class="t-modal-head">
+      <h2 id="db-as-h" data-en="Schedule a doctor in a branch">جدول طبيب في فرع</h2>
+      <button class="t-btn icon ghost" type="button" data-close aria-label="Close" data-en-aria-label="Close" title="إغلاق" data-en-title="Close"><svg class="t-icon"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="t-modal-body t-stack lg">
+      <div class="t-form-grid">
+        <div class="t-field"><label class="t-label" for="db-doc" data-en="Doctor">الطبيب</label><select id="db-doc" class="t-select"><option data-en="Dr. Karim El-Desouky (ENT)">د. كريم الدسوقي (أنف وأذن)</option><option data-en="Dr. Ahmed Selim (Internal med.)">د. أحمد سليم (باطنة)</option></select></div>
+        <div class="t-field"><label class="t-label" for="db-br" data-en="Branch">الفرع</label><select id="db-br" class="t-select"><option data-en="Mansoura - University">المنصورة - الجامعة</option><option data-en="Mansoura - Toreil">المنصورة - توريل</option></select></div>
+        <div class="t-field"><label class="t-label" for="db-room" data-en="Room">الغرفة</label><select id="db-room" class="t-select"><option data-en="Consult room 2 — free Sat/Mon/Wed after 10 pm">غرفة كشف ٢ — فاضية السبت/الاتنين/الأربع بعد ١٠ م</option><option data-en="Consult room 1">غرفة كشف ١</option></select></div>
+        <div class="t-field"><label class="t-label" for="db-fee" data-en="Consult fee in this branch">سعر الكشف في الفرع ده</label><div class="t-input-affix"><input id="db-fee" class="t-input ltr" type="number" value="300"><span class="t-affix" data-en="EGP">ج.م</span></div></div>
+        <div class="t-field span-2"><span class="t-label" data-en="Days">الأيام</span>
+          <div class="t-row tight"><button type="button" class="t-pick is-on" data-en="Sat">السبت</button><button type="button" class="t-pick" data-en="Sun">الأحد</button><button type="button" class="t-pick is-on" data-en="Mon">الاتنين</button><button type="button" class="t-pick" data-en="Tue">التلات</button><button type="button" class="t-pick is-on" data-en="Wed">الأربع</button><button type="button" class="t-pick" data-en="Thu">الخميس</button></div></div>
+        <div class="t-field"><label class="t-label" for="db-from" data-en="From">من</label><input id="db-from" class="t-input ltr" type="time" value="20:00"></div>
+        <div class="t-field"><label class="t-label" for="db-to" data-en="To">لحد</label><input id="db-to" class="t-input ltr" type="time" value="23:00"></div>
+      </div>
+      <div class="t-alert warning"><svg class="t-icon"><use href="#i-alert"/></svg><span data-en="Dr. Karim is in Toreil on Sat and Mon until 11 pm. These hours overlap: saving keeps both and flags the conflict.">د. كريم في توريل السبت والاتنين لحد ١١ م. المواعيد دي متداخلة: الحفظ بيسيب الاتنين ويعلّم التعارض.</span></div>
+    </div>
+    <div class="t-modal-foot">
+      <button class="t-btn ghost" type="button" data-close data-en="Cancel">إلغاء</button>
+      <button class="t-btn primary" type="button" data-close data-toast="اتحفظ الجدول — التعارض ظاهر في الغرف" data-toast-en="Schedule saved — conflict shown in Rooms"><span data-en="Save schedule">احفظ الجدول</span><span class="t-kbd">Ctrl S</span></button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/shell.js"></script>
+<script>
+(function () {
+  "use strict";
+  var L = function () { return window.Tamargi && Tamargi.lang() === "en"; };
+  function tx(a, e) { return L() ? e : a; }
+  var AD = "٠١٢٣٤٥٦٧٨٩";
+  function ar(n) { return String(n).replace(/\d/g, function (d) { return AD[d]; }); }
+  function num(n) { return L() ? String(n) : ar(n); }
+  function fmt(h) {
+    var hh = Math.floor(h), mm = Math.round((h - hh) * 60), pm = hh >= 12, h12 = hh > 12 ? hh - 12 : hh;
+    var s = h12 + (mm ? ":" + (mm < 10 ? "0" : "") + mm : "");
+    return L() ? s + (pm ? " pm" : " am") : ar(s) + (pm ? " م" : " ص");
+  }
+
+  /* Shared demo data (same as rooms.html). FAKE. */
+  var SP = { im: ["باطنة", "Internal med."], derma: ["جلدية", "Dermatology"], laser: ["ليزر تجميل", "Cosmetic laser"], peds: ["أطفال", "Paediatrics"], ent: ["أنف وأذن", "ENT"], dent: ["أسنان", "Dental"], gyn: ["نسا وتوليد", "OB/GYN"] };
+  var SPC = { im: "im", derma: "derma", laser: "derma", peds: "peds", ent: "ent", dent: "dent", gyn: "gyn" };
+  var BR = { tor: ["المنصورة - توريل", "Mansoura - Toreil"], gam: ["المنصورة - الجامعة", "Mansoura - University"] };
+  var RM = { T1: ["غرفة كشف ١", "Consult room 1"], T3: ["غرفة كشف ٣", "Consult room 3"], T4: ["غرفة الليزر", "Laser room"], G1: ["غرفة كشف ١", "Consult room 1"], G2: ["غرفة كشف ٢", "Consult room 2"], G3: ["كرسي أسنان ١", "Dental chair 1"] };
+  var DAYS = [["السبت", "Sat"], ["الأحد", "Sun"], ["الاتنين", "Mon"], ["التلات", "Tue"], ["الأربع", "Wed"], ["الخميس", "Thu"]];
+  /* doctor: name, initials, specialties, pack, schedules [branch, room, specialty, days, from, to, fee, fee label] */
+  var DOCS = [
+    { id: "ahmed", ar: "د. أحمد سليم عبد الحميد", en: "Dr. Ahmed Selim Abdelhamid", ini: "أس", sp: ["im"], packAr: "باقة الباطنة: قوالب SOAP وروشتات جاهزة", packEn: "Internal medicine pack: SOAP templates, Rx sets", phone: "0100 000 2211",
+      sch: [["tor", "T1", "im", [0, 2, 4], 17, 23, 300], ["tor", "T1", "im", [5], 18, 20, 300], ["gam", "G2", "im", [1, 3, 5], 17, 22, 250]], conflict: true },
+    { id: "noha", ar: "د. نهى الشربيني", en: "Dr. Noha El-Sherbini", ini: "نش", sp: ["derma", "laser"], packAr: "باقة الجلدية + باقة الليزر (جلسات وصور قبل/بعد)", packEn: "Dermatology + laser packs (sessions, before/after photos)", phone: "0100 000 3322",
+      sch: [["tor", "T3", "derma", [0, 1, 2, 3, 4, 5], 10, 14, 350], ["tor", "T4", "laser", [2, 5], 15, 19, 800, true]] },
+    { id: "marwa", ar: "د. مروة السيد حجازي", en: "Dr. Marwa El-Sayed Hegazy", ini: "مح", sp: ["peds"], packAr: "باقة الأطفال: منحنيات النمو وجرعات بالوزن", packEn: "Paediatrics pack: growth charts, weight-based doses", phone: "0100 000 4433",
+      sch: [["tor", "T3", "peds", [0, 1, 3, 4], 14.5, 18, 250]] },
+    { id: "karim", ar: "د. كريم عبد الرؤوف الدسوقي", en: "Dr. Karim Abdelraouf El-Desouky", ini: "كد", sp: ["ent"], packAr: "باقة الأنف والأذن", packEn: "ENT pack", phone: "0100 000 5544",
+      sch: [["tor", "T3", "ent", [0, 2], 19, 23, 300], ["tor", "T3", "ent", [4], 17.5, 23, 300]] },
+    { id: "yasser", ar: "د. ياسر منصور الشافعي", en: "Dr. Yasser Mansour El-Shafei", ini: "يش", sp: ["dent"], packAr: "باقة الأسنان: خريطة الأسنان وخطط العلاج", packEn: "Dental pack: tooth chart, treatment plans", phone: "0100 000 6655",
+      sch: [["gam", "G3", "dent", [0, 1, 2, 3, 4, 5], 16, 23, 200]] },
+    { id: "heba", ar: "د. هبة علي النجار", en: "Dr. Heba Ali El-Naggar", ini: "هن", sp: ["gyn"], packAr: "باقة النسا: متابعة الحمل", packEn: "OB/GYN pack: pregnancy follow-up", phone: "0100 000 7766",
+      sch: [["gam", "G1", "gyn", [0, 2, 4], 16, 20, 350]] }
+  ];
+
+  function render() {
+    var sc = Tamargi.scope();
+    var show = function (b) { return sc.mismatch || sc.all || sc.branch === b; };
+    var h = DOCS.filter(function (d) { return d.sch.some(function (s) { return show(s[0]); }); }).map(function (d) {
+      var brs = []; d.sch.forEach(function (s) { if (brs.indexOf(s[0]) === -1) brs.push(s[0]); });
+      var multi = brs.length > 1;
+      var rows = d.sch.map(function (s) {
+        var other = !show(s[0]);
+        return "<tr" + (other ? ' class="is-muted"' : "") + '><td><span class="t-branch-tag"><svg class="t-icon"><use href="#i-pin"/></svg>' + tx(BR[s[0]][0], BR[s[0]][1]) + "</span></td>" +
+          "<td>" + tx(RM[s[1]][0], RM[s[1]][1]) + '</td><td class="db-hide-sm">' + s[3].map(function (x) { return tx(DAYS[x][0], DAYS[x][1]); }).join(tx("، ", ", ")) + "</td>" +
+          '<td><span class="t-num">' + fmt(s[4]) + "–" + fmt(s[5]) + "</span>" + (d.conflict && s[3].length === 1 ? ' <span class="t-chip danger">' + tx("تعارض", "Conflict") + "</span>" : "") + "</td>" +
+          '<td class="num"><span class="t-money">' + (s[7] ? tx("من ", "from ") : "") + num(s[6]) + '<span class="cur">' + tx("ج.م", "EGP") + "</span></span>" + (s[7] ? '<span class="t-meta">' + tx("للجلسة", "per session") + "</span>" : "") + "</td></tr>";
+      }).join("");
+      return '<article class="t-card db-doc' + (multi ? " is-multi" : "") + '">' +
+        '<div class="db-doc-head"><span class="t-avatar">' + d.ini + '</span><div class="t-grow"><h3>' + tx(d.ar, d.en) + '</h3><div class="db-tags">' +
+          d.sp.map(function (s) { return '<span class="t-spec-tag ' + SPC[s] + '">' + tx(SP[s][0], SP[s][1]) + "</span>"; }).join("") +
+          (multi ? '<span class="t-chip info plain">' + tx("في فرعين", "In 2 branches") + "</span>" : "") + "</div></div>" +
+          '<div class="t-stack" style="gap:4px;align-items:flex-end"><a class="db-pack" href="settings-templates.html"><svg class="t-icon sm"><use href="#i-template"/></svg>' + tx(d.packAr, d.packEn) + "</a>" +
+          '<span class="t-small t-ltr t-faint">' + d.phone + "</span></div></div>" +
+        '<div class="t-table-wrap" style="border:0;border-block-start:1px solid var(--line);border-radius:0"><table class="t-table"><thead><tr><th>' + tx("الفرع", "Branch") + "</th><th>" + tx("الغرفة", "Room") + '</th><th class="db-hide-sm">' + tx("الأيام", "Days") + "</th><th>" + tx("المواعيد", "Hours") + '</th><th class="num">' + tx("سعر الكشف", "Fee") + "</th></tr></thead><tbody>" + rows + "</tbody></table></div>" +
+        (d.conflict ? '<div class="t-card-foot"><svg class="t-icon sm"><use href="#i-alert"/></svg><span class="t-small">' + tx("الخميس: متجدول في توريل ٦–٨ م وفي الجامعة ٥–١٠ م. اختار واحد.", "Thursday: scheduled in Toreil 6–8 pm and University 5–10 pm. Pick one.") + '</span><button class="t-btn sm t-end" type="button" data-toast="' + tx("اتشالت وردية توريل يوم الخميس", "Thursday Toreil shift removed") + '">' + tx("شيل وردية توريل", "Remove Toreil shift") + "</button></div>" : "") +
+        "</article>";
+    }).join("");
+    document.getElementById("db-list").innerHTML = h;
+  }
+  document.addEventListener("tamargi:scope", render);
+  render();
+
+  Array.prototype.forEach.call(document.querySelectorAll("#db-assign .t-pick"), function (p) { p.addEventListener("click", function () { p.classList.toggle("is-on"); }); });
+  Array.prototype.forEach.call(document.querySelectorAll(".t-scrim"), function (s) { s.addEventListener("click", function (e) { if (e.target === s) s.hidden = true; }); });
+  document.addEventListener("keydown", function (e) {
+    var typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
+    if (!typing && (e.key === "d" || e.key === "D") && !e.ctrlKey && !e.altKey && !e.metaKey) { e.preventDefault(); document.getElementById("db-assign").hidden = false; document.getElementById("db-doc").focus(); }
+  });
+})();
+</script>
+</body>
+</html>

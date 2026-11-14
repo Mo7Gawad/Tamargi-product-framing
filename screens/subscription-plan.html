@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Subscription & trial — Tamargi">الاشتراك والتجربة — تمرجي</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style>
+    /* page-specific CSS: tokens only */
+    .sb-trial { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--s-5); align-items: center; }
+    .sb-days { font-size: var(--fs-4xl); font-weight: var(--fw-b); line-height: 1; font-variant-numeric: tabular-nums; }
+    .sb-track { position: relative; height: 10px; border-radius: var(--r-pill); background: var(--surface-sunk); border: 1px solid var(--line); }
+    .sb-track > i { position: absolute; inset-block: 0; inset-inline-start: 0; border-radius: var(--r-pill); background: var(--waiting-fg); }
+    .sb-marks { display: flex; justify-content: space-between; font-size: var(--fs-xs); color: var(--text-3); margin-block-start: var(--s-2); }
+    .sb-plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-4); align-items: stretch; }
+    .sb-plan { display: flex; flex-direction: column; gap: var(--s-4); position: relative; }
+    .sb-plan.is-rec { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
+    .sb-plan .sb-rec { position: absolute; top: -12px; inset-inline-start: var(--s-5); }
+    .sb-price { display: flex; align-items: baseline; gap: var(--s-2); }
+    .sb-price b { font-size: var(--fs-4xl); font-weight: var(--fw-b); line-height: 1; font-variant-numeric: tabular-nums; }
+    .sb-feat { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s-2); font-size: var(--fs-sm); }
+    .sb-feat li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: var(--s-2); align-items: start; }
+    .sb-feat .t-icon { width: 16px; height: 16px; color: var(--success-fg); margin-block-start: 3px; }
+    .sb-feat .is-t2 .t-icon { color: var(--note); }
+    .sb-plan .t-btn.block { margin-block-start: auto; }
+    .sb-method { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: var(--s-3); align-items: center; width: 100%; padding: var(--s-3) var(--s-4); border: 1px solid var(--line-strong); border-radius: var(--r-sm); background: var(--surface); text-align: start; font: inherit; color: var(--text); cursor: pointer; }
+    .sb-method:hover { border-color: var(--primary); }
+    .sb-method[aria-pressed="true"] { border-color: var(--primary); background: var(--primary-soft); box-shadow: 0 0 0 1px var(--primary); }
+    .sb-method .sb-logo { width: 40px; height: 40px; border-radius: var(--r-sm); display: grid; place-items: center; background: var(--surface-sunk); border: 1px solid var(--line); font-family: var(--font-en); font-weight: var(--fw-b); font-size: var(--fs-xs); color: var(--text-2); }
+    .sb-method small { display: block; color: var(--text-3); font-size: var(--fs-xs); }
+    .sb-code { font-family: var(--font-en); font-size: var(--fs-2xl); font-weight: var(--fw-b); letter-spacing: .12em; direction: ltr; text-align: center; padding: var(--s-3); border: 1px dashed var(--line-strong); border-radius: var(--r-sm); background: var(--surface-sunk); }
+    @media (max-width: 960px) { .sb-plans { grid-template-columns: 1fr; } .sb-trial { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body data-screen="subscription-plan">
+<main id="screen">
+  <div class="t-container">
+
+    <header class="t-screen-head">
+      <div>
+        <h1 data-en="Subscription & trial">الاشتراك والتجربة</h1>
+        <p class="t-sub mb-0" data-en="One flat monthly price. No commission on patients, no ads on your prescriptions, cancel any month.">سعر شهري ثابت. من غير عمولة على المرضى، ومن غير إعلانات على الروشتة، وتلغي في أي شهر.</p>
+      </div>
+      <div class="t-actions">
+        <button class="t-btn" type="button" data-toast="بنجهّز ملف بكل بيانات العيادة — هيوصلك لينك في رسالة" data-toast-en="Preparing a full export — you'll get a link by SMS"><svg class="t-icon sm"><use href="#i-download"/></svg><span data-en="Export all my data">صدّر كل بياناتي</span></button>
+        <button class="t-btn primary" type="button" data-pay="clinic"><svg class="t-icon sm"><use href="#i-card"/></svg><span data-en="Subscribe — 399 EGP">اشترك — ٣٩٩ ج.م</span><span class="t-kbd">Enter</span></button>
+      </div>
+    </header>
+
+    <!-- ============ STATE: trial ============ -->
+    <div data-state="trial">
+      <section class="t-card mb-6" aria-labelledby="sb-trial-h"
+               data-note="Trial status with the expiry rule in plain words: after day 14 the clinic turns read-only. Files, prescriptions and reports stay viewable and printable, export is always free. No data is ever deleted for not paying."
+               data-note-ar="حالة التجربة والقاعدة بكلام واضح: بعد اليوم ١٤ العيادة تبقى للقراءة بس. الملفات والروشتات والتقارير تتشاف وتتطبع، والتصدير ببلاش دايمًا. مفيش بيانات بتتمسح عشان مدفعتش.">
+        <div class="sb-trial">
+          <div>
+            <div class="t-small t-muted" id="sb-trial-h" data-en="Free trial">التجربة المجانية</div>
+            <div class="sb-days">12 <span class="t-small t-muted" style="font-weight:var(--fw-r)" data-en="days left">يوم فاضل</span></div>
+          </div>
+          <div>
+            <div class="sb-track" role="progressbar" aria-valuemin="0" aria-valuemax="14" aria-valuenow="2" aria-label="Trial progress" data-en-aria-label="Trial progress"><i style="width:14%"></i></div>
+            <div class="sb-marks"><span data-en="Started 12 Nov">بدأت ١٢ نوفمبر</span><span data-en="Day 10: reminder">يوم ١٠: تذكير</span><span data-en="Ends 26 Nov">تنتهي ٢٦ نوفمبر</span></div>
+          </div>
+          <span class="t-chip info" data-en="Trying the Clinic plan">بتجرب باقة العيادة</span>
+        </div>
+        <hr>
+        <div class="t-grid c3">
+          <div class="t-row tight" style="align-items:flex-start"><svg class="t-icon" style="color:var(--success-fg)"><use href="#i-check"/></svg><div><b class="t-small" data-en="Your data stays">بياناتك فاضلة</b><div class="t-hint" data-en="Nothing is deleted when the trial ends.">ولا حاجة بتتمسح لما التجربة تخلص.</div></div></div>
+          <div class="t-row tight" style="align-items:flex-start"><svg class="t-icon" style="color:var(--text-2)"><use href="#i-eye"/></svg><div><b class="t-small" data-en="Read-only after 26 Nov">قراءة بس بعد ٢٦ نوفمبر</b><div class="t-hint" data-en="Open files, reprint Rx and receipts, see reports. New visits and payments wait for a plan.">تفتح الملفات وتطبع الروشتات والإيصالات وتشوف التقارير. الكشوفات والتحصيل الجديد مستنيين الاشتراك.</div></div></div>
+          <div class="t-row tight" style="align-items:flex-start"><svg class="t-icon" style="color:var(--text-2)"><use href="#i-download"/></svg><div><b class="t-small" data-en="Export any time, free">صدّر في أي وقت ببلاش</b><div class="t-hint" data-en="Patients, visits and invoices as Excel + PDF.">المرضى والكشوفات والفواتير Excel وPDF.</div></div></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============ STATE: expired (read-only) ============ -->
+    <div data-state="expired">
+      <div class="t-alert warning mb-6" role="status">
+        <svg class="t-icon"><use href="#i-lock"/></svg>
+        <div class="t-grow"><b data-en="The trial ended on 26 Nov. The clinic is read-only.">التجربة خلصت ٢٦ نوفمبر. العيادة دلوقتي للقراءة بس.</b>
+          <div data-en="All 214 patient files are safe. Subscribe to add visits and collect again — it takes 2 minutes.">كل ملفات المرضى (٢١٤ ملف) سليمة. اشترك عشان ترجع تضيف كشوفات وتحصّل — دقيقتين بس.</div></div>
+        <div class="t-actions"><button class="t-btn primary sm" type="button" data-pay="clinic" data-en="Subscribe now">اشترك دلوقتي</button></div>
+      </div>
+    </div>
+
+    <!-- ============ STATE: subscribed ============ -->
+    <div data-state="subscribed">
+      <section class="t-card mb-6">
+        <div class="t-row">
+          <span class="t-chip paid" data-en="Active">مفعّل</span>
+          <div class="t-grow"><b data-en="Clinic plan · 399 EGP / month">باقة العيادة · ٣٩٩ ج.م / شهر</b><div class="t-hint" data-en="Next payment 14 Dec 2026 · Vodafone Cash 0100 123 4567 · reminder by SMS 3 days before">الدفعة الجاية ١٤ ديسمبر ٢٠٢٦ · فودافون كاش 0100 123 4567 · تذكير برسالة قبلها بـ ٣ أيام</div></div>
+          <button class="t-btn sm" type="button" data-toast="غيّر طريقة الدفع" data-toast-en="Change payment method" data-en="Change method">غيّر طريقة الدفع</button>
+          <button class="t-btn sm ghost" type="button" data-toast="الاشتراك هيتلغي في آخر الشهر — بياناتك فاضلة" data-toast-en="Subscription will end at month end — your data stays" data-en="Cancel">إلغاء</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============ PLANS ============ -->
+    <h2 class="mb-4" style="font-size:var(--fs-lg)" data-en="Plans">الباقات</h2>
+    <div class="sb-plans mb-6" data-note="Three flat plans, 199 / 399 / 699 EGP, differing only in doctors, users and the Tier 2 polyclinic features. Every plan has the full clinical and cash core, so a solo doctor never pays for features he can't use."
+         data-note-ar="٣ باقات ثابتة ١٩٩ / ٣٩٩ / ٦٩٩ ج.م، الفرق بينهم عدد الأطباء والمستخدمين ومميزات المجمعات (المرحلة ٢). كل باقة فيها الكشف والخزنة كاملين، فالدكتور الفردي ميدفعش في حاجة مش هيستخدمها.">
+      <article class="t-card sb-plan">
+        <div><h3 data-en="Solo">فردي</h3><p class="t-small t-muted mb-0" data-en="One doctor and an assistant">دكتور واحد ومساعدة</p></div>
+        <div class="sb-price"><b>199</b><span class="t-muted" data-en="EGP / month">ج.م / شهر</span></div>
+        <ul class="sb-feat">
+          <li><svg class="t-icon"><use href="#i-check"/></svg><span data-en="1 doctor · 2 users">دكتور واحد · مستخدمين ٢</span></li>
+          <li><svg class="t-icon"><use href="#i-check"/></svg><span data-en="Queue, patient files, visit notes, Rx on letterhead">الدور، ملفات المرضى، الكشف، الروشتة على الترويسة</span></li>
+          <li><svg class="t-icon"><use href="#i-check"/></svg><span data-en="Cashier, debt & deposits, credit notes, cash close">الخزنة، الديون والعربون، المرتجع، تقفيل الخزنة</span></li>
+          <li><svg class="t-icon"><use href="#i-check"/></svg><span data-en="Appointments, public page and web chat">المواعيد، صفحة العيادة والشات</span></li>
+          <li><svg class="t-icon"><use href="#i-check"/></svg><span data-en="Owner dashboard and reports · 2 GB files">لوحة المالك والتقارير · ٢ جيجا ملفات</span></li>
+        </ul>
+        <button class="t-btn block" type="button" data-pay="solo" data-en="Choose Solo">اختار فردي</button>
+      </article>
+      <article class="t-card sb-plan is-rec">
+        <span class="t-chip confirmed sb-rec plain" data-en="Most clinics pick this">أغلب العيادات بتختارها</span>
+        <div><h3 data-en="Clinic">عيادة</h3><p class="t-small t-muted mb-0" data-en="Two doctors sharing a clinic">دكتورين في عيادة واحدة</p></div>
+        <div class="sb-price"><b>399</b><span class="t-muted" data-en="EGP / month">ج.م / شهر</span></div>
+        <ul class="sb-feat">
+          <li><svg class="t-icon"><use href="#i-check"/></svg><span data-en="Up to 2 doctors · 6 users">لحد دكتورين · ٦ مستخدمين</span></li>
+          <li><svg class="t-icon"><use href="#i-check"/></svg><span data-en="Everything in Solo">كل حاجة في الفردي</span></li>
+          <li><svg class="t-icon"><use href="#i-check"/></svg><span data-en="Per-doctor schedules, fees and reports">مواعيد وأسعار وتقارير لكل دكتور</span></li>
+          <li><svg class="t-icon"><use href="#i-check"/></svg><span data-en="All specialty packs · 10 GB files">كل باقات التخصصات · ١٠ جيجا ملفات</span></li>
+          <li><svg class="t-icon"><use href="#i-check"/></svg><span data-en="Priority support (same day)">دعم سريع (في نفس اليوم)</span></li>
+        </ul>
+        <button class="t-btn primary block" type="button" data-pay="clinic" data-en="Choose Clinic">اختار عيادة</button>
+      </article>
+      <article class="t-card sb-plan" data-tier="2">
+        <div><h3><span data-en="Polyclinic">مجمع طبي</span> <span class="t-tier">Tier 2</span></h3><p class="t-small t-muted mb-0" data-en="Medical centres with shifts">مراكز طبية بورديات</p></div>
+        <div class="sb-price"><b>699</b><span class="t-muted" data-en="EGP / month">ج.م / شهر</span></div>
+        <ul class="sb-feat">
+          <li><svg class="t-icon"><use href="#i-check"/></svg><span data-en="Up to 8 doctors · 20 users · 50 GB">لحد ٨ أطباء · ٢٠ مستخدم · ٥٠ جيجا</span></li>
+          <li class="is-t2"><svg class="t-icon"><use href="#i-star"/></svg><span data-en="Corporate & syndicate contracts with co-pay">تعاقدات الشركات والنقابات وتحمّل المريض</span></li>
+          <li class="is-t2"><svg class="t-icon"><use href="#i-star"/></svg><span data-en="Doctor commission (% or fixed)">نسب الأطباء (نسبة أو مبلغ)</span></li>
+          <li class="is-t2"><svg class="t-icon"><use href="#i-star"/></svg><span data-en="Packages & treatment plans with instalments">الباقات وخطط العلاج بالتقسيط</span></li>
+          <li class="is-t2"><svg class="t-icon"><use href="#i-star"/></svg><span data-en="Separate cashier shifts per room">ورديات خزنة منفصلة</span></li>
+        </ul>
+        <button class="t-btn block" type="button" data-pay="poly" data-en="Choose Polyclinic">اختار مجمع</button>
+      </article>
+    </div>
+
+    <!-- ============ BILLING HISTORY ============ -->
+    <section class="t-card flush" aria-labelledby="sb-hist-h" data-note="Subscription invoices live here, downloadable as PDF with the clinic's name for its accountant. Tamargi's own invoices follow the same immutable-invoice rule we enforce for clinics."
+             data-note-ar="فواتير الاشتراك هنا، تتنزل PDF باسم العيادة للمحاسب. فواتير تمرجي نفسها ماشية بنفس قاعدة الفواتير الثابتة اللي بنطبقها على العيادات.">
+      <div class="t-card-head"><h2 id="sb-hist-h" data-en="Billing history">سجل المدفوعات</h2></div>
+      <div data-state="trial">
+        <div class="t-empty" style="padding-block:var(--s-8)">
+          <div class="t-empty-art"><svg class="t-icon"><use href="#i-receipt"/></svg></div>
+          <h3 data-en="No invoices yet">لسه مفيش فواتير</h3>
+          <p data-en="You won't be charged during the trial. Your first invoice appears here after you subscribe.">مش هتدفع حاجة في التجربة. أول فاتورة هتظهر هنا بعد الاشتراك.</p>
+        </div>
+      </div>
+      <div data-state="expired">
+        <div class="t-empty" style="padding-block:var(--s-8)"><h3 data-en="No invoices yet">لسه مفيش فواتير</h3></div>
+      </div>
+      <div data-state="subscribed">
+        <div class="t-table-wrap" style="border:0;border-radius:0">
+          <table class="t-table">
+            <thead><tr><th data-en="Invoice">الفاتورة</th><th data-en="Period">الفترة</th><th data-en="Plan">الباقة</th><th data-en="Method">الطريقة</th><th class="num" data-en="Amount">المبلغ</th><th data-en="Status">الحالة</th><th></th></tr></thead>
+            <tbody>
+              <tr><td class="t-ltr">TMG-2026-11-0384</td><td data-en="14 Nov – 13 Dec">١٤ نوفمبر – ١٣ ديسمبر</td><td data-en="Clinic">عيادة</td><td data-en="Vodafone Cash">فودافون كاش</td><td class="num"><span class="t-money">399<span class="cur">ج.م</span></span></td><td><span class="t-chip paid" data-en="Paid">مدفوعة</span></td><td class="actions"><button class="t-btn sm ghost" type="button" data-toast="اتنزلت الفاتورة PDF" data-toast-en="Invoice PDF downloaded"><svg class="t-icon sm"><use href="#i-download"/></svg><span>PDF</span></button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<!-- Pay modal -->
+<div class="t-scrim" id="sb-pay" hidden>
+  <div class="t-modal" role="dialog" aria-modal="true" aria-labelledby="sb-pay-h">
+    <div class="t-modal-head">
+      <h2 id="sb-pay-h" data-en="Subscribe to Clinic — 399 EGP / month">اشترك في باقة العيادة — ٣٩٩ ج.م / شهر</h2>
+      <button class="t-btn icon ghost" type="button" data-close aria-label="Close" data-en-aria-label="Close" title="إغلاق" data-en-title="Close"><svg class="t-icon"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="t-modal-body t-stack lg">
+      <div class="t-stack" role="group" aria-label="Payment method" data-en-aria-label="Payment method" id="sb-methods"
+           data-note="Local payment methods Egyptian doctors actually use: Fawry (cash at any outlet), Vodafone Cash, InstaPay and cards (Visa/Meeza). Each shows its next step inline; no redirect maze."
+           data-note-ar="طرق دفع محلية الدكاترة بيستخدموها فعلًا: فوري (كاش من أي منفذ)، فودافون كاش، إنستاباي، والكروت (فيزا/ميزة). كل طريقة بتوضح الخطوة الجاية في نفس المكان.">
+        <button type="button" class="sb-method" aria-pressed="false" data-m="fawry"><span class="sb-logo">FAWRY</span><span><b data-en="Fawry">فوري</b><small data-en="Get a code, pay cash at any Fawry outlet within 48 hours">خد كود وادفع كاش من أي منفذ فوري خلال ٤٨ ساعة</small></span></button>
+        <button type="button" class="sb-method" aria-pressed="true" data-m="vf"><span class="sb-logo">VF</span><span><b data-en="Vodafone Cash">فودافون كاش</b><small data-en="Confirm on your phone with your wallet PIN">أكّد من موبايلك بالرقم السري للمحفظة</small></span></button>
+        <button type="button" class="sb-method" aria-pressed="false" data-m="ipa"><span class="sb-logo">IPA</span><span><b data-en="InstaPay">إنستاباي</b><small data-en="Send to tamargi@instapay with the reference">حوّل لـ tamargi@instapay ومعاه الرقم المرجعي</small></span></button>
+        <button type="button" class="sb-method" aria-pressed="false" data-m="card"><span class="sb-logo"><svg class="t-icon"><use href="#i-card"/></svg></span><span><b data-en="Card">كارت</b><small data-en="Visa, Mastercard or Meeza · can renew automatically">فيزا أو ماستركارد أو ميزة · ممكن يتجدد لوحده</small></span></button>
+      </div>
+
+      <div id="sb-step-vf" class="t-field">
+        <label class="t-label" for="sb-wallet" data-en="Wallet number">رقم المحفظة</label>
+        <input id="sb-wallet" class="t-input ltr" inputmode="tel" value="01001234567">
+        <span class="t-hint" data-en="You'll get a payment request on this number. Approve it with your PIN.">هيوصلك طلب دفع على الرقم ده. وافق عليه بالرقم السري.</span>
+      </div>
+      <div id="sb-step-fawry" hidden class="t-stack">
+        <span class="t-label" data-en="Your Fawry code">كود فوري بتاعك</span>
+        <div class="sb-code">8 471 205 936</div>
+        <span class="t-hint" data-en="Valid until 16 Nov, 9:00 pm. The plan starts as soon as Fawry confirms.">صالح لحد ١٦ نوفمبر ٩ م. الباقة بتشتغل أول ما فوري يأكد.</span>
+      </div>
+      <div id="sb-step-ipa" hidden class="t-stack">
+        <span class="t-label" data-en="Reference to write in the transfer">الرقم المرجعي في التحويل</span>
+        <div class="sb-code">TMG-48217</div>
+      </div>
+      <div id="sb-step-card" hidden class="t-form-grid">
+        <div class="t-field span-2"><label class="t-label" for="sb-cc" data-en="Card number">رقم الكارت</label><input id="sb-cc" class="t-input ltr" inputmode="numeric" placeholder="0000 0000 0000 0000" autocomplete="off"></div>
+        <div class="t-field"><label class="t-label" for="sb-exp" data-en="Expiry">الانتهاء</label><input id="sb-exp" class="t-input ltr" placeholder="MM/YY" autocomplete="off"></div>
+        <div class="t-field"><label class="t-label" for="sb-cvv">CVV</label><input id="sb-cvv" class="t-input ltr" inputmode="numeric" placeholder="123" autocomplete="off"></div>
+        <span class="t-hint span-2" data-en="Prototype only — no real card is processed. Handled by a licensed Egyptian payment gateway.">نموذج فقط — مفيش كارت حقيقي بيتسحب منه. الدفع عن طريق بوابة دفع مصرية مرخصة.</span>
+      </div>
+
+      <dl class="t-totals">
+        <dt data-en="Clinic plan, 1 month">باقة العيادة، شهر</dt><dd id="sb-amt">399.00 ج.م</dd>
+        <dt data-en="Trial days left (kept)">أيام التجربة الباقية (محفوظة)</dt><dd data-en="+12 days">+١٢ يوم</dd>
+        <dt class="grand" data-en="Pay today">تدفع النهارده</dt><dd class="grand" id="sb-amt2">399.00 ج.م</dd>
+      </dl>
+      <p class="t-hint mb-0" data-en="Subscribing now doesn't waste the trial: the first month starts on 26 Nov.">الاشتراك دلوقتي مش بيضيّع التجربة: أول شهر يبدأ ٢٦ نوفمبر.</p>
+    </div>
+    <div class="t-modal-foot">
+      <button class="t-btn" type="button" data-close data-en="Not now">مش دلوقتي</button>
+      <button class="t-btn primary" type="button" id="sb-confirm"><span id="sb-confirm-l" data-en="Send payment request">ابعت طلب الدفع</span><span class="t-kbd">Enter</span></button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/shell.js"></script>
+<script>
+(function () {
+  var L = function () { return window.Tamargi && Tamargi.lang() === "en"; };
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  function setT(el, ar, en) { el.setAttribute("data-ar", ar); el.setAttribute("data-en", en); el.innerHTML = L() ? en : ar; }
+
+  var PLANS = { solo: ["فردي", "Solo", 199], clinic: ["العيادة", "Clinic", 399], poly: ["المجمع الطبي", "Polyclinic", 699] };
+  var plan = "clinic", method = "vf";
+  var CTA = { vf: ["ابعت طلب الدفع", "Send payment request"], fawry: ["تمام، هدفع في فوري", "OK, I'll pay at Fawry"], ipa: ["حوّلت المبلغ", "I've sent the transfer"], card: ["ادفع ", "Pay "] };
+
+  function render() {
+    var p = PLANS[plan];
+    setT($("#sb-pay-h"), "اشترك في باقة " + p[0] + " — " + p[2] + " ج.م / شهر", "Subscribe to " + p[1] + " — " + p[2] + " EGP / month");
+    var amt = p[2] + ".00 " + (L() ? "EGP" : "ج.م");
+    $("#sb-amt").textContent = amt; $("#sb-amt2").textContent = amt;
+    ["vf", "fawry", "ipa", "card"].forEach(function (k) { $("#sb-step-" + k).hidden = k !== method; });
+    $$("#sb-methods .sb-method").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-m") === method)); });
+    var c = CTA[method];
+    setT($("#sb-confirm-l"), method === "card" ? c[0] + p[2] + " ج.م" : c[0], method === "card" ? c[1] + p[2] + " EGP" : c[1]);
+  }
+  $$("[data-pay]").forEach(function (b) {
+    b.addEventListener("click", function () { plan = b.getAttribute("data-pay"); render(); $("#sb-pay").hidden = false; Tamargi.setState(location.hash.match(/state=(\w+)/) ? location.hash.match(/state=(\w+)/)[1] : "trial"); $(".sb-method[aria-pressed=true]").focus(); });
+  });
+  $$("#sb-methods .sb-method").forEach(function (b) { b.addEventListener("click", function () { method = b.getAttribute("data-m"); render(); }); });
+  $("#sb-confirm").addEventListener("click", function () {
+    $("#sb-pay").hidden = true;
+    if (method === "fawry") { Tamargi.toast(L() ? "Fawry code saved — we'll SMS you when it's paid" : "الكود اتحفظ — هنبعتلك رسالة أول ما يتدفع"); return; }
+    Tamargi.toast(L() ? "Payment received — welcome to the " + PLANS[plan][1] + " plan" : "الدفع وصل — أهلًا بيك في باقة " + PLANS[plan][0]);
+    Tamargi.setState("subscribed"); try { history.replaceState(null, "", "#state=subscribed"); } catch (e) {}
+  });
+  $("#sb-pay").addEventListener("click", function (e) { if (e.target === this) this.hidden = true; });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !$("#sb-pay").hidden && !/^(INPUT|BUTTON)$/.test(e.target.tagName)) $("#sb-confirm").click();
+  });
+})();
+</script>
+</body>
+</html>

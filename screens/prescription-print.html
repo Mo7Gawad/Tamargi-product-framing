@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Rx &amp; certificate print — Tamargi">طباعة الروشتة والشهادات — تمرجي</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style id="page-size">@media print { @page { size: A5 portrait; margin: 0; } }</style>
+  <style>
+    /* page-specific CSS: tokens only (sheet colours come from the shared .t-sheet print styles) */
+    .t-tabs { overflow-y: hidden; }
+    .rxp-tabs .t-tab[aria-pressed="true"] { color: var(--primary); border-block-end-color: var(--primary); font-weight: var(--fw-sb); }
+    .rxp-tabs .t-tab { display: inline-flex; align-items: center; gap: var(--s-2); }
+    .rxp-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3) var(--s-5); }
+    .rxp-toolbar .t-label { font-size: var(--fs-xs); color: var(--text-3); font-weight: var(--fw-r); }
+    .rxp-stage { overflow-x: auto; justify-content: center; }
+    @media (max-width: 700px) { .rxp-stage .t-sheet { zoom: .62; } .rxp-stage { padding: var(--s-3); } }
+    .t-sheet.a4 { width: 210mm; min-height: 297mm; padding: 16mm 16mm 12mm; display: flex; flex-direction: column; }
+    .t-sheet.preprinted .t-letterhead { visibility: hidden; }
+    .rx-diag { font-size: 11.5px; color: #4E586C; margin-block-end: 1mm; }
+    .rx-note { font-size: 12px; color: #343D52; padding-block: 2mm; }
+    .rx-sign { display: flex; justify-content: flex-end; padding-block: 6mm 3mm; font-size: 11px; color: #4E586C; }
+    .rx-sign span { border-block-start: 1px solid #B9C2D1; padding-block-start: 1mm; min-width: 40mm; text-align: center; }
+    .cert-title { text-align: center; font-family: var(--font-letterhead); font-size: 22px; font-weight: 700; margin-block: 6mm 2mm; color: #172036; }
+    .cert-no { text-align: center; font-size: 10.5px; color: #6B7588; margin-block-end: 6mm; }
+    .cert-body { font-size: 13.5px; line-height: 2.1; text-align: justify; flex: 1; }
+    .cert-body b { font-weight: 700; }
+    .cert-en { direction: ltr; text-align: left; font-family: var(--font-en); line-height: 1.9; }
+    .rep-sec { margin-block-end: 3mm; font-size: 12.5px; line-height: 1.8; }
+    .rep-sec h4 { font-size: 12px; color: #2944A8; margin-block-end: 1mm; font-family: inherit; }
+    .rxp-history { font-size: var(--fs-sm); }
+    @media print {
+      .t-banner, .rxp-tabs { display: none !important; }
+      .t-split { display: block; }
+      .rxp-stage { overflow: visible; }
+      .rxp-stage .t-sheet { zoom: 1; }
+    }
+  </style>
+</head>
+<body data-screen="prescription-print">
+<main id="screen">
+
+  <section class="t-banner no-print" aria-label="Patient" data-en-aria-label="Patient">
+    <div class="t-banner-id">
+      <span class="t-avatar">م ع</span>
+      <div>
+        <div class="t-banner-name">منى عبد الرحمن السيد الشناوي</div>
+        <div class="t-banner-facts">
+          <span><b>٣٤</b> <span data-en="yrs · F">سنة · أنثى</span></span>
+          <span><span data-en="File">ملف</span> <b class="t-ltr">1043</b></span>
+          <span class="t-ltr">0100 234 5678</span>
+          <span data-en="Visit today 14 Nov · Dr. Ahmed">زيارة اليوم ١٤ نوفمبر · د. أحمد</span>
+        </div>
+      </div>
+    </div>
+    <div class="t-banner-alerts">
+      <span class="t-allergy"><svg class="t-icon sm"><use href="#i-alert"/></svg><span data-en="Allergy: Penicillin">حساسية: بنسلين</span></span>
+      <span class="t-flag" data-en="Pregnant — 2nd trimester">حامل — الثلث الثاني</span>
+    </div>
+  </section>
+
+  <div class="t-container">
+    <header class="t-screen-head">
+      <div>
+        <h1 data-en="Print preview">معاينة الطباعة</h1>
+        <p class="t-sub mb-0" data-en="Exactly what prints on the clinic letterhead. Pick the document, check it, print from the browser.">نفس اللي هيتطبع على ترويسة العيادة بالظبط. اختار الورقة، راجعها، واطبع من المتصفح.</p>
+      </div>
+      <div class="t-actions">
+        <a class="t-btn ghost" href="prescription-builder.html"><svg class="t-icon sm"><use href="#i-edit"/></svg><span data-en="Edit Rx">تعديل الروشتة</span></a>
+        <a class="t-btn ghost" href="patient-file.html"><svg class="t-icon sm"><use href="#i-file"/></svg><span data-en="Patient file">ملف المريض</span></a>
+        <button class="t-btn primary" type="button" id="print-btn"
+                data-note="Browser print, no popup window and no PDF download step (NITCO v23 opens a Chrome popup report). Ctrl P works too because only the sheet is styled for print."
+                data-note-ar="طباعة من المتصفح مباشرة، من غير نافذة منبثقة ولا تحميل PDF (NITCO بيفتح التقرير في نافذة جديدة). Ctrl P شغال برضه لأن الورقة بس هي اللي بتتطبع.">
+          <svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Print">اطبع</span><span class="t-kbd">Ctrl P</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Document switcher (uses the shared state mechanism) -->
+    <div class="t-tabs rxp-tabs" role="group" aria-label="Document" data-en-aria-label="Document"
+         data-note="One preview, three documents from the same visit: prescription, sick-leave certificate, medical report. Egyptian patients ask for a 'شهادة مرضية' for work or school almost daily (NITCO v23, v29: Must)."
+         data-note-ar="معاينة واحدة لتلات أوراق من نفس الزيارة: الروشتة، الشهادة المرضية، والتقرير الطبي. المرضى بيطلبوا شهادة مرضية للشغل أو المدرسة تقريبًا كل يوم.">
+      <button type="button" class="t-tab" data-show-state="prescription"><svg class="t-icon sm"><use href="#i-rx"/></svg><span data-en="Prescription">الروشتة</span></button>
+      <button type="button" class="t-tab" data-show-state="certificate"><svg class="t-icon sm"><use href="#i-file"/></svg><span data-en="Sick-leave certificate">شهادة مرضية</span></button>
+      <button type="button" class="t-tab" data-show-state="report"><svg class="t-icon sm"><use href="#i-note"/></svg><span data-en="Medical report">تقرير طبي</span></button>
+    </div>
+
+    <!-- Shared paper toolbar -->
+    <div class="t-card mb-4 no-print">
+      <div class="rxp-toolbar">
+        <div class="t-field">
+          <span class="t-label" data-en="Paper">الورق</span>
+          <div class="t-seg" role="group" aria-label="Paper size"
+               data-note="A5 is the default (the size of an Egyptian Rx pad); A4 for reports or clinics with one office printer. The @page size switches with it so the browser dialog needs no setup."
+               data-note-ar="A5 هو الافتراضي (مقاس دفتر الروشتة)، وA4 للتقارير أو لو العيادة عندها طابعة مكتب واحدة. مقاس الصفحة في الطباعة بيتغير معاه.">
+            <button type="button" aria-pressed="true" data-paper="a5">A5</button>
+            <button type="button" aria-pressed="false" data-paper="a4">A4</button>
+          </div>
+        </div>
+        <label class="t-switch"><input type="checkbox" id="preprinted"><span data-en="Pre-printed paper (hide letterhead)">ورق مطبوع مسبقًا (اخفي الترويسة)</span></label>
+        <span class="t-small t-faint t-end" data-en="Printer: browser default · last used A5">الطابعة: الافتراضية في المتصفح · آخر استخدام A5</span>
+      </div>
+    </div>
+
+    <!-- ============ STATE: prescription ============ -->
+    <div data-state="prescription">
+      <div class="t-split">
+        <aside class="t-stack no-print">
+          <div class="t-card">
+            <div class="t-card-head"><h2 data-en="Prescription options">إعدادات الروشتة</h2></div>
+            <div class="t-stack">
+              <div class="t-field">
+                <span class="t-label" data-en="Instructions language">لغة التعليمات</span>
+                <div class="t-seg" role="group" aria-label="Instructions language">
+                  <button type="button" aria-pressed="true" data-sig="ar" data-en="Arabic">عربي</button>
+                  <button type="button" aria-pressed="false" data-sig="en" data-en="English">English</button>
+                </div>
+                <span class="t-hint" data-en="Drug names stay in Latin letters (as on the box); instructions in Arabic so the patient and pharmacist read them.">اسم الدواء بالإنجليزي زي العلبة، والتعليمات بالعربي عشان المريض والصيدلي يقروها.</span>
+              </div>
+              <label class="t-switch"><input type="checkbox" id="show-dx" checked><span data-en="Show diagnosis on the Rx">إظهار التشخيص على الروشتة</span></label>
+              <label class="t-switch"><input type="checkbox" id="show-sign" checked><span data-en="Doctor's signature line">سطر توقيع الطبيب</span></label>
+            </div>
+          </div>
+          <div class="t-alert info" data-note="Reception can reprint the doctor's Rx from the patient file but cannot change a line (role preset). Every print is logged with who and when; printing never marks anything as paid."
+               data-note-ar="الاستقبال يقدر يعيد طباعة روشتة الطبيب من ملف المريض لكن ما يعدلش فيها. كل طباعة بتتسجل مين وإمتى، والطباعة ملهاش علاقة بالدفع.">
+            <svg class="t-icon"><use href="#i-info"/></svg>
+            <span data-en="Printed 0 times. Reception can reprint, not edit. Prints are logged.">اتطبعت ٠ مرة. الاستقبال يقدر يعيد الطباعة من غير تعديل. كل طباعة بتتسجل.</span>
+          </div>
+        </aside>
+
+        <div class="t-print-stage rxp-stage">
+          <article dir="rtl" class="t-sheet a5" aria-label="Prescription">
+            <header class="t-letterhead">
+              <div>
+                <div class="lh-name">د. أحمد سليم عبد الحميد</div>
+                <div class="lh-title">أخصائي الباطنة العامة<br>ماجستير الباطنة — جامعة المنصورة<br>رقم القيد بالنقابة: ٤٨٢١٣</div>
+              </div>
+              <div class="lh-logo">أ س</div>
+              <div class="lh-en">
+                <div class="lh-name">Dr. Ahmed Selim</div>
+                <div class="lh-title">Internal Medicine Specialist<br>MSc Internal Medicine, Mansoura Univ.<br>Syndicate no. 48213</div>
+              </div>
+            </header>
+            <div class="t-rx-patient">
+              <span>الاسم: <b>منى عبد الرحمن السيد الشناوي</b></span>
+              <span>السن: <b>٣٤ سنة</b></span>
+              <span>التاريخ: <b class="t-ltr">14/11/2026</b></span>
+              <span>ملف: <b class="t-ltr">1043</b></span>
+            </div>
+            <div class="t-rx-symbol">R/</div>
+            <div class="rx-diag" id="rx-dx">التشخيص: نزلة برد (J06.9)</div>
+            <ol class="t-rx-items"
+                data-note="Numbered lines: drug as written on the box (LTR), instruction in plain Egyptian Arabic under it (dose + frequency + timing + duration). Legibility was the #1 Rx complaint in research."
+                data-note-ar="سطور مرقمة: اسم الدواء زي العلبة، وتحته التعليمات بالعربي (الجرعة + التكرار + التوقيت + المدة). وضوح الخط كان أكبر شكوى في البحث.">
+              <li><div class="rx-drug">1. Panadol 500 mg</div><div class="rx-sig" data-sig-ar="قرص كل ٨ ساعات بعد الأكل لمدة ٥ أيام" data-sig-en="1 tablet every 8 hours after meals for 5 days">قرص كل ٨ ساعات بعد الأكل لمدة ٥ أيام</div></li>
+              <li><div class="rx-drug">2. Otrivin 0.1% nasal spray</div><div class="rx-sig" data-sig-ar="بخة في كل فتحة مرتين يوميًا لمدة ٥ أيام (لا تزيد عن ٥ أيام)" data-sig-en="1 puff in each nostril twice daily for 5 days (max 5 days)">بخة في كل فتحة مرتين يوميًا لمدة ٥ أيام (لا تزيد عن ٥ أيام)</div></li>
+              <li><div class="rx-drug">3. Vitacid C 500 mg effervescent</div><div class="rx-sig" data-sig-ar="قرص فوار في نص كوب ماء مرة يوميًا لمدة ١٠ أيام" data-sig-en="1 effervescent tablet in half a glass of water once daily for 10 days">قرص فوار في نص كوب ماء مرة يوميًا لمدة ١٠ أيام</div></li>
+            </ol>
+            <div class="rx-note">راحة تامة في المنزل لمدة ٣ أيام. الإكثار من السوائل الدافئة (ينسون، ليمون).</div>
+            <div class="rx-sign" id="rx-sign"><span>توقيع الطبيب</span></div>
+            <footer class="t-sheet-foot"
+                    data-note="Footer carries the follow-up date chosen in the builder, clinic hours and address. Reception sees the same date when booking, so the free follow-up window is honoured."
+                    data-note-ar="الذيل فيه ميعاد الاستشارة اللي اتحدد في الروشتة، ومواعيد العيادة والعنوان. الاستقبال بيشوف نفس الميعاد وهو بيحجز.">
+              <span><b>الاستشارة: السبت ٢١ نوفمبر</b><br>المواعيد: يوميًا ٥–١١ م عدا الجمعة</span>
+              <span>١٢ ش الجمهورية، أمام بنك مصر، المنصورة<br><span class="t-ltr">050 223 4567 · 0100 555 1212</span></span>
+            </footer>
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ STATE: sick-leave certificate ============ -->
+    <div data-state="certificate">
+      <div class="t-split">
+        <aside class="t-stack no-print">
+          <div class="t-card"
+               data-note="Sick-leave fields from NITCO v23 cut to what an Egyptian private clinic needs: start date (pre-filled today) + number of days → end date computed. No approve/reject status, no Hijri date, no companion leave (Saudi-only)."
+               data-note-ar="حقول الشهادة المرضية من NITCO بعد التبسيط: تاريخ البداية (النهارده تلقائي) + عدد الأيام ← تاريخ النهاية بيتحسب. من غير حالة موافقة/رفض ولا تاريخ هجري ولا إجازة مرافق.">
+            <div class="t-card-head"><h2 data-en="Certificate details">بيانات الشهادة</h2></div>
+            <div class="t-stack">
+              <div class="t-form-grid">
+                <div class="t-field">
+                  <label class="t-label" for="c-start"><span data-en="Start date">تاريخ البداية</span><span class="req">*</span></label>
+                  <input id="c-start" class="t-input ltr" type="date" value="2026-11-14">
+                </div>
+                <div class="t-field">
+                  <label class="t-label" for="c-days"><span data-en="Days">عدد الأيام</span><span class="req">*</span></label>
+                  <input id="c-days" class="t-input ltr" type="number" min="1" max="60" value="3" inputmode="numeric">
+                </div>
+              </div>
+              <div class="t-row tight" role="group" aria-label="Quick days">
+                <button type="button" class="t-pick" data-days="1" data-en="1 day">يوم</button>
+                <button type="button" class="t-pick" data-days="2" data-en="2 days">يومين</button>
+                <button type="button" class="t-pick is-on" data-days="3" data-en="3 days">٣ أيام</button>
+                <button type="button" class="t-pick" data-days="5" data-en="5 days">٥ أيام</button>
+                <button type="button" class="t-pick" data-days="7" data-en="1 week">أسبوع</button>
+              </div>
+              <div class="t-field">
+                <span class="t-label" data-en="End date (calculated)">تاريخ النهاية (محسوب)</span>
+                <input id="c-end" class="t-input ltr" readonly value="16/11/2026" aria-label="End date">
+              </div>
+              <div class="t-field">
+                <label class="t-label" for="c-to" data-en="To be submitted to">لتقديمها إلى</label>
+                <select id="c-to" class="t-select">
+                  <option value="جهة العمل|her employer" data-en="Employer">جهة العمل</option>
+                  <option value="المدرسة|the school" data-en="School">المدرسة</option>
+                  <option value="الجامعة|the university" data-en="University">الجامعة</option>
+                  <option value="من يهمه الأمر|whom it may concern" data-en="Whom it may concern">من يهمه الأمر</option>
+                </select>
+              </div>
+              <label class="t-switch"><input type="checkbox" id="c-dx" checked><span data-en="Show diagnosis (optional — turn off if the patient asks)">إظهار التشخيص (اختياري — اقفله لو المريض طلب)</span></label>
+              <div class="t-field">
+                <label class="t-label" for="c-dxtext" data-en="Diagnosis wording">صيغة التشخيص</label>
+                <input id="c-dxtext" class="t-input" value="نزلة برد حادة" data-en-value="acute common cold">
+              </div>
+              <div class="t-field">
+                <span class="t-label" data-en="Certificate language">لغة الشهادة</span>
+                <div class="t-seg" role="group" aria-label="Certificate language"
+                     data-note="Arabic or English certificate from the same data (NITCO v23 prints bilingual). English is needed for private companies and embassies."
+                     data-note-ar="شهادة عربي أو إنجليزي من نفس البيانات. الإنجليزي مطلوب للشركات الخاصة والسفارات.">
+                  <button type="button" aria-pressed="true" data-clang="ar" data-en="Arabic">عربي</button>
+                  <button type="button" aria-pressed="false" data-clang="en" data-en="English">English</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="t-card flush rxp-history"
+               data-note="Issued certificates are numbered and immutable: reprint any time, cancel only with a reason (logged). NITCO v23 lets anyone delete a certificate — a data-integrity hole."
+               data-note-ar="الشهادات الصادرة مرقمة وما ينفعش تتمسح: إعادة طباعة في أي وقت، والإلغاء بسبب بس ويتسجل. في NITCO أي حد يقدر يمسح شهادة.">
+            <div class="t-card-head"><h3 data-en="Issued for this patient">شهادات سابقة للمريضة</h3></div>
+            <table class="t-table">
+              <tbody>
+                <tr><td><span class="t-name t-ltr">C-2026-0112</span><span class="t-meta" data-en="2 Nov · 2 days · Employer">٢ نوفمبر · يومين · جهة العمل</span></td>
+                    <td class="actions"><button class="t-btn sm ghost" type="button" data-toast="جاري إعادة الطباعة…" data-toast-en="Reprinting…"><svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Reprint">إعادة طباعة</span></button></td></tr>
+                <tr class="is-muted"><td><span class="t-name t-ltr">C-2026-0047</span><span class="t-meta" data-en="Cancelled · wrong dates">ملغاة · تواريخ غلط</span></td>
+                    <td class="actions"><span class="t-chip void" data-en="Cancelled">ملغاة</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </aside>
+
+        <div class="t-print-stage rxp-stage">
+          <article dir="rtl" class="t-sheet a5" aria-label="Sick-leave certificate">
+            <header class="t-letterhead">
+              <div>
+                <div class="lh-name">د. أحمد سليم عبد الحميد</div>
+                <div class="lh-title">أخصائي الباطنة العامة<br>ماجستير الباطنة — جامعة المنصورة<br>رقم القيد بالنقابة: ٤٨٢١٣</div>
+              </div>
+              <div class="lh-logo">أ س</div>
+              <div class="lh-en">
+                <div class="lh-name">Dr. Ahmed Selim</div>
+                <div class="lh-title">Internal Medicine Specialist<br>MSc Internal Medicine, Mansoura Univ.<br>Syndicate no. 48213</div>
+              </div>
+            </header>
+            <div class="cert-title" id="c-title">شهادة طبية</div>
+            <div class="cert-no" id="c-no">رقم الشهادة <span class="t-ltr">C-2026-0187</span> · تاريخ الإصدار <span class="t-ltr">14/11/2026</span></div>
+            <div class="cert-body" id="c-body"></div>
+            <div class="rx-sign"><span id="c-sign">توقيع وختم الطبيب</span></div>
+            <footer class="t-sheet-foot">
+              <span>تصدر هذه الشهادة دون أدنى مسئولية على العيادة تجاه الغير</span>
+              <span>١٢ ش الجمهورية، المنصورة · <span class="t-ltr">050 223 4567</span></span>
+            </footer>
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ STATE: medical report ============ -->
+    <div data-state="report">
+      <div class="t-split">
+        <aside class="t-stack no-print">
+          <div class="t-card">
+            <div class="t-card-head"><h2 data-en="Report contents">محتوى التقرير</h2></div>
+            <div class="t-stack">
+              <p class="t-small t-muted mb-0" data-en="Pre-filled from today's visit note. Tick what to include; edit the wording on the visit note.">متعبي من كشف النهارده. علّم على اللي يتكتب؛ تعديل الصياغة من شاشة الكشف.</p>
+              <label class="t-check"><input type="checkbox" data-sec="complaint" checked><span data-en="Complaint &amp; history">الشكوى والتاريخ المرضي</span></label>
+              <label class="t-check"><input type="checkbox" data-sec="exam" checked><span data-en="Examination &amp; vitals">الفحص والعلامات الحيوية</span></label>
+              <label class="t-check"><input type="checkbox" data-sec="dx" checked><span data-en="Diagnosis (ICD-10)">التشخيص (ICD-10)</span></label>
+              <label class="t-check"><input type="checkbox" data-sec="tx" checked><span data-en="Treatment">العلاج</span></label>
+              <label class="t-check"><input type="checkbox" data-sec="rec" checked><span data-en="Recommendation">التوصيات</span></label>
+              <div class="t-field">
+                <label class="t-label" for="r-to" data-en="Addressed to">موجه إلى</label>
+                <input id="r-to" class="t-input" value="من يهمه الأمر">
+              </div>
+            </div>
+          </div>
+          <div class="t-alert info"
+               data-note="Medical report = structured sections pulled from the SOAP note, not a Word-like editor (NITCO uses CKEditor for short clinical text). Doctor edits wording once, in the visit note."
+               data-note-ar="التقرير الطبي = أقسام منظمة من ملاحظة الكشف (SOAP)، مش محرر نصوص زي Word. الطبيب بيعدل الصياغة مرة واحدة في الكشف.">
+            <svg class="t-icon"><use href="#i-info"/></svg>
+            <span data-en="Need a different layout? Report templates are in Visit templates &amp; shortcuts.">عايز شكل تاني؟ قوالب التقارير في <a href="settings-templates.html">قوالب الكشف والاختصارات</a>.</span>
+          </div>
+        </aside>
+
+        <div class="t-print-stage rxp-stage">
+          <article dir="rtl" class="t-sheet a5" aria-label="Medical report">
+            <header class="t-letterhead">
+              <div>
+                <div class="lh-name">د. أحمد سليم عبد الحميد</div>
+                <div class="lh-title">أخصائي الباطنة العامة<br>ماجستير الباطنة — جامعة المنصورة<br>رقم القيد بالنقابة: ٤٨٢١٣</div>
+              </div>
+              <div class="lh-logo">أ س</div>
+              <div class="lh-en">
+                <div class="lh-name">Dr. Ahmed Selim</div>
+                <div class="lh-title">Internal Medicine Specialist<br>MSc Internal Medicine, Mansoura Univ.<br>Syndicate no. 48213</div>
+              </div>
+            </header>
+            <div class="cert-title">تقرير طبي</div>
+            <div class="cert-no" id="r-head">إلى: من يهمه الأمر · <span class="t-ltr">14/11/2026</span></div>
+            <div class="t-rx-patient mb-2">
+              <span>الاسم: <b>منى عبد الرحمن السيد الشناوي</b></span>
+              <span>السن: <b>٣٤ سنة</b></span>
+              <span>ملف: <b class="t-ltr">1043</b></span>
+            </div>
+            <div style="flex:1">
+              <div class="rep-sec" data-rep="complaint"><h4>الشكوى والتاريخ المرضي</h4>رشح واحتقان بالحلق وصداع منذ يومين، بدون ارتفاع ملحوظ في الحرارة. حامل في الأسبوع ٢٢. حساسية من البنسلين.</div>
+              <div class="rep-sec" data-rep="exam"><h4>الفحص</h4>الحرارة <span class="t-ltr">37.6 °C</span> · الضغط <span class="t-ltr">110/70</span> · النبض <span class="t-ltr">88</span>. احتقان بسيط بالحلق، الصدر سليم.</div>
+              <div class="rep-sec" data-rep="dx"><h4>التشخيص</h4>نزلة برد حادة <span class="t-ltr">(J06.9)</span></div>
+              <div class="rep-sec" data-rep="tx"><h4>العلاج</h4>باراسيتامول، بخاخ أنف، فيتامين سي — مع مراعاة الحمل والحساسية.</div>
+              <div class="rep-sec" data-rep="rec"><h4>التوصيات</h4>راحة بالمنزل ٣ أيام، ومتابعة يوم السبت ٢١ نوفمبر أو قبلها عند ارتفاع الحرارة.</div>
+            </div>
+            <div class="rx-sign"><span>توقيع وختم الطبيب</span></div>
+            <footer class="t-sheet-foot">
+              <span>تقرير رقم <span class="t-ltr">R-2026-0033</span></span>
+              <span>١٢ ش الجمهورية، المنصورة · <span class="t-ltr">050 223 4567</span></span>
+            </footer>
+          </article>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+<script src="../assets/shell.js"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (s) { return document.querySelector(s); };
+  var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
+
+  /* Paper size: sheet class + @page size, so the browser dialog needs no setup */
+  function setPaper(p) {
+    $$("[data-paper]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-paper") === p)); });
+    $$(".t-sheet").forEach(function (s) { s.classList.remove("a5", "a4"); s.classList.add(p); });
+    $("#page-size").textContent = "@media print { @page { size: " + (p === "a4" ? "A4" : "A5") + " portrait; margin: 0; } }";
+  }
+  $("#preprinted").addEventListener("change", function (e) { $$(".t-sheet").forEach(function (s) { s.classList.toggle("preprinted", e.target.checked); }); });
+
+  /* Rx options */
+  function setSig(l) {
+    $$("[data-sig]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-sig") === l)); });
+    $$(".rx-sig").forEach(function (s) { s.textContent = s.getAttribute("data-sig-" + l); s.style.direction = l === "en" ? "ltr" : "rtl"; s.style.textAlign = l === "en" ? "left" : "right"; });
+  }
+  $("#show-dx").addEventListener("change", function (e) { $("#rx-dx").hidden = !e.target.checked; });
+  $("#show-sign").addEventListener("change", function (e) { $("#rx-sign").hidden = !e.target.checked; });
+
+  /* Certificate */
+  var clang = "ar";
+  var AR_DIG = "٠١٢٣٤٥٦٧٨٩";
+  function ard(n) { return String(n).replace(/\d/g, function (d) { return AR_DIG[d]; }); }
+  function fmt(d) { return ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear(); }
+  function renderCert() {
+    var days = Math.max(1, Math.min(60, parseInt($("#c-days").value, 10) || 1));
+    var start = new Date(($("#c-start").value || "2026-11-14") + "T00:00:00");
+    var end = new Date(start); end.setDate(end.getDate() + days - 1);
+    $("#c-end").value = fmt(end);
+    $$("[data-days]").forEach(function (b) { b.classList.toggle("is-on", +b.getAttribute("data-days") === days); });
+    var to = $("#c-to").value.split("|");
+    var showDx = $("#c-dx").checked, dx = $("#c-dxtext").value.trim();
+    var body = $("#c-body"), s = '<span class="t-ltr">' + fmt(start) + "</span>", e = '<span class="t-ltr">' + fmt(end) + "</span>";
+    if (clang === "ar") {
+      body.className = "cert-body";
+      body.innerHTML = "أشهد أنا الموقع أدناه بأن السيدة/ <b>منى عبد الرحمن السيد الشناوي</b>، السن ٣٤ سنة، ملف رقم <span class=\"t-ltr\">1043</span>، قد تم توقيع الكشف الطبي عليها بتاريخ " + s +
+        (showDx && dx ? "، وتبين أنها تعاني من <b>" + dx + "</b>" : "") +
+        "، وتحتاج إلى راحة لمدة <b>(" + ard(days) + ") " + (days === 1 ? "يوم" : days === 2 ? "يومين" : days <= 10 ? "أيام" : "يومًا") + "</b> تبدأ من " + s + " وتنتهي في " + e + ".<br>وقد أُعطيت لها هذه الشهادة بناءً على طلبها لتقديمها إلى <b>" + to[0] + "</b>.";
+      $("#c-title").textContent = "شهادة طبية"; $("#c-sign").textContent = "توقيع وختم الطبيب";
+    } else {
+      body.className = "cert-body cert-en";
+      body.innerHTML = "This is to certify that Mrs. <b>Mona Abdelrahman El-Sayed El-Shennawy</b>, aged 34, file no. 1043, was examined on " + fmt(start) +
+        (showDx && dx ? " and was found to be suffering from <b>" + (dx === $("#c-dxtext").defaultValue ? $("#c-dxtext").getAttribute("data-en-value") : dx.replace(/</g, "&lt;")) + "</b>" : "") +
+        ". She requires sick leave for <b>" + days + " day" + (days > 1 ? "s" : "") + "</b>, from " + fmt(start) + " to " + fmt(end) + ".<br>This certificate is issued at her request, to be submitted to <b>" + to[1] + "</b>.";
+      $("#c-title").textContent = "Medical Certificate"; $("#c-sign").textContent = "Doctor's signature & stamp";
+    }
+  }
+  ["#c-start", "#c-days", "#c-to", "#c-dx", "#c-dxtext"].forEach(function (id) { $(id).addEventListener("input", renderCert); $(id).addEventListener("change", renderCert); });
+
+  /* Report sections */
+  $$("[data-sec]").forEach(function (c) { c.addEventListener("change", function () { $('[data-rep="' + c.getAttribute("data-sec") + '"]').hidden = !c.checked; }); });
+  $("#r-to").addEventListener("input", function (e) { $("#r-head").innerHTML = "إلى: " + e.target.value.replace(/</g, "&lt;") + ' · <span class="t-ltr">14/11/2026</span>'; });
+
+  document.addEventListener("click", function (e) {
+    var b;
+    if ((b = e.target.closest("[data-paper]"))) setPaper(b.getAttribute("data-paper"));
+    if ((b = e.target.closest("[data-sig]"))) setSig(b.getAttribute("data-sig"));
+    if ((b = e.target.closest("[data-days]"))) { $("#c-days").value = b.getAttribute("data-days"); renderCert(); }
+    if ((b = e.target.closest("[data-clang]"))) { clang = b.getAttribute("data-clang"); $$("[data-clang]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); renderCert(); }
+  });
+  $("#print-btn").addEventListener("click", function () { Tamargi.toast(Tamargi.lang() === "en" ? "Print logged · Dr. Ahmed · 14/11 19:42" : "اتسجلت الطباعة · د. أحمد · ١٤/١١ ٧:٤٢ م"); window.print(); });
+  renderCert();
+})();
+</script>
+</body>
+</html>

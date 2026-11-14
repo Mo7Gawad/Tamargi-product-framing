@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Cashier checkout — Tamargi">الخزنة — تحصيل — تمرجي</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style>
+    /* back arrow: the sprite arrow points right, which is already "back" in RTL; mirror only in LTR */
+    [dir="ltr"] .co-back { transform: scaleX(-1); }
+    .co-num { width: 88px; height: 32px; font-size: var(--fs-sm); text-align: end; }
+    .co-qty { width: 56px; height: 32px; font-size: var(--fs-sm); text-align: center; }
+    .co-src { display: block; font-size: var(--fs-xs); color: var(--text-3); }
+    .co-quick { display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: center; }
+    .co-ta { position: relative; flex: 1; min-width: 220px; }
+    .co-ta .t-menu { position: absolute; inset-inline: 0; top: calc(100% + 4px); z-index: 20; max-height: 280px; overflow: auto; }
+    .co-reason { display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: center; padding: var(--s-2) var(--s-3); margin-block-start: var(--s-1); border-radius: var(--r-sm); background: var(--success-bg); color: var(--success-fg); font-size: var(--fs-xs); }
+    .co-reason.is-override { background: var(--warning-bg); color: var(--warning-fg); }
+    .co-reason button { background: none; border: 0; padding: 0; font: inherit; color: var(--primary); text-decoration: underline; cursor: pointer; }
+    .co-disc { display: grid; grid-template-columns: auto 110px minmax(150px, 1fr) minmax(150px, 1fr); gap: var(--s-2); align-items: end; }
+    @media (max-width: 760px) { .co-disc { grid-template-columns: 1fr 1fr; } }
+    .co-pay-card { position: sticky; top: calc(var(--topbar-h) + 96px); }
+    .co-method { display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); font-weight: var(--fw-m); }
+    .co-method small { display: block; font-weight: var(--fw-r); color: var(--text-3); font-size: var(--fs-xs); }
+    .co-collect { height: 52px; font-size: var(--fs-lg); }
+    .co-olddebt { display: flex; gap: var(--s-3); align-items: center; justify-content: space-between; flex-wrap: wrap; }
+    .co-done { display: grid; gap: var(--s-4); grid-template-columns: minmax(0, 1fr) 320px; align-items: start; }
+    @media (max-width: 860px) { .co-done { grid-template-columns: 1fr; } .co-pay-card { position: static; } }
+    .co-big-check { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: var(--success-bg); color: var(--success-fg); }
+    .co-big-check .t-icon { width: 28px; height: 28px; }
+  </style>
+</head>
+<body data-screen="cashier-checkout">
+<main id="screen">
+
+  <!-- Patient banner -->
+  <section class="t-banner" aria-label="Patient" data-en-aria-label="Patient">
+    <div class="t-banner-id">
+      <span class="t-avatar">ك ع</span>
+      <div>
+        <div class="t-banner-name">كريم محمود عبد العزيز</div>
+        <div class="t-banner-facts">
+          <span><b>67</b> <span data-en="yrs · M">سنة · ذكر</span></span>
+          <span><span data-en="File">ملف</span> <b class="t-ltr">0872</b></span>
+          <span class="t-ltr">0122 870 4411</span>
+          <span data-en="Last visit 4 Nov (consult)">آخر زيارة ٤ نوفمبر (كشف)</span>
+        </div>
+      </div>
+    </div>
+    <div class="t-banner-alerts">
+      <span class="t-allergy none" data-en="No known allergies">لا حساسية معروفة</span>
+      <span class="t-flag" data-en="Diabetic · Hypertensive">سكر · ضغط</span>
+      <a class="t-balance debt" href="patient-account.html" data-en="Owes 60 EGP">عليه ٦٠ ج.م</a>
+      <a class="t-balance deposit" href="patient-account.html" data-en="Deposit 200 EGP">رصيد مقدم ٢٠٠ ج.م</a>
+      <span class="t-balance followup" data-en="Free follow-up until 18 Nov">متابعة مجانية حتى ١٨ نوفمبر</span>
+    </div>
+  </section>
+
+  <div class="t-container">
+
+    <header class="t-screen-head">
+      <div>
+        <h1 data-en="Checkout">تحصيل</h1>
+        <p class="t-sub mb-0" data-en="One screen: services, discount, payment. Collect marks it paid; printing is optional.">شاشة واحدة: الخدمات والخصم والدفع. «تحصيل» هو اللي بيسجل الدفع، والطباعة اختيارية.</p>
+      </div>
+      <div class="t-actions">
+        <a class="t-btn" href="reception-queue.html"><svg class="t-icon sm co-back"><use href="#i-arrow"/></svg><span data-en="Back to queue">رجوع للدور</span></a>
+        <a class="t-btn" href="patient-account.html"><svg class="t-icon sm"><use href="#i-wallet"/></svg><span data-en="Patient account">حساب المريض</span></a>
+        <button class="t-btn ghost" type="button" data-toast="اتحفظت كمسودة — هتلاقيها في الدور «لم يُحصَّل»" data-toast-en="Saved as draft — it stays in the queue as “not collected”"><span data-en="Save draft">حفظ مسودة</span></button>
+      </div>
+    </header>
+
+    <!-- ===== STATE: draft (default) ===== -->
+    <div data-state="draft">
+      <div class="t-split aside-end">
+
+        <div class="t-stack lg">
+          <!-- Invoice header + services -->
+          <section class="t-card flush">
+            <div class="t-card-head">
+              <h2 data-en="New invoice">فاتورة جديدة</h2>
+              <span class="t-chip unpaid" data-en="Not collected">لم يُحصَّل</span>
+              <div class="t-actions t-small t-muted">
+                <span data-en="From queue">من الدور</span> <span class="t-ticket done" style="min-width:auto;padding:2px 8px"><b style="font-size:var(--fs-sm)">A-14</b></span>
+              </div>
+            </div>
+            <div class="t-card-body">
+              <div class="t-form-grid mb-4">
+                <div class="t-field">
+                  <label class="t-label" for="co-doc"><span data-en="Doctor">الطبيب</span><span class="req">*</span></label>
+                  <select id="co-doc" class="t-select">
+                    <option data-en="Dr. Ahmed Selim — Internal medicine &amp; cardiology">د. أحمد سليم — باطنة وقلب</option>
+                    <option data-en="Dr. Heba El-Sherbiny — Paediatrics">د. هبة الشربيني — أطفال</option>
+                  </select>
+                  <span class="t-hint" data-en="Pre-filled from the visit. Consult 300 · follow-up free within 14 days.">متعبّي من الزيارة. الكشف ٣٠٠ · المتابعة مجانية خلال ١٤ يوم.</span>
+                </div>
+                <div class="t-field">
+                  <span class="t-label" data-en="Visit">الزيارة</span>
+                  <a class="t-input" href="visit-note.html" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--text)">
+                    <svg class="t-icon sm"><use href="#i-file"/></svg><span data-en="Today 7:10 pm · Follow-up · Dr. Ahmed">النهارده ٧:١٠ م · متابعة · د. أحمد</span>
+                  </a>
+                  <span class="t-hint" data-en="Invoice is linked to this visit and its appointment (no double entry).">الفاتورة مربوطة بالزيارة والموعد (من غير إدخال مرتين).</span>
+                </div>
+              </div>
+
+              <div class="co-quick mb-4"
+                   data-note="Quick buttons come from the doctor's default consult and follow-up services (NITCO v1, v89, v97). The type-ahead replaces NITCO's 1,600-row service grid paged 20 at a time: type 2 letters, Enter adds the first match."
+                   data-note-ar="أزرار سريعة من خدمات الكشف والمتابعة الافتراضية للطبيب. البحث بالكتابة بدل جدول ١٦٠٠ خدمة في NITCO: حرفين وEnter.">
+                <button class="t-pick" type="button" data-add="consult"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="Consult · 300">كشف · ٣٠٠</span></button>
+                <button class="t-pick" type="button" data-add="followup"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="Follow-up · free now">متابعة · مجانية الآن</span></button>
+                <div class="co-ta">
+                  <div class="t-input-wrap">
+                    <svg class="t-icon"><use href="#i-search"/></svg>
+                    <input id="co-search" class="t-input" type="search" autocomplete="off" placeholder="أضف خدمة: اكتب اسمها (مثلاً: سكر، حقنة، سونار)" data-en-placeholder="Add a service: type its name (e.g. sugar, injection, ultrasound)" aria-label="Add service" data-en-aria-label="Add service">
+                    <span class="t-kbd">/</span>
+                  </div>
+                  <ul class="t-menu" id="co-menu" role="listbox" hidden></ul>
+                </div>
+              </div>
+
+              <div class="t-table-wrap">
+                <table class="t-table" id="co-lines">
+                  <thead><tr>
+                    <th data-en="Service">الخدمة</th>
+                    <th class="num" data-en="Price">السعر</th>
+                    <th class="num" data-en="Qty">العدد</th>
+                    <th class="num" data-en="Line discount">خصم البند</th>
+                    <th class="num" data-en="Total">الإجمالي</th>
+                    <th><span class="t-sr" data-en="Actions">إجراءات</span></th>
+                  </tr></thead>
+                  <tbody>
+                    <tr data-line="followup">
+                      <td>
+                        <span class="t-name" data-en="Follow-up consultation">كشف متابعة</span>
+                        <span class="co-reason" id="co-free-reason"
+                              data-note="Free follow-up is priced 0 automatically and the reason is shown on the line (NITCO v13, v62, v106: 'visit days'). Charging it anyway needs a reason, which is logged. No silent overrides; no hard block either."
+                              data-note-ar="المتابعة المجانية سعرها صفر تلقائيًا والسبب ظاهر على البند. لو هتتحاسب لازم سبب ويتسجل في السجل.">
+                          <span class="t-chip free" data-en="Free follow-up">متابعة مجانية</span>
+                          <span id="co-free-text" data-en="Within 14 days of the 4 Nov consult (until 18 Nov). List price 300.">خلال ١٤ يوم من كشف ٤ نوفمبر (حتى ١٨ نوفمبر). السعر الأصلي ٣٠٠.</span>
+                          <button type="button" data-open="#co-override" data-en="Charge anyway…">حاسبه برضه…</button>
+                        </span>
+                      </td>
+                      <td class="num"><input class="t-input co-num" data-k="price" value="0" inputmode="decimal" aria-label="Price" readonly></td>
+                      <td class="num"><input class="t-input co-qty" data-k="qty" value="1" inputmode="numeric" aria-label="Qty" readonly></td>
+                      <td class="num"><input class="t-input co-num" data-k="disc" value="0" inputmode="decimal" aria-label="Line discount" readonly></td>
+                      <td class="num"><span class="t-money" data-k="total">0</span></td>
+                      <td class="actions"></td>
+                    </tr>
+                    <tr data-line="ecg">
+                      <td><span class="t-name" data-en="ECG (resting)">رسم قلب</span><span class="co-src" data-en="Added by Dr. Ahmed in the visit, 7:24 pm">أضافها د. أحمد في الكشف ٧:٢٤ م</span></td>
+                      <td class="num"><input class="t-input co-num" data-k="price" value="150" inputmode="decimal" aria-label="Price" readonly title="Price is fixed for this service" data-en-title="Price is fixed for this service"></td>
+                      <td class="num"><input class="t-input co-qty" data-k="qty" value="1" inputmode="numeric" aria-label="Qty"></td>
+                      <td class="num"><input class="t-input co-num" data-k="disc" value="0" inputmode="decimal" aria-label="Line discount"></td>
+                      <td class="num"><span class="t-money" data-k="total">150</span></td>
+                      <td class="actions"><button class="t-btn sm ghost" type="button" data-remove><svg class="t-icon sm"><use href="#i-trash"/></svg><span data-en="Remove">حذف</span></button></td>
+                    </tr>
+                    <tr data-line="neb">
+                      <td><span class="t-name" data-en="Nebuliser session">جلسة نيبولايزر</span><span class="co-src" data-en="Added by Dr. Ahmed in the visit, 7:26 pm">أضافها د. أحمد في الكشف ٧:٢٦ م</span></td>
+                      <td class="num"><input class="t-input co-num" data-k="price" value="50" inputmode="decimal" aria-label="Price"></td>
+                      <td class="num"><input class="t-input co-qty" data-k="qty" value="1" inputmode="numeric" aria-label="Qty"></td>
+                      <td class="num"><input class="t-input co-num" data-k="disc" value="0" inputmode="decimal" aria-label="Line discount"></td>
+                      <td class="num"><span class="t-money" data-k="total">50</span></td>
+                      <td class="actions"><button class="t-btn sm ghost" type="button" data-remove><svg class="t-icon sm"><use href="#i-trash"/></svg><span data-en="Remove">حذف</span></button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="t-hint mt-2 mb-0" data-en="Services the doctor adds during the visit land here automatically (charge capture). No “send cash invoice” round-trip.">الخدمات اللي الدكتور بيضيفها في الكشف بتنزل هنا لوحدها. من غير «إرسال فاتورة نقدي» زي NITCO.</p>
+            </div>
+          </section>
+
+          <!-- Invoice discount -->
+          <section class="t-card"
+                   data-note="Invoice discount as amount or %, with a named tier and a mandatory reason. Each user has a cap set by the owner (NITCO v1, v53, v89: tiers + per-user discount %). Above the cap the cashier asks the owner inline (PIN) instead of being blocked or discounting silently."
+                   data-note-ar="خصم على الفاتورة بالمبلغ أو النسبة مع شريحة وسبب إجباري. لكل مستخدم حد أقصى يحدده المالك؛ فوق الحد بيطلب موافقة المالك بالرقم السري.">
+            <div class="t-card-head">
+              <h3 data-en="Invoice discount">خصم على الفاتورة</h3>
+              <div class="t-actions"><span class="t-small t-muted" data-en="Your cap: 10% · set by the owner">حدك الأقصى: ١٠٪ · يحدده المالك</span></div>
+            </div>
+            <div class="co-disc">
+              <div class="t-field">
+                <span class="t-label" data-en="Type">النوع</span>
+                <div class="t-seg" role="group" id="co-dmode">
+                  <button type="button" aria-pressed="true" data-mode="pct">%</button>
+                  <button type="button" aria-pressed="false" data-mode="amt" data-en="EGP">ج.م</button>
+                </div>
+              </div>
+              <div class="t-field">
+                <label class="t-label" for="co-dval" data-en="Value">القيمة</label>
+                <input id="co-dval" class="t-input ltr" value="10" inputmode="decimal">
+              </div>
+              <div class="t-field">
+                <label class="t-label" for="co-tier" data-en="Discount tier">شريحة الخصم</label>
+                <select id="co-tier" class="t-select">
+                  <option value="" data-en="No tier">بدون شريحة</option>
+                  <option value="10" selected data-en="Seniors 65+ · 10%">كبار السن +٦٥ · ١٠٪</option>
+                  <option value="20" data-en="Medical colleagues · 20%">زملاء المهنة · ٢٠٪</option>
+                  <option value="50" data-en="Clinic staff family · 50%">أسر العاملين · ٥٠٪</option>
+                </select>
+              </div>
+              <div class="t-field">
+                <label class="t-label" for="co-dreason"><span data-en="Reason">السبب</span><span class="req">*</span></label>
+                <select id="co-dreason" class="t-select">
+                  <option value="" data-en="Choose a reason…">اختار السبب…</option>
+                  <option value="tier" selected data-en="Patient's tier (on file)">شريحة المريض (مسجلة في الملف)</option>
+                  <option value="doctor" data-en="Doctor asked">طلب الدكتور</option>
+                  <option value="hardship" data-en="Financial hardship">ظروف مادية</option>
+                  <option value="other" data-en="Other (write it)">سبب آخر (اكتبه)</option>
+                </select>
+              </div>
+            </div>
+            <div id="co-cap" class="t-alert warning mt-4" hidden>
+              <svg class="t-icon"><use href="#i-lock"/></svg>
+              <div class="t-grow"><b data-en="Above your 10% cap.">الخصم أكبر من حدك (١٠٪).</b> <span data-en="The owner can approve it here with their PIN, or lower the discount.">المالك يقدر يوافق هنا برقمه السري، أو قلّل الخصم.</span></div>
+              <div class="t-actions"><button class="t-btn sm" type="button" data-open="#co-pin" data-en="Ask owner (PIN)">موافقة المالك</button></div>
+            </div>
+            <div id="co-noreason" class="t-error mt-2" hidden data-en="Pick a reason: every discount appears in the owner's report.">اختار سبب: كل خصم بيظهر في تقرير المالك.</div>
+          </section>
+        </div>
+
+        <!-- Payment panel -->
+        <aside class="t-stack co-pay-card">
+          <section class="t-card">
+            <div class="t-card-head"><h2 data-en="Payment">الدفع</h2></div>
+            <dl class="t-totals mb-4">
+              <dt data-en="Services">الخدمات</dt><dd><span class="t-money"><span id="co-sub">200</span><span class="cur" data-en="EGP">ج.م</span></span></dd>
+              <dt data-en="Line discounts">خصم البنود</dt><dd><span class="t-money">− <span id="co-ldisc">0</span></span></dd>
+              <dt data-en="Invoice discount (Seniors 10%)" id="co-idisc-l">خصم الفاتورة (كبار السن ١٠٪)</dt><dd><span class="t-money">− <span id="co-idisc">20</span></span></dd>
+              <dt id="co-old-l" hidden data-en="Old debt (28 Oct)">مديونية قديمة (٢٨ أكتوبر)</dt><dd id="co-old-v" hidden><span class="t-money debt">+ 60</span></dd>
+              <dt class="grand" data-en="Due now">المطلوب الآن</dt><dd class="grand"><span class="t-money lg"><span id="co-total">180</span><span class="cur" data-en="EGP">ج.م</span></span></dd>
+            </dl>
+
+            <div class="t-paylines" id="co-pays"
+                 data-note="Split payment: one line per method (cash, card, InstaPay, from deposit). Paid defaults to full cash; editing it rebalances. 'From deposit' cannot exceed the deposit held (NITCO v84 error 'رصيد المريض لا يكفي')."
+                 data-note-ar="دفع مقسّم: سطر لكل طريقة (كاش، كارت، إنستاباي، من الرصيد). الافتراضي كاش بالكامل. «من الرصيد» ما يزيدش عن الرصيد المتاح.">
+              <div class="t-payline" data-method="cash">
+                <span class="co-method"><svg class="t-icon sm"><use href="#i-cash"/></svg><span data-en="Cash">كاش</span></span>
+                <input class="t-input ltr" value="100" inputmode="decimal" aria-label="Cash amount" data-en-aria-label="Cash amount">
+                <span></span>
+              </div>
+              <div class="t-payline" data-method="deposit">
+                <span class="co-method"><svg class="t-icon sm"><use href="#i-wallet"/></svg><span><span data-en="From deposit">من الرصيد المقدم</span><small data-en="Available 200">المتاح ٢٠٠</small></span></span>
+                <input class="t-input ltr" value="50" inputmode="decimal" aria-label="From deposit" data-en-aria-label="From deposit">
+                <button class="t-btn sm ghost" type="button" data-remove-pay><svg class="t-icon sm"><use href="#i-close"/></svg><span data-en="Remove">إزالة</span></button>
+              </div>
+            </div>
+            <div id="co-deperr" class="t-error mt-2" hidden data-en="Deposit can't go below zero: only 200 available.">الرصيد ما ينفعش يبقى بالسالب: المتاح ٢٠٠ بس.</div>
+            <div class="t-row tight mt-2">
+              <button class="t-pick" type="button" data-addpay="card"><svg class="t-icon sm"><use href="#i-card"/></svg><span data-en="+ Card">+ كارت</span></button>
+              <button class="t-pick" type="button" data-addpay="instapay"><svg class="t-icon sm"><use href="#i-phone"/></svg><span data-en="+ InstaPay">+ إنستاباي</span></button>
+              <button class="t-pick" type="button" data-addpay="deposit" id="co-add-dep" hidden><svg class="t-icon sm"><use href="#i-wallet"/></svg><span data-en="+ From deposit">+ من الرصيد</span></button>
+            </div>
+
+            <div class="t-remainder mt-4" id="co-rem"
+                 data-note="Remainder row: whatever is not paid becomes 'debt on patient' automatically and posts to the patient account (NITCO v32, v34, v89). Overpaid cash shows the change to hand back. The colour always comes with words."
+                 data-note-ar="الباقي بيتحول لمديونية على المريض تلقائيًا ويتسجل في حسابه. لو دفع كاش زيادة بيظهر الباقي اللي يرجعله.">
+              <span id="co-rem-l" data-en="Debt on patient">مديونية على المريض</span>
+              <span class="t-money"><span id="co-rem-v">30</span> <span data-en="EGP">ج.م</span></span>
+            </div>
+
+            <div class="t-card sunk mt-4" style="padding:var(--s-3)">
+              <div class="co-olddebt">
+                <span class="t-small"><b data-en="Owes 60 from 28 Oct.">عليه ٦٠ من ٢٨ أكتوبر.</b> <span data-en="Collect it now too?">تحصّلها معاها؟</span></span>
+                <button class="t-btn sm" type="button" id="co-old-btn" aria-pressed="false"><span data-en="Add old debt">ضيف المديونية</span></button>
+              </div>
+            </div>
+
+            <button class="t-btn primary block co-collect mt-4" type="button" id="co-collect"
+                    data-note="Collect (F9) is the action that marks the invoice paid, not printing. NITCO marks paid only on 'Save & Print' and its trainers warn about it in five videos (v34, v36, v88, v89, v91). After Collect the receipt preview is offered, never forced."
+                    data-note-ar="«تحصيل» (F9) هو اللي بيعلّم الفاتورة مدفوعة، مش الطباعة. في NITCO الدفع مربوط بالطباعة والمدربين بيحذروا منه في ٥ فيديوهات.">
+              <svg class="t-icon"><use href="#i-check"/></svg><span data-en="Collect">تحصيل</span> <span class="t-money" id="co-collect-amt">150</span> <span data-en="EGP">ج.م</span><span class="t-kbd">F9</span>
+            </button>
+            <p class="t-hint mt-2 mb-0" style="text-align:center" data-en="The invoice is issued and locked when you collect. Corrections go through a credit note.">الفاتورة بتتقفل بعد التحصيل. أي تصحيح بيبقى بإشعار مرتجع.</p>
+          </section>
+        </aside>
+      </div>
+    </div>
+
+    <!-- ===== STATE: collected ===== -->
+    <div data-state="collected">
+      <div class="co-done">
+        <section class="t-card">
+          <div class="t-row mb-4">
+            <span class="co-big-check"><svg class="t-icon"><use href="#i-check"/></svg></span>
+            <div class="t-grow">
+              <h2 data-en="Collected 150 EGP">تم تحصيل ١٥٠ ج.م</h2>
+              <p class="t-muted mb-0"><span data-en="Invoice">فاتورة</span> <b class="t-ltr">INV-004812</b> · <span data-en="Sara Ramadan · 14/11/2026 7:42 pm">سارة رمضان · 14/11/2026 7:42 م</span></p>
+            </div>
+            <span class="t-stamp" data-en="Issued">صادرة</span>
+          </div>
+          <dl class="t-totals mb-4">
+            <dt data-en="Invoice total">إجمالي الفاتورة</dt><dd><span class="t-money">180 <span class="cur" data-en="EGP">ج.م</span></span></dd>
+            <dt data-en="Cash">كاش</dt><dd><span class="t-money">100</span></dd>
+            <dt data-en="From deposit">من الرصيد المقدم</dt><dd><span class="t-money">50</span></dd>
+            <dt data-en="Added to patient debt">اتضاف لمديونية المريض</dt><dd><span class="t-money debt">30</span></dd>
+            <dt class="grand" data-en="Patient now owes · deposit left">المريض عليه الآن · رصيده</dt><dd class="grand"><span class="t-money debt">90</span> · <span class="t-money deposit">150</span></dd>
+          </dl>
+          <div class="t-row">
+            <a class="t-btn primary" href="receipt-print.html"><svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Print receipt">طباعة الإيصال</span><span class="t-kbd">Ctrl P</span></a>
+            <a class="t-btn" href="reception-queue.html"><span data-en="Next patient">المريض اللي بعده</span></a>
+            <a class="t-btn ghost" href="invoice-detail.html"><span data-en="View invoice">عرض الفاتورة</span></a>
+            <button class="t-btn ghost" type="button" data-toast="الإيصال جاهز للإرسال في رسائل المريض" data-toast-en="Receipt ready to send in patient chat"><svg class="t-icon sm"><use href="#i-send"/></svg><span data-en="Send receipt in chat">إرسال الإيصال في الشات</span></button>
+          </div>
+        </section>
+        <aside class="t-card sunk">
+          <h3 class="mb-2" data-en="What happened">اللي حصل</h3>
+          <ul class="t-small t-muted" style="margin:0;padding-inline-start:18px">
+            <li data-en="Visit marked “paid” in the live queue">الزيارة بقت «مدفوعة» في الدور</li>
+            <li data-en="30 EGP added to patient debt (now 90)">٣٠ ج.م اتضافت للمديونية (بقت ٩٠)</li>
+            <li data-en="50 EGP taken from deposit (now 150)">٥٠ ج.م اتخصمت من الرصيد (بقى ١٥٠)</li>
+            <li data-en="Discount 20 EGP logged with reason “Seniors tier”">خصم ٢٠ ج.م اتسجل بسبب «شريحة كبار السن»</li>
+            <li data-en="Counted in tonight's shift close">محسوبة في تقفيل الخزنة الليلة</li>
+          </ul>
+        </aside>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Override free follow-up -->
+  <div class="t-scrim" id="co-override" hidden>
+    <div class="t-modal" role="dialog" aria-labelledby="co-ov-h">
+      <div class="t-modal-head">
+        <h2 id="co-ov-h" data-en="Charge this follow-up?">تحاسب المتابعة دي؟</h2>
+        <button class="t-btn icon ghost" type="button" data-close aria-label="Close" title="Close"><svg class="t-icon"><use href="#i-close"/></svg></button>
+      </div>
+      <div class="t-modal-body t-stack">
+        <p class="t-muted mb-0" data-en="The patient is inside the free follow-up window. Charging needs a reason; it is logged and shown in the owner's report.">المريض جوه فترة المتابعة المجانية. المحاسبة محتاجة سبب، وبيتسجل ويظهر في تقرير المالك.</p>
+        <div class="t-field">
+          <label class="t-label" for="co-ov-r"><span data-en="Reason">السبب</span><span class="req">*</span></label>
+          <select id="co-ov-r" class="t-select">
+            <option value="" data-en="Choose…">اختار…</option>
+            <option value="new" data-en="New complaint — counts as a new consult (300)">شكوى جديدة — تتحسب كشف جديد (٣٠٠)</option>
+            <option value="paidfu" data-en="Doctor asked for the follow-up fee (150)">الدكتور طلب رسم المتابعة (١٥٠)</option>
+          </select>
+        </div>
+        <div class="t-field">
+          <label class="t-label" for="co-ov-n"><span data-en="Note">ملاحظة</span><span class="opt" data-en="(optional)">(اختياري)</span></label>
+          <input id="co-ov-n" class="t-input" placeholder="مثال: ألم في الصدر جديد" data-en-placeholder="e.g. new chest pain">
+        </div>
+      </div>
+      <div class="t-modal-foot">
+        <button class="t-btn" type="button" data-close data-en="Keep it free">خليها مجانية</button>
+        <button class="t-btn primary" type="button" id="co-ov-apply" data-en="Charge">حاسب</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Owner PIN -->
+  <div class="t-scrim" id="co-pin" hidden>
+    <div class="t-modal" role="dialog" aria-labelledby="co-pin-h">
+      <div class="t-modal-head">
+        <h2 id="co-pin-h" data-en="Owner approval">موافقة المالك</h2>
+        <button class="t-btn icon ghost" type="button" data-close aria-label="Close" title="Close"><svg class="t-icon"><use href="#i-close"/></svg></button>
+      </div>
+      <div class="t-modal-body t-stack">
+        <p class="t-muted mb-0" data-en="Dr. Ahmed types his 4-digit PIN on this screen to approve this one discount. It is logged under his name.">د. أحمد يكتب رقمه السري (٤ أرقام) على الشاشة دي للموافقة على الخصم ده بس. بيتسجل باسمه.</p>
+        <div class="t-field">
+          <label class="t-label" for="co-pin-v" data-en="Owner PIN">الرقم السري للمالك</label>
+          <input id="co-pin-v" class="t-input ltr" type="password" inputmode="numeric" maxlength="4" placeholder="••••" style="max-width:140px;letter-spacing:.3em">
+        </div>
+      </div>
+      <div class="t-modal-foot">
+        <button class="t-btn" type="button" data-close data-en="Cancel">إلغاء</button>
+        <button class="t-btn primary" type="button" id="co-pin-ok" data-en="Approve">موافقة</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+<script src="../assets/shell.js"></script>
+<script>
+(function () {
+  var L = function () { return window.Tamargi && Tamargi.lang && Tamargi.lang() === "en"; };
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var num = function (v) { var n = parseFloat(String(v).replace(/[^\d.]/g, "")); return isNaN(n) ? 0 : n; };
+  var fmt = function (n) { return (Math.round(n * 100) / 100).toLocaleString("en-US"); };
+  var CAP = 10, DEPOSIT = 200, OLD_DEBT = 60, approved = false, oldOn = false, dmode = "pct";
+
+  var CATALOG = [
+    { k: "consult", ar: "كشف جديد", en: "New consultation", p: 300, t: "consult kashf كشف" },
+    { k: "pfu", ar: "متابعة (بعد الفترة المجانية)", en: "Follow-up (after free window)", p: 150, t: "follow متابعة" },
+    { k: "ecg", ar: "رسم قلب", en: "ECG (resting)", p: 150, t: "ecg رسم قلب" },
+    { k: "neb", ar: "جلسة نيبولايزر", en: "Nebuliser session", p: 50, t: "neb بخار نيبولايزر" },
+    { k: "rbs", ar: "قياس سكر عشوائي", en: "Random blood sugar", p: 30, t: "sugar سكر" },
+    { k: "im", ar: "حقنة عضل", en: "IM injection", p: 25, t: "injection حقنة" },
+    { k: "iv", ar: "تركيب كانيولا ومحلول", en: "Cannula + IV drip", p: 120, t: "iv محلول كانيولا" },
+    { k: "dress", ar: "غيار على جرح", en: "Wound dressing", p: 60, t: "dressing غيار جرح" },
+    { k: "us", ar: "سونار بطن", en: "Abdominal ultrasound", p: 250, t: "ultrasound سونار" },
+    { k: "echo", ar: "إيكو على القلب", en: "Echocardiogram", p: 400, t: "echo ايكو إيكو" }
+  ];
+
+  function recalc() {
+    var sub = 0, ld = 0;
+    $$("#co-lines tbody tr").forEach(function (tr) {
+      var p = num($('[data-k="price"]', tr).value), q = num($('[data-k="qty"]', tr).value) || 0, d = num($('[data-k="disc"]', tr).value);
+      sub += p * q; ld += d;
+      $('[data-k="total"]', tr).textContent = fmt(Math.max(0, p * q - d));
+    });
+    var dv = num($("#co-dval").value);
+    var base = sub - ld;
+    var idisc = dmode === "pct" ? base * dv / 100 : dv;
+    var pct = base > 0 ? (idisc / base) * 100 : 0;
+    var total = Math.max(0, base - idisc) + (oldOn ? OLD_DEBT : 0);
+    $("#co-sub").textContent = fmt(sub);
+    $("#co-ldisc").textContent = fmt(ld);
+    $("#co-idisc").textContent = fmt(idisc);
+    $("#co-total").textContent = fmt(total);
+    $("#co-old-l").hidden = $("#co-old-v").hidden = !oldOn;
+
+    var paid = 0, dep = 0;
+    $$("#co-pays .t-payline").forEach(function (pl) { var v = num($("input", pl).value); paid += v; if (pl.getAttribute("data-method") === "deposit") dep += v; });
+    var depBad = dep > DEPOSIT;
+    $("#co-deperr").hidden = !depBad;
+    $$('#co-pays [data-method="deposit"] input').forEach(function (i) { i.classList.toggle("is-invalid", depBad); });
+
+    var rem = total - paid, remEl = $("#co-rem"), remL = $("#co-rem-l");
+    remEl.classList.toggle("zero", rem <= 0);
+    var label;
+    if (rem > 0) label = L() ? "Debt on patient" : "مديونية على المريض";
+    else if (rem < 0) label = L() ? "Change to give back" : "الباقي للمريض (فكّة)";
+    else label = L() ? "Fully paid" : "مدفوعة بالكامل";
+    remL.setAttribute("data-ar", rem > 0 ? "مديونية على المريض" : rem < 0 ? "الباقي للمريض (فكّة)" : "مدفوعة بالكامل");
+    remL.setAttribute("data-en", rem > 0 ? "Debt on patient" : rem < 0 ? "Change to give back" : "Fully paid");
+    remL.innerHTML = label;
+    $("#co-rem-v").textContent = fmt(Math.abs(rem));
+
+    var overCap = pct > CAP + 0.001 && !approved;
+    $("#co-cap").hidden = !overCap;
+    var needReason = idisc > 0 && !$("#co-dreason").value;
+    $("#co-noreason").hidden = !needReason;
+    $("#co-collect-amt").textContent = fmt(Math.min(paid, total));
+    var c = $("#co-collect");
+    c.disabled = overCap || needReason || depBad;
+    $("#co-add-dep").hidden = !!$('#co-pays [data-method="deposit"]');
+  }
+
+  function addLine(item) {
+    var tr = document.createElement("tr");
+    var name = L() ? item.en : item.ar;
+    tr.innerHTML =
+      '<td><span class="t-name" data-ar="' + item.ar + '" data-en="' + item.en + '">' + name + '</span><span class="co-src" data-ar="أضافتها سارة الآن" data-en="Added by Sara just now">' + (L() ? "Added by Sara just now" : "أضافتها سارة الآن") + "</span></td>" +
+      '<td class="num"><input class="t-input co-num" data-k="price" value="' + item.p + '" inputmode="decimal" aria-label="Price"></td>' +
+      '<td class="num"><input class="t-input co-qty" data-k="qty" value="1" inputmode="numeric" aria-label="Qty"></td>' +
+      '<td class="num"><input class="t-input co-num" data-k="disc" value="0" inputmode="decimal" aria-label="Line discount"></td>' +
+      '<td class="num"><span class="t-money" data-k="total">' + item.p + "</span></td>" +
+      '<td class="actions"><button class="t-btn sm ghost" type="button" data-remove><svg class="t-icon sm"><use href="#i-trash"/></svg><span data-ar="حذف" data-en="Remove">' + (L() ? "Remove" : "حذف") + "</span></button></td>";
+    $("#co-lines tbody").appendChild(tr);
+    recalc();
+    // default payment = full cash: top up cash line so the new service is paid unless changed
+    var cash = $('#co-pays [data-method="cash"] input'); if (cash) { cash.value = fmt(num(cash.value) + item.p * (dmode === "pct" ? (1 - num($("#co-dval").value) / 100) : 1)).replace(/,/g, ""); }
+    recalc();
+    if (window.Tamargi) Tamargi.toast(L() ? "Added: " + item.en : "اتضافت: " + item.ar);
+  }
+
+  // type-ahead
+  var search = $("#co-search"), menu = $("#co-menu"), hits = [];
+  function renderMenu() {
+    var q = search.value.trim().toLowerCase();
+    hits = CATALOG.filter(function (c) { return !q || (c.ar + " " + c.en + " " + c.t).toLowerCase().indexOf(q) > -1; }).slice(0, 7);
+    menu.innerHTML = hits.map(function (c, i) {
+      return '<li role="option" data-i="' + i + '"' + (i === 0 ? ' class="is-active"' : "") + "><span>" + (L() ? c.en : c.ar) + '</span><span class="t-faint t-money">' + c.p + "</span></li>";
+    }).join("") || '<li class="t-faint">' + (L() ? "No service matches" : "مفيش خدمة بالاسم ده") + "</li>";
+    menu.hidden = false;
+  }
+  search.addEventListener("focus", renderMenu);
+  search.addEventListener("input", renderMenu);
+  search.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && hits[0]) { e.preventDefault(); addLine(hits[0]); search.value = ""; menu.hidden = true; }
+    if (e.key === "Escape") menu.hidden = true;
+  });
+  menu.addEventListener("mousedown", function (e) {
+    var li = e.target.closest("[data-i]"); if (!li) return;
+    e.preventDefault(); addLine(hits[+li.getAttribute("data-i")]); search.value = ""; menu.hidden = true;
+  });
+  search.addEventListener("blur", function () { setTimeout(function () { menu.hidden = true; }, 120); });
+
+  document.addEventListener("input", function (e) { if (e.target.closest("#co-lines, #co-pays, #co-dval")) recalc(); });
+  document.addEventListener("change", function (e) {
+    if (e.target.id === "co-tier") {
+      var v = e.target.value; if (v) { dmode = "pct"; setMode(); $("#co-dval").value = v; $("#co-dreason").value = "tier"; approved = false; }
+      recalc();
+    }
+    if (e.target.id === "co-dreason") recalc();
+  });
+  function setMode() { $$("#co-dmode button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-mode") === dmode)); }); }
+
+  document.addEventListener("click", function (e) {
+    var b;
+    if ((b = e.target.closest("#co-dmode [data-mode]"))) { dmode = b.getAttribute("data-mode"); setMode(); recalc(); return; }
+    if ((b = e.target.closest("[data-remove]"))) { b.closest("tr").remove(); recalc(); return; }
+    if ((b = e.target.closest("[data-remove-pay]"))) { b.closest(".t-payline").remove(); recalc(); return; }
+    if ((b = e.target.closest("[data-add]"))) {
+      var k = b.getAttribute("data-add");
+      if (k === "consult") addLine(CATALOG[0]);
+      else if (window.Tamargi) Tamargi.toast(L() ? "Follow-up is already on the invoice (free)" : "المتابعة موجودة في الفاتورة (مجانية)");
+      return;
+    }
+    if ((b = e.target.closest("[data-addpay]"))) {
+      var m = b.getAttribute("data-addpay");
+      var names = { card: ["كارت (ماكينة)", "Card (POS)", "card"], instapay: ["إنستاباي", "InstaPay", "phone"], deposit: ["من الرصيد المقدم", "From deposit", "wallet"] };
+      var n = names[m];
+      var row = document.createElement("div");
+      row.className = "t-payline"; row.setAttribute("data-method", m);
+      row.innerHTML = '<span class="co-method"><svg class="t-icon sm"><use href="#i-' + n[2] + '"/></svg><span data-ar="' + n[0] + '" data-en="' + n[1] + '">' + (L() ? n[1] : n[0]) + "</span></span>" +
+        '<input class="t-input ltr" value="0" inputmode="decimal" aria-label="' + n[1] + '">' +
+        '<button class="t-btn sm ghost" type="button" data-remove-pay><svg class="t-icon sm"><use href="#i-close"/></svg><span data-ar="إزالة" data-en="Remove">' + (L() ? "Remove" : "إزالة") + "</span></button>";
+      $("#co-pays").appendChild(row);
+      var inp = $("input", row); inp.focus(); inp.select();
+      recalc(); return;
+    }
+    if (e.target.closest("#co-old-btn")) {
+      oldOn = !oldOn; var ob = $("#co-old-btn"); ob.setAttribute("aria-pressed", String(oldOn)); ob.classList.toggle("soft", oldOn);
+      var cash = $('#co-pays [data-method="cash"] input'); if (cash) cash.value = Math.max(0, num(cash.value) + (oldOn ? OLD_DEBT : -OLD_DEBT));
+      recalc(); return;
+    }
+    if (e.target.closest("#co-ov-apply")) {
+      var r = $("#co-ov-r").value; if (!r) { $("#co-ov-r").classList.add("is-invalid"); $("#co-ov-r").focus(); return; }
+      var price = r === "new" ? 300 : 150, tr = $('[data-line="followup"]');
+      $('[data-k="price"]', tr).value = price;
+      var box = $("#co-free-reason"); box.classList.add("is-override");
+      var txt = $("#co-free-text");
+      var ar = "اتحاسبت " + price + " — السبب: " + (r === "new" ? "شكوى جديدة" : "طلب الدكتور") + " (اتسجل باسم سارة)";
+      var en = "Charged " + price + " — reason: " + (r === "new" ? "new complaint" : "doctor asked") + " (logged under Sara)";
+      txt.setAttribute("data-ar", ar); txt.setAttribute("data-en", en); txt.innerHTML = L() ? en : ar;
+      var cash2 = $('#co-pays [data-method="cash"] input'); if (cash2) cash2.value = num(cash2.value) + price * (dmode === "pct" ? (1 - num($("#co-dval").value) / 100) : 1);
+      $("#co-override").hidden = true; recalc(); return;
+    }
+    if (e.target.closest("#co-pin-ok")) {
+      if (($("#co-pin-v").value || "").length < 4) { $("#co-pin-v").classList.add("is-invalid"); return; }
+      approved = true; $("#co-pin").hidden = true; recalc();
+      if (window.Tamargi) Tamargi.toast(L() ? "Discount approved by Dr. Ahmed" : "د. أحمد وافق على الخصم");
+      return;
+    }
+    if (e.target.closest("#co-collect")) { collect(); return; }
+  });
+
+  function collect() {
+    var c = $("#co-collect"); if (c.disabled) return;
+    if (window.Tamargi) { Tamargi.setState("collected"); Tamargi.toast(L() ? "Collected — invoice INV-004812 issued" : "تم التحصيل — صدرت الفاتورة INV-004812"); }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "F9") { e.preventDefault(); collect(); }
+    var typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
+    if (e.key === "/" && !typing) { e.preventDefault(); search.focus(); }
+  });
+  // re-render language-dependent computed labels after the shell toggles AR/EN
+  document.addEventListener("click", function (e) { if (e.target.closest("[data-shell-lang]")) setTimeout(recalc, 0); });
+  recalc();
+})();
+</script>
+</body>
+</html>

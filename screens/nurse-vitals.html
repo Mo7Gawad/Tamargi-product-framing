@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Nurse station & vitals — Tamargi">التمريض والعلامات الحيوية — تمرجي</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style>
+    /* nurse-vitals: tokens only */
+    .nv-list { display: flex; flex-direction: column; gap: var(--s-2); padding: var(--s-3); }
+    .nv-list .t-qcard { cursor: pointer; text-align: start; font: inherit; color: inherit; width: 100%; }
+    .nv-list .t-qcard.is-on { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); background: var(--primary-soft); }
+    .nv-grid { display: grid; gap: var(--s-4); grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+    .nv-box { border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--s-3); background: var(--surface); display: flex; flex-direction: column; gap: 6px; transition: border-color var(--dur); }
+    .nv-box.is-high, .nv-box.is-low { border-color: var(--danger-line); background: var(--danger-bg); }
+    .nv-box.is-ok { border-color: var(--inroom-line); }
+    .nv-box .t-input { font-size: var(--fs-lg); font-variant-numeric: tabular-nums; }
+    .nv-pair { display: grid; grid-template-columns: 1fr auto 1fr; gap: var(--s-1); align-items: center; }
+    .nv-flag { font-size: var(--fs-xs); font-weight: var(--fw-sb); min-height: 18px; }
+    .nv-flag.bad { color: var(--danger-fg); }
+    .nv-flag.ok { color: var(--success-fg); }
+    .nv-flag.wait { color: var(--text-3); font-weight: var(--fw-r); }
+    .nv-bmi { font-size: var(--fs-2xl); font-weight: var(--fw-sb); font-variant-numeric: tabular-nums; height: var(--ctl-h); display: flex; align-items: center; }
+    .nv-summary { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+    @media (max-width: 640px) { .nv-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  </style>
+</head>
+<body data-screen="nurse-vitals">
+<main id="screen">
+
+  <!-- Banner for the selected patient -->
+  <section class="t-banner" aria-label="المريض" data-en-aria-label="Patient">
+    <div class="t-banner-id">
+      <span class="t-avatar">س ن</span>
+      <div>
+        <div class="t-banner-name">سعاد محمد عبد الله النجار</div>
+        <div class="t-banner-facts">
+          <span><b>٥٨</b> <span data-en="yrs · F">سنة · أنثى</span></span>
+          <span><span data-en="File">ملف</span> <b class="t-ltr">0877</b></span>
+          <span class="t-ltr">0109 556 2210</span>
+          <span data-en="Ticket A-18 · Dr. Ahmed">تذكرة A-18 · د. أحمد</span>
+        </div>
+      </div>
+    </div>
+    <div class="t-banner-alerts">
+      <span class="t-allergy none" data-en="No known allergies">لا توجد حساسية معروفة</span>
+      <span class="t-flag" data-en="Type 2 diabetes · since 2019">سكر نوع ٢ · من ٢٠١٩</span>
+      <span class="t-balance" data-en="Last vitals 12 Oct">آخر قياس ١٢ أكتوبر</span>
+    </div>
+  </section>
+
+  <div class="t-container">
+    <header class="t-screen-head">
+      <div>
+        <h1 data-en="Nurse station">محطة التمريض</h1>
+        <p class="t-sub mb-0" data-en="Measure, type, send. The doctor sees your readings and flags on the next-patient card.">قيس، اكتب، ابعت. الدكتور بيشوف قياساتك والتنبيهات على كارت المريض التالي.</p>
+      </div>
+      <div class="t-actions">
+        <div class="t-seg" role="group" aria-label="الدكتور" data-en-aria-label="Doctor"
+             data-note="The nurse only sees patients of the doctors she is assigned to (2-doctor clinic: Dr. Ahmed and Dr. Nada). NITCO v16 shows every visit of the day with 9 filter fields."
+             data-note-ar="الممرضة بتشوف مرضى الدكاترة المسؤولة عنهم بس، بدل قائمة كل زيارات اليوم بفلاتر كتير.">
+          <button type="button" aria-pressed="true" data-en="Both doctors">الدكتورين</button>
+          <button type="button" aria-pressed="false" data-en="Dr. Ahmed">د. أحمد</button>
+          <button type="button" aria-pressed="false" data-en="Dr. Nada">د. ندى</button>
+        </div>
+      </div>
+    </header>
+
+    <div data-state="default">
+    <div class="t-split">
+      <!-- Waiting list -->
+      <section class="t-card flush" aria-labelledby="wlTitle">
+        <div class="t-card-head"><h2 id="wlTitle" data-en="Needs vitals">محتاج قياسات</h2><span class="t-badge">3</span></div>
+        <div class="nv-list">
+          <button class="t-qcard is-on" type="button">
+            <span class="t-ticket waiting"><b>A-18</b></span>
+            <span class="t-grow"><span class="t-qname" style="display:block">سعاد محمد النجار</span><span class="t-qmeta" data-en="Dr. Ahmed · waited 9 min">د. أحمد · مستنية ٩ د</span></span>
+            <span class="t-chip waiting" data-en="Now">دلوقتي</span>
+          </button>
+          <button class="t-qcard" type="button" data-toast="(نموذج) اختيار مريض آخر" data-toast-en="(prototype) select another patient">
+            <span class="t-ticket waiting"><b>B-07</b></span>
+            <span class="t-grow"><span class="t-qname" style="display:block">آدم كريم الدسوقي</span><span class="t-qmeta" data-en="Dr. Nada · 3 yrs · weight needed">د. ندى · ٣ سنين · محتاج وزن</span></span>
+            <span class="t-chip waiting" data-en="Waiting">منتظر</span>
+          </button>
+          <button class="t-qcard" type="button" data-toast="(نموذج) اختيار مريض آخر" data-toast-en="(prototype) select another patient">
+            <span class="t-ticket waiting"><b>A-19</b></span>
+            <span class="t-grow"><span class="t-qname" style="display:block">حسن السيد البدراوي</span><span class="t-qmeta" data-en="Dr. Ahmed · waited 6 min">د. أحمد · مستني ٦ د</span></span>
+            <span class="t-chip waiting" data-en="Waiting">منتظر</span>
+          </button>
+        </div>
+        <div class="t-card-head" style="border-block-start:1px solid var(--line)"><h3 data-en="Sent to doctor">اتبعت للدكتور</h3><span class="t-badge muted">2</span></div>
+        <div class="nv-list">
+          <div class="t-qcard">
+            <span class="t-ticket"><b>A-16</b></span>
+            <span class="t-grow"><span class="t-qname" style="display:block">منى عبد الرحمن الشناوي</span><span class="t-qmeta" data-en="BP 150/95 flagged">ضغط ١٥٠/٩٥ متعلّم</span></span>
+            <span class="t-chip info" data-en="Ready">جاهز</span>
+          </div>
+          <div class="t-qcard">
+            <span class="t-ticket"><b>B-06</b></span>
+            <span class="t-grow"><span class="t-qname" style="display:block">ليلى محمد السعيد</span><span class="t-qmeta" data-en="Temp 38.6 flagged">حرارة ٣٨٫٦ متعلّمة</span></span>
+            <span class="t-chip info" data-en="Ready">جاهز</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Vitals form -->
+      <section class="t-stack lg">
+        <form class="t-card" id="vitalsForm" autocomplete="off" onsubmit="return false">
+          <div class="t-card-head">
+            <h2 data-en="Vitals — visit of 14 Nov">العلامات الحيوية — زيارة ١٤ نوفمبر</h2>
+            <div class="t-actions">
+              <button class="t-btn sm ghost no-print" type="button" id="demoFill" title="Prototype only" data-en="Demo: fill sample readings">تجربة: املا قراءات</button>
+            </div>
+          </div>
+
+          <div class="t-alert mb-4"
+               data-note="Every field starts blank and stays blank until measured. NITCO v16 opens sliders pre-set to 'normal', so an unmeasured patient looks healthy. Here, a blank value means 'not measured', never 'normal'."
+               data-note-ar="كل خانة بتبدأ فاضية لحد ما تتقاس. في NITCO القيم بتبدأ «طبيعي» فالمريض اللي متقاسش يبان سليم.">
+            <svg class="t-icon"><use href="#i-info"/></svg>
+            <span data-en="Leave a box empty if you did not measure it. Empty means not measured, never normal.">سيب الخانة فاضية لو مقستهاش. الفاضي معناه متقاسش، مش طبيعي.</span>
+          </div>
+
+          <div class="nv-grid"
+               data-note="Out-of-range values are flagged in words next to the number (High / Low + the normal range), not by colour alone. The flag travels to the doctor's next-patient card. NITCO v15 showed BP 183/86 and temp 38.5 unflagged."
+               data-note-ar="القيمة اللي برا المعدل بتتعلّم بكلمة (عالي/واطي + المعدل الطبيعي) مش بلون بس، والتنبيه بيوصل لكارت الدكتور.">
+            <div class="nv-box" data-v="bp">
+              <label class="t-label" for="bpS"><span data-en="Blood pressure">ضغط الدم</span> <span class="opt">mmHg</span></label>
+              <div class="nv-pair">
+                <input id="bpS" class="t-input ltr" inputmode="numeric" placeholder="—" aria-label="الانقباضي" data-en-aria-label="Systolic">
+                <span class="t-faint">/</span>
+                <input id="bpD" class="t-input ltr" inputmode="numeric" placeholder="—" aria-label="الانبساطي" data-en-aria-label="Diastolic">
+              </div>
+              <span class="nv-flag wait" data-flag data-en="Last: 140/90 (12 Oct)">آخر قياس: ١٤٠/٩٠ (١٢ أكتوبر)</span>
+            </div>
+            <div class="nv-box" data-v="pulse">
+              <label class="t-label" for="pulse"><span data-en="Pulse">النبض</span> <span class="opt">/min</span></label>
+              <input id="pulse" class="t-input ltr" inputmode="numeric" placeholder="—">
+              <span class="nv-flag wait" data-flag data-en="Normal 60–100">الطبيعي ٦٠–١٠٠</span>
+            </div>
+            <div class="nv-box" data-v="temp">
+              <label class="t-label" for="temp"><span data-en="Temperature">الحرارة</span> <span class="opt">°C</span></label>
+              <input id="temp" class="t-input ltr" inputmode="decimal" placeholder="—">
+              <span class="nv-flag wait" data-flag data-en="Normal 36.1–37.5">الطبيعي ٣٦٫١–٣٧٫٥</span>
+            </div>
+            <div class="nv-box" data-v="spo2">
+              <label class="t-label" for="spo2">SpO₂ <span class="opt">%</span></label>
+              <input id="spo2" class="t-input ltr" inputmode="numeric" placeholder="—">
+              <span class="nv-flag wait" data-flag data-en="Normal 95–100">الطبيعي ٩٥–١٠٠</span>
+            </div>
+            <div class="nv-box" data-v="weight">
+              <label class="t-label" for="weight"><span data-en="Weight">الوزن</span> <span class="opt" data-en="kg">كجم</span></label>
+              <input id="weight" class="t-input ltr" inputmode="decimal" placeholder="—">
+              <span class="nv-flag wait" data-flag data-en="Last: 81 kg">آخر وزن: ٨١ كجم</span>
+            </div>
+            <div class="nv-box" data-v="height">
+              <label class="t-label" for="height"><span data-en="Height">الطول</span> <span class="opt" data-en="cm">سم</span></label>
+              <input id="height" class="t-input ltr" inputmode="numeric" placeholder="—" value="">
+              <span class="nv-flag wait" data-flag data-en="On file: 160 cm (adults: once a year)">في الملف: ١٦٠ سم (للكبار مرة في السنة)</span>
+            </div>
+            <div class="nv-box" data-v="bmi">
+              <span class="t-label" data-en="BMI (auto)">مؤشر كتلة الجسم (تلقائي)</span>
+              <output class="nv-bmi t-ltr" id="bmi">—</output>
+              <span class="nv-flag wait" data-flag data-en="Needs weight + height">محتاج وزن وطول</span>
+            </div>
+            <div class="nv-box" data-v="glucose">
+              <label class="t-label" for="glucose"><span data-en="Blood glucose">السكر</span> <span class="opt">mg/dL</span></label>
+              <input id="glucose" class="t-input ltr" inputmode="numeric" placeholder="—">
+              <div class="t-seg" role="group" aria-label="نوع قياس السكر" data-en-aria-label="Glucose type">
+                <button type="button" aria-pressed="true" data-gl="random" data-en="Random">عشوائي</button>
+                <button type="button" aria-pressed="false" data-gl="fasting" data-en="Fasting">صايم</button>
+              </div>
+              <span class="nv-flag wait" data-flag data-en="Random: under 200">العشوائي: أقل من ٢٠٠</span>
+            </div>
+          </div>
+
+          <hr>
+          <div class="t-field">
+            <label class="t-label" for="nnote"><span data-en="Nursing note">ملاحظة التمريض</span> <span class="opt" data-en="(optional)">(اختياري)</span></label>
+            <div class="t-row tight" role="group" aria-label="عبارات جاهزة" data-en-aria-label="Quick phrases"
+                 data-note="Quick phrases insert common nursing notes in one tap (NITCO v15 has one free-text line only). The note shows on the doctor's next-patient card."
+                 data-note-ar="عبارات جاهزة بضغطة واحدة بدل الكتابة الحرة بس، والملاحظة بتظهر للدكتور.">
+              <button class="t-pick" type="button" data-phrase="صايمة من الصبح" data-phrase-en="Fasting since morning" data-en="Fasting since morning">صايمة من الصبح</button>
+              <button class="t-pick" type="button" data-phrase="مخدتش الدوا النهارده" data-phrase-en="Did not take medication today" data-en="Missed meds today">مخدتش الدوا النهارده</button>
+              <button class="t-pick" type="button" data-phrase="دايخة وتعبانة" data-phrase-en="Feels dizzy and tired" data-en="Dizzy, tired">دايخة وتعبانة</button>
+              <button class="t-pick" type="button" data-phrase="معاها تحاليل جديدة" data-phrase-en="Brought new lab results" data-en="Brought new labs">معاها تحاليل جديدة</button>
+            </div>
+            <textarea id="nnote" class="t-textarea" rows="2" placeholder="اكتب أي حاجة الدكتور لازم يعرفها" data-en-placeholder="Anything the doctor should know"></textarea>
+          </div>
+
+          <div class="t-card-foot" style="margin: var(--s-5) calc(var(--pad-card) * -1) calc(var(--pad-card) * -1); border-end-start-radius: var(--r-md); border-end-end-radius: var(--r-md)">
+            <div class="nv-summary t-grow" id="summary"><span class="t-faint t-small" data-en="Nothing measured yet">لسه مفيش قياسات</span></div>
+            <button class="t-btn" type="button" data-toast="اتحفظ — لسه عند التمريض" data-toast-en="Saved — still with nurse"><span data-en="Save">حفظ</span></button>
+            <button class="t-btn primary" type="button" id="sendDoc"
+                    data-note="Send to doctor saves the vitals and moves the patient to Ready in the doctor's queue (one step). If something is out of range, the doctor's card shows it in red with the word."
+                    data-note-ar="«ابعت للدكتور» بيحفظ وبيخلي حالة المريض «جاهز» عند الدكتور في خطوة واحدة.">
+              <svg class="t-icon sm flip"><use href="#i-send"/></svg><span data-en="Send to doctor">ابعت للدكتور</span><span class="t-kbd">Ctrl ↵</span>
+            </button>
+          </div>
+        </form>
+
+        <section class="t-card sunk">
+          <div class="t-card-head"><h3 data-en="Previous readings">القياسات السابقة</h3><a class="t-end t-small" href="patient-file.html" data-en="Open patient file">فتح ملف المريض</a></div>
+          <div class="t-table-wrap">
+            <table class="t-table">
+              <thead><tr><th data-en="Date">التاريخ</th><th data-en="BP">الضغط</th><th class="num" data-en="Pulse">النبض</th><th class="num" data-en="Weight">الوزن</th><th class="num" data-en="Glucose">السكر</th><th data-en="By">بواسطة</th></tr></thead>
+              <tbody>
+                <tr><td class="t-ltr">12/10/2026</td><td><span class="t-ltr">140/90</span> <span class="t-chip danger plain" data-en="High">عالي</span></td><td class="num">84</td><td class="num">81</td><td class="num">236 <span class="t-chip danger plain" data-en="High">عالي</span></td><td data-en="Nurse Samar">سمر</td></tr>
+                <tr><td class="t-ltr">14/09/2026</td><td class="t-ltr">130/85</td><td class="num">80</td><td class="num">82</td><td class="num">188</td><td data-en="Dr. Ahmed">د. أحمد</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </div>
+    </div>
+
+    <div data-state="empty">
+      <section class="t-card">
+        <div class="t-empty">
+          <div class="t-empty-art"><svg class="t-icon"><use href="#i-heart"/></svg></div>
+          <h3 data-en="Everyone is measured">كل المرضى اتقاسوا</h3>
+          <p data-en="New patients appear here as soon as reception adds them to Dr. Ahmed's or Dr. Nada's queue.">المرضى الجداد هيظهروا هنا أول ما الاستقبال يضيفهم لدور د. أحمد أو د. ندى.</p>
+          <a class="t-btn primary" href="reception-queue.html"><span data-en="See the live queue">شوف الدور</span></a>
+        </div>
+      </section>
+    </div>
+
+  </div>
+</main>
+<script src="../assets/shell.js"></script>
+<script>
+(function () {
+  var en = function () { return window.Tamargi && Tamargi.lang() === "en"; };
+  var $ = function (id) { return document.getElementById(id); };
+  var glType = "random";
+  var R = {
+    pulse:  { lo: 60, hi: 100, min: 20, max: 250, nAr: "الطبيعي ٦٠–١٠٠", nEn: "normal 60–100" },
+    temp:   { lo: 36.1, hi: 37.5, min: 30, max: 45, nAr: "الطبيعي ٣٦٫١–٣٧٫٥", nEn: "normal 36.1–37.5" },
+    spo2:   { lo: 95, hi: 101, min: 50, max: 100, nAr: "الطبيعي ٩٥–١٠٠", nEn: "normal 95–100" }
+  };
+  /* accept Arabic-Indic digits and the Arabic decimal mark typed on an Arabic keyboard */
+  function num(id) {
+    var raw = ($(id).value || "").replace(/[٠-٩]/g, function (c) { return String(c.charCodeAt(0) - 0x0660); })
+      .replace(/[۰-۹]/g, function (c) { return String(c.charCodeAt(0) - 0x06F0); }).replace(/[٫,]/g, ".");
+    var v = parseFloat(raw); return isNaN(v) ? null : v;
+  }
+  /* remember each box's resting hint so a cleared value goes back to "not measured" instead of keeping a stale flag */
+  var DEF = {};
+  document.querySelectorAll("[data-v]").forEach(function (box) {
+    var f = box.querySelector("[data-flag]");
+    DEF[box.getAttribute("data-v")] = [f.getAttribute("data-ar") || f.innerHTML, f.getAttribute("data-en")];
+  });
+  function resetFlag(key) { setFlag(key, null, DEF[key][0], DEF[key][1]); }
+  function chip(cls, ar, enTxt) { return '<span class="t-chip ' + cls + '" data-ar="' + ar + '" data-en="' + enTxt + '">' + (en() ? enTxt : ar) + "</span>"; }
+  function setFlag(key, state, ar, enTxt) {
+    var box = document.querySelector('[data-v="' + key + '"]');
+    var f = box.querySelector("[data-flag]");
+    box.classList.remove("is-high", "is-low", "is-ok");
+    if (state) box.classList.add("is-" + state);
+    f.className = "nv-flag " + (state === "high" || state === "low" ? "bad" : state === "ok" ? "ok" : "wait");
+    f.setAttribute("data-ar", ar); f.setAttribute("data-en", enTxt);
+    f.textContent = en() ? enTxt : ar;
+  }
+  var flags = [];
+  function check() {
+    flags = [];
+    var measured = 0;
+    Object.keys(R).forEach(function (k) {
+      var v = num(k), r = R[k];
+      if (v === null) { resetFlag(k); return; }
+      measured++;
+      if (v < r.min || v > r.max) { setFlag(k, "high", "راجع الرقم — مش منطقي", "Check the number — not plausible"); flags.push(k); }
+      else if (v < r.lo) { setFlag(k, "low", "واطي — " + r.nAr, "Low — " + r.nEn); flags.push(k); }
+      else if (v > r.hi) { setFlag(k, "high", "عالي — " + r.nAr, "High — " + r.nEn); flags.push(k); }
+      else setFlag(k, "ok", "طبيعي", "Normal");
+    });
+    var s = num("bpS"), d = num("bpD");
+    if (s !== null && d !== null) {
+      measured++;
+      if (s >= 140 || d >= 90) { setFlag("bp", "high", "عالي — الطبيعي أقل من ١٤٠/٩٠", "High — normal under 140/90"); flags.push("bp"); }
+      else if (s < 90 || d < 60) { setFlag("bp", "low", "واطي — أقل من ٩٠/٦٠", "Low — under 90/60"); flags.push("bp"); }
+      else setFlag("bp", "ok", "طبيعي", "Normal");
+    } else resetFlag("bp");
+    var g = num("glucose");
+    if (g !== null) {
+      measured++;
+      var hi = glType === "fasting" ? 126 : 200;
+      if (g < 70) { setFlag("glucose", "low", "واطي — أقل من ٧٠", "Low — under 70"); flags.push("glucose"); }
+      else if (g >= hi) { setFlag("glucose", "high", "عالي — الطبيعي أقل من " + hi, "High — normal under " + hi); flags.push("glucose"); }
+      else setFlag("glucose", "ok", "طبيعي", "Normal");
+    } else resetFlag("glucose");
+    var w = num("weight"), h = num("height");
+    if (w !== null) { measured++; setFlag("weight", "ok", "اتسجل", "Recorded"); } else resetFlag("weight");
+    if (w !== null && h !== null && h > 50) {
+      var bmi = w / Math.pow(h / 100, 2);
+      $("bmi").textContent = bmi.toFixed(1);
+      if (bmi >= 30) setFlag("bmi", "high", "سمنة (٣٠ أو أكتر)", "Obese (30 or more)");
+      else if (bmi >= 25) setFlag("bmi", "high", "وزن زايد (٢٥–٢٩٫٩)", "Overweight (25–29.9)");
+      else if (bmi < 18.5) setFlag("bmi", "low", "وزن ناقص (أقل من ١٨٫٥)", "Underweight (under 18.5)");
+      else setFlag("bmi", "ok", "طبيعي", "Normal");
+    } else { $("bmi").textContent = "—"; resetFlag("bmi"); }
+    var sum = $("summary");
+    if (!measured) { sum.innerHTML = chip("plain t-faint", "لسه مفيش قياسات", "Nothing measured yet"); return measured; }
+    sum.innerHTML = chip("plain", "اتقاس " + measured, measured + " measured") +
+      (flags.length ? chip("danger", flags.length + " برا المعدل", flags.length + " out of range") : chip("paid", "كله في المعدل", "All in range"));
+    return measured;
+  }
+  document.getElementById("vitalsForm").addEventListener("input", check);
+  document.querySelectorAll("[data-gl]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      glType = b.getAttribute("data-gl");
+      document.querySelectorAll("[data-gl]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      check();
+    });
+  });
+  document.querySelectorAll("[data-phrase]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var t = $("nnote"); var p = en() ? b.getAttribute("data-phrase-en") : b.getAttribute("data-phrase");
+      t.value = t.value ? t.value.replace(/\s*$/, "، ") + p : p;
+      b.classList.add("is-on"); t.focus();
+    });
+  });
+  $("demoFill").addEventListener("click", function () {
+    $("bpS").value = 155; $("bpD").value = 92; $("pulse").value = 86; $("temp").value = "37.0"; $("spo2").value = 97;
+    $("weight").value = 80; $("height").value = 160; $("glucose").value = 248; check();
+  });
+  function send() {
+    if (!check()) { Tamargi.toast(en() ? "Nothing measured — enter at least one reading, or use Save" : "مفيش قياسات — اكتب قراءة واحدة على الأقل أو استخدم حفظ"); $("bpS").focus(); return; }
+    var msg = en() ? "Sent to Dr. Ahmed — A-18 is Ready" + (flags.length ? " (" + flags.length + " flagged)" : "") : "اتبعتت لد. أحمد — A-18 جاهزة" + (flags.length ? " (" + flags.length + " تنبيه)" : "");
+    Tamargi.toast(msg);
+  }
+  $("sendDoc").addEventListener("click", send);
+  document.addEventListener("keydown", function (e) { if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); send(); } });
+  /* re-render JS-built text after the shell's AR/EN switch */
+  document.addEventListener("click", function (e) { if (e.target.closest("[data-shell-lang]")) check(); });
+})();
+</script>
+</body>
+</html>

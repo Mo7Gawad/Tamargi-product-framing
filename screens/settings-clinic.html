@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Clinic profile & rules — Tamargi">بيانات العيادة والقواعد — تمرجي</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style>
+    /* page-specific CSS: tokens only */
+    .sc-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: var(--s-6); align-items: start; }
+    .sc-toc { position: sticky; top: calc(var(--topbar-h) + var(--s-4)); display: flex; flex-direction: column; gap: 2px; }
+    .sc-toc a { display: flex; align-items: center; gap: var(--s-2); padding: 7px var(--s-3); border-radius: var(--r-sm); color: var(--text-2); text-decoration: none; font-size: var(--fs-sm); }
+    .sc-toc a:hover { background: var(--surface-hover); color: var(--text); }
+    .sc-toc a.is-on { background: var(--primary-soft); color: var(--primary); font-weight: var(--fw-sb); }
+    .sc-sec { scroll-margin-top: calc(var(--topbar-h) + var(--s-4)); }
+    .sc-sec + .sc-sec { margin-block-start: var(--s-5); }
+    .sc-sec > .t-card-head p { margin: 2px 0 0; font-size: var(--fs-sm); color: var(--text-2); font-weight: var(--fw-r); }
+    .sc-rule { display: grid; grid-template-columns: minmax(0, 1fr) minmax(200px, 300px); gap: var(--s-3) var(--s-6); padding-block: var(--s-4); border-block-start: 1px solid var(--line); align-items: start; }
+    .t-card-head + .sc-rule { border-block-start: 0; padding-block-start: 0; }
+    .sc-rule h4 { font-size: var(--fs-md); font-weight: var(--fw-sb); margin-block-end: 2px; }
+    .sc-rule p { font-size: var(--fs-sm); color: var(--text-2); margin: 0; }
+    .sc-example { display: block; margin-block-start: var(--s-2); padding: var(--s-2) var(--s-3); border-radius: var(--r-sm); background: var(--surface-sunk); border: 1px solid var(--line); font-size: var(--fs-xs); color: var(--text-2); }
+    .sc-days { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+    .sc-savebar { position: sticky; bottom: 0; z-index: 20; display: flex; align-items: center; gap: var(--s-3); margin-block-start: var(--s-5); padding: var(--s-3) var(--s-4); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); box-shadow: var(--e-2); }
+    .sc-dirty { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-sm); color: var(--warning-fg); }
+    .sc-dirty::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+    @media (max-width: 960px) { .sc-layout { grid-template-columns: 1fr; } .sc-toc { position: static; flex-direction: row; overflow-x: auto; } .sc-toc a { white-space: nowrap; } }
+    @media (max-width: 720px) { .sc-rule { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body data-screen="settings-clinic">
+<main id="screen">
+  <div class="t-container">
+
+    <header class="t-screen-head">
+      <div>
+        <h1 data-en="Clinic profile & rules">بيانات العيادة والقواعد</h1>
+        <p class="t-sub mb-0" data-en="The clinic's details and the 10 rules that decide prices, payments and registration. Each rule says what it does.">بيانات العيادة و١٠ قواعد بتحدد الأسعار والتحصيل والتسجيل. كل قاعدة مكتوب جنبها بتعمل إيه.</p>
+      </div>
+      <div class="t-actions">
+        <a class="t-btn" href="onboarding-wizard.html#state=checklist"><svg class="t-icon sm"><use href="#i-check"/></svg><span data-en="Setup 3/5">التجهيز ٣/٥</span></a>
+        <a class="t-btn" href="reports.html"><svg class="t-icon sm"><use href="#i-clock"/></svg><span data-en="Change history">سجل التغييرات</span></a>
+      </div>
+    </header>
+
+    <div class="sc-layout">
+      <nav class="sc-toc" aria-label="Sections" data-en-aria-label="Sections">
+        <a href="#sc-profile" class="is-on"><svg class="t-icon sm"><use href="#i-home"/></svg><span data-en="Clinic profile">بيانات العيادة</span></a>
+        <a href="#sc-days"><svg class="t-icon sm"><use href="#i-calendar"/></svg><span data-en="Working days">أيام العمل</span></a>
+        <a href="#sc-visits"><svg class="t-icon sm"><use href="#i-clock"/></svg><span data-en="Visits & follow-up">الكشف والاستشارة</span></a>
+        <a href="#sc-money"><svg class="t-icon sm"><use href="#i-cash"/></svg><span data-en="Payments">التحصيل</span></a>
+        <a href="#sc-reg"><svg class="t-icon sm"><use href="#i-user"/></svg><span data-en="Patient registration">تسجيل المرضى</span></a>
+        <a href="#sc-print"><svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Printing">الطباعة</span></a>
+        <a href="#sc-branch"><svg class="t-icon sm"><use href="#i-building"/></svg><span data-en="Organization & branches">المؤسسة والفروع</span></a>
+      </nav>
+
+      <form id="sc-form" onsubmit="return false" novalidate>
+
+        <!-- Profile -->
+        <section class="t-card sc-sec" id="sc-profile" aria-labelledby="sc-profile-h">
+          <div class="t-card-head"><div><h2 id="sc-profile-h" data-en="Clinic profile">بيانات العيادة</h2><p data-en="Shown on the letterhead, receipts and your public page.">بتظهر على الروشتة والإيصال وصفحة العيادة.</p></div></div>
+          <div class="t-form-grid">
+            <div class="t-field">
+              <label class="t-label" for="sc-name"><span data-en="Clinic name (Arabic)">اسم العيادة</span><span class="req">*</span></label>
+              <input id="sc-name" class="t-input" value="عيادة د. أحمد سليم">
+            </div>
+            <div class="t-field">
+              <label class="t-label" for="sc-name-en"><span data-en="Clinic name (English)">اسم العيادة بالإنجليزي</span> <span class="opt" data-en="(optional)">(اختياري)</span></label>
+              <input id="sc-name-en" class="t-input ltr" value="Dr. Ahmed Selim Clinic">
+            </div>
+            <div class="t-field">
+              <label class="t-label" for="sc-spec" data-en="Main specialty">التخصص الأساسي</label>
+              <select id="sc-spec" class="t-select"><option data-en="Internal medicine" selected>باطنة</option><option data-en="Paediatrics">أطفال</option><option data-en="OB/GYN">نسا وتوليد</option><option data-en="Dermatology">جلدية</option></select>
+            </div>
+            <div class="t-field">
+              <label class="t-label" for="sc-city" data-en="City / area">المدينة / المنطقة</label>
+              <select id="sc-city" class="t-select"><option data-en="Mansoura" selected>المنصورة</option><option data-en="Talkha">طلخا</option><option data-en="Mit Ghamr">ميت غمر</option></select>
+            </div>
+            <div class="t-field span-2">
+              <label class="t-label" for="sc-addr"><span data-en="Address">العنوان</span><span class="req">*</span></label>
+              <input id="sc-addr" class="t-input" value="١٢ شارع الجمهورية، برج النور، الدور الثالث — أمام صيدلية الشفاء">
+              <span class="t-hint" data-en="Write it the way patients give directions. A landmark helps more than a street number.">اكتبه زي ما المرضى بيوصفوا. علامة مميزة أنفع من رقم الشارع.</span>
+            </div>
+            <div class="t-field">
+              <label class="t-label" for="sc-ph1"><span data-en="Clinic mobile">موبايل العيادة</span><span class="req">*</span></label>
+              <input id="sc-ph1" class="t-input ltr" inputmode="tel" value="01001234567" aria-describedby="sc-ph1-msg">
+              <span id="sc-ph1-msg" class="t-hint" data-en="Shown on Rx and the public page.">بيظهر على الروشتة وصفحة العيادة.</span>
+            </div>
+            <div class="t-field">
+              <label class="t-label" for="sc-ph2"><span data-en="Landline">تليفون أرضي</span> <span class="opt" data-en="(optional)">(اختياري)</span></label>
+              <input id="sc-ph2" class="t-input ltr" inputmode="tel" value="0502245566">
+            </div>
+          </div>
+        </section>
+
+        <!-- Working days -->
+        <section class="t-card sc-sec" id="sc-days" aria-labelledby="sc-days-h">
+          <div class="t-card-head"><div><h2 id="sc-days-h" data-en="Working days">أيام العمل</h2><p data-en="The clinic's open days. Each doctor's hours, split shifts, Ramadan hours and leaves live in Doctor hours.">الأيام اللي العيادة فاتحة فيها. مواعيد كل دكتور والفترتين ورمضان والإجازات في شاشة مواعيد الطبيب.</p></div>
+            <div class="t-actions"><a class="t-btn sm" href="doctor-schedule.html"><span data-en="Doctor hours & leaves">مواعيد الأطباء والإجازات</span><svg class="t-icon sm flip"><use href="#i-chevron"/></svg></a></div>
+          </div>
+          <div class="sc-days" role="group" aria-label="Open days" data-en-aria-label="Open days">
+            <button type="button" class="t-pick is-on" aria-pressed="true" data-en="Saturday">السبت</button>
+            <button type="button" class="t-pick is-on" aria-pressed="true" data-en="Sunday">الأحد</button>
+            <button type="button" class="t-pick is-on" aria-pressed="true" data-en="Monday">الاتنين</button>
+            <button type="button" class="t-pick is-on" aria-pressed="true" data-en="Tuesday">التلات</button>
+            <button type="button" class="t-pick is-on" aria-pressed="true" data-en="Wednesday">الأربع</button>
+            <button type="button" class="t-pick is-on" aria-pressed="true" data-en="Thursday">الخميس</button>
+            <button type="button" class="t-pick" aria-pressed="false" data-en="Friday">الجمعة</button>
+          </div>
+          <p class="t-hint mt-2 mb-0" data-en="Current hours from schedules: Dr. Ahmed 5:00–11:00 pm · Dr. Noha Sat/Mon/Wed 10:00 am–2:00 pm.">المواعيد الحالية من الجداول: د. أحمد ٥ م–١١ م · د. نهى السبت/الاتنين/الأربع ١٠ ص–٢ م.</p>
+        </section>
+
+        <!-- Visits & follow-up -->
+        <section class="t-card sc-sec" id="sc-visits" aria-labelledby="sc-visits-h"
+                 data-note="Free follow-up window, borrowed from NITCO's 'visit days' (v13, 62, 106): a follow-up inside the window blocks a new consult charge. Egyptian clinics already give a free استشارة within 7–14 days but enforce it by memory. Here it is one number with a live example, and services can override it."
+                 data-note-ar="مدة الاستشارة المجانية (مأخوذة من 'أيام الزيارة' في NITCO): الاستشارة جوه المدة مبتتحسبش كشف جديد. العيادات المصرية بتديها أصلًا بس بالذاكرة. هنا رقم واحد ومعاه مثال مباشر، وكل خدمة ممكن يبقى لها مدة مختلفة.">
+          <div class="t-card-head"><div><h2 id="sc-visits-h" data-en="Visits & free follow-up">الكشف والاستشارة المجانية</h2><p data-en="Applied automatically at check-in and at the cashier. Reception can override with a reason (logged).">بتتطبق لوحدها عند الدخول وفي الخزنة. الاستقبال يقدر يغيّر بسبب مكتوب (بيتسجل).</p></div></div>
+
+          <div class="sc-rule">
+            <div>
+              <h4 data-en="1. Free follow-up window">١. مدة الاستشارة المجانية</h4>
+              <p data-en="How many days after a paid consult the patient can come back free.">كام يوم بعد الكشف المدفوع المريض يرجع ببلاش.</p>
+              <span class="sc-example" id="sc-ex-fu">مثال: كشف يوم ٤ نوفمبر ← استشارة مجانية لحد ١٨ نوفمبر.</span>
+            </div>
+            <div class="t-field">
+              <label class="t-label t-sr" for="sc-fu-days" data-en="Days">أيام</label>
+              <div class="t-input-affix"><input id="sc-fu-days" class="t-input ltr" type="number" min="0" max="60" value="14"><span class="t-affix" data-en="days">يوم</span></div>
+              <span class="t-hint" data-en="0 = no free follow-up. Per-service override in Services.">0 = مفيش استشارة مجانية. ممكن تختلف لكل خدمة في الخدمات.</span>
+            </div>
+          </div>
+
+          <div class="sc-rule">
+            <div>
+              <h4 data-en="2. Free follow-ups per consult">٢. عدد الاستشارات المجانية لكل كشف</h4>
+              <p data-en="After this many free follow-ups, the next one inside the window is charged.">بعد العدد ده، الاستشارة اللي بعدها جوه المدة بتتحسب.</p>
+            </div>
+            <div class="t-seg" role="group" aria-label="Free follow-ups" data-en-aria-label="Free follow-ups">
+              <button type="button" aria-pressed="true">1</button>
+              <button type="button" aria-pressed="false">2</button>
+              <button type="button" aria-pressed="false">3</button>
+              <button type="button" aria-pressed="false" data-en="No limit">بدون حد</button>
+            </div>
+          </div>
+
+          <div class="sc-rule">
+            <div>
+              <h4 data-en="3. After the window or free visits are used">٣. بعد ما المدة أو المرات تخلص</h4>
+              <p data-en="What the cashier charges a returning patient.">الخزنة تحاسب المريض الراجع بإيه.</p>
+            </div>
+            <div class="t-field">
+              <select class="t-select" id="sc-after" aria-label="After window" data-en-aria-label="After window">
+                <option data-en="Follow-up fee (150 EGP)" selected>سعر الاستشارة (١٥٠ ج.م)</option>
+                <option data-en="Full consult fee (300 EGP)">سعر الكشف كامل (٣٠٠ ج.م)</option>
+              </select>
+              <span class="t-hint" data-en="Prices come from each doctor's default services.">الأسعار من الخدمات الافتراضية لكل دكتور.</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Payments -->
+        <section class="t-card sc-sec" id="sc-money" aria-labelledby="sc-money-h">
+          <div class="t-card-head"><div><h2 id="sc-money-h" data-en="Payments">التحصيل</h2><p data-en="When money is collected and what needs a reason.">إمتى الفلوس بتتحصّل وإيه اللي محتاج سبب.</p></div></div>
+
+          <div class="sc-rule" data-note="Collect before or after the visit is a clinic choice, not a hard gate. NITCO blocks the doctor from opening an unpaid visit (v24–29); Tamargi only warns, so a patient in pain is never stuck at the cashier."
+               data-note-ar="التحصيل قبل أو بعد الكشف اختيار العيادة، مش قفل. NITCO بيمنع الدكتور يفتح زيارة مش مدفوعة؛ تمرجي بينبّه بس، عشان المريض التعبان ميتعطلش عند الخزنة.">
+            <div>
+              <h4 data-en="4. When to collect">٤. التحصيل إمتى</h4>
+              <p data-en="Before: the queue shows 'unpaid' until the cashier collects. After: the patient pays on the way out.">قبل: الدور يكتب 'لسه مدفعش' لحد ما الخزنة تحصّل. بعد: المريض يدفع وهو خارج.</p>
+            </div>
+            <div class="t-stack">
+              <label class="t-check"><input type="radio" name="sc-when" checked> <span data-en="Consult before, added services after (recommended)">الكشف قبل، والخدمات الإضافية بعد (مقترح)</span></label>
+              <label class="t-check"><input type="radio" name="sc-when"> <span data-en="Everything before the visit">كله قبل الكشف</span></label>
+              <label class="t-check"><input type="radio" name="sc-when"> <span data-en="Everything after the visit">كله بعد الكشف</span></label>
+            </div>
+          </div>
+
+          <div class="sc-rule">
+            <div>
+              <h4 data-en="5. Doctor opens an unpaid visit">٥. الدكتور يفتح زيارة مش مدفوعة</h4>
+              <p data-en="Always allowed. The doctor sees a yellow 'not paid yet' tag; reception sees it in the queue.">مسموح دايمًا. الدكتور يشوف علامة صفرا 'لسه مدفعش'، والاستقبال يشوفها في الدور.</p>
+            </div>
+            <span class="t-chip info" data-en="Warning only, never blocks">تنبيه بس، مش بيمنع</span>
+          </div>
+
+          <div class="sc-rule">
+            <div>
+              <h4 data-en="6. Discounts need a reason">٦. الخصم لازم له سبب</h4>
+              <p data-en="Every discount is saved with a reason and who gave it. Each user's cap is set in Users & roles.">كل خصم بيتحفظ بسببه ومين اداه. حد كل مستخدم في المستخدمين والصلاحيات.</p>
+            </div>
+            <label class="t-switch"><input type="checkbox" checked> <span data-en="On">شغّال</span></label>
+          </div>
+
+          <div class="sc-rule">
+            <div>
+              <h4 data-en="7. Unpaid remainder becomes patient debt">٧. الباقي يتسجل دين على المريض</h4>
+              <p data-en="When a patient pays part, the rest is saved on their account and shown in the banner next visit (NITCO v89).">لو المريض دفع جزء، الباقي يتسجل على حسابه ويظهر في شريط المريض الزيارة الجاية.</p>
+            </div>
+            <div class="t-field">
+              <label class="t-switch"><input type="checkbox" checked> <span data-en="Allow, up to">مسموح، لحد</span></label>
+              <div class="t-input-affix"><input class="t-input ltr" type="number" value="500" aria-label="Max debt" data-en-aria-label="Max debt"><span class="t-affix" data-en="EGP per patient">ج.م للمريض</span></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Registration -->
+        <section class="t-card sc-sec" id="sc-reg" aria-labelledby="sc-reg-h"
+                 data-note="Registration rules use NITCO's validations (v106: digit count, prefix, required ID/phone) with Egyptian values: 11-digit mobile starting 010/011/012/015, 14-digit national ID that fills date of birth and sex. Only 4 fields are required, so quick register stays under 30 seconds."
+                 data-note-ar="قواعد التسجيل من تحققات NITCO (عدد الأرقام، أول الرقم، إلزام الهوية/الموبايل) بقيم مصرية: موبايل ١١ رقم يبدأ 010/011/012/015، رقم قومي ١٤ رقم بيملا تاريخ الميلاد والنوع. ٤ خانات بس إجباري عشان التسجيل السريع يفضل أقل من ٣٠ ثانية.">
+          <div class="t-card-head"><div><h2 id="sc-reg-h" data-en="Patient registration">تسجيل المرضى</h2><p data-en="What reception must fill in, and how numbers are checked.">الاستقبال لازم يملا إيه، وإزاي الأرقام بتتراجع.</p></div>
+            <div class="t-actions"><a class="t-btn sm" href="patient-quick-register.html"><svg class="t-icon sm"><use href="#i-eye"/></svg><span data-en="Preview form">معاينة الفورم</span></a></div>
+          </div>
+
+          <div class="sc-rule">
+            <div>
+              <h4 data-en="8. Mobile number">٨. رقم الموبايل</h4>
+              <p data-en="Required. 11 digits, starts with 010, 011, 012 or 015. Same number on two files shows a duplicate warning (not a block: families share phones).">إجباري. ١١ رقم يبدأ بـ 010 أو 011 أو 012 أو 015. نفس الرقم على ملفين بيطلع تنبيه تكرار (مش منع: العيلة ممكن تشترك في رقم).</p>
+            </div>
+            <div class="t-field">
+              <label class="t-label" for="sc-test-mob" data-en="Try a number">جرّب رقم</label>
+              <input id="sc-test-mob" class="t-input ltr" inputmode="tel" value="0109876543" aria-describedby="sc-test-mob-msg">
+              <span id="sc-test-mob-msg" class="t-error" data-en="10 digits — needs 11.">١٠ أرقام — لازم ١١.</span>
+            </div>
+          </div>
+
+          <div class="sc-rule">
+            <div>
+              <h4 data-en="9. National ID">٩. الرقم القومي</h4>
+              <p data-en="14 digits. When typed, date of birth and sex fill themselves. Not required for walk-ins.">١٤ رقم. أول ما يتكتب، تاريخ الميلاد والنوع بيتملوا لوحدهم. مش إجباري للكشف العادي.</p>
+            </div>
+            <div class="t-seg" role="group" aria-label="National ID" data-en-aria-label="National ID">
+              <button type="button" aria-pressed="true" data-en="Optional">اختياري</button>
+              <button type="button" aria-pressed="false" data-en="Required">إجباري</button>
+            </div>
+          </div>
+
+          <div class="sc-rule">
+            <div>
+              <h4 data-en="10. Required fields">١٠. الخانات الإجبارية</h4>
+              <p data-en="Everything else sits under 'More details' on the register form.">أي حاجة تانية تحت 'تفاصيل أكتر' في فورم التسجيل.</p>
+            </div>
+            <div class="t-stack" style="gap:var(--s-2)">
+              <label class="t-check"><input type="checkbox" checked disabled> <span data-en="Full name (always)">الاسم بالكامل (دايمًا)</span></label>
+              <label class="t-check"><input type="checkbox" checked disabled> <span data-en="Mobile (always)">الموبايل (دايمًا)</span></label>
+              <label class="t-check"><input type="checkbox" checked> <span data-en="Age or date of birth">السن أو تاريخ الميلاد</span></label>
+              <label class="t-check"><input type="checkbox" checked> <span data-en="Sex">النوع</span></label>
+              <label class="t-check"><input type="checkbox" checked> <span data-en="Guardian mobile for under 16">موبايل ولي الأمر لأقل من ١٦ سنة</span></label>
+              <label class="t-check"><input type="checkbox"> <span data-en="Area of residence">منطقة السكن</span></label>
+              <label class="t-check"><input type="checkbox"> <span data-en="How they heard about us">عرفنا منين</span></label>
+            </div>
+          </div>
+        </section>
+
+        <!-- Printing -->
+        <section class="t-card sc-sec" id="sc-print" aria-labelledby="sc-print-h">
+          <div class="t-card-head"><div><h2 id="sc-print-h" data-en="Printing">الطباعة</h2><p data-en="Defaults for the browser print. The header itself is designed in Letterhead.">الإعدادات الافتراضية للطباعة من المتصفح. شكل الترويسة في شاشة الترويسة.</p></div>
+            <div class="t-actions"><a class="t-btn sm" href="settings-letterhead.html"><span data-en="Letterhead">الترويسة</span><svg class="t-icon sm flip"><use href="#i-chevron"/></svg></a></div>
+          </div>
+          <div class="t-form-grid">
+            <div class="t-field">
+              <span class="t-label" data-en="Prescription paper">ورق الروشتة</span>
+              <div class="t-seg" role="group"><button type="button" aria-pressed="true">A5</button><button type="button" aria-pressed="false">A4</button></div>
+            </div>
+            <div class="t-field">
+              <span class="t-label" data-en="Receipt paper">ورق الإيصال</span>
+              <div class="t-seg" role="group"><button type="button" aria-pressed="true">A5</button><button type="button" aria-pressed="false" data-en="80 mm thermal">حراري 80 مم</button><button type="button" aria-pressed="false" data-en="No receipt">من غير إيصال</button></div>
+              <span class="t-hint" data-en="Paid status never depends on printing: Collect marks it paid.">الدفع مش مربوط بالطباعة: زرار 'تحصيل' هو اللي بيسجل الدفع.</span>
+            </div>
+            <div class="t-field span-2">
+              <label class="t-switch"><input type="checkbox" checked> <span data-en="Print the receipt automatically after Collect">اطبع الإيصال لوحده بعد التحصيل</span></label>
+            </div>
+          </div>
+        </section>
+
+        <!-- Organization & branches (tenancy: Organization -> Branch -> Room) -->
+        <section class="t-card sunk sc-sec" id="sc-branch" aria-labelledby="sc-branch-h" data-tier="2"
+                 data-note="This clinic is 1 organization with 1 branch and 1 room, so branch and room settings stay hidden. Every visit, invoice, cash shift and stock movement already carries a branch, so moving to the polyclinic plan is a switch, not a migration. Branches, rooms and doctors per branch live in their own screens, not in this form. NITCO asks for branches on every user and service even with one branch (v60, 65)."
+                 data-note-ar="العيادة دي مؤسسة واحدة بفرع واحد وغرفة واحدة، فإعدادات الفروع والغرف مخفية. كل زيارة وفاتورة ووردية وحركة مخزون عليها الفرع من الأول، فالنقل لباقة المجمعات تفعيل مش نقل بيانات. الفروع والغرف والأطباء لكل فرع ليهم شاشاتهم، مش في الفورم ده. NITCO بيسأل عن الفرع في كل مستخدم وخدمة حتى لو فرع واحد.">
+          <div class="t-row between">
+            <div>
+              <h2 id="sc-branch-h" style="font-size:var(--fs-md)"><span data-en="Organization & branches">المؤسسة والفروع</span> <span class="t-tier">Tier 2</span></h2>
+              <p class="t-small t-muted mb-0" data-en="One branch: Mansoura — main. The details above are this branch's address and phone; the legal name and tax ID belong to the organization.">فرع واحد: المنصورة — الرئيسي. البيانات اللي فوق هي عنوان وتليفون الفرع ده؛ الاسم القانوني والبطاقة الضريبية بتوع المؤسسة.</p>
+            </div>
+            <div class="t-row tight">
+              <a class="t-btn sm" href="org-branches.html"><svg class="t-icon sm"><use href="#i-building"/></svg><span data-en="Organization & branches">المؤسسة والفروع</span></a>
+              <a class="t-btn sm" href="rooms.html"><svg class="t-icon sm"><use href="#i-door"/></svg><span data-en="Rooms">الغرف</span></a>
+              <a class="t-btn sm ghost" href="subscription-plan.html" data-en="Compare plans">قارن الباقات</a>
+            </div>
+          </div>
+        </section>
+
+        <div class="sc-savebar no-print">
+          <span class="sc-dirty" id="sc-dirty" hidden data-en="Unsaved changes">فيه تغييرات متحفظتش</span>
+          <span class="t-small t-muted" id="sc-saved" data-en="All changes saved · last edit by Dr. Ahmed, 12 Nov">كله متحفظ · آخر تعديل د. أحمد، ١٢ نوفمبر</span>
+          <div class="t-end t-row tight">
+            <button class="t-btn ghost" type="button" id="sc-undo" data-en="Discard">تجاهل</button>
+            <button class="t-btn primary" type="button" id="sc-save" data-note="One explicit save for money rules, with a change log entry (who, when, old → new). NITCO's 12 tabs of 40–60 unlabelled checkboxes and one global Save (v62/106) become 10 sentences."
+                    data-note-ar="حفظ صريح لقواعد الفلوس، وكل تغيير بيتسجل (مين، إمتى، من كام لكام). ١٢ تبويب في NITCO فيهم ٤٠–٦٠ مربع من غير شرح بقوا ١٠ جمل."><span data-en="Save changes">احفظ التغييرات</span><span class="t-kbd">Ctrl S</span></button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</main>
+<script src="../assets/shell.js"></script>
+<script>
+(function () {
+  var L = function () { return window.Tamargi && Tamargi.lang() === "en"; };
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  function setT(el, ar, en) { el.setAttribute("data-ar", ar); el.setAttribute("data-en", en); el.innerHTML = L() ? en : ar; }
+
+  /* dirty tracking + save */
+  function dirty(on) { $("#sc-dirty").hidden = !on; $("#sc-saved").hidden = on; }
+  $("#sc-form").addEventListener("input", function () { dirty(true); });
+  $("#sc-form").addEventListener("change", function () { dirty(true); });
+  function save() {
+    dirty(false);
+    setT($("#sc-saved"), "كله متحفظ · دلوقتي بواسطة د. أحمد", "All changes saved · just now by Dr. Ahmed");
+    Tamargi.toast(L() ? "Changes saved and logged" : "اتحفظت التغييرات واتسجلت");
+  }
+  $("#sc-save").addEventListener("click", save);
+  $("#sc-undo").addEventListener("click", function () { $("#sc-form").reset(); dirty(false); Tamargi.toast(L() ? "Changes discarded" : "اتلغت التغييرات"); });
+  document.addEventListener("keydown", function (e) { if ((e.ctrlKey || e.metaKey) && (e.key === "s" || e.key === "S")) { e.preventDefault(); save(); } });
+
+  /* segmented + day picks */
+  $$(".t-seg").forEach(function (g) {
+    g.addEventListener("click", function (e) {
+      var b = e.target.closest("button"); if (!b) return;
+      $$("button", g).forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); dirty(true);
+    });
+  });
+  $$(".sc-days .t-pick").forEach(function (b) {
+    b.addEventListener("click", function () { var on = !b.classList.contains("is-on"); b.classList.toggle("is-on", on); b.setAttribute("aria-pressed", String(on)); dirty(true); });
+  });
+
+  /* live follow-up example */
+  var mAr = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+  var mEn = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  function fu() {
+    var n = parseInt($("#sc-fu-days").value, 10) || 0, ex = $("#sc-ex-fu");
+    if (n <= 0) { setT(ex, "مثال: مفيش استشارة مجانية — أي زيارة بعد الكشف بتتحسب.", "Example: no free follow-up — every return visit is charged."); return; }
+    var d = new Date(2026, 10, 4); d.setDate(d.getDate() + n);
+    setT(ex, "مثال: كشف يوم ٤ نوفمبر ← استشارة مجانية لحد " + d.getDate() + " " + mAr[d.getMonth()] + ".",
+             "Example: consult on 4 Nov → free follow-up until " + d.getDate() + " " + mEn[d.getMonth()] + ".");
+  }
+  $("#sc-fu-days").addEventListener("input", fu); fu();
+
+  /* mobile validation demo */
+  function checkMob() {
+    var v = $("#sc-test-mob").value.replace(/\s/g, ""), m = $("#sc-test-mob-msg"), inp = $("#sc-test-mob");
+    var ok = /^01[0125]\d{8}$/.test(v);
+    inp.classList.toggle("is-invalid", !ok);
+    m.className = ok ? "t-hint" : "t-error";
+    if (ok) setT(m, "رقم صحيح.", "Valid number.");
+    else if (!/^01[0125]/.test(v)) setT(m, "لازم يبدأ بـ 010 أو 011 أو 012 أو 015.", "Must start with 010, 011, 012 or 015.");
+    else setT(m, v.length + " أرقام — لازم ١١.", v.length + " digits — needs 11.");
+  }
+  $("#sc-test-mob").addEventListener("input", checkMob); checkMob();
+
+  /* section nav highlight */
+  var links = $$(".sc-toc a");
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (en) { if (en.isIntersecting) links.forEach(function (a) { a.classList.toggle("is-on", a.getAttribute("href") === "#" + en.target.id); }); });
+    }, { rootMargin: "-30% 0px -60% 0px" });
+    $$(".sc-sec").forEach(function (s) { io.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,626 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Live queue — Tamargi">الدور المباشر — تمرجي</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style>
+    /* reception-queue: page-specific, tokens only */
+    /* local fix: .t-kbd is direction:ltr, which flips its logical inset inside RTL search boxes */
+    .t-search-xl > .t-kbd { direction: inherit; unicode-bidi: isolate; }
+    .t-search-xl .t-input { padding-inline-end: 84px; }
+    .t-ticket b { white-space: nowrap; }
+    .t-split > * { min-width: 0; }   /* keeps the scrolling bookings strip from widening the 1-column layout */
+    .rq-omni { position: relative; flex: 1; min-width: 260px; }
+    .rq-omni .t-menu { position: absolute; inset-inline: 0; top: calc(100% + 4px); z-index: 20; max-height: 360px; overflow: auto; }
+    .rq-omni .t-menu li { align-items: center; }
+    .rq-omni .t-menu li .rq-sugg-name { font-weight: var(--fw-m); color: var(--text); }
+    .rq-omni .t-menu li.is-active .rq-sugg-name { color: var(--primary); }
+    .rq-omni .t-menu li small { display: block; color: var(--text-3); font-size: var(--fs-xs); }
+    .rq-omni mark { background: var(--waiting-bg); color: inherit; border-radius: 2px; }
+    .rq-top { display: flex; gap: var(--s-3); align-items: center; flex-wrap: wrap; margin-block-end: var(--s-4); }
+    .rq-stats { display: flex; gap: var(--s-2); flex-wrap: wrap; }
+    .rq-stat { display: flex; align-items: baseline; gap: 6px; padding: 6px 12px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface); font-size: var(--fs-sm); color: var(--text-2); white-space: nowrap; }
+    .rq-stat b { font-size: var(--fs-lg); color: var(--text); font-variant-numeric: tabular-nums; }
+    .rq-stat.warn { border-color: var(--danger-line); background: var(--danger-bg); color: var(--danger-fg); }
+    .rq-stat.warn b { color: var(--danger-fg); }
+    .rq-book-strip { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(230px, 1fr); gap: var(--s-2); overflow-x: auto; padding: var(--s-3) var(--s-4) var(--s-4); }
+    .rq-book { display: flex; flex-direction: column; gap: 6px; padding: var(--s-3); border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface); }
+    .rq-book:hover { border-color: var(--primary-line); }
+    .rq-book .rq-time { font-family: var(--font-en); font-weight: var(--fw-sb); font-variant-numeric: tabular-nums; direction: ltr; }
+    .rq-book .rq-meta { font-size: var(--fs-xs); color: var(--text-3); }
+    .t-lane-head .t-actions { margin-inline-start: auto; display: flex; gap: var(--s-2); }
+    .t-lane-head .rq-doc small { display: block; font-size: var(--fs-xs); color: var(--text-3); font-weight: var(--fw-r); }
+    .t-qcard { position: relative; }
+    .t-qcard .rq-line { display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; margin-block-start: 4px; }
+    .t-qcard.is-owed { border-color: var(--danger-line); }
+    .rq-actions { display: flex; align-items: center; gap: 4px; }
+    .rq-more { position: relative; }
+    .rq-more .t-menu { position: absolute; inset-inline-end: 0; top: calc(100% + 4px); z-index: 25; }
+    .rq-done { border-block-start: 1px dashed var(--line); margin: var(--s-1) var(--s-2) var(--s-2); padding-block-start: var(--s-2); }
+    .rq-done > summary { cursor: pointer; font-size: var(--fs-sm); color: var(--text-2); list-style: none; padding: 4px var(--s-2); }
+    .rq-done > summary::-webkit-details-marker { display: none; }
+    .rq-done[open] > summary { margin-block-end: var(--s-2); }
+    .rq-done .t-qcard { opacity: .85; }
+    .rq-owe { display: grid; grid-template-columns: 1fr auto; gap: 2px var(--s-3); align-items: center; padding-block: var(--s-2); border-block-end: 1px solid var(--line); }
+    .rq-owe:last-child { border-block-end: 0; }
+    .rq-owe small { display: block; font-size: var(--fs-xs); color: var(--text-3); }
+    .rq-drawer-patient { display: flex; gap: var(--s-3); align-items: flex-start; padding: var(--s-3); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface-sunk); }
+    .rq-fee { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) var(--s-4); border-radius: var(--r-md); border: 1px solid var(--line); }
+    .rq-why { font-size: var(--fs-xs); color: var(--text-2); }
+    @media (max-width: 560px) {
+      .t-qcard { grid-template-columns: auto 1fr; }
+      .t-qcard .rq-actions { grid-column: 1 / -1; justify-content: flex-end; }
+      .rq-omni { min-width: 100%; }
+    }
+  </style>
+</head>
+<body data-screen="reception-queue">
+<main id="screen">
+  <div class="t-container">
+
+    <header class="t-screen-head">
+      <div>
+        <h1 data-en="Live queue">الدور المباشر</h1>
+        <p class="t-sub mb-0" data-en="Saturday 14 Nov · evening shift, 5 to 10 PM · 2 doctors working">السبت 14 نوفمبر · وردية المساء من 5 لـ 10 بالليل · 2 دكاترة شغالين</p>
+      </div>
+      <div class="t-actions">
+        <a class="t-btn" href="appointments-calendar.html"><svg class="t-icon sm"><use href="#i-calendar"/></svg><span data-en="Today's appointments">مواعيد النهارده</span></a>
+        <a class="t-btn" href="cash-close.html"><svg class="t-icon sm"><use href="#i-lock"/></svg><span data-en="Close shift">تقفيل الخزنة</span></a>
+        <button class="t-btn primary" type="button" id="rq-add-btn">
+          <svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="Add to queue">إضافة للدور</span><span class="t-kbd">F2</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Omnibox + live counters -->
+    <div class="rq-top">
+      <div class="rq-omni"
+           data-note="Omnibox: Ctrl K, type a name, phone, NID or file no. (Arabic-normalised), Enter → the add-to-queue drawer opens with doctor, visit type and fee already filled → Enter. Walk-in to queued in 3 keystrokes. Replaces NITCO's 14-field search modal + separate invoice screen (v8, v90, v94)."
+           data-note-ar="بحث موحد: Ctrl K ثم اكتب الاسم أو الموبايل أو الرقم القومي ثم Enter، فيفتح درج الإضافة بالطبيب ونوع الزيارة والسعر جاهزين ثم Enter. بدل نافذة البحث ذات ١٤ خانة في NITCO.">
+        <div class="t-search-xl">
+          <svg class="t-icon"><use href="#i-search"/></svg>
+          <input class="t-input" id="rq-omni" type="search" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="rq-sugg"
+                 placeholder="ابحث عن مريض لإضافته للدور: الاسم أو الموبايل أو رقم الملف"
+                 data-en-placeholder="Find a patient to queue: name, mobile or file no.">
+          <span class="t-kbd">Ctrl K</span>
+        </div>
+        <ul class="t-menu" id="rq-sugg" role="listbox" hidden></ul>
+      </div>
+      <div class="rq-stats" aria-label="Today" data-en-aria-label="Today">
+        <span class="rq-stat"><b id="rq-c-wait">4</b><span data-en="waiting">منتظر</span></span>
+        <span class="rq-stat"><b>2</b><span data-en="in room">في الكشف</span></span>
+        <span class="rq-stat"><b>11</b><span data-en="done">انتهى</span></span>
+        <span class="rq-stat warn"><b>3</b><span data-en="to collect · 700 EGP">محتاجين تحصيل · 700 ج.م</span></span>
+      </div>
+    </div>
+
+    <!-- ===== STATE: live day ===== -->
+    <div data-state="live">
+      <div class="t-split aside-end">
+        <div class="t-stack lg">
+
+          <!-- Today's bookings strip -->
+          <section class="t-card flush" aria-labelledby="rq-book-h">
+            <div class="t-card-head">
+              <h2 id="rq-book-h" data-en="Coming up today">مواعيد جاية النهارده</h2>
+              <span class="t-badge muted">4</span>
+              <div class="t-actions"><a class="t-btn sm ghost" href="appointments-calendar.html"><span data-en="Open calendar">فتح الجدول</span><svg class="t-icon sm flip"><use href="#i-chevron"/></svg></a></div>
+            </div>
+            <div class="rq-book-strip"
+                 data-note="Check in a booking with one click: the appointment becomes 'arrived', joins the doctor's lane with a ticket, and its visit + bill are created and linked. NITCO links appointment↔invoice too (v6, v90) but blocks the save with a 'link or cancel' dialog; we link automatically."
+                 data-note-ar="تسجيل حضور الحجز بضغطة: الموعد يبقى «حضر» ويدخل دور الطبيب برقم، والزيارة والفاتورة تتعمل مربوطة بالموعد تلقائيًا بدل سؤال «اربط ولا الغي» في NITCO.">
+              <div class="rq-book" data-book="1">
+                <div class="t-row tight between"><span class="rq-time">7:50 PM</span><span class="t-chip confirmed" data-en="Confirmed">مؤكد</span></div>
+                <div><b>رحاب سعيد عطية الحلواني</b><span class="rq-meta" style="display:block"><span data-en="Dr. Ahmed · new consult · 300 EGP">د. أحمد · كشف جديد · 300 ج.م</span></span></div>
+                <button class="t-btn sm soft" type="button" data-checkin="A" data-name="رحاب سعيد عطية الحلواني" data-type="new"><svg class="t-icon sm"><use href="#i-check"/></svg><span data-en="Check in">تسجيل حضور</span></button>
+              </div>
+              <div class="rq-book" data-book="2">
+                <div class="t-row tight between"><span class="rq-time">8:00 PM</span><span class="t-chip booked" data-en="Booked">محجوز</span></div>
+                <div><b>ملك إسلام زكي البنا</b><span class="rq-meta" style="display:block"><span data-en="Dr. Heba · 3 yrs · new consult · 250 EGP">د. هبة · 3 سنين · كشف جديد · 250 ج.م</span></span></div>
+                <button class="t-btn sm soft" type="button" data-checkin="B" data-name="ملك إسلام زكي البنا" data-type="new"><svg class="t-icon sm"><use href="#i-check"/></svg><span data-en="Check in">تسجيل حضور</span></button>
+              </div>
+              <div class="rq-book" data-book="3">
+                <div class="t-row tight between"><span class="rq-time">8:10 PM</span><span class="t-chip confirmed" data-en="Confirmed">مؤكد</span></div>
+                <div><b>عبد الله فتحي القط</b><span class="rq-meta" style="display:block"><span data-en="Dr. Ahmed · free follow-up · owes 150">د. أحمد · متابعة مجانية · عليه 150</span></span></div>
+                <button class="t-btn sm soft" type="button" data-checkin="A" data-name="عبد الله فتحي القط" data-type="fu"><svg class="t-icon sm"><use href="#i-check"/></svg><span data-en="Check in">تسجيل حضور</span></button>
+              </div>
+              <div class="rq-book" data-book="4">
+                <div class="t-row tight between"><span class="rq-time">8:30 PM</span><span class="t-chip booked" data-en="Booked">محجوز</span></div>
+                <div><b>نادية مصطفى الجمل</b><span class="rq-meta" style="display:block"><span data-en="Dr. Ahmed · new consult · from web chat">د. أحمد · كشف جديد · من الشات</span></span></div>
+                <button class="t-btn sm soft" type="button" data-checkin="A" data-name="نادية مصطفى الجمل" data-type="new"><svg class="t-icon sm"><use href="#i-check"/></svg><span data-en="Check in">تسجيل حضور</span></button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Lanes per doctor -->
+          <div class="t-lanes" id="rq-lanes">
+
+            <!-- Lane A: Dr. Ahmed -->
+            <section class="t-lane" data-lane="A" aria-labelledby="lane-a-h">
+              <div class="t-lane-head">
+                <span class="t-avatar sm" data-en="AS">أس</span>
+                <h3 id="lane-a-h" class="rq-doc"><span data-en="Dr. Ahmed Selim">د. أحمد سليم</span><small data-en="Internal medicine · room 1">باطنة · غرفة 1</small></h3>
+                <div class="t-actions">
+                  <button class="t-btn sm" type="button" data-callnext="A"><svg class="t-icon sm"><use href="#i-call"/></svg><span data-en="Call next">نادِ على التالي</span></button>
+                </div>
+              </div>
+              <div class="t-lane-body" data-lane-body="A">
+
+                <article class="t-qcard is-owed" data-q="A-14"
+                         data-note="Charge capture: the doctor added an ECG during the visit, so the done card stays on top with a red 'Balance due' badge until reception collects. NITCO makes the doctor 'send a cash invoice' back to reception (v24, v34, v91); here it is automatic."
+                         data-note-ar="تحصيل تلقائي لما الطبيب يضيف خدمة: الكارت المنتهي يفضل فوق بعلامة «مطلوب تحصيل» لحد ما الاستقبال يحصّل، بدل «إرسال فاتورة كاش» يدوي في NITCO.">
+                  <span class="t-ticket done"><b>A-14</b></span>
+                  <div>
+                    <div class="t-qname">كريم محمود عبد العزيز</div>
+                    <div class="rq-line">
+                      <span class="t-chip done" data-en="Done">انتهى</span>
+                      <span class="t-chip debt plain" data-en="Balance due 150 · ECG added">مطلوب 150 · رسم قلب</span>
+                    </div>
+                  </div>
+                  <div class="rq-actions">
+                    <a class="t-btn sm primary" href="cashier-checkout.html"><svg class="t-icon sm"><use href="#i-cash"/></svg><span data-en="Collect 150">تحصيل 150</span></a>
+                    <div class="rq-more">
+                      <button class="t-btn sm icon ghost" type="button" data-more aria-label="More actions" title="More actions" data-en-aria-label="More actions" data-en-title="More actions"><svg class="t-icon sm"><use href="#i-more"/></svg></button>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="t-qcard" data-q="A-15">
+                  <span class="t-ticket inroom"><b>A-15</b></span>
+                  <div>
+                    <div class="t-qname">سامية فؤاد البدراوي</div>
+                    <div class="rq-line">
+                      <span class="t-chip inroom" data-en="In room · 12 min">في الكشف · 12 د</span>
+                      <span class="t-chip paid plain" data-en="Paid 300">مدفوع 300</span>
+                    </div>
+                  </div>
+                  <div class="rq-actions">
+                    <a class="t-btn sm ghost" href="patient-file.html"><span data-en="Open file">فتح الملف</span></a>
+                    <div class="rq-more"><button class="t-btn sm icon ghost" type="button" data-more aria-label="More actions" title="More actions" data-en-aria-label="More actions" data-en-title="More actions"><svg class="t-icon sm"><use href="#i-more"/></svg></button></div>
+                  </div>
+                </article>
+
+                <article class="t-qcard" data-q="A-16"
+                         data-note="Every state is a word + colour + dot: waiting (saffron), called (ink, pulsing), in room (green), done (slate), left (brick). NITCO uses row colour with a 9–10 dot legend and no text (v6, v30, v90)."
+                         data-note-ar="كل حالة كلمة + لون + نقطة: منتظر، نودي عليه، في الكشف، انتهى، مشي. NITCO بيعتمد على لون الصف مع دليل ألوان من غير كلام.">
+                  <span class="t-ticket called"><b>A-16</b></span>
+                  <div>
+                    <div class="t-qname">منى عبد الرحمن الشناوي</div>
+                    <div class="rq-line">
+                      <span class="t-chip called" data-en="Called · 1 min">نودي عليها · 1 د</span>
+                      <span class="t-chip free" data-en="Free follow-up">متابعة مجانية</span>
+                    </div>
+                  </div>
+                  <div class="rq-actions">
+                    <button class="t-btn sm" type="button" data-toast="تم النداء تاني على A-16" data-toast-en="Called A-16 again"><span data-en="Call again">نادِ تاني</span></button>
+                    <div class="rq-more"><button class="t-btn sm icon ghost" type="button" data-more aria-label="More actions" title="More actions" data-en-aria-label="More actions" data-en-title="More actions"><svg class="t-icon sm"><use href="#i-more"/></svg></button></div>
+                  </div>
+                </article>
+
+                <article class="t-qcard is-next" data-q="A-17">
+                  <span class="t-ticket waiting"><b>A-17</b></span>
+                  <div>
+                    <div class="t-qname">يوسف إبراهيم حسن الصاوي</div>
+                    <div class="rq-line">
+                      <span class="t-chip waiting" data-en="Waiting · 8 min">منتظر · 8 د</span>
+                      <span class="t-chip plain" data-en="Booked 7:30 · consult 300 · paid">حجز 7:30 · كشف 300 · مدفوع</span>
+                    </div>
+                  </div>
+                  <div class="rq-actions">
+                    <button class="t-btn sm soft" type="button" data-call><svg class="t-icon sm"><use href="#i-call"/></svg><span data-en="Call">نادِ</span></button>
+                    <div class="rq-more"><button class="t-btn sm icon ghost" type="button" data-more aria-label="More actions" title="More actions" data-en-aria-label="More actions" data-en-title="More actions"><svg class="t-icon sm"><use href="#i-more"/></svg></button></div>
+                  </div>
+                </article>
+
+                <article class="t-qcard" data-q="A-18"
+                         data-note="One next-step button per row (Check in → Collect → Call), everything else in the '…' menu with labels. NITCO shows 9–11 unlabelled round icons on every row, even empty slots (v6–8, v90). Collecting before or after the visit is a clinic setting, never a hard block on the doctor (NITCO v30)."
+                         data-note-ar="زرار واحد للخطوة الجاية في كل صف (تسجيل حضور ← تحصيل ← نداء) والباقي في قائمة «…» بأسماء واضحة، بدل ٩–١١ أيقونة من غير اسم في NITCO. التحصيل قبل أو بعد الكشف إعداد للعيادة، مش قفل على الطبيب.">
+                  <span class="t-ticket waiting"><b>A-18</b></span>
+                  <div>
+                    <div class="t-qname">حمدي السيد المتولي</div>
+                    <div class="rq-line">
+                      <span class="t-chip waiting" data-en="Waiting · 3 min">منتظر · 3 د</span>
+                      <span class="t-chip unpaid plain" data-en="Walk-in · consult 300 · unpaid">بدون حجز · كشف 300 · لم يدفع</span>
+                    </div>
+                  </div>
+                  <div class="rq-actions">
+                    <a class="t-btn sm" href="cashier-checkout.html"><svg class="t-icon sm"><use href="#i-cash"/></svg><span data-en="Collect 300">تحصيل 300</span></a>
+                    <div class="rq-more"><button class="t-btn sm icon ghost" type="button" data-more aria-label="More actions" title="More actions" data-en-aria-label="More actions" data-en-title="More actions"><svg class="t-icon sm"><use href="#i-more"/></svg></button></div>
+                  </div>
+                </article>
+              </div>
+              <details class="rq-done">
+                <summary><span data-en="Show done (6) and left (0)">عرض المنتهي (6) واللي مشي (0)</span></summary>
+                <div class="t-lane-body">
+                  <article class="t-qcard"><span class="t-ticket done"><b>A-13</b></span><div><div class="t-qname">أسماء عبد العاطي المرسي</div><div class="rq-line"><span class="t-chip done" data-en="Done 7:05">انتهى 7:05</span><span class="t-chip paid plain" data-en="Paid 300">مدفوع 300</span></div></div><a class="t-btn sm ghost" href="patient-file.html"><span data-en="Open file">فتح الملف</span></a></article>
+                  <article class="t-qcard"><span class="t-ticket done"><b>A-12</b></span><div><div class="t-qname">إبراهيم مصطفى الشاذلي</div><div class="rq-line"><span class="t-chip done" data-en="Done 6:40">انتهى 6:40</span><span class="t-chip free" data-en="Free follow-up">متابعة مجانية</span></div></div><a class="t-btn sm ghost" href="patient-file.html"><span data-en="Open file">فتح الملف</span></a></article>
+                </div>
+              </details>
+            </section>
+
+            <!-- Lane B: Dr. Heba -->
+            <section class="t-lane" data-lane="B" aria-labelledby="lane-b-h">
+              <div class="t-lane-head">
+                <span class="t-avatar sm" data-en="HS">هش</span>
+                <h3 id="lane-b-h" class="rq-doc"><span data-en="Dr. Heba El-Shennawy">د. هبة الشناوي</span><small data-en="Paediatrics · room 2">أطفال · غرفة 2</small></h3>
+                <div class="t-actions">
+                  <button class="t-btn sm" type="button" data-callnext="B"><svg class="t-icon sm"><use href="#i-call"/></svg><span data-en="Call next">نادِ على التالي</span></button>
+                </div>
+              </div>
+              <div class="t-lane-body" data-lane-body="B">
+                <article class="t-qcard" data-q="B-07">
+                  <span class="t-ticket inroom"><b>B-07</b></span>
+                  <div>
+                    <div class="t-qname">آدم محمد الدسوقي <span class="t-faint t-small" data-en="· 7 yrs">· 7 سنين</span></div>
+                    <div class="rq-line"><span class="t-chip inroom" data-en="In room · 6 min">في الكشف · 6 د</span><span class="t-chip paid plain" data-en="Paid 250">مدفوع 250</span></div>
+                  </div>
+                  <div class="rq-actions">
+                    <a class="t-btn sm ghost" href="patient-file.html"><span data-en="Open file">فتح الملف</span></a>
+                    <div class="rq-more"><button class="t-btn sm icon ghost" type="button" data-more aria-label="More actions" title="More actions" data-en-aria-label="More actions" data-en-title="More actions"><svg class="t-icon sm"><use href="#i-more"/></svg></button></div>
+                  </div>
+                </article>
+
+                <article class="t-qcard is-next" data-q="B-08">
+                  <span class="t-ticket waiting"><b>B-08</b></span>
+                  <div>
+                    <div class="t-qname">جنى وليد عبد الحميد <span class="t-faint t-small" data-en="· 2 yrs">· سنتين</span></div>
+                    <div class="rq-line">
+                      <span class="t-chip waiting" data-en="Waiting · 14 min">منتظرة · 14 د</span>
+                      <span class="t-chip free"
+                            data-note="Visit type and fee are set for you. Last visit with Dr. Heba was 6 days ago and her free follow-up window is 10 days → 'Free follow-up', 0 EGP. Outside the window → 'New consult' at the doctor's default fee (250). Same rules as NITCO's per-doctor default consult/follow-up services and 'visit days' (v1, v89, v97, v13/v62), with the reason shown in plain words."
+                            data-note-ar="نوع الزيارة والسعر بيتحددوا لوحدهم: آخر كشف مع د. هبة من ٦ أيام والمتابعة المجانية ١٠ أيام ← «متابعة مجانية» صفر. بره المدة ← «كشف جديد» بسعر الطبيب الافتراضي. نفس قواعد NITCO (خدمة الكشف/المتابعة لكل طبيب وأيام المتابعة) مع سبب مكتوب."
+                            data-en="Free follow-up · until 18 Nov">متابعة مجانية · حتى 18 نوفمبر</span>
+                    </div>
+                  </div>
+                  <div class="rq-actions">
+                    <button class="t-btn sm soft" type="button" data-call><svg class="t-icon sm"><use href="#i-call"/></svg><span data-en="Call">نادِ</span></button>
+                    <div class="rq-more"><button class="t-btn sm icon ghost" type="button" data-more aria-label="More actions" title="More actions" data-en-aria-label="More actions" data-en-title="More actions"><svg class="t-icon sm"><use href="#i-more"/></svg></button></div>
+                  </div>
+                </article>
+
+                <article class="t-qcard" data-q="B-09">
+                  <span class="t-ticket waiting"><b>B-09</b></span>
+                  <div>
+                    <div class="t-qname">عمر هشام الغنام <span class="t-faint t-small" data-en="· 11 months">· 11 شهر</span></div>
+                    <div class="rq-line"><span class="t-chip waiting" data-en="Waiting · 5 min">منتظر · 5 د</span><span class="t-chip unpaid plain" data-en="Consult 250 · unpaid">كشف 250 · لم يدفع</span></div>
+                  </div>
+                  <div class="rq-actions">
+                    <a class="t-btn sm" href="cashier-checkout.html"><svg class="t-icon sm"><use href="#i-cash"/></svg><span data-en="Collect 250">تحصيل 250</span></a>
+                    <div class="rq-more"><button class="t-btn sm icon ghost" type="button" data-more aria-label="More actions" title="More actions" data-en-aria-label="More actions" data-en-title="More actions"><svg class="t-icon sm"><use href="#i-more"/></svg></button></div>
+                  </div>
+                </article>
+
+                <article class="t-qcard" data-q="B-05">
+                  <span class="t-ticket"><b>B-05</b></span>
+                  <div>
+                    <div class="t-qname">مالك أشرف عبد السلام <span class="t-faint t-small" data-en="· 4 yrs">· 4 سنين</span></div>
+                    <div class="rq-line"><span class="t-chip left" data-en="Left before visit · 7:12">مشي قبل الكشف · 7:12</span></div>
+                  </div>
+                  <div class="rq-actions">
+                    <button class="t-btn sm ghost" type="button" data-toast="رجع للدور كآخر واحد" data-toast-en="Back in the queue, last in line"><span data-en="Back to queue">رجّعه للدور</span></button>
+                  </div>
+                </article>
+              </div>
+              <details class="rq-done">
+                <summary><span data-en="Show done (5)">عرض المنتهي (5)</span></summary>
+                <div class="t-lane-body">
+                  <article class="t-qcard"><span class="t-ticket done"><b>B-06</b></span><div><div class="t-qname">سلمى طارق النجار</div><div class="rq-line"><span class="t-chip done" data-en="Done 7:20">انتهى 7:20</span><span class="t-chip paid plain" data-en="Paid 250">مدفوع 250</span></div></div><a class="t-btn sm ghost" href="patient-file.html"><span data-en="Open file">فتح الملف</span></a></article>
+                </div>
+              </details>
+            </section>
+          </div>
+        </div>
+
+        <!-- Aside: who owes money, cash today, chat -->
+        <aside class="t-stack">
+          <section class="t-card" aria-labelledby="rq-owe-h">
+            <div class="t-card-head"><h2 id="rq-owe-h" data-en="Waiting to pay">محتاجين تحصيل</h2><span class="t-badge">3</span></div>
+            <div>
+              <div class="rq-owe">
+                <div><b>كريم محمود عبد العزيز</b><small><span data-en="A-14 · ECG added by Dr. Ahmed">A-14 · رسم قلب من د. أحمد</span></small></div>
+                <a class="t-btn sm" href="cashier-checkout.html"><span class="t-money debt">150<span class="cur" data-en="EGP">ج.م</span></span></a>
+              </div>
+              <div class="rq-owe">
+                <div><b>حمدي السيد المتولي</b><small><span data-en="A-18 · consult">A-18 · كشف</span></small></div>
+                <a class="t-btn sm" href="cashier-checkout.html"><span class="t-money debt">300<span class="cur" data-en="EGP">ج.م</span></span></a>
+              </div>
+              <div class="rq-owe">
+                <div><b>عمر هشام الغنام</b><small><span data-en="B-09 · consult">B-09 · كشف</span></small></div>
+                <a class="t-btn sm" href="cashier-checkout.html"><span class="t-money debt">250<span class="cur" data-en="EGP">ج.م</span></span></a>
+              </div>
+            </div>
+            <p class="t-hint mt-2 mb-0" data-en="Old debts show on the patient's pill when they are queued, not here.">المديونيات القديمة بتظهر على المريض لما يدخل الدور، مش هنا.</p>
+          </section>
+
+          <section class="t-card" aria-labelledby="rq-cash-h">
+            <div class="t-card-head"><h2 id="rq-cash-h" data-en="Cash drawer today">الخزنة النهارده</h2><span class="t-chip inroom" data-en="Shift open">الوردية مفتوحة</span></div>
+            <dl class="t-totals">
+              <dt data-en="Cash">نقدي</dt><dd><span class="t-money">2,850<span class="cur" data-en="EGP">ج.م</span></span></dd>
+              <dt data-en="InstaPay / wallet">إنستاباي / محفظة</dt><dd><span class="t-money">600<span class="cur" data-en="EGP">ج.م</span></span></dd>
+              <dt data-en="Discounts given (2)">خصومات (2)</dt><dd><span class="t-money">-150<span class="cur" data-en="EGP">ج.م</span></span></dd>
+              <dt class="grand" data-en="Collected">المحصّل</dt><dd class="grand"><span class="t-money">3,450<span class="cur" data-en="EGP">ج.م</span></span></dd>
+            </dl>
+            <a class="t-btn sm block mt-4" href="cash-close.html"><svg class="t-icon sm"><use href="#i-lock"/></svg><span data-en="Close shift">تقفيل الوردية</span></a>
+          </section>
+
+          <a class="t-card t-row tight" href="chat-inbox.html" style="text-decoration:none;color:inherit">
+            <svg class="t-icon"><use href="#i-chat"/></svg>
+            <span class="t-grow"><b data-en="Patient messages">رسائل المرضى</b><br><span class="t-small t-muted" data-en="3 new from the clinic page">3 جديدة من صفحة العيادة</span></span>
+            <span class="t-badge">3</span>
+          </a>
+        </aside>
+      </div>
+    </div>
+
+    <!-- ===== STATE: empty start of day ===== -->
+    <div data-state="empty">
+      <div class="t-split aside-end">
+        <section class="t-card">
+          <div class="t-empty" data-note="Start of day: no mood illustration, just the two things reception does first. Bookings are shown so the first check-in is one click away."
+               data-note-ar="بداية اليوم: من غير رسومات، بس أول حاجتين الاستقبال بيعملهم. الحجوزات ظاهرة عشان أول تسجيل حضور يبقى بضغطة.">
+            <div class="t-empty-art"><svg class="t-icon"><use href="#i-queue"/></svg></div>
+            <h3 data-en="No one in the queue yet">مفيش حد في الدور لسه</h3>
+            <p data-en="Add the first patient who walks in, or check in a booked appointment. Dr. Ahmed starts at 5:00 PM, Dr. Heba at 6:00 PM.">ضيف أول مريض يوصل، أو سجّل حضور موعد محجوز. د. أحمد بيبدأ 5:00 م ود. هبة 6:00 م.</p>
+            <div class="t-row tight">
+              <button class="t-btn primary" type="button" data-focus-omni><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="Add walk-in">إضافة مريض</span><span class="t-kbd">F2</span></button>
+              <a class="t-btn" href="appointments-calendar.html"><svg class="t-icon sm"><use href="#i-calendar"/></svg><span data-en="Today's appointments (9)">مواعيد النهارده (9)</span></a>
+            </div>
+          </div>
+        </section>
+        <aside class="t-stack">
+          <section class="t-card">
+            <div class="t-card-head"><h2 data-en="First bookings">أول الحجوزات</h2></div>
+            <div class="rq-owe"><div><b>هبة محمود سرور</b><small><span data-en="5:00 PM · Dr. Ahmed · confirmed">5:00 م · د. أحمد · مؤكد</span></small></div><span class="t-chip confirmed" data-en="Confirmed">مؤكد</span></div>
+            <div class="rq-owe"><div><b>محمد عبد الله العشري</b><small><span data-en="5:20 PM · Dr. Ahmed">5:20 م · د. أحمد</span></small></div><span class="t-chip booked" data-en="Booked">محجوز</span></div>
+            <div class="rq-owe"><div><b>ريم أحمد عبد الفتاح</b><small><span data-en="6:00 PM · Dr. Heba · follow-up">6:00 م · د. هبة · متابعة</span></small></div><span class="t-chip booked" data-en="Booked">محجوز</span></div>
+          </section>
+          <section class="t-card sunk">
+            <div class="t-row tight"><svg class="t-icon"><use href="#i-cash"/></svg><b data-en="Shift opened at 4:45 PM">الوردية اتفتحت 4:45 م</b></div>
+            <p class="t-small t-muted mt-2 mb-0" data-en="Opening float: 500 EGP (counted by Sara).">رصيد أول المدة: 500 ج.م (عدّته سارة).</p>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overflow menu (one, moved next to the clicked "…") -->
+  <ul class="t-menu" id="rq-more-menu" role="menu" hidden>
+    <li role="menuitem" data-href="patient-file.html"><svg class="t-icon sm"><use href="#i-file"/></svg><span data-en="Open patient file">فتح ملف المريض</span></li>
+    <li role="menuitem" data-href="cashier-checkout.html"><svg class="t-icon sm"><use href="#i-cash"/></svg><span data-en="Collect / view bill">تحصيل / عرض الفاتورة</span><span class="t-kbd">F9</span></li>
+    <li role="menuitem" data-toast="اتنقل لد. هبة — نفس الرقم" data-toast-en="Moved to Dr. Heba — same ticket"><svg class="t-icon sm"><use href="#i-users"/></svg><span data-en="Move to another doctor">نقل لطبيب تاني</span></li>
+    <li role="menuitem" data-toast="اتنقل لآخر الدور" data-toast-en="Moved to the end of the line"><svg class="t-icon sm"><use href="#i-queue"/></svg><span data-en="Move to end of line">نقل لآخر الدور</span></li>
+    <li role="menuitem" data-href="receipt-print.html"><svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Print receipt">طباعة الإيصال</span></li>
+    <li class="t-menu-sep" role="separator"></li>
+    <li role="menuitem" data-mark-left><svg class="t-icon sm"><use href="#i-door"/></svg><span data-en="Mark as left">مشي قبل الكشف</span></li>
+  </ul>
+
+  <!-- Add-to-queue drawer -->
+  <div class="t-drawer" id="rq-drawer" role="dialog" aria-modal="true" aria-labelledby="rq-drawer-h" hidden>
+    <div class="t-modal-head">
+      <h2 id="rq-drawer-h" data-en="Add to queue">إضافة للدور</h2>
+      <button class="t-btn icon ghost" type="button" data-close aria-label="Close" title="Close (Esc)" data-en-aria-label="Close"><svg class="t-icon"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="t-modal-body t-stack lg">
+      <div class="rq-drawer-patient">
+        <span class="t-avatar" id="rq-d-av">م ع</span>
+        <div class="t-grow">
+          <div class="t-banner-name" id="rq-d-name">منى عبد الرحمن الشناوي</div>
+          <div class="t-banner-facts" id="rq-d-facts"></div>
+          <div class="t-row tight mt-2" id="rq-d-pills"></div>
+        </div>
+        <a class="t-btn sm ghost" href="patient-file.html"><span data-en="File">الملف</span></a>
+      </div>
+
+      <div class="t-field">
+        <span class="t-label" data-en="Doctor">الطبيب</span>
+        <div class="t-seg" role="group" id="rq-d-doc">
+          <button type="button" aria-pressed="true" data-doc="A"><span data-en="Dr. Ahmed · Internal med.">د. أحمد · باطنة</span></button>
+          <button type="button" aria-pressed="false" data-doc="B"><span data-en="Dr. Heba · Paediatrics">د. هبة · أطفال</span></button>
+        </div>
+      </div>
+
+      <div class="t-field">
+        <span class="t-label" data-en="Visit type (set automatically)">نوع الزيارة (بيتحدد لوحده)</span>
+        <div class="rq-fee">
+          <div>
+            <div id="rq-d-type"></div>
+            <div class="rq-why mt-2" id="rq-d-why"></div>
+          </div>
+          <div class="t-money lg" id="rq-d-fee"></div>
+        </div>
+        <details class="t-more">
+          <summary data-en="Change visit type or fee (reason is logged)">تغيير نوع الزيارة أو السعر (السبب بيتسجل)</summary>
+          <div class="t-form-grid mt-2">
+            <div class="t-field"><label class="t-label" for="rq-d-ovr" data-en="Visit type">نوع الزيارة</label>
+              <select class="t-select" id="rq-d-ovr"><option data-en="New consult">كشف جديد</option><option data-en="Paid follow-up">متابعة مدفوعة</option><option data-en="Free follow-up">متابعة مجانية</option><option data-en="Procedure only">إجراء بس</option></select></div>
+            <div class="t-field"><label class="t-label" for="rq-d-rsn"><span data-en="Reason">السبب</span><span class="req">*</span></label>
+              <input class="t-input" id="rq-d-rsn" placeholder="مثلاً: شكوى جديدة" data-en-placeholder="e.g. new complaint"></div>
+          </div>
+        </details>
+      </div>
+
+      <label class="t-switch"><input type="checkbox" id="rq-d-collect"><span data-en="Collect now (opens the cashier after adding)">تحصيل دلوقتي (يفتح الخزنة بعد الإضافة)</span></label>
+
+      <div class="t-alert info"><svg class="t-icon"><use href="#i-info"/></svg><span id="rq-d-ticket"></span></div>
+    </div>
+    <div class="t-modal-foot">
+      <a class="t-btn ghost" href="patient-quick-register.html"><span data-en="Not this patient? Register new">مش ده؟ سجّل مريض جديد</span></a>
+      <button class="t-btn primary" type="button" id="rq-d-save"><span data-en="Add to queue">إضافة للدور</span><span class="t-kbd">Enter</span></button>
+    </div>
+  </div>
+</main>
+<script src="../assets/shell.js"></script>
+<script>
+(function () {
+  "use strict";
+  var T = window.Tamargi;
+  function en() { return T && T.lang() === "en"; }
+  function tx(ar, e) { return '<span data-ar="' + ar.replace(/"/g, "&quot;") + '" data-en="' + e.replace(/"/g, "&quot;") + '">' + (en() ? e : ar) + "</span>"; }
+  function setTx(el, ar, e) { el.setAttribute("data-ar", ar); el.setAttribute("data-en", e); el.innerHTML = en() ? e : ar; }
+
+  /* ---- Fake patients (no real people) ---- */
+  var DOCS = {
+    A: { ar: "د. أحمد", en: "Dr. Ahmed", fee: 300, win: 14, svcAr: "كشف باطنة", svcEn: "Internal medicine consult" },
+    B: { ar: "د. هبة", en: "Dr. Heba", fee: 250, win: 10, svcAr: "كشف أطفال", svcEn: "Paediatric consult" }
+  };
+  var P = [
+    { n: "منى عبد الرحمن السيد الشناوي", i: "م ع", age: "34", sexAr: "أنثى", sexEn: "F", file: "1043", mob: "01002345678", last: { d: "A", days: 9 }, debt: 40 },
+    { n: "محمد عبد الله إبراهيم العشري", i: "م ع", age: "52", sexAr: "ذكر", sexEn: "M", file: "0871", mob: "01227781190", last: { d: "A", days: 40 }, dep: 200 },
+    { n: "محمد عبدالله فوزي الجندي", i: "م ف", age: "29", sexAr: "ذكر", sexEn: "M", file: "1310", mob: "01114402233", last: { d: "A", days: 3 } },
+    { n: "ريم أحمد عبد الفتاح زكي", i: "ر أ", age: "5", sexAr: "أنثى", sexEn: "F", file: "2214", mob: "01093320145", last: { d: "B", days: 6 }, child: true },
+    { n: "هبة محمود عبد الله سرور", i: "ه م", age: "41", sexAr: "أنثى", sexEn: "F", file: "0655", mob: "01550093317", last: { d: "A", days: 62 } },
+    { n: "عبد الله فتحي القط", i: "ع ف", age: "63", sexAr: "ذكر", sexEn: "M", file: "0412", mob: "01006617742", last: { d: "A", days: 11 }, debt: 150 },
+    { n: "أسماء عبد العاطي المرسي", i: "أ ع", age: "27", sexAr: "أنثى", sexEn: "F", file: "1502", mob: "01282230456" }
+  ];
+  function norm(s) {
+    return String(s).replace(/[أإآٱ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").replace(/ؤ/g, "و").replace(/ئ/g, "ي")
+      .replace(/[٠-٩]/g, function (d) { return String(d.charCodeAt(0) - 1632); }).replace(/\s+/g, "");
+  }
+  function fmtMob(m) { return m.slice(0, 4) + " " + m.slice(4, 7) + " " + m.slice(7); }
+
+  /* ---- Omnibox ---- */
+  var omni = document.getElementById("rq-omni"), sugg = document.getElementById("rq-sugg"), active = 0, results = [];
+  function render() {
+    var q = norm(omni.value);
+    results = !q ? P.slice(0, 4) : P.filter(function (p) { return norm(p.n).indexOf(q) > -1 || p.mob.indexOf(q) > -1 || p.file.indexOf(q) > -1; });
+    var h = '<li class="t-faint" style="cursor:default;font-size:12px">' + (q ? tx("نتايج البحث", "Matches") : tx("آخر المرضى", "Recent patients")) + "</li>";
+    results.forEach(function (p, i) {
+      var pill = p.debt ? '<span class="t-chip debt plain">' + tx("عليه " + p.debt, "Owes " + p.debt) + "</span>" :
+        p.dep ? '<span class="t-chip paid plain">' + tx("رصيد " + p.dep, "Deposit " + p.dep) + "</span>" : "";
+      h += '<li role="option" data-i="' + i + '"' + (i === active ? ' class="is-active"' : "") + '><span class="t-avatar sm">' + p.i + '</span><span class="t-grow"><span class="rq-sugg-name">' + p.n +
+        '</span><small><span class="t-ltr">' + fmtMob(p.mob) + "</span> · " + tx("ملف", "File") + ' <span class="t-ltr">' + p.file + "</span> · " + p.age + " " + tx("سنة", "yrs") + "</small></span>" + pill + "</li>";
+    });
+    h += '<li class="t-menu-sep"></li><li data-new><svg class="t-icon sm"><use href="#i-plus"/></svg><span>' + (en() ? "Register new patient" : "تسجيل مريض جديد") + (omni.value ? " «" + omni.value + "»" : "") + '</span><span class="t-kbd">F4</span></li>';
+    sugg.innerHTML = h; sugg.hidden = false; omni.setAttribute("aria-expanded", "true");
+  }
+  function closeSugg() { sugg.hidden = true; omni.setAttribute("aria-expanded", "false"); }
+  omni.addEventListener("focus", function () { active = 0; render(); });
+  omni.addEventListener("input", function () { active = 0; render(); });
+  omni.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowDown") { active = Math.min(active + 1, results.length - 1); render(); e.preventDefault(); }
+    else if (e.key === "ArrowUp") { active = Math.max(active - 1, 0); render(); e.preventDefault(); }
+    else if (e.key === "Enter") { if (results[active]) { openDrawer(results[active]); } e.preventDefault(); }
+    else if (e.key === "Escape") { closeSugg(); }
+  });
+  sugg.addEventListener("mousedown", function (e) {
+    var li = e.target.closest("li"); if (!li) return; e.preventDefault();
+    if (li.hasAttribute("data-new")) { location.href = "patient-quick-register.html" + (omni.value ? "?q=" + encodeURIComponent(omni.value) : ""); return; }
+    if (li.hasAttribute("data-i")) openDrawer(results[+li.getAttribute("data-i")]);
+  });
+  omni.addEventListener("blur", function () { setTimeout(closeSugg, 120); });
+
+  /* ---- Drawer ---- */
+  var drawer = document.getElementById("rq-drawer"), cur = null, doc = "A", nextNo = { A: 19, B: 10 };
+  function visitFor(p, d) {
+    var D = DOCS[d];
+    if (p.last && p.last.d === d && p.last.days <= D.win) return { fu: true, fee: 0, left: D.win - p.last.days, days: p.last.days };
+    return { fu: false, fee: D.fee, days: p.last && p.last.d === d ? p.last.days : null };
+  }
+  function paintDrawer() {
+    var p = cur, D = DOCS[doc], v = visitFor(p, doc);
+    document.getElementById("rq-d-av").textContent = p.i;
+    document.getElementById("rq-d-name").textContent = p.n;
+    document.getElementById("rq-d-facts").innerHTML = "<span><b>" + p.age + "</b> " + tx("سنة · " + p.sexAr, "yrs · " + p.sexEn) + "</span><span>" + tx("ملف", "File") + ' <b class="t-ltr">' + p.file + '</b></span><span class="t-ltr">' + fmtMob(p.mob) + "</span>";
+    var pills = "";
+    if (p.debt) pills += '<span class="t-balance debt">' + tx("عليه " + p.debt + " ج.م من قبل", "Owes " + p.debt + " EGP from before") + "</span>";
+    if (p.dep) pills += '<span class="t-balance deposit">' + tx("رصيد مقدم " + p.dep + " ج.م", "Deposit " + p.dep + " EGP") + "</span>";
+    if (!p.debt && !p.dep) pills += '<span class="t-balance">' + tx("الحساب صفر", "Account clear") + "</span>";
+    document.getElementById("rq-d-pills").innerHTML = pills;
+    Array.prototype.forEach.call(document.querySelectorAll("#rq-d-doc [data-doc]"), function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-doc") === doc)); });
+    document.getElementById("rq-d-type").innerHTML = v.fu ? '<span class="t-chip free">' + tx("متابعة مجانية", "Free follow-up") + "</span>" : '<span class="t-chip info">' + tx("كشف جديد", "New consult") + "</span>";
+    document.getElementById("rq-d-why").innerHTML = v.fu
+      ? tx("آخر كشف مع " + D.ar + " من " + v.days + " أيام، والمتابعة المجانية " + D.win + " يوم (باقي " + v.left + ").", "Last visit with " + D.en + " " + v.days + " days ago; free follow-up window is " + D.win + " days (" + v.left + " left).")
+      : (v.days ? tx("آخر كشف من " + v.days + " يوم، بعد مدة المتابعة (" + D.win + " يوم). السعر من خدمة «" + D.svcAr + "».", "Last visit " + v.days + " days ago, past the " + D.win + "-day window. Fee from the '" + D.svcEn + "' service.")
+               : tx("أول زيارة مع " + D.ar + ". السعر من خدمة «" + D.svcAr + "» الافتراضية.", "First visit with " + D.en + ". Fee from the default '" + D.svcEn + "' service."));
+    document.getElementById("rq-d-fee").innerHTML = v.fee + '<span class="cur">' + (en() ? "EGP" : "ج.م") + "</span>";
+    document.getElementById("rq-d-ticket").innerHTML = tx("هياخد رقم ", "Ticket ") + '<b class="t-ltr">' + doc + "-" + nextNo[doc] + "</b>" + tx(" — قبله " + (doc === "A" ? 2 : 1) + " منتظرين (حوالي " + (doc === "A" ? 25 : 15) + " دقيقة).", " — " + (doc === "A" ? 2 : 1) + " waiting ahead (about " + (doc === "A" ? 25 : 15) + " min).");
+  }
+  function openDrawer(p) {
+    cur = p || P[0]; doc = cur.child ? "B" : "A"; closeSugg(); omni.blur();
+    paintDrawer(); drawer.hidden = false; document.getElementById("rq-d-save").focus();
+  }
+  document.getElementById("rq-d-doc").addEventListener("click", function (e) { var b = e.target.closest("[data-doc]"); if (b) { doc = b.getAttribute("data-doc"); paintDrawer(); } });
+
+  function qcard(ticket, name, chipAr, chipEn, extra) {
+    var a = document.createElement("article");
+    a.className = "t-qcard"; a.setAttribute("data-q", ticket);
+    a.innerHTML = '<span class="t-ticket waiting"><b>' + ticket + '</b></span><div><div class="t-qname">' + name + '</div><div class="rq-line"><span class="t-chip waiting">' + tx("منتظر · الآن", "Waiting · now") + "</span>" + extra + "</div></div>" +
+      '<div class="rq-actions"><button class="t-btn sm soft" type="button" data-call><svg class="t-icon sm"><use href="#i-call"/></svg>' + tx("نادِ", "Call") + '</button><div class="rq-more"><button class="t-btn sm icon ghost" type="button" data-more aria-label="More actions" title="More actions"><svg class="t-icon sm"><use href="#i-more"/></svg></button></div></div>';
+    return a;
+  }
+  function bumpWaiting() { var c = document.getElementById("rq-c-wait"); c.textContent = String(+c.textContent + 1); }
+  document.getElementById("rq-d-save").addEventListener("click", function () {
+    var v = visitFor(cur, doc), t = doc + "-" + nextNo[doc]++;
+    var extra = v.fu ? '<span class="t-chip free">' + tx("متابعة مجانية", "Free follow-up") + "</span>" : '<span class="t-chip unpaid plain">' + tx("كشف " + v.fee + " · لم يدفع", "Consult " + v.fee + " · unpaid") + "</span>";
+    var card = qcard(t, cur.n, "", "", extra);
+    document.querySelector('[data-lane-body="' + doc + '"]').appendChild(card);
+    bumpWaiting(); drawer.hidden = true; omni.value = "";
+    T.toast(en() ? "Added to queue — " + t : "اتضاف للدور — " + t);
+    card.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (document.getElementById("rq-d-collect").checked) setTimeout(function () { location.href = "cashier-checkout.html"; }, 700);
+  });
+
+  /* ---- Check in from bookings strip ---- */
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-checkin]");
+    if (b) {
+      var d = b.getAttribute("data-checkin"), t = d + "-" + nextNo[d]++, fu = b.getAttribute("data-type") === "fu";
+      var extra = fu ? '<span class="t-chip free">' + tx("متابعة مجانية", "Free follow-up") + "</span>" : '<span class="t-chip plain">' + tx("حجز · كشف " + DOCS[d].fee, "Booked · consult " + DOCS[d].fee) + "</span>";
+      document.querySelector('[data-lane-body="' + d + '"]').appendChild(qcard(t, b.getAttribute("data-name"), "", "", extra));
+      var box = b.closest(".rq-book"); var chip = box.querySelector(".t-chip");
+      chip.className = "t-chip arrived"; setTx(chip, "حضر", "Arrived");
+      b.outerHTML = '<span class="t-small t-muted">' + tx("في الدور برقم ", "In queue as ") + '<b class="t-ltr">' + t + "</b></span>";
+      bumpWaiting();
+      T.toast(en() ? "Checked in — " + t + " · visit and bill linked to the booking" : "اتسجل الحضور — " + t + " · الزيارة والفاتورة اتربطوا بالحجز");
+      return;
+    }
+    /* Call one patient */
+    var c = e.target.closest("[data-call]");
+    if (c) {
+      var card = c.closest(".t-qcard"), tk = card.querySelector(".t-ticket"), ch = card.querySelector(".t-chip");
+      tk.className = "t-ticket called"; ch.className = "t-chip called"; setTx(ch, "نودي عليه · الآن", "Called · now");
+      card.classList.remove("is-next");
+      c.outerHTML = '<button class="t-btn sm" type="button" data-toast="تم النداء تاني" data-toast-en="Called again">' + tx("نادِ تاني", "Call again") + "</button>";
+      T.toast(en() ? "Calling " + card.getAttribute("data-q") + " to the room" : "بننادي على " + card.getAttribute("data-q") + " للدخول");
+      return;
+    }
+    /* Call next in lane */
+    var n = e.target.closest("[data-callnext]");
+    if (n) {
+      var first = document.querySelector('[data-lane-body="' + n.getAttribute("data-callnext") + '"] .t-qcard [data-call]');
+      if (first) first.click(); else T.toast(en() ? "No one waiting for this doctor" : "مفيش حد منتظر للطبيب ده");
+      return;
+    }
+    /* Overflow menu */
+    var menu = document.getElementById("rq-more-menu");
+    var m = e.target.closest("[data-more]");
+    if (m) {
+      var host = m.parentNode;
+      if (!menu.hidden && menu.parentNode === host) { menu.hidden = true; return; }
+      host.appendChild(menu); menu.hidden = false; menu._card = m.closest(".t-qcard"); return;
+    }
+    var left = e.target.closest("[data-mark-left]");
+    if (left && menu._card) {
+      var cc = menu._card, ch2 = cc.querySelector(".t-chip");
+      ch2.className = "t-chip left"; setTx(ch2, "مشي قبل الكشف", "Left before visit");
+      cc.querySelector(".t-ticket").className = "t-ticket";
+      menu.hidden = true; T.toast(en() ? "Marked as left — kept in the day log" : "اتسجل إنه مشي — محفوظ في سجل اليوم"); return;
+    }
+    menu.hidden = true;
+    if (e.target.closest("#rq-add-btn")) { omni.focus(); }
+    if (e.target.closest("[data-focus-omni]")) { omni.focus(); }
+  });
+
+  /* ---- Keys: Ctrl K focuses the queue omnibox; F2 add; Enter saves the drawer ---- */
+  window.addEventListener("keydown", function (e) {
+    if ((e.ctrlKey || e.metaKey) && (e.key === "k" || e.key === "K")) { e.preventDefault(); e.stopPropagation(); omni.focus(); omni.select(); }
+    else if (e.key === "F2") { e.preventDefault(); if (omni.value && results[active]) openDrawer(results[active]); else omni.focus(); }
+    else if (e.key === "F4") { e.preventDefault(); location.href = "patient-quick-register.html"; }
+    else if (e.key === "Enter" && !drawer.hidden && !/^(INPUT|SELECT|TEXTAREA|A)$/.test(e.target.tagName) && e.target.id !== "rq-d-save") { e.preventDefault(); document.getElementById("rq-d-save").click(); }
+  }, true);
+})();
+</script>
+</body>
+</html>

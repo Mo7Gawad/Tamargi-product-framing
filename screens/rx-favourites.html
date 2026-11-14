@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Favourites &amp; Rx sets — Tamargi">المفضلة والروشتات الجاهزة — تمرجي</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style>
+    /* page-specific CSS: tokens only */
+    .t-tabs { overflow-y: hidden; }
+    .rxf-toolbar { display: flex; flex-wrap: wrap; gap: var(--s-3); align-items: center; padding: var(--s-3) var(--s-5); border-block-end: 1px solid var(--line); }
+    .rxf-toolbar .t-input-wrap { width: min(320px, 100%); }
+    .rxf-handle { cursor: grab; display: inline-flex; align-items: center; gap: 2px; color: var(--text-3); background: none; border: 0; padding: 4px; border-radius: var(--r-xs); font: inherit; font-size: var(--fs-xs); }
+    .rxf-handle:hover, .rxf-handle:focus-visible { color: var(--primary); background: var(--primary-soft); }
+    .rxf-drug { direction: ltr; unicode-bidi: isolate; display: inline-block; }
+    tr.is-dragging td { opacity: .4; }
+    tr.drop-target td { box-shadow: inset 0 2px 0 var(--primary); }
+    .rxf-usage { display: flex; align-items: center; gap: var(--s-2); min-width: 120px; }
+    .rxf-bar { flex: 1; height: 6px; border-radius: var(--r-pill); background: var(--n-100); overflow: hidden; }
+    .rxf-bar > i { display: block; height: 100%; background: var(--primary); border-radius: inherit; }
+    .rxf-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+    .rxf-sets { display: grid; gap: var(--s-4); grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); padding: var(--s-5); }
+    .rxf-set { display: flex; flex-direction: column; }
+    .rxf-set ol { margin: 0 0 var(--s-3); padding-inline-start: var(--s-5); font-size: var(--fs-sm); flex: 1; }
+    .rxf-set ol li { margin-block-end: 4px; }
+    .rxf-set ol small { display: block; color: var(--text-3); }
+    .rxf-new { border-style: dashed; display: grid; place-items: center; text-align: center; min-height: 200px; color: var(--text-2); cursor: pointer; background: var(--surface-sunk); }
+    .rxf-new:hover { border-color: var(--primary); color: var(--primary); }
+    .rxf-picklist { max-height: 300px; overflow: auto; border: 1px solid var(--line); border-radius: var(--r-sm); padding: var(--s-2) var(--s-3); display: flex; flex-direction: column; gap: var(--s-2); }
+    .rxf-picklist .t-check { justify-content: flex-start; }
+    .rxf-preview { padding: var(--s-3); border-radius: var(--r-sm); background: var(--surface-sunk); border: 1px dashed var(--line-strong); font-size: var(--fs-sm); }
+    .rxf-preview b { direction: ltr; unicode-bidi: isolate; display: block; }
+    .rxf-spec { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--s-2); }
+    .rxf-spec button { justify-content: space-between; }
+    .rxf-spec button[aria-pressed="true"] { background: var(--primary-soft); border-color: var(--primary); color: var(--primary); }
+    @media (max-width: 860px) { .rxf-hide-md { display: none; } }
+  </style>
+</head>
+<body data-screen="rx-favourites">
+<main id="screen">
+  <div class="t-container">
+
+    <header class="t-screen-head">
+      <div>
+        <h1 data-en="Favourites &amp; Rx sets">المفضلة والروشتات الجاهزة</h1>
+        <p class="t-sub mb-0" data-en="Your one-click drug lines and named prescriptions. The order here is the order in the Rx builder.">أدويتك اللي بتتكتب بضغطة، والروشتات الجاهزة بأسمائها. الترتيب هنا هو نفس ترتيبها في شاشة الروشتة.</p>
+      </div>
+      <div class="t-actions">
+        <a class="t-btn ghost" href="prescription-builder.html"><svg class="t-icon sm"><use href="#i-rx"/></svg><span data-en="Open Rx builder">فتح شاشة الروشتة</span></a>
+        <button class="t-btn" type="button" data-open="#import-modal" data-note="Specialty starter pack: common Egyptian trade names with typical adult doses, so a new doctor's favourites are not empty on day 1 (picked at sign-up in onboarding-wizard). Every line is reviewed before import; existing favourites are never overwritten."
+           data-note-ar="حزمة البداية: أشهر الأسماء التجارية في مصر بجرعات البالغين المعتادة، عشان مفضلة الطبيب الجديد ما تبقاش فاضية من أول يوم. كل سطر بيتراجع قبل الاستيراد، ومفيش حاجة موجودة بتتمسح."><svg class="t-icon sm"><use href="#i-download"/></svg><span data-en="Import specialty pack">استيراد حزمة التخصص</span></button>
+        <button class="t-btn primary" type="button" id="add-fav-btn" data-note="Add favourite: one short drawer (drug, dose, frequency/duration chips, Arabic instruction) with a live &quot;prints as&quot; line — not a 40-field drug master. N opens it from anywhere on the page." data-note-ar="إضافة مفضلة: درج قصير (الدواء، الجرعة، اختيارات التكرار والمدة، التعليمات بالعربي) مع معاينة للسطر المطبوع — مش شاشة دواء فيها ٤٠ خانة. حرف N يفتحه."><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="Add favourite">إضافة مفضلة</span><span class="t-kbd">N</span></button>
+      </div>
+    </header>
+
+    <!-- ============ STATE: list ============ -->
+    <div data-state="list">
+      <div class="t-tabs" role="tablist">
+        <button class="t-tab" role="tab" aria-selected="true" data-tab="favs"><span data-en="Favourites">المفضلة</span> <span class="t-badge muted" id="fav-count">12</span></button>
+        <button class="t-tab" role="tab" aria-selected="false" data-tab="sets" data-note="Rx sets are named prescriptions built from favourites (e.g. 'URTI adult'), optionally linked to an ICD-10 code so the builder suggests them. This is the drug part of NITCO's visit templates (v3); full visit templates (complaint, exam, services) live in settings-templates."
+             data-note-ar="الروشتات الجاهزة روشتات بأسماء مبنية من المفضلة، وممكن تتربط بكود ICD-10 عشان تتقترح. ده جزء الأدوية من قوالب الزيارة في NITCO؛ القوالب الكاملة في إعدادات القوالب."><span data-en="Rx sets">الروشتات الجاهزة</span> <span class="t-badge muted" id="set-count">5</span></button>
+      </div>
+
+      <!-- Favourites table -->
+      <section class="t-card flush" id="panel-favs">
+        <div class="rxf-toolbar">
+          <div class="t-input-wrap">
+            <svg class="t-icon sm"><use href="#i-search"/></svg>
+            <input id="filter" class="t-input" type="search" placeholder="فلترة بالاسم" data-en-placeholder="Filter by name" aria-label="Filter">
+          </div>
+          <button class="t-btn sm" type="button" id="sort-usage"><svg class="t-icon sm"><use href="#i-chart"/></svg><span data-en="Sort by usage">رتّب حسب الاستخدام</span></button>
+          <span class="t-small t-faint t-end" data-en="Drag the handle (or focus it and press ↑ ↓) to reorder. Top 9 get Alt+1…9.">اسحب المقبض (أو اختاره واضغط ↑ ↓) لتغيير الترتيب. أول ٩ ليهم Alt+1…9.</span>
+        </div>
+        <div class="t-table-wrap" style="border:0;border-radius:0"
+             data-note="Favourites table: drag to reorder; the order drives the builder's Alt+1…9 keys. Usage count + last used surface what the doctor really prescribes, so the list stays short (NITCO v29: no recent/frequent items at all)."
+             data-note-ar="جدول المفضلة: اسحب لتغيير الترتيب، والترتيب ده هو مفاتيح Alt+1…9 في الروشتة. عدد مرات الاستخدام وآخر استخدام بيظهروا اللي الطبيب بيكتبه فعلًا.">
+          <table class="t-table">
+            <thead><tr>
+              <th style="width:56px"><span class="t-sr" data-en="Order">الترتيب</span>#</th>
+              <th data-en="Drug">الدواء</th>
+              <th data-en="Dose">الجرعة</th>
+              <th data-en="Frequency">التكرار</th>
+              <th data-en="Duration">المدة</th>
+              <th class="rxf-hide-md" data-en="Instruction">التعليمات</th>
+              <th class="rxf-hide-md" data-note="Drug-family and pregnancy tags: until our drug catalogue ships, the doctor tags each favourite once (penicillin, NSAID…) so the builder can still catch an allergy match. Allergy = the only interrupting modal; pregnancy = inline caution." data-note-ar="علامات عائلة الدواء والحمل: لحد ما دليل الأدوية ييجي، الطبيب بيعلّم كل مفضلة مرة واحدة (بنسلين، مسكن…) عشان الروشتة تمسك تعارض الحساسية. الحساسية بس هي اللي بتوقف؛ الحمل تنبيه جنب السطر."><span data-en="Checks">الفحص</span></th>
+              <th data-en="Usage">الاستخدام</th>
+              <th></th>
+            </tr></thead>
+            <tbody id="fav-rows"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Rx sets -->
+      <section class="t-card flush" id="panel-sets" hidden>
+        <div class="rxf-sets" id="set-grid"></div>
+      </section>
+    </div>
+
+    <!-- ============ STATE: empty ============ -->
+    <div data-state="empty">
+      <section class="t-card">
+        <div class="t-empty" data-note="Empty state: two ways in — add the first favourite by hand, or import the specialty starter pack chosen at sign-up. Also reachable from the Rx builder: any line can be starred."
+             data-note-ar="الحالة الفاضية: طريقين — تضيف أول مفضلة بإيدك، أو تستورد حزمة التخصص. وكمان أي سطر في الروشتة ممكن يتعمله نجمة.">
+          <div class="t-empty-art"><svg class="t-icon"><use href="#i-star"/></svg></div>
+          <h3 data-en="No favourites yet">لسه مفيش مفضلة</h3>
+          <p data-en="Add the drugs you write every day once, with dose and duration. Next time they take one click.">ضيف الأدوية اللي بتكتبها كل يوم مرة واحدة بالجرعة والمدة، والمرة الجاية تتكتب بضغطة.</p>
+          <div class="t-row tight">
+            <button class="t-btn primary" type="button" data-open="#fav-drawer"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="Add first favourite">ضيف أول مفضلة</span></button>
+            <button class="t-btn" type="button" data-open="#import-modal"><svg class="t-icon sm"><use href="#i-download"/></svg><span data-en="Import Internal Medicine pack (18)">استورد حزمة الباطنة (١٨)</span></button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Edit favourite drawer -->
+  <aside class="t-drawer" id="fav-drawer" hidden role="dialog" aria-modal="true" aria-labelledby="drawer-title">
+      <div class="t-modal-head">
+        <h2 id="drawer-title" data-en="Favourite">مفضلة</h2>
+        <button class="t-btn icon ghost" type="button" data-close aria-label="Close" title="Close" data-en-aria-label="Close"><svg class="t-icon"><use href="#i-close"/></svg></button>
+      </div>
+      <div class="t-modal-body t-stack lg">
+        <div class="t-field">
+          <label class="t-label" for="f-drug"><span data-en="Drug (trade name + strength)">الدواء (الاسم التجاري + التركيز)</span><span class="req">*</span></label>
+          <input id="f-drug" class="t-input ltr" placeholder="e.g. Panadol 500 mg">
+          <span class="t-hint" data-en="Free text for now. Our drug catalogue (search, generic names) comes later.">كتابة حرة دلوقتي. دليل الأدوية (بحث وأسماء علمية) لاحقًا.</span>
+        </div>
+        <div class="t-form-grid">
+          <div class="t-field">
+            <label class="t-label" for="f-form" data-en="Form">الشكل</label>
+            <select id="f-form" class="t-select">
+              <option data-en="Tablets">أقراص</option><option data-en="Capsules">كبسول</option><option data-en="Syrup">شراب</option>
+              <option data-en="Nasal spray">بخاخ أنف</option><option data-en="Sachets">أكياس</option><option data-en="Cream / ointment">كريم / مرهم</option>
+              <option data-en="Injection">حقن</option><option data-en="Drops">نقط</option>
+            </select>
+          </div>
+          <div class="t-field">
+            <label class="t-label" for="f-dose"><span data-en="Dose">الجرعة</span><span class="req">*</span></label>
+            <input id="f-dose" class="t-input" placeholder="قرص" data-en-placeholder="1 tab">
+          </div>
+        </div>
+        <div class="t-field">
+          <span class="t-label" data-en="Frequency">التكرار</span>
+          <div class="t-row tight" id="f-freq"></div>
+        </div>
+        <div class="t-field">
+          <span class="t-label" data-en="Duration">المدة</span>
+          <div class="t-row tight" id="f-dur"></div>
+        </div>
+        <div class="t-field">
+          <label class="t-label" for="f-instr" data-en="Instruction (Arabic, printed)">التعليمات (بالعربي، بتتطبع)</label>
+          <input id="f-instr" class="t-input" placeholder="بعد الأكل" data-en-placeholder="بعد الأكل (after meals)">
+        </div>
+        <div class="t-field">
+          <label class="t-label" for="f-family"><span data-en="Drug family (for the allergy check)">عائلة الدواء (لفحص الحساسية)</span></label>
+          <select id="f-family" class="t-select">
+            <option value="" data-en="None / not sure">لا يوجد / مش متأكد</option>
+            <option value="penicillin" data-en="Penicillins">بنسلين</option>
+            <option value="ceph" data-en="Cephalosporins">سيفالوسبورين</option>
+            <option value="sulfa" data-en="Sulfonamides">سلفا</option>
+            <option value="nsaid" data-en="NSAIDs (pain killers)">مسكنات NSAID</option>
+            <option value="macrolide" data-en="Macrolides">ماكروليد</option>
+          </select>
+          <span class="t-hint" data-en="Until the catalogue arrives, this tag is what lets Tamargi catch 'Augmentin' for a penicillin-allergic patient.">لحد ما الدليل ييجي، العلامة دي هي اللي بتخلي تمرجي يمسك Augmentin لمريض عنده حساسية بنسلين.</span>
+        </div>
+        <label class="t-switch"><input type="checkbox" id="f-preg"><span data-en="Show a pregnancy caution (inline, never blocks)">تنبيه في الحمل (جنب السطر، من غير ما يوقف)</span></label>
+        <div class="rxf-preview" aria-live="polite">
+          <span class="t-faint t-small" data-en="Prints as">هتتطبع كده</span>
+          <b id="f-prev-drug">Panadol 500 mg</b>
+          <span id="f-prev-sig">قرص كل ٨ ساعات بعد الأكل لمدة ٥ أيام</span>
+        </div>
+      </div>
+      <div class="t-modal-foot">
+        <button class="t-btn danger-ghost" type="button" id="f-delete" style="margin-inline-end:auto"><svg class="t-icon sm"><use href="#i-trash"/></svg><span data-en="Remove">حذف</span></button>
+        <button class="t-btn" type="button" data-close data-en="Cancel">إلغاء</button>
+        <button class="t-btn primary" type="button" id="f-save"><span data-en="Save">حفظ</span><span class="t-kbd">Ctrl ↵</span></button>
+      </div>
+  </aside>
+
+  <!-- Rx set editor -->
+  <div class="t-scrim" id="set-modal" hidden role="dialog" aria-modal="true" aria-labelledby="set-title">
+    <div class="t-modal">
+      <div class="t-modal-head">
+        <h2 id="set-title" data-en="Rx set">روشتة جاهزة</h2>
+        <button class="t-btn icon ghost" type="button" data-close aria-label="Close" title="Close" data-en-aria-label="Close"><svg class="t-icon"><use href="#i-close"/></svg></button>
+      </div>
+      <div class="t-modal-body t-stack">
+        <div class="t-form-grid">
+          <div class="t-field">
+            <label class="t-label" for="s-name"><span data-en="Name">الاسم</span><span class="req">*</span></label>
+            <input id="s-name" class="t-input" placeholder="مثال: نزلة برد — بالغين" data-en-placeholder="e.g. URTI — adult">
+          </div>
+          <div class="t-field">
+            <label class="t-label" for="s-dx"><span data-en="ICD-10 (optional)">ICD-10 (اختياري)</span></label>
+            <input id="s-dx" class="t-input ltr" placeholder="J06.9">
+          </div>
+        </div>
+        <div class="t-field">
+          <span class="t-label" data-en="Pick favourites (in Rx order)">اختار من المفضلة (بترتيب الروشتة)</span>
+          <div class="rxf-picklist" id="s-picks"></div>
+          <span class="t-hint" id="s-count"></span>
+        </div>
+      </div>
+      <div class="t-modal-foot">
+        <button class="t-btn" type="button" data-close data-en="Cancel">إلغاء</button>
+        <button class="t-btn primary" type="button" id="s-save" data-en="Save set">احفظ الروشتة</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Specialty starter pack import -->
+  <div class="t-scrim" id="import-modal" hidden role="dialog" aria-modal="true" aria-labelledby="imp-title">
+    <div class="t-modal lg">
+      <div class="t-modal-head">
+        <h2 id="imp-title" data-en="Import a specialty starter pack">استيراد حزمة بداية للتخصص</h2>
+        <button class="t-btn icon ghost" type="button" data-close aria-label="Close" title="Close" data-en-aria-label="Close"><svg class="t-icon"><use href="#i-close"/></svg></button>
+      </div>
+      <div class="t-modal-body t-stack">
+        <div class="rxf-spec" role="group" aria-label="Specialty" id="spec-list">
+          <button class="t-btn" type="button" aria-pressed="true" data-spec="im"><span data-en="Internal medicine">باطنة</span><span class="t-badge muted">18</span></button>
+          <button class="t-btn" type="button" aria-pressed="false" data-spec="peds"><span data-en="Paediatrics">أطفال</span><span class="t-badge muted">22</span></button>
+          <button class="t-btn" type="button" aria-pressed="false" data-spec="obgyn"><span data-en="Ob/Gyn">نسا وتوليد</span><span class="t-badge muted">16</span></button>
+          <button class="t-btn" type="button" aria-pressed="false" data-spec="derm"><span data-en="Dermatology">جلدية</span><span class="t-badge muted">20</span></button>
+          <button class="t-btn" type="button" aria-pressed="false" data-spec="ent"><span data-en="ENT">أنف وأذن</span><span class="t-badge muted">14</span></button>
+          <button class="t-btn" type="button" aria-pressed="false" data-spec="ortho"><span data-en="Orthopaedics">عظام</span><span class="t-badge muted">12</span></button>
+        </div>
+        <div class="t-alert warning"><svg class="t-icon"><use href="#i-alert"/></svg><span data-en="Doses are typical adult suggestions. Review each line; you are the prescriber.">الجرعات اقتراحات معتادة للبالغين. راجع كل سطر؛ انت الطبيب المسؤول.</span></div>
+        <div class="t-table-wrap">
+          <table class="t-table">
+            <thead><tr><th style="width:40px"><input type="checkbox" checked aria-label="All" id="imp-all"></th><th data-en="Drug">الدواء</th><th data-en="Default line">السطر الافتراضي</th><th data-en="Status">الحالة</th></tr></thead>
+            <tbody id="imp-rows"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="t-modal-foot">
+        <span class="t-small t-muted" id="imp-summary" style="margin-inline-end:auto"></span>
+        <button class="t-btn" type="button" data-close data-en="Cancel">إلغاء</button>
+        <button class="t-btn primary" type="button" id="imp-go" data-en="Import selected">استورد المختار</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+<script src="../assets/shell.js"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (s) { return document.querySelector(s); };
+  var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
+  function en() { return Tamargi.lang() === "en"; }
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;"); }
+  function L(ar, e) { return '<span data-ar="' + esc(ar) + '" data-en="' + esc(e) + '">' + (en() ? e : ar) + "</span>"; }
+  function toast(ar, e, action, fn) {
+    Tamargi.toast(en() ? e : ar, action ? (en() ? action[1] : action[0]) : null);
+    if (fn) { var a = document.querySelector(".t-toast:last-child .t-toast-action"); if (a) a.onclick = function () { fn(); a.closest(".t-toast").remove(); }; }
+  }
+
+  var FREQ = [["مرة يوميًا","Once daily"],["مرتين يوميًا","Twice daily"],["٣ مرات يوميًا","3× daily"],["كل ٦ ساعات","Every 6 h"],["كل ٨ ساعات","Every 8 h"],["كل ١٢ ساعة","Every 12 h"],["قبل النوم","At bedtime"],["عند اللزوم","As needed"]];
+  var DUR = [["٣ أيام","3 days"],["٥ أيام","5 days"],["٧ أيام","7 days"],["١٠ أيام","10 days"],["١٤ يوم","14 days"],["شهر","1 month"],["مستمر","Ongoing"],["عند اللزوم","As needed"]];
+  var INSTR_EN = { "بعد الأكل": "After meals", "قبل الأكل": "Before meals", "على الريق": "Empty stomach", "لا تزيد عن ٥ أيام": "Max 5 days", "في نص كوب ماء": "In ½ glass of water", "عند المغص": "For colic", "مع الأكل": "With meals", "بعد كل مرة إسهال": "After each loose stool" };
+  function enOf(list, ar) { for (var i = 0; i < list.length; i++) if (list[i][0] === ar) return list[i][1]; return ar; }
+
+  var FAVS = [
+    { id: "panadol",   drug: "Panadol 500 mg", form: "أقراص", dose: "قرص", doseEn: "1 tab", freq: "كل ٨ ساعات", dur: "٥ أيام", instr: "بعد الأكل", uses: 212, last: ["اليوم", "Today"] },
+    { id: "congestal", drug: "Congestal", form: "أقراص", dose: "قرص", doseEn: "1 tab", freq: "مرتين يوميًا", dur: "٣ أيام", instr: "بعد الأكل", preg: true, uses: 164, last: ["أمس", "Yesterday"] },
+    { id: "augmentin", drug: "Augmentin 1 g", form: "أقراص", dose: "قرص", doseEn: "1 tab", freq: "كل ١٢ ساعة", dur: "٧ أيام", instr: "بعد الأكل", fam: "penicillin", uses: 131, last: ["أمس", "Yesterday"] },
+    { id: "controloc", drug: "Controloc 40 mg", form: "أقراص", dose: "قرص", doseEn: "1 tab", freq: "مرة يوميًا", dur: "١٤ يوم", instr: "على الريق", uses: 120, last: ["١٢ نوفمبر", "12 Nov"] },
+    { id: "brufen",    drug: "Brufen 400 mg", form: "أقراص", dose: "قرص", doseEn: "1 tab", freq: "كل ١٢ ساعة", dur: "٣ أيام", instr: "بعد الأكل", fam: "nsaid", preg: true, uses: 97, last: ["١٣ نوفمبر", "13 Nov"] },
+    { id: "xithrone",  drug: "Xithrone 500 mg", form: "كبسول", dose: "كبسولة", doseEn: "1 cap", freq: "مرة يوميًا", dur: "٣ أيام", instr: "قبل الأكل", fam: "macrolide", uses: 88, last: ["اليوم", "Today"] },
+    { id: "antinal",   drug: "Antinal 200 mg", form: "كبسول", dose: "كبسولة", doseEn: "1 cap", freq: "كل ٦ ساعات", dur: "٣ أيام", instr: "", uses: 76, last: ["١٠ نوفمبر", "10 Nov"] },
+    { id: "otrivin",   drug: "Otrivin 0.1% nasal spray", form: "بخاخ أنف", dose: "بخة بكل فتحة", doseEn: "1 puff/nostril", freq: "مرتين يوميًا", dur: "٥ أيام", instr: "لا تزيد عن ٥ أيام", uses: 69, last: ["اليوم", "Today"] },
+    { id: "buscopan",  drug: "Buscopan 10 mg", form: "أقراص", dose: "قرص", doseEn: "1 tab", freq: "٣ مرات يوميًا", dur: "عند اللزوم", instr: "عند المغص", uses: 54, last: ["٩ نوفمبر", "9 Nov"] },
+    { id: "telfast",   drug: "Telfast 120 mg", form: "أقراص", dose: "قرص", doseEn: "1 tab", freq: "مرة يوميًا", dur: "٧ أيام", instr: "", uses: 45, last: ["٢ نوفمبر", "2 Nov"] },
+    { id: "mucosolvan",drug: "Mucosolvan syrup", form: "شراب", dose: "١٠ مل", doseEn: "10 ml", freq: "٣ مرات يوميًا", dur: "٧ أيام", instr: "بعد الأكل", uses: 40, last: ["٥ نوفمبر", "5 Nov"] },
+    { id: "vitacid",   drug: "Vitacid C 500 mg effervescent", form: "أقراص فوار", dose: "قرص فوار", doseEn: "1 eff. tab", freq: "مرة يوميًا", dur: "١٠ أيام", instr: "في نص كوب ماء", uses: 38, last: ["اليوم", "Today"] }
+  ];
+  var SETS = [
+    { ar: "نزلة برد — بالغين", en: "URTI — adult", dx: "J06.9", items: ["panadol", "congestal", "otrivin", "vitacid"], uses: 58 },
+    { ar: "التهاب حلق بكتيري", en: "Bacterial sore throat", dx: "J02.9", items: ["augmentin", "panadol", "vitacid"], uses: 41 },
+    { ar: "نزلة معوية", en: "Gastroenteritis", dx: "A09", items: ["antinal", "buscopan"], uses: 27 },
+    { ar: "حموضة وارتجاع", en: "Reflux / GERD", dx: "K21.9", items: ["controloc"], uses: 19 },
+    { ar: "حساسية موسمية", en: "Seasonal allergy", dx: "J30.2", items: ["telfast", "otrivin"], uses: 12 }
+  ];
+  var FAM = { penicillin: ["بنسلين", "Penicillin"], nsaid: ["NSAID", "NSAID"], macrolide: ["ماكروليد", "Macrolide"], ceph: ["سيفالوسبورين", "Cephalosporin"], sulfa: ["سلفا", "Sulfa"] };
+  function fav(id) { for (var i = 0; i < FAVS.length; i++) if (FAVS[i].id === id) return FAVS[i]; }
+  function setFavs(s) { return s.items.map(fav).filter(Boolean); } // a removed favourite drops out of its sets instead of breaking them
+  var FORM_EN = { "أقراص": "Tablets", "كبسول": "Capsules", "شراب": "Syrup", "بخاخ أنف": "Nasal spray", "أكياس": "Sachets", "كريم / مرهم": "Cream / ointment", "حقن": "Injection", "نقط": "Drops", "أقراص فوار": "Effervescent" };
+  function sigAr(f) { return f.dose + " " + f.freq + (f.instr ? " " + f.instr : "") + (f.dur === "مستمر" || f.dur === "عند اللزوم" ? " — " + f.dur : " لمدة " + f.dur); }
+
+  /* ---------- Favourites table ---------- */
+  function renderFavs() {
+    var q = ($("#filter").value || "").toLowerCase();
+    var max = Math.max.apply(null, FAVS.map(function (f) { return f.uses; }));
+    var rows = FAVS.map(function (f, i) {
+      if (q && f.drug.toLowerCase().indexOf(q) === -1) return "";
+      var tags = (f.fam ? '<span class="t-chip info">' + L(FAM[f.fam][0], FAM[f.fam][1]) + "</span>" : "") +
+                 (f.preg ? '<span class="t-chip unpaid">' + L("حمل", "Pregnancy") + "</span>" : "");
+      return '<tr draggable="' + (!q) + '" data-i="' + i + '">' +
+        '<td><button type="button" class="rxf-handle" data-handle aria-label="' + (en() ? "Move " : "تحريك ") + esc(f.drug) + '" title="' + (en() ? "Drag or use ↑ ↓" : "اسحب أو استخدم ↑ ↓") + '"><svg class="t-icon sm"><use href="#i-menu"/></svg><span class="t-num">' + (i + 1) + "</span></button></td>" +
+        '<td><span class="t-name rxf-drug">' + esc(f.drug) + '</span><span class="t-meta">' + L(f.form, FORM_EN[f.form] || f.form) + (i < 9 ? ' · <span class="t-ltr">Alt ' + (i + 1) + "</span>" : "") + "</span></td>" +
+        "<td>" + L(f.dose, f.doseEn) + "</td>" +
+        "<td>" + L(f.freq, enOf(FREQ, f.freq)) + "</td>" +
+        "<td>" + L(f.dur, enOf(DUR, f.dur)) + "</td>" +
+        '<td class="rxf-hide-md">' + (f.instr ? L(f.instr, INSTR_EN[f.instr] || f.instr) : '<span class="t-faint">—</span>') + "</td>" +
+        '<td class="rxf-hide-md"><div class="rxf-tags">' + (tags || '<span class="t-faint">—</span>') + "</div></td>" +
+        '<td><div class="rxf-usage"><span class="rxf-bar" aria-hidden="true"><i style="width:' + Math.round(f.uses / max * 100) + '%"></i></span><span class="t-num">' + f.uses + '</span></div><span class="t-meta">' + L("آخر مرة: " + f.last[0], "Last: " + f.last[1]) + "</span></td>" +
+        '<td class="actions"><button type="button" class="t-btn sm ghost" data-edit="' + i + '"><svg class="t-icon sm"><use href="#i-edit"/></svg>' + L("تعديل", "Edit") + "</button></td></tr>";
+    }).join("");
+    $("#fav-rows").innerHTML = rows || '<tr><td colspan="9"><div class="t-empty" style="padding:var(--s-8)"><h3>' + L("مفيش نتيجة", "No match") + "</h3><p>" + L("جرّب اسم تاني، أو ضيفه كمفضلة جديدة.", "Try another name, or add it as a new favourite.") + "</p></div></td></tr>";
+    $("#fav-count").textContent = FAVS.length;
+  }
+
+  /* Drag & drop + keyboard reorder */
+  var dragI = null;
+  var tbody = $("#fav-rows");
+  tbody.addEventListener("dragstart", function (e) { var tr = e.target.closest("tr"); dragI = +tr.getAttribute("data-i"); tr.classList.add("is-dragging"); e.dataTransfer.effectAllowed = "move"; try { e.dataTransfer.setData("text/plain", String(dragI)); } catch (x) {} });
+  tbody.addEventListener("dragover", function (e) { var tr = e.target.closest("tr[data-i]"); if (!tr) return; e.preventDefault(); $$("#fav-rows tr").forEach(function (r) { r.classList.remove("drop-target"); }); tr.classList.add("drop-target"); });
+  tbody.addEventListener("drop", function (e) { var tr = e.target.closest("tr[data-i]"); if (!tr || dragI === null) return; e.preventDefault(); move(dragI, +tr.getAttribute("data-i")); });
+  tbody.addEventListener("dragend", function () { dragI = null; renderFavs(); });
+  function move(from, to) {
+    if (from === to) return;
+    var it = FAVS.splice(from, 1)[0]; FAVS.splice(to, 0, it); renderFavs();
+    toast("اترتبت: " + it.drug + " بقت رقم " + (to + 1), "Moved " + it.drug + " to #" + (to + 1));
+  }
+  tbody.addEventListener("keydown", function (e) {
+    var h = e.target.closest("[data-handle]"); if (!h) return;
+    var i = +h.closest("tr").getAttribute("data-i"), j = e.key === "ArrowUp" ? i - 1 : e.key === "ArrowDown" ? i + 1 : null;
+    if (j === null || j < 0 || j >= FAVS.length) return;
+    e.preventDefault(); move(i, j);
+    var b = document.querySelector('#fav-rows tr[data-i="' + j + '"] [data-handle]'); if (b) b.focus();
+  });
+  $("#sort-usage").addEventListener("click", function () {
+    var before = FAVS.slice();
+    FAVS.sort(function (a, b) { return b.uses - a.uses; }); renderFavs();
+    toast("اترتبت حسب الاستخدام", "Sorted by usage", ["تراجع", "Undo"], function () { FAVS.length = 0; Array.prototype.push.apply(FAVS, before); renderFavs(); });
+  });
+  $("#filter").addEventListener("input", renderFavs);
+
+  /* ---------- Rx sets ---------- */
+  function renderSets() {
+    $("#set-grid").innerHTML = SETS.map(function (s, i) {
+      return '<article class="t-card rxf-set"><div class="t-card-head mb-2"><h3>' + L(s.ar, s.en) + '</h3><span class="t-chip info plain t-ltr">' + s.dx + "</span></div>" +
+        "<ol>" + setFavs(s).map(function (f) { return '<li><span class="rxf-drug">' + esc(f.drug) + "</span><small>" + esc(sigAr(f)) + "</small></li>"; }).join("") + "</ol>" +
+        '<div class="t-row between"><span class="t-small t-faint">' + L("استُخدمت " + s.uses + " مرة", "Used " + s.uses + " times") + "</span>" +
+        '<div class="t-row tight"><button type="button" class="t-btn sm ghost" data-set-edit="' + i + '"><svg class="t-icon sm"><use href="#i-edit"/></svg>' + L("تعديل", "Edit") + "</button>" +
+        '<a class="t-btn sm" href="prescription-builder.html"><svg class="t-icon sm"><use href="#i-rx"/></svg>' + L("استخدمها", "Use") + "</a></div></div></article>";
+    }).join("") + '<button type="button" class="t-card rxf-new" data-set-edit="new"><span><svg class="t-icon"><use href="#i-plus"/></svg><br>' + L("روشتة جاهزة جديدة", "New Rx set") + '<br><span class="t-small t-faint">' + L("من المفضلة", "from favourites") + "</span></span></button>";
+    $("#set-count").textContent = SETS.length;
+  }
+  var editingSet = null;
+  function openSet(i) {
+    editingSet = i;
+    var s = i === "new" ? { ar: "", en: "", dx: "", items: [] } : SETS[i];
+    $("#s-name").value = en() ? s.en : s.ar; $("#s-dx").value = s.dx;
+    $("#s-picks").innerHTML = FAVS.map(function (f) {
+      return '<label class="t-check"><input type="checkbox" value="' + f.id + '"' + (s.items.indexOf(f.id) !== -1 ? " checked" : "") + '><span class="rxf-drug">' + esc(f.drug) + '</span><span class="t-faint t-small">· ' + esc(sigAr(f)) + "</span></label>";
+    }).join("");
+    countSet(); $("#set-modal").hidden = false; $("#s-name").focus();
+  }
+  function countSet() { var n = $$("#s-picks input:checked").length; $("#s-count").innerHTML = L(n + " أدوية مختارة. كل سطر هيتفحص على حساسية المريض وقت الاستخدام.", n + " selected. Each line is checked against the patient's allergies when used."); }
+  $("#s-picks").addEventListener("change", countSet);
+  $("#s-save").addEventListener("click", function () {
+    var name = $("#s-name").value.trim(); if (!name) { $("#s-name").classList.add("is-invalid"); $("#s-name").focus(); return; }
+    var items = $$("#s-picks input:checked").map(function (c) { return c.value; });
+    if (editingSet === "new") SETS.unshift({ ar: name, en: name, dx: $("#s-dx").value.trim() || "—", items: items, uses: 0 });
+    else { var s = SETS[editingSet]; s.ar = s.en = name; s.dx = $("#s-dx").value.trim() || "—"; s.items = items; }
+    $("#set-modal").hidden = true; renderSets(); toast("اتحفظت الروشتة الجاهزة", "Rx set saved");
+  });
+
+  /* ---------- Favourite drawer ---------- */
+  var editing = null, draft = {};
+  function picks(id, list, key) {
+    $(id).innerHTML = list.map(function (o) { return '<button type="button" class="t-pick' + (draft[key] === o[0] ? " is-on" : "") + '" data-dpick="' + key + '" data-v="' + esc(o[0]) + '">' + L(o[0], o[1]) + "</button>"; }).join("");
+  }
+  function preview() {
+    var f = { drug: $("#f-drug").value || "—", dose: $("#f-dose").value || "قرص", freq: draft.freq, dur: draft.dur, instr: $("#f-instr").value.trim() };
+    $("#f-prev-drug").textContent = f.drug; $("#f-prev-sig").textContent = sigAr(f);
+  }
+  function openFav(i) {
+    editing = i;
+    var f = i === null ? { drug: "", form: "أقراص", dose: "", freq: "مرتين يوميًا", dur: "٥ أيام", instr: "بعد الأكل" } : FAVS[i];
+    draft = { freq: f.freq, dur: f.dur };
+    $("#f-drug").value = f.drug; $("#f-dose").value = f.dose; $("#f-instr").value = f.instr || "";
+    $("#f-form").value = f.form; $("#f-family").value = f.fam || ""; $("#f-preg").checked = !!f.preg;
+    $("#f-delete").hidden = i === null;
+    $("#drawer-title").innerHTML = i === null ? L("مفضلة جديدة", "New favourite") : L("تعديل مفضلة", "Edit favourite");
+    picks("#f-freq", FREQ, "freq"); picks("#f-dur", DUR, "dur"); preview();
+    $("#fav-drawer").hidden = false; $("#f-drug").focus();
+  }
+  ["#f-drug", "#f-dose", "#f-instr"].forEach(function (id) { $(id).addEventListener("input", preview); });
+  function saveFav() {
+    var drug = $("#f-drug").value.trim(); if (!drug) { $("#f-drug").classList.add("is-invalid"); $("#f-drug").focus(); return; }
+    $("#f-drug").classList.remove("is-invalid");
+    var f = editing === null ? { id: "f" + Date.now(), uses: 0, last: ["لسه", "Never"] } : FAVS[editing];
+    f.drug = drug; f.form = $("#f-form").value; f.dose = $("#f-dose").value.trim() || "قرص"; f.doseEn = f.doseEn && editing !== null ? f.doseEn : f.dose;
+    f.freq = draft.freq; f.dur = draft.dur; f.instr = $("#f-instr").value.trim(); f.fam = $("#f-family").value || undefined; f.preg = $("#f-preg").checked;
+    if (editing === null) FAVS.push(f);
+    $("#fav-drawer").hidden = true; renderFavs(); renderSets();
+    toast("اتحفظت " + drug, "Saved " + drug);
+    if (location.hash.indexOf("empty") !== -1) Tamargi.setState("list");
+  }
+  $("#f-save").addEventListener("click", saveFav);
+  $("#fav-drawer").addEventListener("keydown", function (e) { if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); saveFav(); } });
+  $("#f-delete").addEventListener("click", function () {
+    var i = editing, gone = FAVS.splice(i, 1)[0]; $("#fav-drawer").hidden = true; renderFavs(); renderSets();
+    toast("اتشالت " + gone.drug, "Removed " + gone.drug, ["تراجع", "Undo"], function () { FAVS.splice(i, 0, gone); renderFavs(); renderSets(); });
+  });
+  $("#add-fav-btn").addEventListener("click", function () { openFav(null); });
+
+  /* ---------- Import pack ---------- */
+  /* [name, printed line, status, structured line imported as-is incl. family/pregnancy tags so the allergy check works from day 1] */
+  var PACK = [
+    ["Panadol Extra", "قرص كل ٨ ساعات بعد الأكل لمدة ٥ أيام", "new", { form: "أقراص", dose: "قرص", doseEn: "1 tab", freq: "كل ٨ ساعات", dur: "٥ أيام", instr: "بعد الأكل" }],
+    ["Augmentin 1 g", "قرص كل ١٢ ساعة بعد الأكل لمدة ٧ أيام", "have", { form: "أقراص", dose: "قرص", doseEn: "1 tab", freq: "كل ١٢ ساعة", dur: "٧ أيام", instr: "بعد الأكل", fam: "penicillin" }],
+    ["Flagyl 500 mg", "قرص كل ٨ ساعات بعد الأكل لمدة ٧ أيام", "new", { form: "أقراص", dose: "قرص", doseEn: "1 tab", freq: "كل ٨ ساعات", dur: "٧ أيام", instr: "بعد الأكل", preg: true }],
+    ["Nexium 40 mg", "قرص مرة يوميًا على الريق لمدة ١٤ يوم", "new", { form: "أقراص", dose: "قرص", doseEn: "1 tab", freq: "مرة يوميًا", dur: "١٤ يوم", instr: "على الريق" }],
+    ["Motilium 10 mg", "قرص ٣ مرات يوميًا قبل الأكل لمدة ٧ أيام", "new", { form: "أقراص", dose: "قرص", doseEn: "1 tab", freq: "٣ مرات يوميًا", dur: "٧ أيام", instr: "قبل الأكل" }],
+    ["Rehydran sachets", "كيس في كوب ماء بعد كل مرة إسهال — عند اللزوم", "new", { form: "أكياس", dose: "كيس في كوب ماء", doseEn: "1 sachet", freq: "عند اللزوم", dur: "عند اللزوم", instr: "بعد كل مرة إسهال" }],
+    ["Cataflam 50 mg", "قرص مرتين يوميًا بعد الأكل لمدة ٥ أيام", "new", { form: "أقراص", dose: "قرص", doseEn: "1 tab", freq: "مرتين يوميًا", dur: "٥ أيام", instr: "بعد الأكل", fam: "nsaid", preg: true }],
+    ["Glucophage 500 mg", "قرص مرتين يوميًا مع الأكل — مستمر", "new", { form: "أقراص", dose: "قرص", doseEn: "1 tab", freq: "مرتين يوميًا", dur: "مستمر", instr: "مع الأكل" }]
+  ];
+  function renderImport() {
+    $("#imp-rows").innerHTML = PACK.map(function (p, i) {
+      var have = p[2] === "have";
+      return "<tr" + (have ? ' class="is-muted"' : "") + '><td><input type="checkbox" data-imp="' + i + '"' + (have ? " disabled" : " checked") + ' aria-label="' + esc(p[0]) + '"></td><td><span class="t-name rxf-drug">' + esc(p[0]) + "</span></td><td>" + esc(p[1]) + "</td><td>" +
+        (have ? '<span class="t-chip done">' + L("موجودة عندك", "Already yours") + "</span>" : '<span class="t-chip info">' + L("جديدة", "New") + "</span>") + "</td></tr>";
+    }).join("");
+    impSummary();
+  }
+  function impSummary() { var n = $$("[data-imp]:checked").length; $("#imp-summary").innerHTML = L("هيتضاف " + n + " مفضلة بعلامات الحساسية والحمل · الموجود مش هيتغير", n + " favourites will be added with allergy/pregnancy tags · existing ones unchanged"); }
+  $("#imp-rows").addEventListener("change", impSummary);
+  $("#imp-all").addEventListener("change", function (e) { $$("[data-imp]:not(:disabled)").forEach(function (c) { c.checked = e.target.checked; }); impSummary(); });
+  $("#imp-go").addEventListener("click", function () {
+    var n = $$("[data-imp]:checked").length;
+    $$("[data-imp]:checked").forEach(function (c) { var p = PACK[+c.getAttribute("data-imp")], d = p[3]; FAVS.push({ id: "p" + c.getAttribute("data-imp"), drug: p[0], form: d.form, dose: d.dose, doseEn: d.doseEn, freq: d.freq, dur: d.dur, instr: d.instr, fam: d.fam, preg: !!d.preg, uses: 0, last: ["لسه", "Never"] }); p[2] = "have"; });
+    $("#import-modal").hidden = true; renderFavs(); renderImport();
+    if (location.hash.indexOf("empty") !== -1) Tamargi.setState("list");
+    var sp = document.querySelector('[data-spec][aria-pressed="true"] span');
+    var spAr = sp ? (sp.getAttribute("data-ar") || sp.textContent) : "", spEn = sp ? (sp.getAttribute("data-en") || sp.textContent) : "";
+    toast("اتضاف " + n + " مفضلة من حزمة " + spAr, n + " favourites imported from the " + spEn + " pack");
+  });
+
+  /* ---------- Clicks ---------- */
+  document.addEventListener("click", function (e) {
+    var b;
+    if ((b = e.target.closest("[data-tab]"))) {
+      var t = b.getAttribute("data-tab");
+      $$("[data-tab]").forEach(function (x) { x.setAttribute("aria-selected", String(x === b)); });
+      $("#panel-favs").hidden = t !== "favs"; $("#panel-sets").hidden = t !== "sets"; return;
+    }
+    if ((b = e.target.closest("[data-edit]"))) { openFav(+b.getAttribute("data-edit")); return; }
+    if ((b = e.target.closest("[data-set-edit]"))) { var v = b.getAttribute("data-set-edit"); openSet(v === "new" ? "new" : +v); return; }
+    if ((b = e.target.closest("[data-dpick]"))) { draft[b.getAttribute("data-dpick")] = b.getAttribute("data-v"); picks("#f-freq", FREQ, "freq"); picks("#f-dur", DUR, "dur"); preview(); return; }
+    if ((b = e.target.closest("[data-spec]"))) { $$("[data-spec]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); return; }
+    if (e.target.closest("[data-open='#fav-drawer']")) { openFav(null); }
+    if (e.target.closest("[data-shell-lang]")) setTimeout(function () { renderFavs(); renderSets(); renderImport(); }, 0);
+  });
+  document.addEventListener("keydown", function (e) {
+    var typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
+    var anyOpen = !$("#fav-drawer").hidden || !$("#set-modal").hidden || !$("#import-modal").hidden;
+    if (!typing && !e.ctrlKey && !e.altKey && !e.metaKey && e.code === "KeyN" && !anyOpen) { e.preventDefault(); openFav(null); }
+  });
+
+  renderFavs(); renderSets(); renderImport();
+})();
+</script>
+</body>
+</html>

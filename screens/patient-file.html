@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Patient file — Tamargi">ملف المريض — تمرجي</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style>
+    /* patient-file: tokens only */
+    .pf-item { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--s-3) var(--s-4); }
+    .pf-item:hover { border-color: var(--primary-line); }
+    .pf-item-head { display: flex; align-items: center; flex-wrap: wrap; gap: var(--s-2); margin-block-end: var(--s-1); }
+    .pf-item-head h3 { font-size: var(--fs-md); }
+    .pf-item-head .t-end { display: flex; gap: var(--s-2); align-items: center; }
+    .pf-item p { margin: 0; font-size: var(--fs-sm); color: var(--text-2); }
+    .t-timeline li.k-pay::before { border-color: var(--success-fg); }
+    .t-timeline li.k-rx::before { border-color: var(--ink-400); }
+    .t-timeline li.k-att::before, .t-timeline li.k-cert::before { border-color: var(--line-strong); }
+    .t-timeline li.k-now::before { background: var(--primary); }
+    .pf-day { font-size: var(--fs-xs); font-weight: var(--fw-sb); color: var(--text-3); margin: 0 0 var(--s-2); padding-inline-start: 28px; }
+    .pf-cond { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s-2); }
+    .pf-cond li { display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); }
+    .pf-drop { border: 2px dashed var(--line-strong); border-radius: var(--r-md); padding: var(--s-5) var(--s-4); text-align: center; color: var(--text-2); font-size: var(--fs-sm); background: var(--surface-sunk); transition: border-color var(--dur), background var(--dur); }
+    .pf-drop.is-over { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+    .pf-files { list-style: none; margin: 0; padding: 0; }
+    .pf-files li { display: flex; align-items: center; gap: var(--s-3); padding-block: var(--s-2); border-block-end: 1px solid var(--line); font-size: var(--fs-sm); }
+    .pf-files li:last-child { border-block-end: 0; }
+    .pf-thumb { width: 40px; height: 40px; border-radius: var(--r-xs); background: var(--primary-soft); color: var(--primary); display: grid; place-items: center; flex: none; }
+    .pf-comment { padding: var(--s-3); border-radius: var(--r-sm); background: var(--warning-bg); color: var(--warning-fg); font-size: var(--fs-sm); }
+    .pf-comment small { display: block; color: var(--text-3); margin-block-start: 2px; }
+    .pf-qr { width: 148px; height: 148px; margin-inline: auto; background: var(--n-0); padding: 8px; border-radius: var(--r-sm); border: 1px solid var(--line); }
+    .pf-qr rect { fill: var(--n-900); }
+    .pf-cond-row { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1.3fr) minmax(0, 1.2fr) auto; gap: var(--s-2); align-items: end; }
+    @media (max-width: 640px) { .pf-cond-row { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body data-screen="patient-file">
+<main id="screen">
+
+  <section class="t-banner" aria-label="المريض" data-en-aria-label="Patient"
+           data-note="Pinned patient banner on every clinical screen: name, age/sex, file no., phone, allergy (solid red, icon + word), chronic conditions, debt, free follow-up window. NITCO v94 spreads this over 3 header cards and 15 grey boxes; here it is one line that stays visible while scrolling."
+           data-note-ar="شريط المريض الثابت: الاسم والسن ورقم الملف والموبايل والحساسية والأمراض المزمنة والمديونية ومدة الاستشارة المجانية في سطر واحد ثابت.">
+    <div class="t-banner-id">
+      <span class="t-avatar">م ش</span>
+      <div>
+        <div class="t-banner-name">منى عبد الرحمن السيد الشناوي</div>
+        <div class="t-banner-facts">
+          <span><b>٣٤</b> <span data-en="yrs · F">سنة · أنثى</span></span>
+          <span><span data-en="File">ملف</span> <b class="t-ltr">1043</b></span>
+          <span class="t-ltr">0100 234 5678</span>
+          <span data-en="Patient since Mar 2024">مريضة من مارس ٢٠٢٤</span>
+        </div>
+      </div>
+    </div>
+    <div class="t-banner-alerts">
+      <span class="t-allergy"><svg class="t-icon sm"><use href="#i-alert"/></svg><span data-en="Allergy: Penicillin (severe)">حساسية: بنسلين (شديدة)</span></span>
+      <span class="t-flag" data-en="Hypertension · Hypothyroidism">ضغط · غدة درقية</span>
+      <a class="t-balance debt" href="patient-account.html" style="text-decoration:none" data-en="Owes 40 EGP">عليها ٤٠ ج.م</a>
+      <span class="t-balance followup" data-en="Free follow-up until 16 Nov">استشارة مجانية حتى ١٦ نوفمبر</span>
+    </div>
+  </section>
+
+  <div class="t-container">
+    <header class="t-screen-head">
+      <div>
+        <h1 data-en="Patient file">ملف المريض</h1>
+        <p class="t-sub mb-0" data-en="Everything about Mona on one page: one timeline, newest first.">كل حاجة عن منى في صفحة واحدة: خط زمني واحد، الأحدث فوق.</p>
+      </div>
+      <div class="t-actions"
+           data-note="Actions live on the patient, not in separate apps: New visit, Book, Collect, Statement. NITCO v94 hides these behind a toolbar of unlabelled icons and opens the statement in a new blank tab."
+           data-note-ar="الإجراءات على ملف المريض نفسه بكلمات واضحة: كشف جديد، حجز، تحصيل، كشف حساب.">
+        <a class="t-btn" href="patient-account.html"><svg class="t-icon sm"><use href="#i-receipt"/></svg><span data-en="Statement">كشف حساب</span></a>
+        <a class="t-btn" href="cashier-checkout.html"><svg class="t-icon sm"><use href="#i-cash"/></svg><span data-en="Collect">تحصيل</span><span class="t-kbd">F9</span></a>
+        <a class="t-btn" href="appointment-book.html"><svg class="t-icon sm"><use href="#i-calendar"/></svg><span data-en="Book">حجز موعد</span></a>
+        <a class="t-btn primary" href="visit-note.html"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="New visit">كشف جديد</span><span class="t-kbd">F2</span></a>
+      </div>
+    </header>
+
+    <div class="t-split three">
+
+      <!-- Profile column -->
+      <div class="t-stack">
+        <section class="t-card">
+          <div class="t-card-head"><h2 data-en="Details">البيانات</h2><div class="t-actions"><button class="t-btn sm ghost" type="button" data-toast="(نموذج) تعديل البيانات" data-toast-en="(prototype) edit details"><svg class="t-icon sm"><use href="#i-edit"/></svg><span data-en="Edit">تعديل</span></button></div></div>
+          <dl class="t-dl">
+            <dt data-en="Born">الميلاد</dt><dd><span class="t-ltr">12/03/1992</span></dd>
+            <dt data-en="National ID">الرقم القومي</dt><dd><span class="t-ltr">2920312••••••5</span></dd>
+            <dt data-en="Address">العنوان</dt><dd data-en="Talkha, El-Bahr St.">طلخا، شارع البحر</dd>
+            <dt data-en="Job">الوظيفة</dt><dd data-en="Teacher">مدرّسة</dd>
+            <dt data-en="Payer">الدفع</dt><dd data-en="Cash · no discount">كاش · بدون خصم</dd>
+            <dt data-en="Came via">عرفتنا من</dt><dd data-en="A neighbour">جارتها</dd>
+          </dl>
+        </section>
+
+        <section class="t-card" aria-labelledby="clinT"
+                 data-note="Allergies and chronic conditions with a start date (NITCO v24, v29). Entering one turns on the red banner badge everywhere and feeds the allergy check in the prescription. 'No known allergies' is an explicit answer, not an empty box."
+                 data-note-ar="الحساسية والأمراض المزمنة بتاريخ البداية. أي حساسية بتظهر في الشريط الأحمر وبتتراجع عليها الروشتة. «لا توجد حساسية» إجابة صريحة مش خانة فاضية.">
+          <div class="t-card-head"><h2 id="clinT" data-en="Allergies & conditions">الحساسية والأمراض المزمنة</h2>
+            <div class="t-actions"><button class="t-btn sm" type="button" data-open="#clinEditor"><svg class="t-icon sm"><use href="#i-edit"/></svg><span data-en="Edit">تعديل</span></button></div>
+          </div>
+          <h4 class="t-small t-muted mb-2" data-en="Allergies">الحساسية</h4>
+          <ul class="pf-cond mb-4">
+            <li><span class="t-chip danger" data-en="Severe">شديدة</span><b>Penicillin</b><span class="t-faint" data-en="· rash, short breath · since 2015">· طفح وضيق نفس · من ٢٠١٥</span></li>
+          </ul>
+          <h4 class="t-small t-muted mb-2" data-en="Chronic conditions">أمراض مزمنة</h4>
+          <ul class="pf-cond">
+            <li><span class="t-chip plain" data-en="Active">نشط</span><span data-en="Essential hypertension">ضغط مرتفع</span><span class="t-faint t-ltr">I10 · 01/2024</span></li>
+            <li><span class="t-chip plain" data-en="Active">نشط</span><span data-en="Hypothyroidism">قصور الغدة الدرقية</span><span class="t-faint t-ltr">E03.9 · 06/2023</span></li>
+          </ul>
+        </section>
+
+        <section class="t-card" aria-labelledby="altT"
+                 data-note="Alerts and comments on the file, each with who sees it (doctor, billing, reception). From NITCO v94 (patient comments shown in invoice and doctor screens); we add the audience and the author so notes are not anonymous."
+                 data-note-ar="تنبيهات وتعليقات على الملف وكل واحد مكتوب مين بيشوفه (الدكتور، الحسابات، الاستقبال) ومين كتبه.">
+          <div class="t-card-head"><h2 id="altT" data-en="Alerts & comments">تنبيهات وتعليقات</h2></div>
+          <div class="t-stack">
+            <div class="pf-comment"><span data-en="Prefers appointments after 7 pm (school).">بتفضّل المواعيد بعد ٧ م (عندها مدرسة).</span><small data-en="Reception · Mai · 3 Nov · seen by everyone">الاستقبال · مي · ٣ نوفمبر · للكل</small></div>
+            <div class="pf-comment"><span data-en="Pays the rest next visit — agreed with doctor.">هتدفع الباقي الزيارة الجاية — باتفاق مع الدكتور.</span><small data-en="Dr. Ahmed · 2 Nov · billing + reception">د. أحمد · ٢ نوفمبر · الحسابات والاستقبال</small></div>
+            <div class="t-field">
+              <label class="t-sr" for="newC" data-en="New comment">تعليق جديد</label>
+              <input id="newC" class="t-input" placeholder="اكتب تنبيه…" data-en-placeholder="Write an alert…">
+              <div class="t-row tight">
+                <label class="t-check"><input type="checkbox" checked><span data-en="Doctor">الدكتور</span></label>
+                <label class="t-check"><input type="checkbox" checked><span data-en="Billing">الحسابات</span></label>
+                <label class="t-check"><input type="checkbox"><span data-en="Reception">الاستقبال</span></label>
+                <button class="t-btn sm t-end" type="button" data-toast="اتضاف التنبيه" data-toast-en="Alert added"><span data-en="Add">إضافة</span></button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Timeline -->
+      <section class="t-card" aria-labelledby="tlT">
+        <div class="t-card-head mb-0"><h2 id="tlT" data-en="Timeline">الخط الزمني</h2>
+          <div class="t-actions"><button class="t-btn sm ghost" type="button" data-toast="(نموذج) طباعة ملخص الملف" data-toast-en="(prototype) print file summary"><svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Print summary">طباعة ملخص</span></button></div>
+        </div>
+        <div class="t-tabs mt-2" role="tablist"
+             data-note="One timeline for everything: visits, prescriptions, certificates, payments, attachments, vitals. Filters are tabs over the same list, so nothing lives on a separate page (NITCO keeps attachments, statement and visit history on three different screens)."
+             data-note-ar="خط زمني واحد لكل حاجة: زيارات وروشتات وشهادات ومدفوعات ومرفقات. الفلاتر تابات على نفس القائمة.">
+          <button class="t-tab" role="tab" aria-selected="true" data-tl="all" data-en="All">الكل</button>
+          <button class="t-tab" role="tab" aria-selected="false" data-tl="visit" data-en="Visits">الزيارات</button>
+          <button class="t-tab" role="tab" aria-selected="false" data-tl="rx" data-en="Prescriptions">الروشتات</button>
+          <button class="t-tab" role="tab" aria-selected="false" data-tl="cert" data-en="Certificates">الشهادات</button>
+          <button class="t-tab" role="tab" aria-selected="false" data-tl="pay" data-en="Payments">المدفوعات</button>
+          <button class="t-tab" role="tab" aria-selected="false" data-tl="att" data-en="Attachments">المرفقات</button>
+        </div>
+
+        <div data-state="default">
+          <p class="pf-day" data-en="Today · Sat 14 Nov">النهارده · السبت ١٤ نوفمبر</p>
+          <ol class="t-timeline" id="tl">
+            <li class="k-now" data-k="visit">
+              <div class="pf-item" style="border-color:var(--primary-line)">
+                <div class="pf-item-head"><span class="t-chip called" data-en="Waiting for doctor">مستنية الدكتور</span><h3 data-en="Visit — free follow-up">زيارة — استشارة مجانية</h3>
+                  <span class="t-end"><a class="t-btn sm soft" href="visit-note.html" data-en="Open visit">فتح الزيارة</a></span></div>
+                <p data-en="Dr. Ahmed · ticket A-16 · consult fee 0 EGP (inside 14-day window from 2 Nov)">د. أحمد · تذكرة A-16 · الكشف ٠ ج.م (جوه مدة ١٤ يوم من ٢ نوفمبر)</p>
+              </div>
+            </li>
+            <li class="k-now" data-k="visit">
+              <div class="pf-item">
+                <div class="pf-item-head"><span class="t-chip plain" data-en="Vitals">قياسات</span><h3 class="t-ltr">BP 150/95 · P 88 · T 37.1 · SpO₂ 98 · 72 kg</h3><span class="t-chip danger plain" data-en="BP high">ضغط عالي</span></div>
+                <p data-en="Nurse Samar · 7:18 pm · 'Headache 3 days, missed Concor twice'">الممرضة سمر · ٧:١٨ م · «صداع ٣ أيام، نسيت الكونكور مرتين»</p>
+              </div>
+            </li>
+          </ol>
+
+          <p class="pf-day" data-en="Mon 2 Nov">الاتنين ٢ نوفمبر</p>
+          <ol class="t-timeline">
+            <li data-k="visit">
+              <div class="pf-item">
+                <div class="pf-item-head"><span class="t-chip done" data-en="Visit">زيارة</span><h3 data-en="Essential hypertension">ضغط مرتفع</h3><span class="t-faint t-small t-ltr">I10</span>
+                  <span class="t-end"><a class="t-btn sm ghost" href="visit-note.html" data-en="View">عرض</a></span></div>
+                <p data-en="S: headaches on waking. O: BP 160/100, ECG normal sinus rhythm. A: uncontrolled HTN. P: start Concor 5, low-salt diet, follow-up in 2 weeks.">ش: صداع أول ما تصحى. ف: ضغط ١٦٠/١٠٠، رسم القلب طبيعي. ت: ضغط غير منتظم. خ: كونكور ٥، تقليل الملح، متابعة بعد أسبوعين.</p>
+              </div>
+            </li>
+            <li class="k-rx" data-k="rx">
+              <div class="pf-item">
+                <div class="pf-item-head"><span class="t-chip info" data-en="Prescription">روشتة</span><h3 class="t-ltr">Concor 5 mg · Panadol 500 mg</h3>
+                  <span class="t-end"><a class="t-btn sm ghost" href="prescription-print.html"><svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Reprint">إعادة طباعة</span></a><a class="t-btn sm ghost" href="prescription-builder.html"><svg class="t-icon sm"><use href="#i-copy"/></svg><span data-en="Repeat">تكرار</span></a></span></div>
+                <p data-en="1 tab once daily after breakfast · 30 days | 1 tab when needed for headache, max 3/day">قرص مرة يوميًا بعد الفطار · ٣٠ يوم | قرص عند اللزوم للصداع، أقصى ٣ يوميًا</p>
+              </div>
+            </li>
+            <li class="k-pay" data-k="pay">
+              <div class="pf-item">
+                <div class="pf-item-head"><span class="t-chip partial" data-en="Part paid">دفع جزء</span><h3 data-en="Invoice INV-00412 · 400 EGP">فاتورة INV-00412 · ٤٠٠ ج.م</h3>
+                  <span class="t-end"><a class="t-btn sm ghost" href="invoice-detail.html" data-en="Open invoice">فتح الفاتورة</a></span></div>
+                <p data-en="Consult 250 + ECG 150 · paid 360 cash (Mai) · 40 EGP left as debt">كشف ٢٥٠ + رسم قلب ١٥٠ · دفعت ٣٦٠ كاش (مي) · ٤٠ ج.م مديونية</p>
+              </div>
+            </li>
+            <li class="k-att" data-k="att">
+              <div class="pf-item">
+                <div class="pf-item-head"><span class="t-chip plain" data-en="Imaging">أشعة / رسم</span><h3 data-en="ECG tracing (photo)">رسم قلب (صورة)</h3>
+                  <span class="t-end"><button class="t-btn sm ghost" type="button" data-toast="(نموذج) فتح الصورة" data-toast-en="(prototype) open image"><svg class="t-icon sm"><use href="#i-eye"/></svg><span data-en="View">عرض</span></button></span></div>
+                <p data-en="Uploaded from the clinic phone by Mai">اترفعت من موبايل العيادة بواسطة مي</p>
+              </div>
+            </li>
+          </ol>
+
+          <p class="pf-day" data-en="Sun 20 Sep">الأحد ٢٠ سبتمبر</p>
+          <ol class="t-timeline">
+            <li data-k="visit">
+              <div class="pf-item">
+                <div class="pf-item-head"><span class="t-chip done" data-en="Visit">زيارة</span><h3 data-en="Hypothyroidism — review">قصور الغدة — متابعة</h3><span class="t-faint t-small t-ltr">E03.9</span></div>
+                <p data-en="TSH 6.2 mIU/L. Euthyrox raised from 25 to 50 mcg. Repeat TSH in 6 weeks.">TSH ٦٫٢. زيادة يوثيروكس من ٢٥ لـ ٥٠ ميكروجرام. تحليل TSH بعد ٦ أسابيع.</p>
+              </div>
+            </li>
+            <li class="k-cert" data-k="cert">
+              <div class="pf-item">
+                <div class="pf-item-head"><span class="t-chip plain" data-en="Certificate">شهادة</span><h3 data-en="Sick leave · 2 days (20–21 Sep)">إجازة مرضية · يومين (٢٠–٢١ سبتمبر)</h3>
+                  <span class="t-end"><a class="t-btn sm ghost" href="prescription-print.html#state=certificate"><svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Reprint">إعادة طباعة</span></a></span></div>
+                <p data-en="For the school administration · Arabic">لإدارة المدرسة · عربي</p>
+              </div>
+            </li>
+            <li class="k-pay" data-k="pay">
+              <div class="pf-item">
+                <div class="pf-item-head"><span class="t-chip paid" data-en="Paid">مدفوع</span><h3 data-en="Receipt RC-00311 · 250 EGP">إيصال RC-00311 · ٢٥٠ ج.م</h3></div>
+                <p data-en="Consult · cash">كشف · كاش</p>
+              </div>
+            </li>
+            <li class="k-att" data-k="att">
+              <div class="pf-item">
+                <div class="pf-item-head"><span class="t-chip plain" data-en="Lab">تحاليل</span><h3 data-en="Thyroid profile — outside lab">وظائف غدة — معمل خارجي</h3>
+                  <span class="t-end"><button class="t-btn sm ghost" type="button" data-toast="(نموذج) فتح ملف PDF" data-toast-en="(prototype) open PDF"><svg class="t-icon sm"><use href="#i-eye"/></svg><span data-en="View">عرض</span></button></span></div>
+                <p class="t-ltr" style="display:block">PDF · 18/09/2026</p>
+              </div>
+            </li>
+          </ol>
+          <div class="t-row mt-2" style="padding-inline-start:28px"><button class="t-btn sm" type="button" data-toast="(نموذج) تحميل الأقدم" data-toast-en="(prototype) load older"><span data-en="Show 6 older items (2024–2025)">عرض ٦ أقدم (٢٠٢٤–٢٠٢٥)</span></button></div>
+        </div>
+
+        <div data-state="new-file">
+          <div class="t-empty">
+            <div class="t-empty-art"><svg class="t-icon"><use href="#i-file"/></svg></div>
+            <h3 data-en="New file — nothing here yet">ملف جديد — لسه مفيش حاجة</h3>
+            <p data-en="The first visit, payment or upload will appear here. Add known allergies now so the prescription can check them.">أول زيارة أو دفع أو مرفق هيظهر هنا. ضيف الحساسية المعروفة دلوقتي عشان الروشتة تراجع عليها.</p>
+            <div class="t-row tight"><a class="t-btn primary" href="visit-note.html"><span data-en="Start first visit">ابدأ أول كشف</span></a><button class="t-btn" type="button" data-open="#clinEditor"><span data-en="Add allergies">إضافة حساسية</span></button></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Aside -->
+      <aside class="t-stack">
+        <section class="t-card" aria-labelledby="attT"
+                 data-note="Attachments: drag-drop on desktop, or scan a QR to shoot with the phone camera; each file gets a type (lab, imaging, ID, report). Beats NITCO v94's native 'Browse… / Upload' page that leaves the patient file."
+                 data-note-ar="المرفقات: اسحب وأفلت أو صوّر بالموبايل عن طريق كود QR، وكل ملف له نوع (تحاليل، أشعة، بطاقة، تقرير).">
+          <div class="t-card-head"><h2 id="attT" data-en="Attachments">المرفقات</h2><span class="t-badge muted">3</span></div>
+          <div class="t-field mb-2">
+            <label class="t-label" for="attType" data-en="Type of the next upload">نوع الملف اللي هيترفع</label>
+            <select id="attType" class="t-select">
+              <option data-en="Lab result">تحاليل</option>
+              <option data-en="Imaging / ECG">أشعة / رسم قلب</option>
+              <option data-en="ID card">بطاقة شخصية</option>
+              <option data-en="Outside report">تقرير خارجي</option>
+              <option data-en="Other">أخرى</option>
+            </select>
+          </div>
+          <div class="pf-drop mb-2" id="drop" tabindex="0" role="button" aria-label="رفع ملف" data-en-aria-label="Upload">
+            <svg class="t-icon lg"><use href="#i-download"/></svg>
+            <div><b data-en="Drop files here">اسحب الملفات هنا</b></div>
+            <div class="t-hint" data-en="or click to choose · photo, PDF · up to 10 MB">أو اضغط للاختيار · صورة أو PDF · لحد ١٠ ميجا</div>
+          </div>
+          <button class="t-btn block" type="button" data-open="#phoneCam"><svg class="t-icon sm"><use href="#i-phone"/></svg><span data-en="Take photo with phone">صوّر بالموبايل</span></button>
+          <ul class="pf-files mt-4">
+            <li><span class="pf-thumb"><svg class="t-icon"><use href="#i-heart"/></svg></span><span class="t-grow"><span style="display:block" data-en="ECG tracing">رسم قلب</span><span class="t-hint t-ltr">02/11/2026 · JPG</span></span><span class="t-chip plain" data-en="Imaging">أشعة</span></li>
+            <li><span class="pf-thumb"><svg class="t-icon"><use href="#i-file"/></svg></span><span class="t-grow"><span style="display:block" data-en="Thyroid profile">وظائف غدة</span><span class="t-hint t-ltr">18/09/2026 · PDF</span></span><span class="t-chip plain" data-en="Lab">تحاليل</span></li>
+            <li><span class="pf-thumb"><svg class="t-icon"><use href="#i-card"/></svg></span><span class="t-grow"><span style="display:block" data-en="National ID (front)">البطاقة (وش)</span><span class="t-hint t-ltr">11/03/2024 · JPG</span></span><span class="t-chip plain" data-en="ID">بطاقة</span></li>
+          </ul>
+        </section>
+
+        <section class="t-card sunk">
+          <div class="t-card-head"><h3 data-en="Account">الحساب</h3><a class="t-end t-small" href="patient-account.html" data-en="Open account">فتح الحساب</a></div>
+          <dl class="t-totals">
+            <dt data-en="Debt">مديونية</dt><dd><span class="t-money debt">40<span class="cur">ج.م</span></span></dd>
+            <dt data-en="Deposit">رصيد مقدم</dt><dd><span class="t-money">0<span class="cur">ج.م</span></span></dd>
+            <dt data-en="Free follow-up">استشارة مجانية</dt><dd data-en="until 16 Nov (2 days)">حتى ١٦ نوفمبر (يومين)</dd>
+            <dt data-en="Next booking">الحجز الجاي</dt><dd data-en="none">مفيش</dd>
+          </dl>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Drawer: allergies & conditions editor -->
+  <div class="t-scrim" id="clinEditor" hidden>
+    <div class="t-modal lg" role="dialog" aria-modal="true" aria-labelledby="ceT">
+      <div class="t-modal-head"><h2 id="ceT" data-en="Allergies & chronic conditions">الحساسية والأمراض المزمنة</h2>
+        <button class="t-btn icon ghost" type="button" data-close aria-label="إغلاق" data-en-aria-label="Close" title="إغلاق" data-en-title="Close"><svg class="t-icon"><use href="#i-close"/></svg></button></div>
+      <div class="t-modal-body t-stack lg">
+        <div>
+          <div class="t-row between mb-2"><h3 data-en="Allergies">الحساسية</h3><label class="t-check"><input type="checkbox"><span data-en="No known allergies">لا توجد حساسية معروفة</span></label></div>
+          <div class="pf-cond-row mb-2">
+            <div class="t-field"><label class="t-label" for="alSub" data-en="Substance or drug">المادة أو الدوا</label><input id="alSub" class="t-input ltr" value="Penicillin"></div>
+            <div class="t-field"><label class="t-label" for="alRx" data-en="Reaction">رد الفعل</label><input id="alRx" class="t-input" value="طفح وضيق نفس" placeholder="رد الفعل" data-en-placeholder="Reaction"></div>
+            <div class="t-field"><span class="t-label" id="alSevL" data-en="Severity">الشدة</span>
+              <div class="t-seg" role="group" aria-labelledby="alSevL"><button type="button" aria-pressed="false" data-en="Mild">بسيطة</button><button type="button" aria-pressed="true" data-en="Severe">شديدة</button></div></div>
+            <button class="t-btn icon ghost" type="button" aria-label="حذف" data-en-aria-label="Remove" title="حذف" data-en-title="Remove"><svg class="t-icon"><use href="#i-trash"/></svg></button>
+          </div>
+          <div class="t-hint mb-2" data-en="Severe allergies interrupt the prescription with a warning. Mild ones show inline.">الحساسية الشديدة بتوقف الروشتة بتحذير. البسيطة بتظهر كملاحظة بس.</div>
+          <button class="t-btn sm" type="button"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="Add allergy">إضافة حساسية</span></button>
+        </div>
+        <hr class="mt-0">
+        <div>
+          <h3 class="mb-2" data-en="Chronic conditions">الأمراض المزمنة</h3>
+          <div class="pf-cond-row mb-2">
+            <div class="t-field"><label class="t-label" for="cnd1" data-en="Condition">المرض</label><input id="cnd1" class="t-input" value="ضغط مرتفع" placeholder="المرض" data-en-placeholder="Condition"></div>
+            <div class="t-field"><label class="t-label" for="cnd1c" data-en="ICD-10 (optional)">ICD-10 (اختياري)</label><input id="cnd1c" class="t-input ltr" value="I10"></div>
+            <div class="t-field"><label class="t-label" for="cnd1d" data-en="Since">من</label><input id="cnd1d" class="t-input ltr" type="month" value="2024-01"></div>
+            <button class="t-btn icon ghost" type="button" aria-label="حذف" data-en-aria-label="Remove" title="حذف" data-en-title="Remove"><svg class="t-icon"><use href="#i-trash"/></svg></button>
+          </div>
+          <div class="pf-cond-row mb-2">
+            <div class="t-field"><input class="t-input" value="قصور الغدة الدرقية" aria-label="المرض" data-en-aria-label="Condition"></div>
+            <div class="t-field"><input class="t-input ltr" value="E03.9" aria-label="ICD-10"></div>
+            <div class="t-field"><input class="t-input ltr" type="month" value="2023-06" aria-label="من" data-en-aria-label="Since"></div>
+            <button class="t-btn icon ghost" type="button" aria-label="حذف" data-en-aria-label="Remove" title="حذف" data-en-title="Remove"><svg class="t-icon"><use href="#i-trash"/></svg></button>
+          </div>
+          <div class="t-row tight">
+            <span class="t-small t-muted" data-en="Common:">شائع:</span>
+            <button class="t-pick" type="button" data-en="Diabetes type 2">سكر نوع ٢</button>
+            <button class="t-pick" type="button" data-en="Asthma">ربو</button>
+            <button class="t-pick" type="button" data-en="Hepatitis C (treated)">فيروس سي (اتعالج)</button>
+            <button class="t-pick" type="button" data-en="Pregnant">حامل</button>
+          </div>
+        </div>
+      </div>
+      <div class="t-modal-foot">
+        <button class="t-btn" type="button" data-close data-en="Cancel">إلغاء</button>
+        <button class="t-btn primary" type="button" data-close data-toast="اتحفظت الحساسية والأمراض المزمنة" data-toast-en="Allergies and conditions saved" data-en="Save">حفظ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: phone camera upload -->
+  <div class="t-scrim" id="phoneCam" hidden>
+    <div class="t-modal" role="dialog" aria-modal="true" aria-labelledby="pcT">
+      <div class="t-modal-head"><h2 id="pcT" data-en="Upload from your phone">ارفع من الموبايل</h2>
+        <button class="t-btn icon ghost" type="button" data-close aria-label="إغلاق" data-en-aria-label="Close" title="إغلاق" data-en-title="Close"><svg class="t-icon"><use href="#i-close"/></svg></button></div>
+      <div class="t-modal-body t-stack" style="text-align:center">
+        <svg class="pf-qr" viewBox="0 0 21 21" aria-label="كود QR" data-en-aria-label="QR code" role="img">
+          <rect x="0" y="0" width="7" height="1"/><rect x="0" y="6" width="7" height="1"/><rect x="0" y="0" width="1" height="7"/><rect x="6" y="0" width="1" height="7"/><rect x="2" y="2" width="3" height="3"/>
+          <rect x="14" y="0" width="7" height="1"/><rect x="14" y="6" width="7" height="1"/><rect x="14" y="0" width="1" height="7"/><rect x="20" y="0" width="1" height="7"/><rect x="16" y="2" width="3" height="3"/>
+          <rect x="0" y="14" width="7" height="1"/><rect x="0" y="20" width="7" height="1"/><rect x="0" y="14" width="1" height="7"/><rect x="6" y="14" width="1" height="7"/><rect x="2" y="16" width="3" height="3"/>
+          <rect x="9" y="1" width="2" height="2"/><rect x="8" y="5" width="1" height="3"/><rect x="10" y="8" width="3" height="1"/><rect x="9" y="11" width="2" height="2"/><rect x="13" y="10" width="2" height="1"/><rect x="16" y="9" width="3" height="2"/><rect x="8" y="15" width="2" height="1"/><rect x="11" y="14" width="1" height="4"/><rect x="14" y="15" width="3" height="2"/><rect x="18" y="13" width="2" height="2"/><rect x="9" y="19" width="4" height="1"/><rect x="15" y="18" width="1" height="3"/><rect x="18" y="18" width="3" height="1"/><rect x="1" y="9" width="3" height="1"/><rect x="4" y="11" width="2" height="2"/>
+        </svg>
+        <p class="mb-0" data-en="Scan with the clinic phone's camera. Photos go straight into Mona's file as 'Lab result'. The link works for 10 minutes.">امسح الكود بكاميرا موبايل العيادة. الصور هتنزل على ملف منى كـ«تحاليل». اللينك شغال ١٠ دقايق.</p>
+        <div class="t-alert info"><svg class="t-icon"><use href="#i-info"/></svg><span data-en="No app to install. Works on any phone browser.">مش محتاج تنزّل أي برنامج. شغال من متصفح أي موبايل.</span></div>
+      </div>
+      <div class="t-modal-foot"><button class="t-btn" type="button" data-close data-en="Done">تمام</button></div>
+    </div>
+  </div>
+</main>
+<script src="../assets/shell.js"></script>
+<script>
+(function () {
+  /* timeline filter tabs */
+  var tabs = document.querySelectorAll("[data-tl]");
+  tabs.forEach(function (t) {
+    t.addEventListener("click", function () {
+      var k = t.getAttribute("data-tl");
+      tabs.forEach(function (x) { x.setAttribute("aria-selected", String(x === t)); });
+      document.querySelectorAll("[data-k]").forEach(function (li) { li.hidden = !(k === "all" || li.getAttribute("data-k") === k); });
+      document.querySelectorAll(".pf-day").forEach(function (d) {
+        var list = d.nextElementSibling; if (!list) return;
+        var any = Array.prototype.some.call(list.querySelectorAll("[data-k]"), function (li) { return !li.hidden; });
+        d.hidden = !any; list.hidden = !any;
+      });
+    });
+  });
+  /* drag & drop demo */
+  var drop = document.getElementById("drop");
+  ["dragenter", "dragover"].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("is-over"); }); });
+  ["dragleave", "drop"].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove("is-over"); }); });
+  function uploaded() {
+    var sel = document.getElementById("attType"); var type = sel.options[sel.selectedIndex].textContent;
+    Tamargi.toast(Tamargi.lang() === "en" ? "Uploaded as " + type : "اترفع كـ" + type);
+  }
+  drop.addEventListener("drop", uploaded);
+  drop.addEventListener("click", uploaded);
+  drop.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); uploaded(); } });
+  /* severity segmented buttons */
+  document.querySelectorAll(".t-modal .t-seg").forEach(function (g) {
+    g.addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; g.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); });
+  });
+  document.querySelectorAll(".t-modal .t-pick").forEach(function (p) { p.addEventListener("click", function () { p.classList.toggle("is-on"); }); });
+  document.addEventListener("keydown", function (e) {
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    if (e.key === "F2") { e.preventDefault(); location.href = "visit-note.html"; }
+    if (e.key === "F9") { e.preventDefault(); location.href = "cashier-checkout.html"; }
+  });
+})();
+</script>
+</body>
+</html>

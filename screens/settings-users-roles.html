@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Users & roles — Tamargi">المستخدمون والصلاحيات — تمرجي</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style>
+    /* page-specific CSS: tokens only */
+    .ur-seats { display: flex; align-items: center; gap: var(--s-3); }
+    .ur-meter { width: 140px; height: 8px; border-radius: var(--r-pill); background: var(--surface-sunk); border: 1px solid var(--line); overflow: hidden; }
+    .ur-meter > i { display: block; height: 100%; background: var(--primary); }
+    .ur-roles { display: flex; flex-wrap: wrap; gap: 4px; }
+    .ur-role { display: inline-flex; align-items: center; height: 22px; padding-inline: 8px; border-radius: var(--r-xs); background: var(--primary-soft); color: var(--primary); font-size: var(--fs-xs); font-weight: var(--fw-m); }
+    .ur-cap-group + .ur-cap-group { margin-block-start: var(--s-4); }
+    .ur-cap-group h4 { font-size: var(--fs-sm); color: var(--text-2); font-weight: var(--fw-sb); margin-block-end: var(--s-2); }
+    .ur-cap { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: var(--s-2); align-items: center; padding: 6px 0; font-size: var(--fs-sm); border-block-end: 1px dashed var(--line); }
+    .ur-cap .t-icon { width: 16px; height: 16px; }
+    .ur-cap.on .t-icon { color: var(--success-fg); }
+    .ur-cap.off { color: var(--text-3); }
+    .ur-cap small { font-size: var(--fs-xs); color: var(--text-3); }
+    .ur-matrix th, .ur-matrix td { text-align: center; }
+    .ur-matrix th:first-child, .ur-matrix td:first-child { text-align: start; }
+    .ur-yes { color: var(--success-fg); display: inline-flex; align-items: center; gap: 4px; font-size: var(--fs-xs); }
+    .ur-no { color: var(--text-3); font-size: var(--fs-xs); }
+    .ur-who { display: flex; align-items: center; gap: var(--s-3); }
+    @media (max-width: 760px) { .ur-hide-sm { display: none; } }
+    .ur-br-table td { height: auto; padding-block: var(--s-2); }
+    .ur-br-table .t-pick { height: 26px; padding-inline: 10px; font-size: var(--fs-xs); }
+  </style>
+</head>
+<body data-screen="settings-users-roles">
+<main id="screen">
+  <div class="t-container">
+
+    <header class="t-screen-head">
+      <div>
+        <h1 data-en="Users & roles">المستخدمون والصلاحيات</h1>
+        <p class="t-sub mb-0" data-en="Who works in the clinic and what each person can do, in plain words.">مين بيشتغل في العيادة وكل واحد يقدر يعمل إيه، بكلام واضح.</p>
+      </div>
+      <div class="t-actions">
+        <div class="ur-seats t-card" style="padding:var(--s-2) var(--s-3)"
+             data-note="Seats used vs plan, shown before inviting (NITCO v64 counts licences per user type but only inside the admin app). Deactivated users free their seat and keep their history."
+             data-note-ar="المقاعد المستخدمة مقابل الباقة، ظاهرة قبل الدعوة (NITCO بيعدّ التراخيص بس جوه برنامج الإدارة). المستخدم الموقوف بيفضّي مقعده وتاريخه بيفضل.">
+          <div><div class="t-small"><b>5</b> <span data-en="of 6 seats">من ٦ مقاعد</span></div><div class="ur-meter" aria-hidden="true"><i style="width:83%"></i></div></div>
+          <a class="t-small" href="subscription-plan.html" data-en="Clinic plan">باقة العيادة</a>
+        </div>
+        <button class="t-btn primary" type="button" data-open="#ur-invite"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="Invite person">ضيف شخص</span><span class="t-kbd">I</span></button>
+      </div>
+    </header>
+
+    <div class="t-tabs" role="tablist">
+      <button class="t-tab" role="tab" aria-selected="true" data-tab="users"><span data-en="People">الأشخاص</span> <span class="t-badge muted">6</span></button>
+      <button class="t-tab" role="tab" aria-selected="false" data-tab="roles" data-en="Role presets">الأدوار الجاهزة</button>
+    </div>
+
+    <!-- ============ USERS ============ -->
+    <section data-panel="users">
+      <div class="t-table-wrap">
+        <table class="t-table">
+          <thead><tr>
+            <th data-en="Person">الشخص</th>
+            <th data-en="Roles" data-note="Five presets (owner, doctor, receptionist, cashier, nurse); one person can hold several. Most Egyptian solo clinics have one assistant who is receptionist and cashier at once (NITCO v65 applies RECEPTIONIST + reception-cashier to one user)." data-note-ar="٥ أدوار جاهزة، والشخص ممكن ياخد أكتر من دور. أغلب العيادات الفردية فيها مساعدة واحدة هي الاستقبال والخزنة مع بعض.">الأدوار</th>
+            <th class="ur-hide-sm" data-en="Branches">الفروع</th>
+            <th class="num ur-hide-sm" data-en="Max discount" data-note="Each person's discount cap is visible in the list, so the owner can audit it at a glance; discounts above it need his approval and appear on the owner dashboard." data-note-ar="حد الخصم لكل شخص ظاهر في القايمة عشان صاحب العيادة يراجعه بنظرة؛ الخصم الأعلى محتاج موافقته وبيظهر في لوحة المالك.">أقصى خصم</th>
+            <th class="ur-hide-sm" data-en="Last active">آخر نشاط</th>
+            <th data-en="Status">الحالة</th>
+            <th></th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><div class="ur-who"><span class="t-avatar sm">أس</span><div><span class="t-name" data-en="Dr. Ahmed Selim (you)">د. أحمد سليم (إنت)</span><span class="t-meta t-ltr">0100 123 4567</span></div></div></td>
+              <td><div class="ur-roles"><span class="ur-role" data-en="Owner">صاحب العيادة</span><span class="ur-role" data-en="Doctor">طبيب</span></div></td>
+              <td class="ur-hide-sm"><span class="t-branch-tag" data-en="All branches">كل الفروع</span></td>
+              <td class="num ur-hide-sm">100%</td>
+              <td class="ur-hide-sm"><span data-en="Now">دلوقتي</span></td>
+              <td><span class="t-chip paid" data-en="Active">نشط</span></td>
+              <td class="actions"><button class="t-btn sm ghost" type="button" data-user="ahmed" data-en="Open">فتح</button></td>
+            </tr>
+            <tr>
+              <td><div class="ur-who"><span class="t-avatar sm">نش</span><div><span class="t-name" data-en="Dr. Noha El-Sherbini">د. نهى الشربيني</span><span class="t-meta t-ltr">0122 456 7788</span></div></div></td>
+              <td><div class="ur-roles"><span class="ur-role" data-en="Doctor">طبيب</span></div></td>
+              <td class="ur-hide-sm"><span class="t-branch-tag" data-en="Main">الرئيسي</span></td>
+              <td class="num ur-hide-sm">30%</td>
+              <td class="ur-hide-sm"><span data-en="Today 1:40 pm">النهارده ١:٤٠ م</span></td>
+              <td><span class="t-chip paid" data-en="Active">نشط</span></td>
+              <td class="actions"><button class="t-btn sm ghost" type="button" data-user="noha" data-en="Open">فتح</button></td>
+            </tr>
+            <tr class="is-selected">
+              <td><div class="ur-who"><span class="t-avatar sm">سر</span><div><span class="t-name" data-en="Sara Ramadan Ali">سارة رمضان علي</span><span class="t-meta t-ltr">0111 234 5678</span></div></div></td>
+              <td><div class="ur-roles"><span class="ur-role" data-en="Receptionist">استقبال</span><span class="ur-role" data-en="Cashier">خزنة</span></div></td>
+              <td class="ur-hide-sm"><span class="t-branch-tag" data-en="Main">الرئيسي</span></td>
+              <td class="num ur-hide-sm">20%</td>
+              <td class="ur-hide-sm"><span data-en="Now · reception PC">دلوقتي · كمبيوتر الاستقبال</span></td>
+              <td><span class="t-chip paid" data-en="Active">نشط</span></td>
+              <td class="actions"><button class="t-btn sm ghost" type="button" data-user="sara" data-en="Open">فتح</button></td>
+            </tr>
+            <tr>
+              <td><div class="ur-who"><span class="t-avatar sm">مخ</span><div><span class="t-name" data-en="Menna Khaled Ibrahim">منة خالد إبراهيم</span><span class="t-meta t-ltr">0155 678 1234</span></div></div></td>
+              <td><div class="ur-roles"><span class="ur-role" data-en="Receptionist">استقبال</span></div></td>
+              <td class="ur-hide-sm"><span class="t-branch-tag" data-en="Main">الرئيسي</span></td>
+              <td class="num ur-hide-sm">20%</td>
+              <td class="ur-hide-sm"><span data-en="Today 2:05 pm">النهارده ٢:٠٥ م</span></td>
+              <td><span class="t-chip paid" data-en="Active">نشط</span></td>
+              <td class="actions"><button class="t-btn sm ghost" type="button" data-user="menna" data-en="Open">فتح</button></td>
+            </tr>
+            <tr>
+              <td><div class="ur-who"><span class="t-avatar sm">سع</span><div><span class="t-name" data-en="Samar Abdallah Mostafa">سمر عبد الله مصطفى</span><span class="t-meta t-ltr">0106 543 2109</span></div></div></td>
+              <td><div class="ur-roles"><span class="ur-role" data-en="Nurse">تمريض</span></div></td>
+              <td class="ur-hide-sm"><span class="t-branch-tag" data-en="Main">الرئيسي</span></td>
+              <td class="num ur-hide-sm">0%</td>
+              <td class="ur-hide-sm"><span data-en="Invite sent 13 Nov · expires in 6 days">الدعوة اتبعتت ١٣ نوفمبر · تنتهي بعد ٦ أيام</span></td>
+              <td><span class="t-chip waiting" data-en="Invited">مدعوّة</span></td>
+              <td class="actions"><button class="t-btn sm ghost" type="button" data-toast="اتبعتت الدعوة تاني لسمر" data-toast-en="Invite re-sent to Samar" data-en="Resend invite">ابعت الدعوة تاني</button></td>
+            </tr>
+            <tr class="is-muted">
+              <td><div class="ur-who"><span class="t-avatar sm">هم</span><div><span class="t-name" data-en="Hala Mahmoud Saad">هالة محمود سعد</span><span class="t-meta t-ltr">0128 901 2345</span></div></div></td>
+              <td><div class="ur-roles"><span class="ur-role" data-en="Receptionist">استقبال</span></div></td>
+              <td class="ur-hide-sm"><span class="t-branch-tag" data-en="Main">الرئيسي</span></td>
+              <td class="num ur-hide-sm">—</td>
+              <td class="ur-hide-sm"><span data-en="Stopped 1 Oct · history kept">اتوقفت ١ أكتوبر · تاريخها محفوظ</span></td>
+              <td><span class="t-chip done" data-en="Deactivated" data-note="Deactivate, never delete (NITCO v64: active toggle). Her invoices, discounts and cash closes stay signed with her name for the audit trail." data-note-ar="إيقاف مش مسح. فواتيرها وخصوماتها وتقفيل خزنتها بتفضل باسمها في سجل المراجعة.">موقوفة</span></td>
+              <td class="actions"><button class="t-btn sm ghost" type="button" data-toast="هالة رجعت نشطة" data-toast-en="Hala reactivated" data-en="Reactivate">تفعيل تاني</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="t-hint mt-2" data-en="People are never deleted: their invoices, notes and cash closes stay signed with their name.">مفيش حد بيتمسح: فواتيره وكشوفاته وتقفيل خزنته بتفضل باسمه.</p>
+    </section>
+
+    <!-- ============ ROLE PRESETS ============ -->
+    <section data-panel="roles" hidden>
+      <div class="t-alert info mb-4"><svg class="t-icon"><use href="#i-info"/></svg><span data-en="Five fixed presets cover a clinic. One person can hold several (the receptionist is usually also the cashier). Fine-grained per-person overrides come later.">٥ أدوار جاهزة بتغطي العيادة. الشخص الواحد ممكن ياخد أكتر من دور (الاستقبال غالبًا هي الخزنة كمان). التعديل الدقيق لكل شخص لاحقًا.</span></div>
+      <div class="t-table-wrap" data-note="Capabilities in plain Arabic ('Can issue credit notes'), never page names. NITCO's permission screen lists raw .aspx pages and action keys (MstServices.aspx, SaveCustomerBill) over 79 pages, and 'Select all' also grants deny rights (v64, 65)."
+           data-note-ar="الصلاحيات بكلام عربي واضح ('تعمل مرتجع')، مش أسماء صفحات. شاشة الصلاحيات في NITCO بتعرض أسماء صفحات .aspx وأكواد على ٧٩ صفحة، و'تحديد الكل' بيدي صلاحيات المنع كمان.">
+        <table class="t-table ur-matrix">
+          <thead><tr>
+            <th data-en="Can…">يقدر…</th>
+            <th data-en="Owner">صاحب العيادة</th><th data-en="Doctor">طبيب</th><th data-en="Receptionist">استقبال</th><th data-en="Cashier">خزنة</th><th data-en="Nurse">تمريض</th>
+          </tr></thead>
+          <tbody id="ur-matrix-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<!-- User drawer -->
+<div class="t-scrim" id="ur-drawer" hidden>
+  <aside class="t-drawer" role="dialog" aria-modal="true" aria-labelledby="ur-dr-name">
+    <div class="t-modal-head">
+      <span class="t-avatar" id="ur-dr-av">سر</span>
+      <div><h2 id="ur-dr-name" style="font-size:var(--fs-lg)">سارة رمضان علي</h2><div class="t-small t-muted t-ltr" id="ur-dr-mob">0111 234 5678</div></div>
+      <button class="t-btn icon ghost" type="button" data-close aria-label="Close" data-en-aria-label="Close" title="إغلاق" data-en-title="Close"><svg class="t-icon"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="t-modal-body t-stack lg">
+      <div class="t-field" data-note="Several roles per user (NITCO v65: reception + cashier). Ticking a role updates the capability list below instantly, so the owner sees exactly what Sara can do before saving."
+           data-note-ar="أكتر من دور للشخص (زي NITCO: استقبال + خزنة). أول ما تعلّم دور، قايمة الصلاحيات تحت بتتغير على طول، فصاحب العيادة يشوف سارة تقدر تعمل إيه بالظبط قبل الحفظ.">
+        <span class="t-label" data-en="Roles">الأدوار</span>
+        <div class="t-row tight" id="ur-dr-roles">
+          <button type="button" class="t-pick" data-role="owner" data-en="Owner">صاحب العيادة</button>
+          <button type="button" class="t-pick" data-role="doctor" data-en="Doctor">طبيب</button>
+          <button type="button" class="t-pick is-on" data-role="reception" data-en="Receptionist">استقبال</button>
+          <button type="button" class="t-pick is-on" data-role="cashier" data-en="Cashier">خزنة</button>
+          <button type="button" class="t-pick" data-role="nurse" data-en="Nurse">تمريض</button>
+        </div>
+      </div>
+
+      <div class="t-field" data-tier="2"
+           data-note="Roles are given PER BRANCH: Sara can be receptionist + cashier in one branch and have no access in another. Owner covers all branches automatically. One login (one mobile number) holds memberships in several organizations; inside each organization it holds roles per branch. For a one-branch clinic this collapses to one line."
+           data-note-ar="الأدوار بتتدي لكل فرع: سارة ممكن تبقى استقبال + خزنة في فرع ومن غير صلاحية في فرع تاني. المالك بيغطي كل الفروع تلقائي. حساب واحد (رقم موبايل واحد) ممكن يبقى عضو في كذا مؤسسة، وجوه كل مؤسسة ليه أدوار لكل فرع. للعيادة اللي فيها فرع واحد ده بيبقى سطر واحد.">
+        <span class="t-label"><span data-en="Roles per branch">الأدوار لكل فرع</span> <span class="t-tier">Tier 2</span></span>
+        <div id="ur-br"></div>
+      </div>
+
+      <div class="t-field" data-note="Max discount % per user (NITCO v1/97 per-doctor/user discount cap). Above the cap the cashier asks the owner, who approves on his phone; the discount and approval are logged."
+           data-note-ar="أقصى خصم لكل مستخدم (زي حد الخصم في NITCO). فوق الحد الخزنة تطلب موافقة صاحب العيادة من موبايله، والخصم والموافقة بيتسجلوا.">
+        <label class="t-label" for="ur-dr-disc" data-en="Max discount she can give alone">أقصى خصم تديه لوحدها</label>
+        <div class="t-row tight">
+          <input id="ur-dr-disc" type="range" min="0" max="100" step="5" value="20" style="flex:1;accent-color:var(--primary)">
+          <div class="t-input-affix" style="width:110px"><input class="t-input ltr" id="ur-dr-disc-n" type="number" min="0" max="100" value="20"><span class="t-affix">%</span></div>
+        </div>
+        <span class="t-hint" id="ur-dr-disc-hint" data-en="Above 20%: asks Dr. Ahmed to approve. Tier discounts (relatives, colleagues) don't count against this.">فوق ٢٠٪: بتطلب موافقة د. أحمد. خصم الشرائح (أقارب، زملاء) مش محسوب من الحد ده.</span>
+      </div>
+
+      <div>
+        <h3 class="mb-2" style="font-size:var(--fs-md)" data-en="What she can do">تقدر تعمل إيه</h3>
+        <div id="ur-dr-caps"></div>
+      </div>
+
+      <div class="t-card sunk">
+        <h3 class="mb-2" style="font-size:var(--fs-sm)" data-en="Recent activity">آخر نشاط</h3>
+        <ul class="t-timeline">
+          <li><span class="t-small" data-en="Collected 300 EGP — Karim Mahmoud">حصّلت ٣٠٠ ج.م — كريم محمود</span><div class="t-when" data-en="Today 9:12 pm">النهارده ٩:١٢ م</div></li>
+          <li><span class="t-small" data-en="Discount 20% (relatives) — Youssef Ibrahim">خصم ٢٠٪ (أقارب) — يوسف إبراهيم</span><div class="t-when" data-en="Today 8:40 pm">النهارده ٨:٤٠ م</div></li>
+          <li class="muted"><span class="t-small" data-en="Closed evening shift — 20 EGP short">قفلت وردية المسا — عجز ٢٠ ج.م</span><div class="t-when" data-en="Yesterday 11:20 pm">امبارح ١١:٢٠ م</div></li>
+        </ul>
+        <a class="t-small" href="reports.html" data-en="Full activity log">سجل النشاط كامل</a>
+      </div>
+    </div>
+    <div class="t-modal-foot" style="flex-wrap:wrap">
+      <button class="t-btn danger-ghost" type="button" data-close data-toast="سارة اتوقفت — المقعد فضي وتاريخها محفوظ" data-toast-en="Sara deactivated — seat freed, history kept" style="margin-inline-end:auto"><span data-en="Deactivate">إيقاف</span></button>
+      <button class="t-btn" type="button" data-toast="اتبعت لينك تغيير الباسورد في رسالة" data-toast-en="Password reset link sent by SMS"><svg class="t-icon sm"><use href="#i-lock"/></svg><span data-en="Reset password">إعادة الباسورد</span></button>
+      <button class="t-btn primary" type="button" data-close data-toast="اتحفظت صلاحيات سارة" data-toast-en="Sara's access saved"><span data-en="Save">احفظ</span><span class="t-kbd">Ctrl S</span></button>
+    </div>
+  </aside>
+</div>
+
+<!-- Invite modal -->
+<div class="t-scrim" id="ur-invite" hidden>
+  <div class="t-modal" role="dialog" aria-modal="true" aria-labelledby="ur-inv-h">
+    <div class="t-modal-head">
+      <h2 id="ur-inv-h" data-en="Invite someone to the clinic">ضيف حد للعيادة</h2>
+      <button class="t-btn icon ghost" type="button" data-close aria-label="Close" data-en-aria-label="Close" title="إغلاق" data-en-title="Close"><svg class="t-icon"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="t-modal-body t-stack lg"
+         data-note="Invite = name + mobile + preset, one screen. They set their own password from the SMS link. Replaces NITCO's 17-step doctor creation across eCare and sCare (v1, 67, 97)."
+         data-note-ar="الدعوة = اسم + موبايل + دور، شاشة واحدة. الشخص بيعمل الباسورد بنفسه من لينك الرسالة. بدل ١٧ خطوة في NITCO عشان تعمل دكتور في برنامجين.">
+      <div class="t-form-grid">
+        <div class="t-field"><label class="t-label" for="ur-inv-name"><span data-en="Name">الاسم</span><span class="req">*</span></label><input id="ur-inv-name" class="t-input" placeholder="مثلًا: مي حسن" data-en-placeholder="e.g. Mai Hassan"></div>
+        <div class="t-field"><label class="t-label" for="ur-inv-mob"><span data-en="Mobile">الموبايل</span><span class="req">*</span></label><input id="ur-inv-mob" class="t-input ltr" inputmode="tel" placeholder="01xxxxxxxxx"></div>
+        <div class="t-field span-2"><span class="t-label" data-en="Role(s)">الدور</span>
+          <div class="t-row tight">
+            <button type="button" class="t-pick" data-en="Doctor">طبيب</button>
+            <button type="button" class="t-pick is-on" data-en="Receptionist">استقبال</button>
+            <button type="button" class="t-pick" data-en="Cashier">خزنة</button>
+            <button type="button" class="t-pick" data-en="Nurse">تمريض</button>
+          </div>
+          <span class="t-hint" data-en="Default max discount for receptionists: 10%. You can change it after they join.">أقصى خصم افتراضي للاستقبال: ١٠٪. تقدر تغيّره بعد ما ينضم.</span></div>
+      </div>
+      <div class="t-alert warning"><svg class="t-icon"><use href="#i-alert"/></svg><span data-en="This uses your last free seat (6 of 6). Need more? The polyclinic plan has 20.">ده آخر مقعد فاضي (٦ من ٦). محتاج أكتر؟ باقة المجمعات فيها ٢٠.</span></div>
+    </div>
+    <div class="t-modal-foot">
+      <button class="t-btn" type="button" data-toast="اتنسخ لينك الدعوة" data-toast-en="Invite link copied"><svg class="t-icon sm"><use href="#i-copy"/></svg><span data-en="Copy link">انسخ اللينك</span></button>
+      <button class="t-btn primary" type="button" data-close data-toast="اتبعتت الدعوة في رسالة" data-toast-en="Invite sent by SMS"><svg class="t-icon sm flip"><use href="#i-send"/></svg><span data-en="Send invite">ابعت الدعوة</span><span class="t-kbd">Enter</span></button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/shell.js"></script>
+<script>
+(function () {
+  var L = function () { return window.Tamargi && Tamargi.lang() === "en"; };
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  function setT(el, ar, en) { el.setAttribute("data-ar", ar); el.setAttribute("data-en", en); el.innerHTML = L() ? en : ar; }
+
+  /* capability catalogue: [groupAr, groupEn, [[ar, en, roles[]], ...]] */
+  var CAPS = [
+    ["الاستقبال والمواعيد", "Reception & appointments", [
+      ["تسجل مرضى وتعدّل بياناتهم", "Register patients and edit their details", ["owner", "reception", "doctor"]],
+      ["تحجز وتلغي مواعيد", "Book and cancel appointments", ["owner", "reception"]],
+      ["تدير الدور وتنادي المرضى", "Run the queue and call patients", ["owner", "reception", "doctor", "nurse"]],
+      ["ترد على رسائل المرضى", "Answer patient chats", ["owner", "reception"]]
+    ]],
+    ["الفلوس", "Money", [
+      ["تحصّل فلوس وتطبع إيصال", "Collect payments and print receipts", ["owner", "cashier"]],
+      ["تدي خصم لحد النسبة بتاعتها", "Give discounts up to her cap", ["owner", "cashier"]],
+      ["تعمل مرتجع (إشعار دائن)", "Issue credit notes (refunds)", ["owner"]],
+      ["تقفل الخزنة آخر الوردية", "Close the cash shift", ["owner", "cashier"]],
+      ["تفتح وردية اتقفلت", "Reopen a closed shift", ["owner"]],
+      ["تشوف دخل اليوم", "See today's income", ["owner"]]
+    ]],
+    ["الطبي", "Clinical", [
+      ["تكتب الكشف والروشتة", "Write visit notes and prescriptions", ["owner", "doctor"]],
+      ["تشوف التاريخ المرضي كامل", "See full medical history", ["owner", "doctor", "nurse"]],
+      ["تسجل العلامات الحيوية", "Enter vitals", ["doctor", "nurse"]],
+      ["تطبع روشتة اتكتبت قبل كده", "Reprint an issued prescription", ["owner", "doctor", "reception"]]
+    ]],
+    ["الإدارة", "Admin", [
+      ["تغيّر الأسعار والخدمات", "Change prices and services", ["owner"]],
+      ["تضيف وتوقف مستخدمين", "Add and deactivate users", ["owner"]],
+      ["تغيّر قواعد العيادة", "Change clinic rules", ["owner"]],
+      ["تشوف التقارير وسجل النشاط", "See reports and the activity log", ["owner"]]
+    ]]
+  ];
+  var ROLE = { owner: ["صاحب العيادة", "Owner"], doctor: ["طبيب", "Doctor"], reception: ["استقبال", "Receptionist"], cashier: ["خزنة", "Cashier"], nurse: ["تمريض", "Nurse"] };
+  var ORDER = ["owner", "doctor", "reception", "cashier", "nurse"];
+  var ok = '<svg class="t-icon"><use href="#i-check"/></svg>', no = '<svg class="t-icon"><use href="#i-close"/></svg>';
+
+  function renderCaps(roles) {
+    var h = "";
+    CAPS.forEach(function (g) {
+      h += '<div class="ur-cap-group"><h4 data-ar="' + g[0] + '" data-en="' + g[1] + '">' + (L() ? g[1] : g[0]) + "</h4>";
+      g[2].forEach(function (c) {
+        var from = c[2].filter(function (r) { return roles.indexOf(r) > -1; });
+        var on = from.length > 0;
+        var srcAr = on ? "من: " + from.map(function (r) { return ROLE[r][0]; }).join("، ") : "مش مسموح";
+        var srcEn = on ? "from: " + from.map(function (r) { return ROLE[r][1]; }).join(", ") : "not allowed";
+        h += '<div class="ur-cap ' + (on ? "on" : "off") + '">' + (on ? ok : no) +
+             '<span data-ar="' + c[0] + '" data-en="' + c[1] + '">' + (L() ? c[1] : c[0]) + "</span>" +
+             '<small data-ar="' + srcAr + '" data-en="' + srcEn + '">' + (L() ? srcEn : srcAr) + "</small></div>";
+      });
+      h += "</div>";
+    });
+    $("#ur-dr-caps").innerHTML = h;
+  }
+  function currentRoles() { return $$("#ur-dr-roles .t-pick.is-on").map(function (b) { return b.getAttribute("data-role"); }); }
+
+  function renderMatrix() {
+    var h = "";
+    CAPS.forEach(function (g) {
+      h += '<tr><td colspan="6" style="background:var(--surface-sunk);height:34px"><b class="t-small" data-ar="' + g[0] + '" data-en="' + g[1] + '">' + (L() ? g[1] : g[0]) + "</b></td></tr>";
+      g[2].forEach(function (c) {
+        h += '<tr><td data-ar="' + c[0] + '" data-en="' + c[1] + '">' + (L() ? c[1] : c[0]) + "</td>";
+        ORDER.forEach(function (r) {
+          h += "<td>" + (c[2].indexOf(r) > -1 ? '<span class="ur-yes">' + ok + '<span class="t-sr">yes</span></span>' : '<span class="ur-no" aria-label="no">—</span>') + "</td>";
+        });
+        h += "</tr>";
+      });
+    });
+    $("#ur-matrix-body").innerHTML = h;
+  }
+  renderMatrix();
+
+  /* tabs */
+  $$(".t-tab[data-tab]").forEach(function (t) {
+    t.addEventListener("click", function () {
+      var n = t.getAttribute("data-tab");
+      $$(".t-tab[data-tab]").forEach(function (x) { x.setAttribute("aria-selected", String(x === t)); });
+      $$("[data-panel]").forEach(function (p) { p.hidden = p.getAttribute("data-panel") !== n; });
+      Tamargi.setState(undefined);
+    });
+  });
+
+  /* users -> drawer */
+  var USERS = {
+    ahmed: ["د. أحمد سليم عبد الحميد", "Dr. Ahmed Selim Abdelhamid", "أس", "0100 123 4567", ["owner", "doctor"], 100],
+    noha:  ["د. نهى الشربيني", "Dr. Noha El-Sherbini", "نش", "0122 456 7788", ["doctor"], 30],
+    sara:  ["سارة رمضان علي", "Sara Ramadan Ali", "سر", "0111 234 5678", ["reception", "cashier"], 20],
+    menna: ["منة خالد إبراهيم", "Menna Khaled Ibrahim", "مخ", "0155 678 1234", ["reception"], 20]
+  };
+  function setDisc(v) {
+    $("#ur-dr-disc").value = v; $("#ur-dr-disc-n").value = v;
+    setT($("#ur-dr-disc-hint"), "فوق " + v + "٪: بتطلب موافقة د. أحمد. خصم الشرائح (أقارب، زملاء) مش محسوب من الحد ده.",
+      "Above " + v + "%: asks Dr. Ahmed to approve. Tier discounts (relatives, colleagues) don't count against this.");
+  }
+  $$("[data-user]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var u = USERS[b.getAttribute("data-user")];
+      setT($("#ur-dr-name"), u[0], u[1]); $("#ur-dr-av").textContent = u[2]; $("#ur-dr-mob").textContent = u[3];
+      $$("#ur-dr-roles .t-pick").forEach(function (p) { p.classList.toggle("is-on", u[4].indexOf(p.getAttribute("data-role")) > -1); });
+      setDisc(u[5]); renderCaps(u[4]);
+      $("#ur-drawer").hidden = false; Tamargi.setState(undefined);
+    });
+  });
+  $$("#ur-dr-roles .t-pick").forEach(function (p) { p.addEventListener("click", function () { p.classList.toggle("is-on"); renderCaps(currentRoles()); }); });
+  $("#ur-dr-disc").addEventListener("input", function (e) { setDisc(e.target.value); });
+  $("#ur-dr-disc-n").addEventListener("input", function (e) { setDisc(Math.max(0, Math.min(100, +e.target.value || 0))); });
+  $$("#ur-invite .t-pick").forEach(function (p) { p.addEventListener("click", function () { p.classList.toggle("is-on"); }); });
+  $$(".t-scrim").forEach(function (s) { s.addEventListener("click", function (e) { if (e.target === s) s.hidden = true; }); });
+  document.addEventListener("keydown", function (e) {
+    var typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
+    if (!typing && (e.key === "i" || e.key === "I") && !e.ctrlKey && !e.altKey && !e.metaKey) { e.preventDefault(); $("#ur-invite").hidden = false; $("#ur-inv-name").focus(); }
+  });
+  renderCaps(["reception", "cashier"]);
+
+  /* ---------- Roles per branch (tenancy) ---------- */
+  var BR_ROLES = [["reception", "استقبال", "Reception"], ["cashier", "خزنة", "Cashier"], ["doctor", "طبيب", "Doctor"], ["nurse", "تمريض", "Nurse"], ["manager", "مدير فرع", "Branch manager"]];
+  /* demo assignments per user for a 2-branch preview (Toreil / University) */
+  var PER_BRANCH = { ahmed: "owner", noha: [["doctor"], []], sara: [["reception", "cashier"], []], menna: [[], ["reception"]] };
+  var curUser = "sara", preview = false;
+  function renderBranches() {
+    var sc = Tamargi.scope ? Tamargi.scope() : { org: "selim" };
+    var org = (Tamargi.orgs || []).filter(function (o) { return o.id === sc.org; })[0];
+    var brs = org ? org.branches : [];
+    var host = $("#ur-br");
+    if (brs.length < 2 && !preview) {
+      host.innerHTML = '<p class="t-small t-muted mb-2">' + (L() ? "One branch: the roles above apply to it." : "فرع واحد: الأدوار اللي فوق بتنطبق عليه.") + '</p><button type="button" class="t-btn sm" id="ur-br-preview">' + (L() ? "Preview with 2 branches" : "معاينة بفرعين") + "</button>";
+      $("#ur-br-preview").addEventListener("click", function () { preview = true; renderBranches(); });
+      return;
+    }
+    if (brs.length < 2) brs = ((Tamargi.orgs || []).filter(function (o) { return o.branches.length > 1; })[0] || { branches: [] }).branches;
+    var a = PER_BRANCH[curUser] || [[], []];
+    if (a === "owner") { host.innerHTML = '<div class="t-alert info"><svg class="t-icon"><use href="#i-info"/></svg><span>' + (L() ? "Owner: full access to all branches, and sees them combined." : "المالك: صلاحية كاملة على كل الفروع، وبيشوفهم مجمّعين.") + "</span></div>"; return; }
+    host.innerHTML = '<div class="t-table-wrap"><table class="t-table ur-br-table"><tbody>' + brs.map(function (b, i) {
+      var on = a[i] || [];
+      return '<tr><td style="white-space:nowrap"><span class="t-branch-tag"><svg class="t-icon"><use href="#i-pin"/></svg>' + (L() ? b.en : b.ar) + '</span></td><td><div class="t-row tight">' +
+        BR_ROLES.map(function (r) { return '<button type="button" class="t-pick' + (on.indexOf(r[0]) > -1 ? " is-on" : "") + '" aria-pressed="' + (on.indexOf(r[0]) > -1) + '">' + (L() ? r[2] : r[1]) + "</button>"; }).join("") +
+        (on.length ? "" : '<span class="t-small t-faint">' + (L() ? "no access" : "من غير صلاحية") + "</span>") + "</div></td></tr>";
+    }).join("") + "</tbody></table></div>" +
+      (preview ? '<p class="t-hint mt-2 mb-0">' + (L() ? "Preview with the polyclinic plan's sample branches." : "معاينة بفروع العينة من باقة المجمعات.") + "</p>" : '<p class="t-hint mt-2 mb-0">' + (L() ? "The branch switcher in the top bar only lists branches where this person has a role." : "مبدّل الفروع فوق بيعرض بس الفروع اللي الشخص ليه فيها دور.") + "</p>");
+    $$(".t-pick", host).forEach(function (p) { p.addEventListener("click", function () { p.classList.toggle("is-on"); p.setAttribute("aria-pressed", String(p.classList.contains("is-on"))); }); });
+  }
+  $$("[data-user]").forEach(function (b) { b.addEventListener("click", function () { curUser = b.getAttribute("data-user"); preview = false; renderBranches(); }); });
+  document.addEventListener("tamargi:scope", renderBranches);
+  renderBranches();
+})();
+</script>
+</body>
+</html>

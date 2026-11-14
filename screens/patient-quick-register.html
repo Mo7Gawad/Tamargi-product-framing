@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Quick register — Tamargi">تسجيل سريع — تمرجي</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style>
+    /* patient-quick-register: page-specific, tokens only */
+    .qr-ok { color: var(--success-fg); }
+    .qr-derived { display: flex; flex-wrap: wrap; gap: 4px var(--s-3); font-size: var(--fs-xs); color: var(--success-fg); }
+    .qr-derived span { display: inline-flex; align-items: center; gap: 4px; }
+    .qr-age { display: grid; grid-template-columns: minmax(0, 1fr) 110px; gap: var(--s-2); }
+    .qr-sum { display: grid; grid-template-columns: auto 1fr; gap: var(--s-2) var(--s-3); align-items: center; font-size: var(--fs-sm); }
+    .qr-sum dt { color: var(--text-3); }
+    .qr-sum dd { margin: 0; }
+    .qr-tier2 { opacity: .75; }
+    .t-card-foot.qr-foot { justify-content: flex-end; flex-wrap: wrap; }
+    .qr-foot .t-hint { margin-inline-end: auto; }
+  </style>
+</head>
+<body data-screen="patient-quick-register">
+<main id="screen">
+  <div class="t-container" style="max-width:1120px">
+
+    <header class="t-screen-head">
+      <div>
+        <h1 data-en="Quick register">تسجيل سريع</h1>
+        <p class="t-sub mb-0" data-en="Five fields and one save: the patient gets a file number and joins the queue.">خمس خانات وحفظ واحد: المريض ياخد رقم ملف ويدخل الدور على طول.</p>
+      </div>
+      <div class="t-actions">
+        <a class="t-btn ghost" href="patient-search.html"><svg class="t-icon sm"><use href="#i-search"/></svg><span data-en="Back to search">رجوع للبحث</span></a>
+        <a class="t-btn ghost" href="reception-queue.html"><span data-en="Cancel">إلغاء</span></a>
+      </div>
+    </header>
+
+    <form class="t-split aside-end" id="qr-form" novalidate>
+      <section class="t-card flush">
+        <div class="t-card-head"
+             data-note="Five required fields (name, mobile, sex, age/DOB; NID optional) instead of NITCO's ≈40–45-field form with two languages × 4 name parts, nationality, ID type and Hijri dates (v37, v41, v94). Required = asterisk + word, never a red border alone."
+             data-note-ar="خمس خانات مطلوبة بس (الاسم، الموبايل، النوع، السن أو تاريخ الميلاد؛ الرقم القومي اختياري) بدل ٤٠–٤٥ خانة في NITCO. المطلوب عليه نجمة وكلمة مش إطار أحمر بس.">
+          <h2 data-en="New patient">مريض جديد</h2>
+          <span class="t-small t-faint" data-en="File no. is given on save">رقم الملف بيتعمل مع الحفظ</span>
+        </div>
+        <div class="t-card-body">
+          <div class="t-form-grid">
+
+            <div class="t-field span-2">
+              <label class="t-label" for="qr-name"><span data-en="Full name (as on the ID card)">الاسم بالكامل (زي البطاقة)</span><span class="req">*</span></label>
+              <input class="t-input" id="qr-name" autocomplete="off" value="حسن إبراهيم السيد عوض" required>
+              <span class="t-hint" data-en="Arabic, 3–4 parts. English name is optional and can be added later in the file.">بالعربي 3–4 أسماء. الاسم بالإنجليزي اختياري ويتضاف بعدين من الملف.</span>
+            </div>
+
+            <div class="t-field"
+                 data-note="Live duplicate check on mobile and NID while typing: a match shows who it is and offers 'Open existing file'. Shared family phones are normal in Egypt, so it warns but never blocks. NITCO only offers 'merge files' after the duplicate exists (v41)."
+                 data-note-ar="فحص التكرار لحظيًا على الموبايل والرقم القومي: لو فيه تطابق بيقول مين ويعرض «فتح الملف الموجود». موبايل العيلة المشترك طبيعي، فبننبّه ومش بنمنع. NITCO بيعرض دمج الملفات بعد ما التكرار يحصل.">
+              <label class="t-label" for="qr-mob"><span data-en="Mobile">الموبايل</span><span class="req">*</span></label>
+              <input class="t-input ltr" id="qr-mob" inputmode="tel" maxlength="13" autocomplete="off" placeholder="01xxxxxxxxx" value="01098765432" aria-describedby="qr-mob-msg" required>
+              <span class="t-hint" id="qr-mob-msg" data-en="11 digits starting 010, 011, 012 or 015.">11 رقم يبدأ بـ 010 أو 011 أو 012 أو 015.</span>
+            </div>
+
+            <div class="t-field"
+                 data-note="Optional 14-digit Egyptian NID fills date of birth, age and sex for you (digit 1 = century, 2–7 = YYMMDD, 8–9 = governorate, 13 = odd male / even female). NITCO only infers the ID type from the first digit (v41, v94)."
+                 data-note-ar="الرقم القومي (١٤ رقم، اختياري) بيملأ تاريخ الميلاد والسن والنوع لوحده (أول رقم القرن، ٢–٧ التاريخ، ٨–٩ المحافظة، ١٣ فردي ذكر وزوجي أنثى).">
+              <label class="t-label" for="qr-nid"><span data-en="National ID">الرقم القومي</span><span class="opt" data-en="optional">اختياري</span></label>
+              <input class="t-input ltr" id="qr-nid" inputmode="numeric" maxlength="14" autocomplete="off" placeholder="14 digits" value="28911051201573" aria-describedby="qr-nid-msg">
+              <span class="qr-derived" id="qr-nid-msg"></span>
+            </div>
+
+            <div class="t-field">
+              <span class="t-label"><span data-en="Sex">النوع</span><span class="req">*</span></span>
+              <div class="t-seg" role="group" id="qr-sex">
+                <button type="button" aria-pressed="false" data-sex="F"><span data-en="Female">أنثى</span></button>
+                <button type="button" aria-pressed="true" data-sex="M"><span data-en="Male">ذكر</span></button>
+              </div>
+            </div>
+
+            <div class="t-field">
+              <span class="t-label"><span data-en="Age or date of birth">السن أو تاريخ الميلاد</span><span class="req">*</span></span>
+              <div class="qr-age">
+                <input class="t-input ltr" id="qr-age" inputmode="numeric" value="37" aria-label="Age" data-en-aria-label="Age">
+                <select class="t-select" id="qr-unit" aria-label="Unit" data-en-aria-label="Unit"><option value="y" data-en="years">سنة</option><option value="m" data-en="months">شهر</option><option value="d" data-en="days">يوم</option></select>
+              </div>
+              <span class="t-hint" id="qr-dob" data-en="Born 5 Nov 1989 (from NID)">مواليد 5 نوفمبر 1989 (من الرقم القومي)</span>
+            </div>
+
+            <div class="span-2" data-state="new">
+              <p class="t-hint qr-ok mb-0"><svg class="t-icon sm"><use href="#i-check"/></svg> <span data-en="No existing patient with this mobile or NID.">مفيش مريض متسجل بالموبايل أو الرقم القومي ده.</span></p>
+            </div>
+
+            <!-- Duplicate warning (live) -->
+            <div class="span-2" data-state="duplicate">
+              <div class="t-alert warning" role="status">
+                <svg class="t-icon"><use href="#i-alert"/></svg>
+                <div class="t-grow">
+                  <b data-en="This mobile is already on file">الموبايل ده متسجل قبل كده</b><br>
+                  <span>منى عبد الرحمن السيد الشناوي · <span data-en="34 yrs · F · file">34 سنة · أنثى · ملف</span> <span class="t-ltr">1043</span> · <span data-en="last visit 5 Nov">آخر زيارة 5 نوفمبر</span></span>
+                </div>
+                <div class="t-actions">
+                  <a class="t-btn sm" href="patient-file.html"><span data-en="Open existing file">فتح الملف الموجود</span></a>
+                  <button class="t-btn sm ghost" type="button" id="qr-not-dup"><span data-en="Different person, same phone">شخص تاني بنفس الموبايل</span></button>
+                </div>
+              </div>
+            </div>
+            <!-- Payer: inline, one save -->
+            <div class="t-field span-2"
+                 data-note="How the patient pays is chosen here, in the same save. NITCO saves the file as cash first and only then lets you switch to discount/company/insurance and save again (v37, v39, v40, v95, v96). Named discount tiers come from NITCO's 'cash with discount' (v37, v53); corporate/syndicate with co-pay is Tier 2."
+                 data-note-ar="طريقة المحاسبة بتتحدد هنا في نفس الحفظ. NITCO بيحفظ الملف كاش الأول وبعدين تغيّر وتحفظ تاني. شرائح الخصم بالاسم من NITCO؛ الشركات والنقابات بنسبة تحمل = المرحلة ٢.">
+              <span class="t-label" data-en="Pays as">طريقة المحاسبة</span>
+              <div class="t-row tight">
+                <div class="t-seg" role="group" id="qr-payer">
+                  <button type="button" aria-pressed="true" data-payer="cash"><span data-en="Cash">نقدي</span></button>
+                  <button type="button" aria-pressed="false" data-payer="disc"><span data-en="Cash with discount">نقدي بخصم</span></button>
+                  <button type="button" aria-pressed="false" data-payer="corp" class="qr-tier2"><span data-en="Company / syndicate">شركة / نقابة</span></button>
+                </div>
+                <span class="t-tier" data-tier="2" data-en="Tier 2">المرحلة 2</span>
+              </div>
+              <div class="t-form-grid mt-2" id="qr-disc" hidden>
+                <div class="t-field">
+                  <label class="t-label" for="qr-tier"><span data-en="Discount tier">شريحة الخصم</span><span class="req">*</span></label>
+                  <select class="t-select" id="qr-tier">
+                    <option data-en="Family &amp; friends — 50%">الأهل والأصحاب — 50%</option>
+                    <option data-en="Fellow doctors — free">زملاء أطباء — مجانًا</option>
+                    <option data-en="Over 65 — 20%">فوق 65 سنة — 20%</option>
+                    <option data-en="Social case — 100% (owner approves)">حالة إنسانية — 100% (بموافقة المالك)</option>
+                  </select>
+                </div>
+                <div class="t-field">
+                  <label class="t-label" for="qr-disc-note"><span data-en="Note">ملاحظة</span><span class="opt" data-en="optional">اختياري</span></label>
+                  <input class="t-input" id="qr-disc-note" placeholder="مثلاً: ابن عم د. أحمد" data-en-placeholder="e.g. Dr. Ahmed's cousin">
+                </div>
+              </div>
+              <div class="t-alert mt-2" id="qr-corp" data-tier="2" hidden>
+                <svg class="t-icon"><use href="#i-info"/></svg>
+                <span data-en="Company and syndicate contracts (price list + co-pay %) are part of the polyclinic plan. Data fields are ready; choose Cash for now.">عقود الشركات والنقابات (قائمة أسعار + نسبة تحمل) في باقة المجمعات. البيانات جاهزة؛ اختار «نقدي» دلوقتي.</span>
+              </div>
+            </div>
+
+            <!-- More details, collapsed -->
+            <details class="t-more span-2" id="qr-more"
+                     data-note="Everything else is collapsed: address, 'how did you hear about us' (NITCO v38–41; cheap marketing data for the owner), guardian phone (opens by itself when age < 16) and an alerts note that shows on the doctor's banner and at the cashier (NITCO v94 'patient comments')."
+                     data-note-ar="الباقي مقفول: العنوان، «عرفتنا منين» (بيانات تسويق للمالك)، رقم ولي الأمر (بيتفتح لوحده لو السن أقل من ١٦)، وملاحظة تنبيه بتظهر للطبيب وفي الخزنة.">
+              <summary><span data-en="More details (optional) — address, referral, guardian, alerts">تفاصيل أكتر (اختياري) — العنوان، عرفتنا منين، ولي الأمر، تنبيهات</span></summary>
+              <div class="t-form-grid mt-4">
+                <div class="t-field">
+                  <label class="t-label" for="qr-area" data-en="Area">المنطقة</label>
+                  <select class="t-select" id="qr-area">
+                    <option data-en="Mansoura">المنصورة</option><option data-en="Talkha" selected>طلخا</option><option data-en="Mit Ghamr">ميت غمر</option>
+                    <option data-en="Sherbin">شربين</option><option data-en="Senbellawein">السنبلاوين</option><option data-en="Other">أخرى</option>
+                  </select>
+                </div>
+                <div class="t-field">
+                  <label class="t-label" for="qr-street" data-en="Street / landmark">الشارع / علامة مميزة</label>
+                  <input class="t-input" id="qr-street" placeholder="مثلاً: شارع البحر، جنب كوبري طلخا" data-en-placeholder="e.g. El-Bahr St., next to Talkha bridge">
+                </div>
+                <div class="t-field">
+                  <label class="t-label" for="qr-ref" data-en="How did they hear about us?">عرفنا منين؟</label>
+                  <select class="t-select" id="qr-ref">
+                    <option data-en="— choose —">— اختار —</option><option data-en="Family or friend">قريب أو صاحب</option><option data-en="Facebook">فيسبوك</option>
+                    <option data-en="Another doctor referred">دكتور تاني حوّله</option><option data-en="Clinic sign">يافطة العيادة</option><option data-en="Google Maps">خرائط جوجل</option><option data-en="Clinic web page">صفحة العيادة</option>
+                  </select>
+                </div>
+                <div class="t-field" id="qr-guard-f">
+                  <label class="t-label" for="qr-guard"><span data-en="Guardian's mobile">موبايل ولي الأمر</span> <span class="opt" id="qr-guard-tag" data-en="for children">للأطفال</span></label>
+                  <input class="t-input ltr" id="qr-guard" inputmode="tel" placeholder="01xxxxxxxxx">
+                </div>
+                <div class="t-field span-2">
+                  <label class="t-label" for="qr-alert" data-en="Alerts note (shown to the doctor and cashier)">ملاحظة تنبيه (بتظهر للطبيب والخزنة)</label>
+                  <input class="t-input" id="qr-alert" placeholder="مثلاً: حساسية بنسلين، سكر، حامل" data-en-placeholder="e.g. penicillin allergy, diabetic, pregnant">
+                  <span class="t-hint" data-en="Allergies entered here become the red allergy badge on the patient banner; the doctor confirms them at the visit.">الحساسية اللي تتكتب هنا بتظهر كعلامة حمرا على شريط المريض، والطبيب بيأكدها في الكشف.</span>
+                </div>
+              </div>
+            </details>
+          </div>
+        </div>
+        <div class="t-card-foot qr-foot">
+          <span class="t-hint" id="qr-err" role="alert"></span>
+          <button class="t-btn" type="button" id="qr-save-only"><span data-en="Save only">حفظ بس</span></button>
+          <button class="t-btn primary" type="submit" id="qr-save"><svg class="t-icon sm"><use href="#i-check"/></svg><span data-en="Save &amp; add to queue">حفظ وإضافة للدور</span><span class="t-kbd">Ctrl Enter</span></button>
+        </div>
+      </section>
+
+      <!-- Aside: what happens on save -->
+      <aside class="t-stack">
+        <section class="t-card"
+                 data-note="One save does three things: creates the file, puts the patient in the chosen doctor's lane with a ticket, and prices the visit (first visit = New consult at the doctor's default fee). No 'save, then search it back, then bill' like NITCO (v89, v90)."
+                 data-note-ar="حفظ واحد بيعمل ٣ حاجات: يفتح الملف، يدخّل المريض دور الطبيب برقم، ويسعّر الزيارة (أول زيارة = كشف جديد بسعر الطبيب). من غير «احفظ ودوّر عليه تاني وبعدين اعمل فاتورة».">
+          <div class="t-card-head"><h2 data-en="On save">بعد الحفظ</h2></div>
+          <div class="t-stack">
+            <div class="t-field">
+              <span class="t-label" data-en="Add to queue of">يدخل دور</span>
+              <div class="t-seg" role="group" id="qr-doc">
+                <button type="button" aria-pressed="true" data-doc="A"><span data-en="Dr. Ahmed">د. أحمد</span></button>
+                <button type="button" aria-pressed="false" data-doc="B"><span data-en="Dr. Heba">د. هبة</span></button>
+              </div>
+            </div>
+            <dl class="qr-sum">
+              <dt data-en="Visit">الزيارة</dt><dd><span class="t-chip info" data-en="New consult (first visit)">كشف جديد (أول زيارة)</span></dd>
+              <dt data-en="Fee">السعر</dt><dd><span class="t-money lg" id="qr-fee">300<span class="cur" data-en="EGP">ج.م</span></span> <span class="t-small t-faint" id="qr-fee-src" data-en="from 'Internal medicine consult'">من «كشف باطنة»</span></dd>
+              <dt data-en="Discount">الخصم</dt><dd id="qr-disc-sum"><span class="t-faint" data-en="None">مفيش</span></dd>
+              <dt data-en="Ticket">الرقم</dt><dd><span class="t-ticket waiting"><b id="qr-ticket">A-19</b></span> <span class="t-small t-faint" data-en="2 waiting ahead">قبله 2</span></dd>
+            </dl>
+            <label class="t-switch"><input type="checkbox" id="qr-collect"><span data-en="Collect now (opens cashier)">تحصيل دلوقتي (يفتح الخزنة)</span></label>
+          </div>
+        </section>
+        <section class="t-card sunk">
+          <p class="t-small t-muted mb-0" data-en="Booking for later instead? Use Book appointment; the patient can stay provisional on just a mobile until they arrive.">عايز تحجز ميعاد بدل الدور؟ استخدم «حجز موعد»؛ المريض ممكن يفضل مبدئي برقم الموبايل بس لحد ما يوصل.</p>
+          <a class="t-btn sm mt-2" href="appointment-book.html"><svg class="t-icon sm"><use href="#i-calendar"/></svg><span data-en="Book appointment">حجز موعد</span></a>
+        </section>
+      </aside>
+    </form>
+  </div>
+</main>
+<script src="../assets/shell.js"></script>
+<script>
+(function () {
+  "use strict";
+  var T = window.Tamargi;
+  function en() { return T.lang() === "en"; }
+  function setTx(el, ar, e) { el.setAttribute("data-ar", ar); el.setAttribute("data-en", e); el.innerHTML = en() ? e : ar; }
+  var $ = function (id) { return document.getElementById(id); };
+  var KNOWN = { mob: { "01002345678": 1 }, nid: { "29203121201882": 1 } };
+  var GOV = { "01": ["القاهرة", "Cairo"], "02": ["الإسكندرية", "Alexandria"], "12": ["الدقهلية", "Dakahlia"], "13": ["الشرقية", "Sharqia"], "15": ["كفر الشيخ", "Kafr El-Sheikh"], "16": ["الغربية", "Gharbia"], "18": ["البحيرة", "Beheira"], "21": ["الجيزة", "Giza"], "11": ["دمياط", "Damietta"] };
+  var MON = [["يناير", "Jan"], ["فبراير", "Feb"], ["مارس", "Mar"], ["أبريل", "Apr"], ["مايو", "May"], ["يونيو", "Jun"], ["يوليو", "Jul"], ["أغسطس", "Aug"], ["سبتمبر", "Sep"], ["أكتوبر", "Oct"], ["نوفمبر", "Nov"], ["ديسمبر", "Dec"]];
+  var TODAY = new Date(2026, 10, 14);
+  var DOC = { A: { fee: 300, ar: "كشف باطنة", en: "Internal medicine consult", tk: "A-19" }, B: { fee: 250, ar: "كشف أطفال", en: "Paediatric consult", tk: "B-10" } };
+  var state = { doc: "A", payer: "cash", sex: "M" };
+
+  function digits(v) { return v.replace(/[٠-٩]/g, function (d) { return String(d.charCodeAt(0) - 1632); }).replace(/\D/g, ""); }
+  function press(groupId, attr, val) { Array.prototype.forEach.call(document.querySelectorAll("#" + groupId + " [" + attr + "]"), function (b) { b.setAttribute("aria-pressed", String(b.getAttribute(attr) === val)); }); }
+
+  function checkMobile() {
+    var m = digits($("qr-mob").value), msg = $("qr-mob-msg"), f = $("qr-mob").closest(".t-field"), ok = /^01[0125]\d{8}$/.test(m);
+    f.classList.toggle("is-invalid", m.length >= 11 && !ok);
+    msg.className = m.length >= 11 && !ok ? "t-error" : "t-hint";
+    if (m.length >= 11 && !ok) setTx(msg, "الرقم لازم يبقى ١١ رقم ويبدأ بـ 010 أو 011 أو 012 أو 015.", "Must be 11 digits starting 010, 011, 012 or 015.");
+    else if (ok) { msg.className = "t-hint qr-ok"; setTx(msg, "✓ رقم صحيح", "✓ Valid number"); }
+    else setTx(msg, "١١ رقم يبدأ بـ 010 أو 011 أو 012 أو 015.", "11 digits starting 010, 011, 012 or 015.");
+    return ok;
+  }
+  function checkNid() {
+    var n = digits($("qr-nid").value), out = $("qr-nid-msg");
+    if (!n) { out.className = "t-hint"; setTx(out, "لو اتكتب، السن والنوع بيتملوا لوحدهم.", "If entered, age and sex fill in by themselves."); return true; }
+    if (n.length < 14) { out.className = "t-hint"; setTx(out, "باقي " + (14 - n.length) + " أرقام", (14 - n.length) + " digits to go"); return false; }
+    var c = n[0] === "2" ? 1900 : n[0] === "3" ? 2000 : 0, y = c + +n.slice(1, 3), mo = +n.slice(3, 5), d = +n.slice(5, 7), g = GOV[n.slice(7, 9)], male = +n[12] % 2 === 1;
+    var dt = new Date(y, mo - 1, d);
+    if (!c || mo < 1 || mo > 12 || dt.getDate() !== d || dt > TODAY) { out.className = "t-error"; setTx(out, "الرقم القومي مش مظبوط: تاريخ الميلاد اللي جواه مش صحيح.", "This NID is not valid: the birth date inside it is wrong."); return false; }
+    var age = TODAY.getFullYear() - y - ((TODAY.getMonth() < mo - 1 || (TODAY.getMonth() === mo - 1 && TODAY.getDate() < d)) ? 1 : 0);
+    out.className = "qr-derived";
+    out.setAttribute("data-ar", '<span>✓ مواليد ' + d + " " + MON[mo - 1][0] + " " + y + "</span><span>" + (male ? "ذكر" : "أنثى") + "</span>" + (g ? "<span>" + g[0] + "</span>" : ""));
+    out.setAttribute("data-en", "<span>✓ Born " + d + " " + MON[mo - 1][1] + " " + y + "</span><span>" + (male ? "Male" : "Female") + "</span>" + (g ? "<span>" + g[1] + "</span>" : ""));
+    out.innerHTML = out.getAttribute(en() ? "data-en" : "data-ar");
+    $("qr-age").value = String(age); $("qr-unit").value = "y";
+    setTx($("qr-dob"), "مواليد " + d + " " + MON[mo - 1][0] + " " + y + " (من الرقم القومي)", "Born " + d + " " + MON[mo - 1][1] + " " + y + " (from NID)");
+    state.sex = male ? "M" : "F"; press("qr-sex", "data-sex", state.sex);
+    childCheck();
+    return true;
+  }
+  function dupCheck() {
+    var dup = KNOWN.mob[digits($("qr-mob").value)] || KNOWN.nid[digits($("qr-nid").value)];
+    T.setState(dup ? "duplicate" : "new");
+  }
+  function childCheck() {
+    var a = +$("qr-age").value, u = $("qr-unit").value, child = u !== "y" || a < 16;
+    if (child) { $("qr-more").open = true; setTx($("qr-guard-tag"), "مهم: طفل", "important: child"); $("qr-guard-tag").className = "req"; }
+    else { setTx($("qr-guard-tag"), "للأطفال", "for children"); $("qr-guard-tag").className = "opt"; }
+    if (child && state.doc === "A") { state.doc = "B"; paintSum(); }
+  }
+  function paintSum() {
+    press("qr-doc", "data-doc", state.doc);
+    var D = DOC[state.doc], fee = D.fee, disc = $("qr-tier").selectedIndex;
+    var pct = state.payer === "disc" ? [50, 100, 20, 100][disc] : 0, net = Math.round(fee * (100 - pct) / 100);
+    $("qr-fee").innerHTML = net + '<span class="cur" data-en="EGP" data-ar="ج.م">' + (en() ? "EGP" : "ج.م") + "</span>";
+    setTx($("qr-fee-src"), "من «" + D.ar + "»" + (pct ? " بعد خصم " + pct + "٪" : ""), "from '" + D.en + "'" + (pct ? " after " + pct + "% off" : ""));
+    var o = $("qr-tier").options[disc];
+    $("qr-disc-sum").innerHTML = state.payer === "disc" ? '<span class="t-chip info plain" data-en="' + o.getAttribute("data-en") + '" data-ar="' + (o.getAttribute("data-ar") || o.textContent) + '">' + (en() ? o.getAttribute("data-en").replace("&amp;", "&") : (o.getAttribute("data-ar") || o.textContent)) + "</span>" : '<span class="t-faint" data-en="None" data-ar="مفيش">' + (en() ? "None" : "مفيش") + "</span>";
+    $("qr-ticket").textContent = D.tk;
+  }
+
+  $("qr-mob").addEventListener("input", function () { checkMobile(); dupCheck(); });
+  $("qr-nid").addEventListener("input", function () { checkNid(); dupCheck(); });
+  $("qr-age").addEventListener("input", childCheck);
+  $("qr-unit").addEventListener("change", childCheck);
+  $("qr-tier").addEventListener("change", paintSum);
+  $("qr-not-dup").addEventListener("click", function () { T.setState("new"); T.toast(en() ? "OK — a new file will be created; the shared phone is noted" : "تمام — هيتعمل ملف جديد، والموبايل المشترك اتسجل"); });
+
+  document.addEventListener("click", function (e) {
+    var b;
+    if ((b = e.target.closest("#qr-sex [data-sex]"))) { state.sex = b.getAttribute("data-sex"); press("qr-sex", "data-sex", state.sex); }
+    if ((b = e.target.closest("#qr-doc [data-doc]"))) { state.doc = b.getAttribute("data-doc"); paintSum(); }
+    if ((b = e.target.closest("#qr-payer [data-payer]"))) {
+      state.payer = b.getAttribute("data-payer");
+      if (state.payer === "corp") { $("qr-corp").hidden = false; $("qr-disc").hidden = true; state.payer = "cash"; press("qr-payer", "data-payer", "cash"); }
+      else { $("qr-corp").hidden = true; $("qr-disc").hidden = state.payer !== "disc"; press("qr-payer", "data-payer", state.payer); }
+      paintSum();
+    }
+    if ((b = e.target.closest("[data-set-state]"))) {
+      var s = b.getAttribute("data-set-state");
+      if (s === "duplicate") { $("qr-name").value = "منى عبدالرحمن الشناوي"; $("qr-mob").value = "01002345678"; $("qr-nid").value = ""; state.sex = "F"; press("qr-sex", "data-sex", "F"); $("qr-age").value = "34"; }
+      else { $("qr-name").value = "حسن إبراهيم السيد عوض"; $("qr-mob").value = "01098765432"; $("qr-nid").value = "28911051201573"; }
+      checkMobile(); checkNid();
+    }
+  });
+
+  function save(addToQueue) {
+    var errs = [];
+    if ($("qr-name").value.trim().split(/\s+/).length < 3) errs.push(en() ? "full name (at least 3 parts)" : "الاسم ثلاثي على الأقل");
+    if (!checkMobile()) errs.push(en() ? "a valid mobile" : "موبايل صحيح");
+    if (!checkNid()) errs.push(en() ? "a valid NID or leave it empty" : "رقم قومي صحيح أو سيبه فاضي");
+    if (!$("qr-age").value) errs.push(en() ? "age or DOB" : "السن أو تاريخ الميلاد");
+    var err = $("qr-err");
+    if (errs.length) { err.className = "t-error"; err.textContent = (en() ? "Missing: " : "ناقص: ") + errs.join(en() ? ", " : "، "); return; }
+    err.textContent = "";
+    var tk = DOC[state.doc].tk;
+    if (!addToQueue) { T.toast(en() ? "Saved — file 1622" : "اتحفظ — ملف 1622"); return; }
+    T.toast(en() ? "Saved as file 1622 and added to the queue — " + tk : "اتحفظ ملف 1622 واتضاف للدور — " + tk);
+    setTimeout(function () { location.href = $("qr-collect").checked ? "cashier-checkout.html" : "reception-queue.html"; }, 1100);
+  }
+  $("qr-form").addEventListener("submit", function (e) { e.preventDefault(); save(true); });
+  $("qr-save-only").addEventListener("click", function () { save(false); });
+  window.addEventListener("keydown", function (e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); save(true); }
+  });
+
+  /* Prefill from search (?q=name or mobile) */
+  var q = (location.search.match(/[?&]q=([^&]*)/) || [])[1];
+  if (q) {
+    q = decodeURIComponent(q);
+    var d = digits(q);
+    if (d.length >= 6 && d.length === q.replace(/\s/g, "").length) { $("qr-mob").value = d; $("qr-name").value = ""; $("qr-name").focus(); }
+    else { $("qr-name").value = q; $("qr-mob").value = ""; $("qr-nid").value = ""; $("qr-age").value = ""; $("qr-mob").focus(); }
+  }
+  var h = (location.hash.match(/state=([\w-]+)/) || [])[1];
+  if (h === "duplicate") { $("qr-name").value = "منى عبدالرحمن الشناوي"; $("qr-mob").value = "01002345678"; $("qr-nid").value = ""; $("qr-age").value = "34"; state.sex = "F"; press("qr-sex", "data-sex", "F"); }
+  checkMobile(); checkNid(); dupCheck(); paintSum();
+})();
+</script>
+</body>
+</html>

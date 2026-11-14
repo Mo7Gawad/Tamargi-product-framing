@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Equipment register — Tamargi">سجل الأجهزة — تمرجي</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style>
+    /* page-specific CSS: tokens only */
+    .eq-kpis { display: grid; gap: var(--s-3); grid-template-columns: repeat(4, minmax(0, 1fr)); margin-block-end: var(--s-4); }
+    .eq-kpis .t-card { padding: var(--s-3) var(--s-4); }
+    .eq-kpis .t-stat-value { font-size: var(--fs-2xl); }
+    @media (max-width: 760px) { .eq-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    .eq-table tbody tr { cursor: pointer; }
+    .eq-due { display: block; font-size: var(--fs-xs); }
+    .eq-due.soon { color: var(--warning-fg); font-weight: var(--fw-m); }
+    .eq-due.over { color: var(--danger-fg); font-weight: var(--fw-sb); }
+    .eq-aside { position: sticky; top: calc(var(--topbar-h) + var(--s-4)); }
+    .eq-files { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s-2); }
+    .eq-files li { display: flex; align-items: center; gap: var(--s-2); padding: var(--s-2) var(--s-3); border: 1px solid var(--line); border-radius: var(--r-sm); font-size: var(--fs-sm); background: var(--surface); }
+    .eq-files li small { margin-inline-start: auto; color: var(--text-3); font-size: var(--fs-xs); }
+    .eq-log .t-when { font-variant-numeric: tabular-nums; }
+    .eq-cost { font-size: var(--fs-xs); color: var(--text-3); }
+    @media (max-width: 860px) { .eq-aside { position: static; } .eq-hide-sm { display: none; } }
+  </style>
+</head>
+<body data-screen="equipment" data-org="nile">
+<main id="screen">
+  <div class="t-container">
+
+    <header class="t-screen-head">
+      <div>
+        <h1><span data-en="Equipment register">سجل الأجهزة</span> <span class="t-tier t-phase" data-en="Later phase">مرحلة لاحقة</span></h1>
+        <p class="t-sub mb-0"><span data-en="Every device by branch and room, with its maintenance, calibration and warranty dates. Showing:">كل جهاز حسب الفرع والغرفة، ومواعيد صيانته ومعايرته وضمانه. المعروض:</span> <b data-branch-name></b></p>
+      </div>
+      <div class="t-actions">
+        <button class="t-btn" type="button" data-toast="اتطبع كشف الصيانة للشهر الجاي" data-toast-en="Next month's maintenance list printed"><svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Maintenance list">كشف الصيانة</span></button>
+        <button class="t-btn primary" type="button" data-open="#eq-add"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="Add device">ضيف جهاز</span><span class="t-kbd">N</span></button>
+      </div>
+    </header>
+
+    <div class="eq-kpis"
+         data-note="An asset register, not a store: devices are not consumed, they are kept running. The owner's questions are 'what is broken', 'what is due' and 'what is still under warranty'. These four numbers answer them for the branch picked in the top bar."
+         data-note-ar="سجل أصول، مش مخزن: الأجهزة مبتتصرفش، بتتشغل وتتصان. أسئلة المالك: إيه العطلان، إيه عليه صيانة، وإيه لسه في الضمان. الأرقام الأربعة دي بترد عليهم للفرع المختار فوق.">
+      <div class="t-card t-stat"><span class="t-stat-label" data-en="Devices">الأجهزة</span><span class="t-stat-value t-num" id="ek-all">0</span></div>
+      <div class="t-card t-stat"><span class="t-stat-label" data-en="In service">شغّالة</span><span class="t-stat-value t-num" id="ek-ok">0</span></div>
+      <div class="t-card t-stat"><span class="t-stat-label" data-en="Maintenance / out of service">في الصيانة / عطلانة</span><span class="t-stat-value t-num" id="ek-bad">0</span></div>
+      <div class="t-card t-stat"><span class="t-stat-label" data-en="Due within 30 days">عليها صيانة خلال ٣٠ يوم</span><span class="t-stat-value t-num" id="ek-due">0</span></div>
+    </div>
+
+    <div class="t-split aside-end">
+      <div>
+        <div class="t-row tight mb-2">
+          <div class="t-seg" role="group" id="eq-filter" aria-label="Status" data-en-aria-label="Status">
+            <button type="button" aria-pressed="true" data-f="all" data-en="All">الكل</button>
+            <button type="button" aria-pressed="false" data-f="service" data-en="In service">شغّال</button>
+            <button type="button" aria-pressed="false" data-f="maint" data-en="Maintenance">في الصيانة</button>
+            <button type="button" aria-pressed="false" data-f="oos" data-en="Out of service">عطلان</button>
+          </div>
+        </div>
+        <div class="t-table-wrap"
+             data-note="Location is branch + room, because the room view (Rooms screen) shows what equipment a room has before a doctor is scheduled there, e.g. the laser room. Next due date mixes preventive maintenance and calibration, whichever comes first, with days left in words."
+             data-note-ar="المكان = فرع + غرفة، لأن شاشة الغرف بتعرض أجهزة كل غرفة قبل ما طبيب يتجدول فيها (زي غرفة الليزر). الميعاد الجاي بيجمع الصيانة الدورية والمعايرة، اللي ييجي الأول، ومكتوب فاضل كام يوم.">
+          <table class="t-table eq-table">
+            <thead><tr><th data-en="Device">الجهاز</th><th data-en="Branch · room">الفرع · الغرفة</th><th data-en="Status">الحالة</th><th data-en="Next due">الميعاد الجاي</th><th class="eq-hide-sm" data-en="Warranty">الضمان</th></tr></thead>
+            <tbody id="eq-body"></tbody>
+          </table>
+        </div>
+        <p class="t-hint mt-2" data-en="Click a device to see its log and files. Moving a device between rooms or branches is logged like any movement.">اضغط على جهاز عشان تشوف سجله وملفاته. نقل جهاز بين الغرف أو الفروع بيتسجل زي أي حركة.</p>
+      </div>
+
+      <aside class="eq-aside">
+        <section class="t-card flush"
+                 data-note="Detail panel: identity (serial, supplier, purchase date and cost), the maintenance log (preventive, repair, calibration; who, cost, under warranty or not) and attachments (purchase invoice, warranty, calibration certificates, service reports) uploaded from the phone. Depreciation and maintenance contracts are later."
+                 data-note-ar="تفاصيل الجهاز: البيانات (الرقم التسلسلي، المورد، تاريخ وسعر الشراء)، سجل الصيانة (دورية، إصلاح، معايرة؛ مين، بكام، في الضمان ولا لأ) والمرفقات (فاتورة الشراء، الضمان، شهادات المعايرة، تقارير الصيانة) بترتفع من الموبايل. الإهلاك وعقود الصيانة بعدين.">
+          <div class="t-card-head">
+            <svg class="t-icon"><use href="#i-device"/></svg>
+            <div class="t-grow"><h2 id="eq-d-name" style="font-size:var(--fs-md)"></h2><div class="t-small t-muted" id="eq-d-loc"></div></div>
+            <span id="eq-d-status"></span>
+          </div>
+          <div class="t-card-body t-stack">
+            <dl class="t-dl" id="eq-d-facts"></dl>
+            <div class="t-alert" id="eq-d-alert" hidden></div>
+            <div>
+              <h3 class="mb-2" style="font-size:var(--fs-sm)" data-en="Maintenance log">سجل الصيانة</h3>
+              <ul class="t-timeline eq-log" id="eq-d-log"></ul>
+            </div>
+            <div>
+              <h3 class="mb-2" style="font-size:var(--fs-sm)" data-en="Attachments">المرفقات</h3>
+              <ul class="eq-files" id="eq-d-files"></ul>
+            </div>
+          </div>
+          <div class="t-card-foot" style="flex-wrap:wrap">
+            <button class="t-btn sm" type="button" data-toast="اتسجل طلب صيانة واتبعت للمورد" data-toast-en="Maintenance request logged and sent to the vendor"><svg class="t-icon sm"><use href="#i-settings"/></svg><span data-en="Report a fault">بلّغ عن عطل</span></button>
+            <button class="t-btn sm" type="button" data-toast="امسح الكود بالموبايل وارفع الملف" data-toast-en="Scan the code with your phone to upload"><svg class="t-icon sm"><use href="#i-phone"/></svg><span data-en="Add file">ضيف ملف</span></button>
+            <button class="t-btn sm primary t-end" type="button" data-toast="اتسجلت الصيانة والميعاد الجاي اتحسب" data-toast-en="Maintenance logged, next due date recalculated"><span data-en="Log maintenance">سجّل صيانة</span></button>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+  </div>
+</main>
+
+<!-- Add device -->
+<div class="t-scrim" id="eq-add" hidden>
+  <div class="t-modal" role="dialog" aria-modal="true" aria-labelledby="eq-add-h">
+    <div class="t-modal-head">
+      <h2 id="eq-add-h" data-en="Add a device">ضيف جهاز</h2>
+      <button class="t-btn icon ghost" type="button" data-close aria-label="Close" data-en-aria-label="Close" title="إغلاق" data-en-title="Close"><svg class="t-icon"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="t-modal-body">
+      <div class="t-form-grid">
+        <div class="t-field span-2"><label class="t-label" for="eq-n"><span data-en="Device name">اسم الجهاز</span><span class="req">*</span></label><input id="eq-n" class="t-input" placeholder="مثلًا: جهاز رسم قلب" data-en-placeholder="e.g. ECG machine"></div>
+        <div class="t-field"><label class="t-label" for="eq-b" data-en="Branch">الفرع</label><select id="eq-b" class="t-select"><option data-en="Mansoura - Toreil">المنصورة - توريل</option><option data-en="Mansoura - University">المنصورة - الجامعة</option></select></div>
+        <div class="t-field"><label class="t-label" for="eq-r" data-en="Room">الغرفة</label><select id="eq-r" class="t-select"><option data-en="Procedures & injections">غرفة الإجراءات والحقن</option><option data-en="No room (branch level)">من غير غرفة (على مستوى الفرع)</option></select></div>
+        <div class="t-field"><label class="t-label" for="eq-s" data-en="Serial no.">الرقم التسلسلي</label><input id="eq-s" class="t-input ltr"></div>
+        <div class="t-field"><label class="t-label" for="eq-w" data-en="Warranty until">الضمان لحد</label><input id="eq-w" class="t-input ltr" type="month"></div>
+        <div class="t-field"><label class="t-label" for="eq-m" data-en="Preventive maintenance every">صيانة دورية كل</label><select id="eq-m" class="t-select"><option data-en="3 months">٣ شهور</option><option data-en="6 months" selected>٦ شهور</option><option data-en="12 months">١٢ شهر</option><option data-en="None">مفيش</option></select></div>
+        <div class="t-field"><label class="t-label" for="eq-c" data-en="Calibration every">معايرة كل</label><select id="eq-c" class="t-select"><option data-en="None">مفيش</option><option data-en="12 months" selected>١٢ شهر</option></select></div>
+      </div>
+    </div>
+    <div class="t-modal-foot">
+      <button class="t-btn ghost" type="button" data-close data-en="Cancel">إلغاء</button>
+      <button class="t-btn primary" type="button" data-close data-toast="اتضاف الجهاز ومواعيد الصيانة اتحسبت" data-toast-en="Device added, due dates calculated"><span data-en="Add device">ضيف الجهاز</span><span class="t-kbd">Enter</span></button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/shell.js"></script>
+<script>
+(function () {
+  "use strict";
+  var L = function () { return window.Tamargi && Tamargi.lang() === "en"; };
+  var $ = function (s) { return document.querySelector(s); };
+  var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
+  function tx(a, e) { return L() ? e : a; }
+  var AD = "٠١٢٣٤٥٦٧٨٩";
+  function num(n) { return L() ? String(n) : String(n).replace(/\d/g, function (d) { return AD[d]; }); }
+  var TODAY = new Date(2026, 10, 14);
+  function d(s) { var p = s.split("-"); return new Date(+p[0], +p[1] - 1, +(p[2] || 1)); }
+  function dshow(s) { var p = s.split("-"); return '<span class="t-ltr">' + (p[2] ? p[2] + "/" : "") + p[1] + "/" + p[0] + "</span>"; }
+  function daysTo(s) { return Math.round((d(s) - TODAY) / 864e5); }
+
+  var BR = { tor: ["توريل", "Toreil"], gam: ["الجامعة", "University"] };
+  var ST = { service: ["شغّال", "In service"], maint: ["في الصيانة", "Under maintenance"], oos: ["عطلان", "Out of service"] };
+  var KIND = { pm: ["صيانة دورية", "Preventive maintenance"], cal: ["معايرة", "Calibration"], fix: ["إصلاح", "Repair"], chk: ["فحص", "Check"] };
+  var V1 = ["شركة النور للأجهزة الطبية", "Al-Nour Medical Devices Co."], V2 = ["المصرية لصيانة الأجهزة الطبية", "Egyptian Medical Equipment Service"];
+  /* FAKE devices. next: [kind, date]. log: [date, kind, ar, en, cost, warranty?] */
+  var DEV = [
+    { id: "laser", b: "tor", room: ["غرفة الليزر", "Laser room"], ar: "جهاز ليزر إزالة الشعر (دايود)", en: "Diode hair-removal laser", st: "service", next: ["pm", "2026-12-02"], war: "2027-06", serial: "LZ-2291-A", bought: "2025-06", cost: 420000, vendor: V1,
+      log: [["2026-09-02", "pm", "تغيير فلتر المياه وتنظيف الهاند بيس", "Water filter change, handpiece cleaning", 1500], ["2026-06-15", "fix", "عطل في التبريد — اتصلح", "Cooling fault — repaired", 0, true], ["2026-03-02", "pm", "صيانة دورية", "Preventive maintenance", 1500]],
+      files: [["فاتورة الشراء", "Purchase invoice", "PDF"], ["شهادة الضمان", "Warranty certificate", "PDF"], ["تقرير صيانة سبتمبر ٢٠٢٦", "Service report Sep 2026", "PDF"], ["دليل التشغيل", "User manual", "PDF"]] },
+    { id: "ecg", b: "tor", room: ["غرفة الإجراءات والحقن", "Procedures & injections"], ar: "جهاز رسم قلب ١٢ قناة", en: "12-lead ECG", st: "service", next: ["cal", "2027-01-15"], war: "2026-03", serial: "ECG-7781", bought: "2024-03", cost: 38000, vendor: V2,
+      log: [["2026-01-15", "cal", "معايرة سنوية — مطابق", "Annual calibration — passed", 900]], files: [["شهادة معايرة ٢٠٢٦", "Calibration certificate 2026", "PDF"], ["فاتورة الشراء", "Purchase invoice", "JPG"]] },
+    { id: "fridge", b: "tor", room: ["غرفة الإجراءات والحقن", "Procedures & injections"], ar: "ثلاجة اللقاحات (٢–٨°)", en: "Vaccine fridge (2–8 °C)", st: "service", next: ["chk", "2026-12-20"], war: "2027-11", serial: "VF-120-339", bought: "2025-11", cost: 26000, vendor: V1, cold: true,
+      log: [["2026-11-14", "chk", "قراءة الحرارة الصبح ٤٫٦° والمسا ٥٫١°", "Temperature am 4.6 °C, pm 5.1 °C", 0], ["2026-06-20", "chk", "فحص كل ٦ شهور — سليم", "6-month check — OK", 400]], files: [["سجل الحرارة نوفمبر", "Temperature log Nov", "PDF"]] },
+    { id: "suction", b: "tor", room: ["غرفة الإجراءات والحقن", "Procedures & injections"], ar: "جهاز شفط", en: "Suction unit", st: "service", next: ["pm", "2027-03-01"], war: "2027-09", serial: "SU-0457", bought: "2025-09", cost: 9500, vendor: V2, log: [["2026-09-01", "pm", "صيانة دورية", "Preventive maintenance", 300]], files: [] },
+    { id: "bp1", b: "tor", room: ["غرفة كشف ١", "Consult room 1"], ar: "جهاز ضغط ديجيتال", en: "Digital BP monitor", st: "service", next: ["cal", "2026-11-20"], war: "2027-02", serial: "BP-55-1021", bought: "2025-02", cost: 2200, vendor: V2, log: [["2025-11-20", "cal", "معايرة — فرق ٢ مم زئبق", "Calibration — 2 mmHg offset", 250]], files: [] },
+    { id: "gluco", b: "tor", room: ["غرفة كشف ١", "Consult room 1"], ar: "جهاز قياس السكر", en: "Glucometer", st: "service", next: ["chk", "2027-02-10"], war: "2027-02", serial: "GM-3390", bought: "2025-02", cost: 900, vendor: V2, log: [], files: [] },
+    { id: "scale", b: "tor", room: ["غرفة كشف ٢", "Consult room 2"], ar: "ميزان ديجيتال بالطول", en: "Digital scale with height rod", st: "service", next: ["cal", "2027-04-01"], war: "2026-10", serial: "SC-2210", bought: "2024-10", cost: 4800, vendor: V2, log: [], files: [] },
+    { id: "neb", b: "tor", room: ["غرفة كشف ٣", "Consult room 3"], ar: "جهاز نيبولايزر", en: "Nebuliser", st: "service", next: ["pm", "2027-05-01"], war: "2027-05", serial: "NB-8812", bought: "2025-05", cost: 1800, vendor: V2, log: [], files: [] },
+    { id: "scope", b: "tor", room: ["غرفة كشف ٣", "Consult room 3"], ar: "منظار أنف وأذن", en: "ENT endoscope", st: "service", next: ["pm", "2026-12-28"], war: "2027-08", serial: "EN-4471", bought: "2025-08", cost: 65000, vendor: V1, log: [["2026-06-28", "pm", "صيانة دورية وتعقيم", "Preventive maintenance and sterilisation", 800]], files: [["فاتورة الشراء", "Purchase invoice", "PDF"]] },
+    { id: "us", b: "gam", room: ["غرفة كشف ١", "Consult room 1"], ar: "جهاز سونار محمول", en: "Portable ultrasound", st: "maint", next: ["fix", "2026-11-18"], war: "2027-02", serial: "US-PX-6630", bought: "2025-02", cost: 185000, vendor: V1,
+      log: [["2026-11-10", "fix", "الصورة بتقطع — الجهاز عند المورد (في الضمان)", "Image dropouts — with vendor (under warranty)", 0, true], ["2026-08-02", "pm", "صيانة دورية", "Preventive maintenance", 1200]], files: [["إيصال استلام المورد", "Vendor pick-up receipt", "JPG"], ["شهادة الضمان", "Warranty certificate", "PDF"]] },
+    { id: "bp2", b: "gam", room: ["غرفة كشف ٢", "Consult room 2"], ar: "جهاز ضغط ديجيتال", en: "Digital BP monitor", st: "service", next: ["cal", "2027-09-01"], war: "2028-09", serial: "BP-55-1140", bought: "2026-09", cost: 2400, vendor: V2, log: [], files: [] },
+    { id: "chair", b: "gam", room: ["كرسي أسنان ١", "Dental chair 1"], ar: "كرسي أسنان كامل + كمبروسر", en: "Dental unit + compressor", st: "service", next: ["pm", "2026-11-20"], war: "2027-09", serial: "DU-9920", bought: "2026-09", cost: 310000, vendor: V1, log: [["2026-09-20", "chk", "تركيب وتشغيل", "Installation and commissioning", 0, true]], files: [["فاتورة الشراء", "Purchase invoice", "PDF"], ["محضر التركيب", "Installation report", "PDF"]] },
+    { id: "xray", b: "gam", room: ["كرسي أسنان ١", "Dental chair 1"], ar: "جهاز أشعة أسنان صغير", en: "Intra-oral dental X-ray", st: "service", next: ["cal", "2027-01-05"], war: "2027-09", serial: "XR-IO-3307", bought: "2026-09", cost: 95000, vendor: V1, log: [], files: [["شهادة الفحص الإشعاعي", "Radiation safety check", "PDF"]] },
+    { id: "auto", b: "gam", room: ["على مستوى الفرع", "Branch level"], ar: "جهاز تعقيم (أوتوكلاف)", en: "Autoclave steriliser", st: "oos", next: ["fix", "2026-11-05"], war: "2026-08", serial: "AC-23L-118", bought: "2024-08", cost: 48000, vendor: V2,
+      log: [["2026-11-05", "fix", "عطل في الحساس — مستني قطعة غيار (بره الضمان)", "Sensor fault — waiting for spare part (out of warranty)", 3200]], files: [["عرض سعر الإصلاح", "Repair quotation", "PDF"]], impact: true }
+  ];
+
+  var sel = "laser", filter = "all";
+  function inScope(x) { var sc = Tamargi.scope(); return sc.mismatch || sc.all || sc.branch === x.b; }
+  function dueHtml(x) {
+    var n = daysTo(x.next[1]), cls = n < 0 ? "over" : n <= 30 ? "soon" : "";
+    var lbl = n < 0 ? tx("متأخر " + num(-n) + " يوم", num(-n) + " days overdue") : n === 0 ? tx("النهارده", "today") : tx("بعد " + num(n) + " يوم", "in " + num(n) + " days");
+    return tx(KIND[x.next[0]][0], KIND[x.next[0]][1]) + " · " + dshow(x.next[1]) + '<span class="eq-due ' + cls + '">' + lbl + "</span>";
+  }
+  function warHtml(x) {
+    var exp = d(x.war + "-28") < TODAY;
+    return exp ? '<span class="t-chip plain">' + tx("انتهى", "Ended") + " " + dshow(x.war) + "</span>" : '<span class="t-chip ok">' + tx("لحد", "Until") + " " + dshow(x.war) + "</span>";
+  }
+  function render() {
+    var list = DEV.filter(inScope), k = { all: 0, ok: 0, bad: 0, due: 0 };
+    list.forEach(function (x) { k.all++; if (x.st === "service") k.ok++; else k.bad++; if (daysTo(x.next[1]) <= 30) k.due++; });
+    $("#ek-all").textContent = num(k.all); $("#ek-ok").textContent = num(k.ok); $("#ek-bad").textContent = num(k.bad); $("#ek-due").textContent = num(k.due);
+    if (!list.some(function (x) { return x.id === sel; }) && list.length) sel = list[0].id;
+    $("#eq-body").innerHTML = list.filter(function (x) { return filter === "all" || x.st === filter; }).map(function (x) {
+      return '<tr tabindex="0" data-dev="' + x.id + '"' + (x.id === sel ? ' class="is-selected" aria-selected="true"' : "") + '><td><span class="t-name">' + tx(x.ar, x.en) + '</span><span class="t-meta t-ltr">' + x.serial + "</span></td>" +
+        '<td><span class="t-branch-tag"><svg class="t-icon"><use href="#i-pin"/></svg>' + tx(BR[x.b][0], BR[x.b][1]) + '</span><span class="t-meta">' + tx(x.room[0], x.room[1]) + "</span></td>" +
+        '<td><span class="t-chip ' + x.st + '">' + tx(ST[x.st][0], ST[x.st][1]) + "</span></td><td>" + dueHtml(x) + '</td><td class="eq-hide-sm">' + warHtml(x) + "</td></tr>";
+    }).join("");
+    detail();
+  }
+  function detail() {
+    var x = DEV.filter(function (y) { return y.id === sel; })[0]; if (!x) return;
+    $("#eq-d-name").textContent = tx(x.ar, x.en);
+    $("#eq-d-loc").textContent = tx(BR[x.b][0], BR[x.b][1]) + " · " + tx(x.room[0], x.room[1]);
+    $("#eq-d-status").innerHTML = '<span class="t-chip ' + x.st + '">' + tx(ST[x.st][0], ST[x.st][1]) + "</span>";
+    $("#eq-d-facts").innerHTML =
+      "<dt>" + tx("الرقم التسلسلي", "Serial no.") + '</dt><dd class="t-ltr">' + x.serial + "</dd>" +
+      "<dt>" + tx("المورد / الصيانة", "Supplier / service") + "</dt><dd>" + tx(x.vendor[0], x.vendor[1]) + "</dd>" +
+      "<dt>" + tx("الشراء", "Purchased") + "</dt><dd>" + dshow(x.bought) + ' · <span class="t-money">' + x.cost.toLocaleString("en-US") + '<span class="cur">' + tx("ج.م", "EGP") + "</span></span></dd>" +
+      "<dt>" + tx("الضمان", "Warranty") + "</dt><dd>" + warHtml(x) + "</dd>" +
+      "<dt>" + tx("الميعاد الجاي", "Next due") + "</dt><dd>" + dueHtml(x) + "</dd>";
+    var al = $("#eq-d-alert");
+    if (x.impact) { al.hidden = false; al.className = "t-alert danger"; al.innerHTML = '<svg class="t-icon"><use href="#i-alert"/></svg><span>' + tx("الجهاز ده عطلان: أدوات الأسنان بتتعقم في فرع توريل مؤقتًا. خدمات الحشو والخلع شغالة.", "Out of service: dental instruments are sterilised in Toreil for now. Fillings and extractions continue.") + "</span>"; }
+    else if (x.cold) { al.hidden = false; al.className = "t-alert info"; al.innerHTML = '<svg class="t-icon"><use href="#i-info"/></svg><span>' + tx("ثلاجة سلسلة التبريد: اللقاحات في المخزن مربوطة بيها. لو الحرارة خرجت عن ٢–٨°، اللقاحات بتتعلّم 'محتاجة مراجعة'.", "Cold-chain fridge: vaccines in stock are linked to it. If temperature leaves 2–8 °C, vaccines are flagged 'needs review'.") + ' <a href="stock.html">' + tx("المخزون", "Stock") + "</a></span>"; }
+    else al.hidden = true;
+    $("#eq-d-log").innerHTML = x.log.length ? x.log.map(function (l) {
+      return '<li><span class="t-small"><b>' + tx(KIND[l[1]][0], KIND[l[1]][1]) + "</b> — " + tx(l[2], l[3]) + '</span><div class="t-when">' + dshow(l[0]) + ' · <span class="eq-cost">' + (l[5] ? tx("في الضمان", "under warranty") : l[4] ? '<span class="t-money">' + l[4].toLocaleString("en-US") + '<span class="cur">' + tx("ج.م", "EGP") + "</span></span>" : tx("من غير تكلفة", "no cost")) + "</span></div></li>";
+    }).join("") : '<li class="muted"><span class="t-small t-muted">' + tx("مفيش صيانة متسجلة لسه.", "No maintenance logged yet.") + "</span></li>";
+    $("#eq-d-files").innerHTML = x.files.length ? x.files.map(function (f) {
+      return '<li><svg class="t-icon sm"><use href="#i-file"/></svg><span>' + tx(f[0], f[1]) + "</span><small>" + f[2] + "</small></li>";
+    }).join("") : '<li><span class="t-small t-muted">' + tx("مفيش مرفقات. ارفع فاتورة الشراء والضمان من الموبايل.", "No files. Upload the invoice and warranty from your phone.") + "</span></li>";
+  }
+  $("#eq-body").addEventListener("click", function (e) { var r = e.target.closest("[data-dev]"); if (!r) return; sel = r.getAttribute("data-dev"); render(); });
+  $("#eq-body").addEventListener("keydown", function (e) { if (e.key === "Enter") { var r = e.target.closest("[data-dev]"); if (r) { sel = r.getAttribute("data-dev"); render(); } } });
+  $("#eq-filter").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return; filter = b.getAttribute("data-f");
+    $$("#eq-filter button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); render();
+  });
+  document.addEventListener("tamargi:scope", render);
+  render();
+  $$(".t-scrim").forEach(function (s) { s.addEventListener("click", function (e) { if (e.target === s) s.hidden = true; }); });
+  document.addEventListener("keydown", function (e) {
+    var typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
+    if (!typing && (e.key === "n" || e.key === "N") && !e.ctrlKey && !e.altKey && !e.metaKey) { e.preventDefault(); $("#eq-add").hidden = false; $("#eq-n").focus(); }
+  });
+})();
+</script>
+</body>
+</html>

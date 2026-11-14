@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Rooms & chairs — Tamargi">الغرف والعيادات — تمرجي</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style>
+    /* page-specific CSS: tokens only */
+    .rm-cards { display: grid; gap: var(--s-3); grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+    .rm-card { display: flex; flex-direction: column; gap: var(--s-2); padding: var(--s-4); }
+    .rm-card h3 { font-size: var(--fs-md); }
+    .rm-card .t-row { font-size: var(--fs-xs); }
+    .rm-card.is-conflict { border-color: var(--danger-line); }
+    .rm-type { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding-inline: 8px; border-radius: var(--r-xs); background: var(--surface-sunk); border: 1px solid var(--line); font-size: var(--fs-xs); color: var(--text-2); }
+    .rm-specs { display: flex; flex-wrap: wrap; gap: 4px; min-height: 22px; }
+    .rm-grid { min-width: 860px; }
+    .rm-grid th, .rm-grid td { vertical-align: top; }
+    .rm-grid td { height: auto; padding: var(--s-2); border-inline-start: 1px solid var(--line); }
+    .rm-grid th:first-child, .rm-grid td:first-child { position: sticky; inset-inline-start: 0; z-index: 2; background: var(--surface); border-inline-start: 0; min-width: 150px; }
+    .rm-grid th:first-child { background: var(--surface-sunk); z-index: 3; }
+    .rm-grid td:first-child b { display: block; font-size: var(--fs-sm); }
+    .rm-grid td:first-child span { font-size: var(--fs-xs); color: var(--text-3); }
+    .rm-grid tbody tr:hover td { background: transparent; }
+    .rm-grid tbody tr:hover td:first-child { background: var(--surface); }
+    .rm-cell { display: flex; flex-direction: column; gap: 4px; min-height: 40px; }
+    .rm-blk { display: flex; flex-direction: column; gap: 2px; padding: 5px 7px; border-radius: var(--r-xs); border: 1px solid var(--line); border-inline-start-width: 3px; background: var(--surface-sunk); font-size: var(--fs-xs); line-height: 1.35; }
+    .rm-blk .tm { font-weight: var(--fw-sb); color: var(--text); font-variant-numeric: tabular-nums; }
+    .rm-blk.im    { border-inline-start-color: var(--done-fg); }
+    .rm-blk.derma { border-inline-start-color: var(--called-fg); }
+    .rm-blk.peds  { border-inline-start-color: var(--inroom-fg); }
+    .rm-blk.ent   { border-inline-start-color: var(--waiting-fg); }
+    .rm-blk.dent  { border-inline-start-color: var(--left-fg); }
+    .rm-blk.gyn   { border-inline-start-color: var(--note); }
+    .rm-blk.is-conflict { background: var(--danger-bg); border-color: var(--danger-line); border-inline-start-color: var(--danger); color: var(--danger-fg); }
+    .rm-blk.is-conflict .tm { color: var(--danger-fg); }
+    .rm-free { font-size: var(--fs-xs); color: var(--text-3); }
+    .rm-legend { display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: center; }
+    .rm-branch-h { display: flex; align-items: center; gap: var(--s-2); margin-block: var(--s-5) var(--s-3); font-size: var(--fs-lg); }
+    .rm-branch-h:first-child { margin-block-start: 0; }
+  </style>
+</head>
+<body data-screen="rooms" data-org="nile">
+<main id="screen">
+  <div class="t-container">
+
+    <header class="t-screen-head">
+      <div>
+        <h1><span data-en="Rooms & chairs">الغرف والعيادات</span> <span class="t-tier">Tier 2</span></h1>
+        <p class="t-sub mb-0"><span data-en="Bookable rooms, chairs and laser rooms in">الغرف والكراسي وغرف الليزر اللي بتتحجز في</span> <b data-branch-name></b><span data-en=", and which doctor uses each one, when.">، ومين من الأطباء بيستخدم كل واحدة وإمتى.</span></p>
+      </div>
+      <div class="t-actions">
+        <a class="t-btn" href="doctors-branches.html"><svg class="t-icon sm"><use href="#i-users"/></svg><span data-en="Doctors & branches">الأطباء والفروع</span></a>
+        <button class="t-btn primary" type="button" data-open="#rm-add"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="Add room">ضيف غرفة</span><span class="t-kbd">R</span></button>
+      </div>
+    </header>
+
+    <div class="mb-4"
+         data-note="Conflicts are computed from the schedules, not typed in: a room booked by two doctors at once, or one doctor scheduled in two branches at the same hour. Shown as a warning with the fix, never a hard block, because the owner may be mid-change (NITCO v57/58/102 checks leaves against bookings the same way)."
+         data-note-ar="التعارضات بتتحسب من الجداول، مش بتتكتب: غرفة محجوزة لطبيبين في نفس الوقت، أو طبيب متجدول في فرعين في نفس الساعة. بتظهر كتنبيه ومعاها الحل، مش منع، لأن المالك ممكن يكون في نص تعديل."><div id="rm-conflicts" class="t-stack"></div></div>
+
+    <section class="mb-6" aria-labelledby="rm-list-h">
+      <h2 id="rm-list-h" class="t-sr" data-en="Rooms">الغرف</h2>
+      <div
+           data-note="A room has a TYPE (consult, dental chair, laser, procedures), never a specialty. Specialty tags under each room are derived from the doctors who use it this week; Room 3 in Toreil hosts dermatology, paediatrics and ENT by time slot."
+           data-note-ar="الغرفة ليها نوع (كشف، كرسي أسنان، ليزر، إجراءات) ومش ليها تخصص. شارات التخصص تحت كل غرفة جاية من الأطباء اللي بيستخدموها الأسبوع ده؛ غرفة ٣ في توريل فيها جلدية وأطفال وأنف وأذن بالميعاد."><div id="rm-cards"></div></div>
+    </section>
+
+    <section class="t-card flush" aria-labelledby="rm-grid-h">
+      <div class="t-card-head">
+        <h2 id="rm-grid-h" data-en="Weekly room occupancy">إشغال الغرف في الأسبوع</h2>
+        <div class="t-actions rm-legend" id="rm-legend"></div>
+      </div>
+      <div class="t-table-wrap" style="border:0;border-radius:0"
+           data-note="Weekly grid: rows are rooms, columns are days, each block is one doctor's shift (time · doctor · specialty). It is built from doctor schedules (doctor × branch × room × time), so editing a doctor's hours updates this grid; there is no second place to keep in sync."
+           data-note-ar="جدول الأسبوع: الصفوف غرف والأعمدة أيام، وكل مربع وردية طبيب (الوقت · الطبيب · التخصص). بيتبني من جداول الأطباء (طبيب × فرع × غرفة × وقت)، فتعديل مواعيد الطبيب بيغيّر الجدول ده؛ مفيش مكان تاني لازم يتظبط.">
+        <table class="t-table rm-grid">
+          <thead><tr id="rm-grid-head"></tr></thead>
+          <tbody id="rm-grid-body"></tbody>
+        </table>
+      </div>
+      <div class="t-card-foot"><svg class="t-icon sm"><use href="#i-info"/></svg><span class="t-small" data-en="Friday closed in both branches. Room 5 (procedures) is used by nursing all day and is not booked by doctors.">الجمعة إجازة في الفرعين. غرفة ٥ (إجراءات) بتستخدمها التمريض طول اليوم ومبتتحجزش للأطباء.</span></div>
+    </section>
+
+  </div>
+</main>
+
+<!-- Add room modal -->
+<div class="t-scrim" id="rm-add" hidden>
+  <div class="t-modal" role="dialog" aria-modal="true" aria-labelledby="rm-add-h">
+    <div class="t-modal-head">
+      <h2 id="rm-add-h" data-en="Add a room or chair">ضيف غرفة أو كرسي</h2>
+      <button class="t-btn icon ghost" type="button" data-close aria-label="Close" data-en-aria-label="Close" title="إغلاق" data-en-title="Close"><svg class="t-icon"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="t-modal-body t-stack lg">
+      <div class="t-form-grid">
+        <div class="t-field span-2"><label class="t-label" for="rm-name"><span data-en="Name">الاسم</span><span class="req">*</span></label><input id="rm-name" class="t-input" placeholder="مثلًا: كرسي أسنان ٢" data-en-placeholder="e.g. Dental chair 2"></div>
+        <div class="t-field span-2"><span class="t-label" data-en="Type">النوع</span>
+          <div class="t-row tight" id="rm-types">
+            <button type="button" class="t-pick is-on" data-en="Consult room">غرفة كشف</button>
+            <button type="button" class="t-pick" data-en="Dental chair">كرسي أسنان</button>
+            <button type="button" class="t-pick" data-en="Laser room">غرفة ليزر</button>
+            <button type="button" class="t-pick" data-en="Procedures">إجراءات</button>
+          </div>
+          <span class="t-hint" data-en="The type decides which services can be booked here. Specialty stays with the doctor.">النوع بيحدد الخدمات اللي تتحجز هنا. التخصص بيفضل بتاع الطبيب.</span></div>
+        <div class="t-field"><label class="t-label" for="rm-branch" data-en="Branch">الفرع</label><select id="rm-branch" class="t-select"><option data-en="Mansoura - Toreil">المنصورة - توريل</option><option data-en="Mansoura - University">المنصورة - الجامعة</option></select></div>
+        <div class="t-field"><span class="t-label" data-en="Booking">الحجز</span><label class="t-switch"><input type="checkbox" checked> <span data-en="Doctors can be scheduled here">الأطباء يتجدولوا فيها</span></label></div>
+      </div>
+    </div>
+    <div class="t-modal-foot">
+      <button class="t-btn ghost" type="button" data-close data-en="Cancel">إلغاء</button>
+      <button class="t-btn primary" type="button" data-close data-toast="اتضافت الغرفة" data-toast-en="Room added"><span data-en="Add room">ضيف الغرفة</span><span class="t-kbd">Enter</span></button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/shell.js"></script>
+<script>
+(function () {
+  "use strict";
+  var L = function () { return window.Tamargi && Tamargi.lang() === "en"; };
+  var $ = function (s) { return document.querySelector(s); };
+  function tx(a, e) { return L() ? e : a; }
+  var AD = "٠١٢٣٤٥٦٧٨٩";
+  function ar(n) { return String(n).replace(/\d/g, function (d) { return AD[d]; }); }
+  function fmt(h) {
+    var hh = Math.floor(h), mm = Math.round((h - hh) * 60), pm = hh >= 12, h12 = hh > 12 ? hh - 12 : hh;
+    var s = h12 + (mm ? ":" + (mm < 10 ? "0" : "") + mm : "");
+    return L() ? s + (pm ? " pm" : " am") : ar(s) + (pm ? " م" : " ص");
+  }
+
+  /* Shared demo data (same in doctors-branches.html). FAKE. */
+  var SP = { im: ["باطنة", "Internal med."], derma: ["جلدية", "Dermatology"], laser: ["ليزر تجميل", "Cosmetic laser"], peds: ["أطفال", "Paediatrics"], ent: ["أنف وأذن", "ENT"], dent: ["أسنان", "Dental"], gyn: ["نسا وتوليد", "OB/GYN"] };
+  var SPC = { im: "im", derma: "derma", laser: "derma", peds: "peds", ent: "ent", dent: "dent", gyn: "gyn" };
+  var DOCS = {
+    ahmed: ["د. أحمد سليم", "Dr. Ahmed Selim"], noha: ["د. نهى الشربيني", "Dr. Noha El-Sherbini"], marwa: ["د. مروة حجازي", "Dr. Marwa Hegazy"],
+    karim: ["د. كريم الدسوقي", "Dr. Karim El-Desouky"], yasser: ["د. ياسر الشافعي", "Dr. Yasser El-Shafei"], heba: ["د. هبة النجار", "Dr. Heba El-Naggar"]
+  };
+  var BR = { tor: ["المنصورة - توريل", "Mansoura - Toreil", 10, 23], gam: ["المنصورة - الجامعة", "Mansoura - University", 16, 23] };
+  var TYPES = { consult: ["كشف", "Consult"], dental: ["كرسي أسنان", "Dental chair"], laser: ["ليزر", "Laser"], proc: ["إجراءات", "Procedures"] };
+  var ROOMS = [
+    { id: "T1", b: "tor", ar: "غرفة كشف ١", en: "Consult room 1", t: "consult", dev: 2 },
+    { id: "T2", b: "tor", ar: "غرفة كشف ٢", en: "Consult room 2", t: "consult", dev: 1 },
+    { id: "T3", b: "tor", ar: "غرفة كشف ٣", en: "Consult room 3", t: "consult", dev: 2 },
+    { id: "T4", b: "tor", ar: "غرفة الليزر", en: "Laser room", t: "laser", dev: 1 },
+    { id: "T5", b: "tor", ar: "غرفة الإجراءات والحقن", en: "Procedures & injections", t: "proc", dev: 3, nurse: true },
+    { id: "G1", b: "gam", ar: "غرفة كشف ١", en: "Consult room 1", t: "consult", dev: 1 },
+    { id: "G2", b: "gam", ar: "غرفة كشف ٢", en: "Consult room 2", t: "consult", dev: 1 },
+    { id: "G3", b: "gam", ar: "كرسي أسنان ١", en: "Dental chair 1", t: "dental", dev: 2 }
+  ];
+  /* [room, doctor, specialty, days (0 = Sat … 5 = Thu), from, to] */
+  var SHIFTS = [
+    ["T1", "ahmed", "im", [0, 2, 4], 17, 23], ["T1", "ahmed", "im", [5], 18, 20],
+    ["T3", "noha", "derma", [0, 1, 2, 3, 4, 5], 10, 14], ["T3", "marwa", "peds", [0, 1, 3, 4], 14.5, 18],
+    ["T3", "karim", "ent", [0, 2], 19, 23], ["T3", "karim", "ent", [4], 17.5, 23],
+    ["T4", "noha", "laser", [2, 5], 15, 19],
+    ["G1", "heba", "gyn", [0, 2, 4], 16, 20], ["G2", "ahmed", "im", [1, 3, 5], 17, 22],
+    ["G3", "yasser", "dent", [0, 1, 2, 3, 4, 5], 16, 23]
+  ];
+  var DAYS = [["السبت", "Sat"], ["الأحد", "Sun"], ["الاتنين", "Mon"], ["التلات", "Tue"], ["الأربع", "Wed"], ["الخميس", "Thu"]];
+  function roomById(id) { return ROOMS.filter(function (r) { return r.id === id; })[0]; }
+
+  /* Expand to per-day blocks and detect conflicts (same room overlap, same doctor in two branches). */
+  var BLOCKS = [];
+  SHIFTS.forEach(function (s, i) { s[3].forEach(function (d) { BLOCKS.push({ k: i + "-" + d, room: s[0], doc: s[1], sp: s[2], day: d, from: s[4], to: s[5], br: roomById(s[0]).b, c: null }); }); });
+  var CONFLICTS = [];
+  for (var i = 0; i < BLOCKS.length; i++) for (var j = i + 1; j < BLOCKS.length; j++) {
+    var a = BLOCKS[i], b = BLOCKS[j];
+    if (a.day !== b.day || !(a.from < b.to && b.from < a.to)) continue;
+    if (a.room === b.room) { a.c = b.c = "room"; CONFLICTS.push({ type: "room", a: a, b: b }); }
+    else if (a.doc === b.doc && a.br !== b.br) { a.c = b.c = "doctor"; CONFLICTS.push({ type: "doctor", a: a, b: b }); }
+  }
+
+  function visible(br) { var sc = Tamargi.scope(); return sc.mismatch || sc.all || sc.branch === br; }
+
+  function renderConflicts() {
+    var h = CONFLICTS.filter(function (c) { return visible(c.a.br) || visible(c.b.br); }).map(function (c) {
+      var A = c.a, B = c.b, day = tx(DAYS[A.day][0], DAYS[A.day][1]);
+      var from = Math.max(A.from, B.from), to = Math.min(A.to, B.to);
+      var msg = c.type === "room"
+        ? tx("<b>تعارض غرفة:</b> " + roomById(A.room).ar + " (" + BR[A.br][0] + ") محجوزة لـ" + DOCS[A.doc][0] + " و" + DOCS[B.doc][0] + " يوم " + day + " من " + fmt(from) + " لـ" + fmt(to) + ".",
+               "<b>Room conflict:</b> " + roomById(A.room).en + " (" + BR[A.br][1] + ") is booked for " + DOCS[A.doc][1] + " and " + DOCS[B.doc][1] + " on " + day + ", " + fmt(from) + "–" + fmt(to) + ".")
+        : tx("<b>طبيب في فرعين:</b> " + DOCS[A.doc][0] + " متجدول في " + BR[A.br][0] + " و" + BR[B.br][0] + " يوم " + day + " من " + fmt(from) + " لـ" + fmt(to) + ".",
+               "<b>Doctor in two branches:</b> " + DOCS[A.doc][1] + " is scheduled in " + BR[A.br][1] + " and " + BR[B.br][1] + " on " + day + ", " + fmt(from) + "–" + fmt(to) + ".");
+      var fix = c.type === "room" ? tx("انقل لغرفة كشف ٢ (فاضية)", "Move to Consult room 2 (free)") : tx("افتح جدول الطبيب", "Open doctor schedule");
+      var act = c.type === "room" ? '<button class="t-btn sm" type="button" data-toast="' + tx("اتنقلت الوردية لغرفة كشف ٢ والتعارض اتحل", "Shift moved to Consult room 2, conflict solved") + '">' + fix + "</button>"
+                                  : '<a class="t-btn sm" href="doctors-branches.html">' + fix + "</a>";
+      return '<div class="t-alert danger"><svg class="t-icon"><use href="#i-alert"/></svg><span>' + msg + '</span><div class="t-actions">' + act + "</div></div>";
+    }).join("");
+    $("#rm-conflicts").innerHTML = h || '<div class="t-alert success"><svg class="t-icon"><use href="#i-check"/></svg><span>' + tx("مفيش تعارضات في الفرع ده الأسبوع ده.", "No conflicts in this branch this week.") + "</span></div>";
+  }
+
+  function hoursOf(room) { return BLOCKS.filter(function (b) { return b.room === room; }).reduce(function (s, b) { return s + (b.to - b.from); }, 0); }
+
+  function renderCards() {
+    var groups = ["tor", "gam"].filter(visible), h = "";
+    groups.forEach(function (br) {
+      if (groups.length > 1) h += '<h3 class="rm-branch-h"><svg class="t-icon"><use href="#i-pin"/></svg>' + tx(BR[br][0], BR[br][1]) + "</h3>";
+      h += '<div class="rm-cards">';
+      ROOMS.filter(function (r) { return r.b === br; }).forEach(function (r) {
+        var open = (BR[br][3] - BR[br][2]) * 6, used = hoursOf(r.id), pct = Math.round(used / open * 100);
+        var specs = [], conflict = BLOCKS.some(function (b) { return b.room === r.id && b.c === "room"; });
+        BLOCKS.forEach(function (b) { if (b.room === r.id && specs.indexOf(b.sp) === -1) specs.push(b.sp); });
+        h += '<article class="t-card rm-card' + (conflict ? " is-conflict" : "") + '">' +
+          '<div class="t-row between"><h3>' + tx(r.ar, r.en) + '</h3><span class="rm-type">' + tx(TYPES[r.t][0], TYPES[r.t][1]) + "</span></div>" +
+          '<div class="rm-specs">' + (r.nurse ? '<span class="t-small t-muted">' + tx("التمريض: حقن وجلسات", "Nursing: injections & sessions") + "</span>" :
+            specs.length ? specs.map(function (s) { return '<span class="t-spec-tag ' + SPC[s] + '">' + tx(SP[s][0], SP[s][1]) + "</span>"; }).join("") : '<span class="t-small t-muted">' + tx("مفيش أطباء متجدولين", "No doctors scheduled") + "</span>") + "</div>" +
+          (r.nurse ? "" : '<div><div class="t-row between"><span>' + tx("الإشغال", "Occupancy") + '</span><b class="t-num">' + (L() ? pct + "%" : ar(pct) + "٪") + "</b></div>" +
+            '<div class="t-meter' + (pct < 15 ? " warn" : "") + '"><i style="width:' + Math.max(pct, 2) + '%"></i></div></div>') +
+          '<div class="t-row between"><a href="equipment.html">' + (L() ? r.dev + " devices" : ar(r.dev) + " أجهزة") + "</a>" +
+          (conflict ? '<span class="t-chip danger">' + tx("تعارض", "Conflict") + "</span>" : pct === 0 && !r.nurse ? '<span class="t-chip plain">' + tx("فاضية للحجز", "Free to book") + "</span>" : "") + "</div></article>";
+      });
+      h += "</div>";
+    });
+    $("#rm-cards").innerHTML = h;
+  }
+
+  function renderGrid() {
+    $("#rm-grid-head").innerHTML = "<th>" + tx("الغرفة", "Room") + "</th>" + DAYS.map(function (d) { return "<th>" + tx(d[0], d[1]) + "</th>"; }).join("");
+    var h = "", groups = ["tor", "gam"].filter(visible);
+    groups.forEach(function (br) {
+      if (groups.length > 1) h += '<tr><td colspan="7" style="background:var(--surface-sunk)"><b class="t-small">' + tx(BR[br][0], BR[br][1]) + "</b></td></tr>";
+      ROOMS.filter(function (r) { return r.b === br; }).forEach(function (r) {
+        h += "<tr><td><b>" + tx(r.ar, r.en) + "</b><span>" + tx(TYPES[r.t][0], TYPES[r.t][1]) + "</span></td>";
+        DAYS.forEach(function (d, di) {
+          var bl = BLOCKS.filter(function (b) { return b.room === r.id && b.day === di; }).sort(function (x, y) { return x.from - y.from; });
+          h += '<td><div class="rm-cell">' + (r.nurse ? '<span class="rm-free">' + tx("التمريض", "Nursing") + "</span>" : bl.length ? bl.map(function (b) {
+            return '<div class="rm-blk ' + SPC[b.sp] + (b.c ? " is-conflict" : "") + '"><span class="tm">' + fmt(b.from) + "–" + fmt(b.to) + "</span><span>" + tx(DOCS[b.doc][0], DOCS[b.doc][1]) + " · " + tx(SP[b.sp][0], SP[b.sp][1]) + "</span>" +
+              (b.c ? "<span>⚠ " + (b.c === "room" ? tx("الغرفة محجوزة مرتين", "Room double-booked") : tx("الطبيب في فرع تاني", "Doctor in other branch")) + "</span>" : "") + "</div>";
+          }).join("") : '<span class="rm-free">' + tx("فاضية", "Free") + "</span>") + "</div></td>";
+        });
+        h += "</tr>";
+      });
+    });
+    $("#rm-grid-body").innerHTML = h;
+    $("#rm-legend").innerHTML = ["im", "derma", "peds", "ent", "dent", "gyn"].map(function (s) { return '<span class="t-spec-tag ' + s + '">' + tx(SP[s][0], SP[s][1]) + "</span>"; }).join("");
+  }
+
+  function render() { renderConflicts(); renderCards(); renderGrid(); }
+  document.addEventListener("tamargi:scope", render);
+  render();
+
+  Array.prototype.forEach.call(document.querySelectorAll("#rm-types .t-pick"), function (p) {
+    p.addEventListener("click", function () { Array.prototype.forEach.call(document.querySelectorAll("#rm-types .t-pick"), function (x) { x.classList.toggle("is-on", x === p); }); });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll(".t-scrim"), function (s) { s.addEventListener("click", function (e) { if (e.target === s) s.hidden = true; }); });
+  document.addEventListener("keydown", function (e) {
+    var typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
+    if (!typing && (e.key === "r" || e.key === "R") && !e.ctrlKey && !e.altKey && !e.metaKey) { e.preventDefault(); $("#rm-add").hidden = false; $("#rm-name").focus(); }
+  });
+})();
+</script>
+</body>
+</html>

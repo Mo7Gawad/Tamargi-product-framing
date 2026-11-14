@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Visit templates & shortcuts — Tamargi">قوالب الكشف والاختصارات — تمرجي</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style>
+    /* page-specific CSS: tokens only */
+    .tp-list { display: flex; flex-direction: column; }
+    .tp-group { padding: var(--s-3) var(--s-4) var(--s-1); font-size: var(--fs-xs); font-weight: var(--fw-sb); color: var(--text-3); }
+    .tp-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px var(--s-2); width: 100%; padding: var(--s-3) var(--s-4); border: 0; border-block-start: 1px solid var(--line); background: none; text-align: start; font: inherit; color: var(--text); cursor: pointer; }
+    .tp-item:hover { background: var(--surface-hover); }
+    .tp-item.is-on { background: var(--primary-soft); box-shadow: inset -3px 0 0 var(--primary); }
+    [dir="ltr"] .tp-item.is-on { box-shadow: inset 3px 0 0 var(--primary); }
+    .tp-item b { font-weight: var(--fw-m); font-size: var(--fs-sm); }
+    .tp-item small { font-size: var(--fs-xs); color: var(--text-3); }
+    .tp-uses { font-size: var(--fs-xs); color: var(--text-2); font-variant-numeric: tabular-nums; align-self: center; grid-row: span 2; text-align: end; }
+    .tp-soap { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: var(--s-2) var(--s-3); align-items: start; }
+    .tp-soap-k { width: 32px; height: 32px; border-radius: var(--r-sm); display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); font-family: var(--font-en); font-weight: var(--fw-b); }
+    .tp-icd { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding-inline: 10px; border-radius: var(--r-xs); border: 1px solid var(--line-strong); background: var(--surface); font-size: var(--fs-sm); }
+    .tp-icd code { font-family: var(--font-en); font-weight: var(--fw-sb); color: var(--primary); }
+    .tp-line { display: grid; grid-template-columns: 24px minmax(0, 1.4fr) minmax(0, 2fr) auto; gap: var(--s-3); align-items: center; padding: var(--s-2) 0; border-block-end: 1px solid var(--line); font-size: var(--fs-sm); }
+    .tp-line.is-off { color: var(--text-3); }
+    .tp-line .rx { direction: ltr; text-align: start; font-family: var(--font-en); font-weight: var(--fw-sb); }
+    [dir="rtl"] .tp-line .rx { text-align: end; }
+    .tp-sc { font-family: var(--font-en); font-weight: var(--fw-sb); color: var(--primary); direction: ltr; display: inline-block; }
+    .tp-pack { display: flex; flex-direction: column; gap: var(--s-3); }
+    .tp-pack .t-row { margin-block-start: auto; }
+    .tp-try { min-height: 110px; }
+    @media (max-width: 760px) { .tp-line { grid-template-columns: 24px 1fr; } .tp-line > :nth-child(n+3) { grid-column: 2; } .tp-hide-sm { display: none; } }
+  </style>
+</head>
+<body data-screen="settings-templates">
+<main id="screen">
+  <div class="t-container">
+
+    <header class="t-screen-head">
+      <div>
+        <h1 data-en="Visit templates & shortcuts">قوالب الكشف والاختصارات</h1>
+        <p class="t-sub mb-0" data-en="Ready-made visits (diagnosis, drugs, services) and short codes that make the visit note fast.">كشوفات جاهزة (تشخيص وأدوية وخدمات) واختصارات بتخلي كتابة الكشف أسرع.</p>
+      </div>
+      <div class="t-actions">
+        <a class="t-btn" href="visit-note.html" data-note="Templates can also be saved from a finished visit ('Save as template' in the visit workspace), the way NITCO does it (v3) — but here the doctor picks which parts to keep."
+           data-note-ar="القالب ممكن يتحفظ من كشف خلص ('احفظ كقالب' في شاشة الكشف) زي NITCO — بس هنا الدكتور بيختار يحتفظ بأنهي أجزاء."><svg class="t-icon sm"><use href="#i-edit"/></svg><span data-en="Save from a visit">احفظ من كشف</span></a>
+        <button class="t-btn primary" type="button" id="tp-new"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="New template">قالب جديد</span><span class="t-kbd">N</span></button>
+      </div>
+    </header>
+
+    <div class="t-tabs" role="tablist">
+      <button class="t-tab" role="tab" aria-selected="true" data-tab="tpl"><span data-en="Visit templates">قوالب الكشف</span> <span class="t-badge muted">16</span></button>
+      <button class="t-tab" role="tab" aria-selected="false" data-tab="sc"><span data-en="Text shortcuts">الاختصارات</span> <span class="t-badge muted">22</span></button>
+      <button class="t-tab" role="tab" aria-selected="false" data-tab="packs" data-en="Specialty packs">باقات التخصصات</button>
+    </div>
+
+    <!-- ============ TEMPLATES ============ -->
+    <section data-panel="tpl">
+      <div class="t-split">
+        <div class="t-card flush" data-note="Template list by specialty with usage counts (last 30 days), most used first. NITCO's template grid shows only 'test' / 'test' with no category, owner or content hint (v3)."
+             data-note-ar="القوالب مقسمة بالتخصص ومعاها عدد الاستخدام (آخر ٣٠ يوم)، الأكتر استخدامًا الأول. جدول القوالب في NITCO بيعرض بس الاسم من غير تصنيف ولا صاحب ولا محتوى.">
+          <div style="padding:var(--s-3) var(--s-4);border-block-end:1px solid var(--line)">
+            <div class="t-input-wrap"><svg class="t-icon"><use href="#i-search"/></svg><input class="t-input" type="search" id="tp-q" placeholder="ابحث بالتشخيص أو الكود" data-en-placeholder="Search diagnosis or code"></div>
+            <div class="t-seg mt-2" role="group" id="tp-own"><button type="button" aria-pressed="true" data-en="All">الكل</button><button type="button" aria-pressed="false" data-en="Mine">بتوعي</button></div>
+          </div>
+          <div class="tp-list" id="tp-list">
+            <div class="tp-group" data-en="Internal medicine · Dr. Ahmed">باطنة · د. أحمد</div>
+            <button type="button" class="tp-item" data-k="htn"><b data-en="Hypertension follow-up">متابعة ضغط مرتفع</b><span class="tp-uses"><b>112</b> <span data-en="uses">مرة</span></span><small>I10 · 2 Rx · <span data-en="no services">بدون خدمات</span></small></button>
+            <button type="button" class="tp-item" data-k="dm"><b data-en="Type 2 diabetes follow-up">متابعة سكر نوع ٢</b><span class="tp-uses"><b>97</b> <span data-en="uses">مرة</span></span><small>E11.9 · 3 Rx · <span data-en="sugar test">سكر عشوائي</span></small></button>
+            <button type="button" class="tp-item is-on" data-k="gas"><b data-en="Gastritis / dyspepsia">التهاب معدة / عسر هضم</b><span class="tp-uses"><b>86</b> <span data-en="uses">مرة</span></span><small>K29.7 · 3 Rx · <span data-en="ultrasound (optional)">سونار (اختياري)</span></small></button>
+            <button type="button" class="tp-item" data-k="gerd"><b data-en="Reflux (GERD)">ارتجاع المريء</b><span class="tp-uses"><b>64</b> <span data-en="uses">مرة</span></span><small>K21.9 · 2 Rx</small></button>
+            <button type="button" class="tp-item" data-k="ge"><b data-en="Gastroenteritis">نزلة معوية</b><span class="tp-uses"><b>58</b> <span data-en="uses">مرة</span></span><small>A09 · 3 Rx</small></button>
+            <button type="button" class="tp-item" data-k="uti"><b data-en="Urinary tract infection">التهاب مسالك بولية</b><span class="tp-uses"><b>41</b> <span data-en="uses">مرة</span></span><small>N39.0 · 2 Rx</small></button>
+            <div class="tp-group" data-en="Paediatrics · Dr. Noha">أطفال · د. نهى</div>
+            <button type="button" class="tp-item" data-k="ton"><b data-en="Tonsillitis (child)">التهاب لوز (أطفال)</b><span class="tp-uses"><b>73</b> <span data-en="uses">مرة</span></span><small>J03.9 · 3 Rx · <span data-en="dose by weight">جرعة بالوزن</span></small></button>
+            <button type="button" class="tp-item" data-k="bro"><b data-en="Bronchiolitis + nebuliser">نزلة شعبية + جلسة</b><span class="tp-uses"><b>29</b> <span data-en="uses">مرة</span></span><small>J21.9 · 2 Rx · <span data-en="nebuliser">نيبولايزر</span></small></button>
+          </div>
+        </div>
+
+        <!-- editor -->
+        <div class="t-card" id="tp-editor">
+          <div class="t-card-head">
+            <h2 id="tp-title" data-en="Gastritis / dyspepsia">التهاب معدة / عسر هضم</h2>
+            <span class="t-chip plain info" data-en="Shared with clinic doctors">مشترك مع أطباء العيادة</span>
+            <div class="t-actions">
+              <a class="t-btn sm" href="visit-note.html"><svg class="t-icon sm"><use href="#i-eye"/></svg><span data-en="Try in a visit">جرّب في كشف</span></a>
+              <button class="t-btn sm ghost" type="button" data-toast="اتعمل نسخة من القالب" data-toast-en="Template duplicated"><svg class="t-icon sm"><use href="#i-copy"/></svg><span data-en="Duplicate">نسخة</span></button>
+            </div>
+          </div>
+          <div class="t-form-grid mb-4">
+            <div class="t-field"><label class="t-label" for="tp-name" data-en="Name">الاسم</label><input id="tp-name" class="t-input" value="التهاب معدة / عسر هضم"></div>
+            <div class="t-field"><label class="t-label" for="tp-spec" data-en="Specialty">التخصص</label><select id="tp-spec" class="t-select"><option selected data-en="Internal medicine">باطنة</option><option data-en="Paediatrics">أطفال</option></select></div>
+          </div>
+
+          <h3 class="mb-2" style="font-size:var(--fs-md)" data-en="Note (SOAP)">الكشف (SOAP)</h3>
+          <div class="t-stack mb-4">
+            <div class="tp-soap"><span class="tp-soap-k" title="Subjective">S</span><div class="t-field"><label class="t-label" for="tp-s" data-en="Complaint">الشكوى</label><textarea id="tp-s" class="t-textarea" style="min-height:60px">ألم وحرقان في أعلى البطن بعد الأكل منذ ___ أسابيع، مع انتفاخ. لا يوجد قيء دموي أو براز أسود.</textarea></div></div>
+            <div class="tp-soap"><span class="tp-soap-k" title="Objective">O</span><div class="t-field"><label class="t-label" for="tp-o" data-en="Examination">الفحص</label><textarea id="tp-o" class="t-textarea" style="min-height:60px">ألم عند الضغط في منطقة فم المعدة. البطن لينة، لا يوجد تضخم بالكبد أو الطحال.</textarea></div></div>
+            <div class="tp-soap"><span class="tp-soap-k" title="Assessment">A</span>
+              <div class="t-field"><span class="t-label" data-en="Diagnosis (ICD-10, optional)">التشخيص (ICD-10، اختياري)</span>
+                <div class="t-row tight"><span class="tp-icd"><code>K29.7</code><span>Gastritis, unspecified</span></span><span class="tp-icd"><code>K30</code><span>Functional dyspepsia</span></span>
+                  <button class="t-btn sm ghost" type="button" data-toast="اكتب كود أو اسم تشخيص" data-toast-en="Type a code or diagnosis"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="Add">إضافة</span></button></div></div></div>
+            <div class="tp-soap"><span class="tp-soap-k" title="Plan">P</span><div class="t-field"><label class="t-label" for="tp-p" data-en="Plan & advice">الخطة والنصائح</label><textarea id="tp-p" class="t-textarea" style="min-height:60px">تجنب الأكل الحار والمقلي والمنبهات. وجبات صغيرة. عدم النوم بعد الأكل مباشرة. متابعة بعد أسبوعين.</textarea></div></div>
+          </div>
+
+          <div data-note="Selective apply: each drug and service has a tick. Unticked lines are offered in the visit but not added. NITCO applies every item of a template at once (v3: 'all the information is applied'), so doctors delete lines after."
+               data-note-ar="تطبيق انتقائي: كل دوا وخدمة جنبهم علامة. اللي مش متعلّم بيظهر كاقتراح في الكشف بس مش بيتضاف. NITCO بيطبق كل حاجة في القالب مرة واحدة، فالدكتور بيمسح بعدها.">
+            <div class="t-row between mb-2"><h3 style="font-size:var(--fs-md)" data-en="Prescription lines">سطور الروشتة</h3><a class="t-small" href="rx-favourites.html" data-en="From favourites">من المفضلة</a></div>
+            <div class="tp-line"><input type="checkbox" checked aria-label="Include" data-en-aria-label="Include" style="accent-color:var(--primary)"><span class="rx">Nexium 40 mg tab</span><span>قرص على الريق قبل الفطار — ١٤ يوم</span><button class="t-btn sm ghost" type="button" aria-label="Edit line" data-en-aria-label="Edit line" data-en="Edit">تعديل</button></div>
+            <div class="tp-line"><input type="checkbox" checked aria-label="Include" data-en-aria-label="Include" style="accent-color:var(--primary)"><span class="rx">Motilium 10 mg tab</span><span>قرص قبل الأكل ٣ مرات — ٧ أيام</span><button class="t-btn sm ghost" type="button" data-en="Edit">تعديل</button></div>
+            <div class="tp-line is-off"><input type="checkbox" aria-label="Include" data-en-aria-label="Include" style="accent-color:var(--primary)"><span class="rx">Gaviscon Advance susp.</span><span><span>معلقة بعد الأكل — عند اللزوم</span> · <span data-en="suggested only">اقتراح بس</span></span><button class="t-btn sm ghost" type="button" data-en="Edit">تعديل</button></div>
+            <button class="t-btn sm mt-2" type="button" data-toast="اختار دوا من المفضلة أو اكتب اسمه" data-toast-en="Pick a favourite or type a drug"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="Add drug">إضافة دوا</span></button>
+
+            <h3 class="mt-6 mb-2" style="font-size:var(--fs-md)" data-en="Services added to the bill">خدمات بتتضاف للفاتورة</h3>
+            <div class="tp-line is-off"><input type="checkbox" aria-label="Include" data-en-aria-label="Include" style="accent-color:var(--primary)"><span data-en="Abdominal ultrasound">سونار بطن</span><span><span class="t-money">350<span class="cur" data-en="EGP">ج.م</span></span> · <span data-en="suggested only">اقتراح بس</span></span><span></span></div>
+            <p class="t-hint mt-2 mb-0" data-en="Ticked services go straight to the cashier when the doctor finishes the visit.">الخدمات المتعلّمة بتروح للخزنة على طول لما الدكتور يخلص الكشف.</p>
+          </div>
+
+          <div class="t-card-foot mt-6" style="margin-inline:calc(var(--pad-card) * -1);margin-block-end:calc(var(--pad-card) * -1)">
+            <span class="t-small t-muted" data-en="Last edited 2 Nov by Dr. Ahmed · used 86 times in 30 days">آخر تعديل ٢ نوفمبر بواسطة د. أحمد · اتستخدم ٨٦ مرة في ٣٠ يوم</span>
+            <button class="t-btn sm ghost t-end" type="button" data-toast="القالب اتأرشف" data-toast-en="Template archived" data-en="Archive">أرشفة</button>
+            <button class="t-btn sm primary" type="button" data-toast="اتحفظ القالب" data-toast-en="Template saved"><span data-en="Save template">احفظ القالب</span></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SHORTCUTS ============ -->
+    <section data-panel="sc" hidden>
+      <div class="t-split aside-end">
+        <div class="t-table-wrap">
+          <table class="t-table">
+            <thead><tr><th data-en="Type">اكتب</th><th data-en="It becomes">بتتحول لـ</th><th class="tp-hide-sm" data-en="Owner">لمين</th><th class="num" data-en="Uses (30 d)">استخدام (٣٠ يوم)</th><th></th></tr></thead>
+            <tbody>
+              <tr><td><span class="tp-sc">/cbc</span></td><td>CBC, ESR, CRP</td><td class="tp-hide-sm"><span data-en="Clinic">العيادة</span></td><td class="num">142</td><td class="actions"><button class="t-btn sm ghost" type="button" data-en="Edit">تعديل</button></td></tr>
+              <tr><td><span class="tp-sc">/lft</span></td><td>ALT, AST, Albumin, Bilirubin (T &amp; D)</td><td class="tp-hide-sm"><span data-en="Clinic">العيادة</span></td><td class="num">88</td><td class="actions"><button class="t-btn sm ghost" type="button" data-en="Edit">تعديل</button></td></tr>
+              <tr><td><span class="tp-sc">/neg</span></td><td>لا يوجد سخونية أو قيء أو إسهال</td><td class="tp-hide-sm"><span data-en="Dr. Ahmed">د. أحمد</span></td><td class="num">131</td><td class="actions"><button class="t-btn sm ghost" type="button" data-en="Edit">تعديل</button></td></tr>
+              <tr><td><span class="tp-sc">/htn</span></td><td>الضغط ___/___ على Concor 5 مرة يوميًا، ملتزم بالعلاج</td><td class="tp-hide-sm"><span data-en="Dr. Ahmed">د. أحمد</span></td><td class="num">104</td><td class="actions"><button class="t-btn sm ghost" type="button" data-en="Edit">تعديل</button></td></tr>
+              <tr><td><span class="tp-sc">/diet</span></td><td>تجنب الأكل الحار والمقلي والمنبهات، وجبات صغيرة</td><td class="tp-hide-sm"><span data-en="Dr. Ahmed">د. أحمد</span></td><td class="num">77</td><td class="actions"><button class="t-btn sm ghost" type="button" data-en="Edit">تعديل</button></td></tr>
+              <tr><td><span class="tp-sc">/fu</span></td><td>متابعة بعد أسبوعين ومعاه نتيجة التحاليل</td><td class="tp-hide-sm"><span data-en="Clinic">العيادة</span></td><td class="num">156</td><td class="actions"><button class="t-btn sm ghost" type="button" data-en="Edit">تعديل</button></td></tr>
+              <tr><td><span class="tp-sc">/wt</span></td><td>الوزن ___ كجم، الجرعة محسوبة على الوزن</td><td class="tp-hide-sm"><span data-en="Dr. Noha">د. نهى</span></td><td class="num">61</td><td class="actions"><button class="t-btn sm ghost" type="button" data-en="Edit">تعديل</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <aside class="t-card" data-note="Text shortcuts: type /cbc and a space in any note field and it expands. Try it here. Beats NITCO's free-text-only boxes and CKEditor for short clinical text."
+               data-note-ar="الاختصارات: اكتب /cbc ومسافة في أي خانة في الكشف وهتتفرد. جرّبها هنا. أحسن من خانات NITCO اللي كلها كتابة حرة.">
+          <div class="t-card-head"><h3 data-en="Try it">جرّبها</h3></div>
+          <label class="t-label t-sr" for="tp-try" data-en="Try a shortcut">جرّب اختصار</label>
+          <textarea id="tp-try" class="t-textarea tp-try" placeholder="اكتب /cbc وبعدها مسافة" data-en-placeholder="Type /cbc then a space"></textarea>
+          <p class="t-hint mt-2 mb-0" data-en="Works in the visit note, Rx instructions and sick-leave text. Shortcuts are per doctor or shared with the clinic.">بتشتغل في الكشف وتعليمات الروشتة والشهادات. الاختصار ممكن يبقى لدكتور واحد أو للعيادة كلها.</p>
+          <hr>
+          <div class="t-form-grid">
+            <div class="t-field"><label class="t-label" for="tp-sc-k" data-en="Shortcut">الاختصار</label><input id="tp-sc-k" class="t-input ltr" value="/ecg"></div>
+            <div class="t-field"><label class="t-label" for="tp-sc-own" data-en="For">لمين</label><select id="tp-sc-own" class="t-select"><option data-en="Me">ليّا</option><option data-en="Whole clinic">العيادة كلها</option></select></div>
+            <div class="t-field span-2"><label class="t-label" for="tp-sc-v" data-en="Expands to">بتتحول لـ</label><input id="tp-sc-v" class="t-input" value="رسم القلب طبيعي، نبض منتظم"></div>
+          </div>
+          <button class="t-btn primary sm mt-4" type="button" data-toast="اتضاف الاختصار /ecg" data-toast-en="Shortcut /ecg added"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="Add shortcut">إضافة اختصار</span></button>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ============ PACKS ============ -->
+    <section data-panel="packs" hidden>
+      <div class="t-alert info mb-4" data-note="Specialty packs import templates, favourites and shortcuts curated by Egyptian specialists. Import only adds: anything you edited is kept, never overwritten (NITCO's bulk 'apply to all' silently overwrites)."
+           data-note-ar="باقات التخصص بتستورد قوالب ومفضلة واختصارات جهزها أخصائيين مصريين. الاستيراد بيضيف بس: أي حاجة عدلتها بتفضل زي ما هي، مفيش كتابة فوقها.">
+        <svg class="t-icon"><use href="#i-info"/></svg><span data-en="Importing a pack only adds. Templates you edited stay as they are.">استيراد الباقة بيضيف بس. القوالب اللي عدلتها بتفضل زي ما هي.</span></div>
+      <div class="t-grid c3">
+        <div class="t-card tp-pack"><div class="t-row between"><h3 data-en="Internal medicine">باطنة</h3><span class="t-chip paid" data-en="Installed">متثبتة</span></div><p class="t-small t-muted mb-0" data-en="14 templates · 38 Rx favourites · 22 shortcuts · 9 services">١٤ قالب · ٣٨ روشتة · ٢٢ اختصار · ٩ خدمات</p><div class="t-row"><span class="t-hint" data-en="v2026.10 · 3 edited by you">إصدار ٢٠٢٦.١٠ · ٣ عدلتهم</span><button class="t-btn sm t-end" type="button" data-toast="اتضاف ٢ قالب جديد، والـ ٣ اللي عدلتهم زي ما هم" data-toast-en="2 new templates added; your 3 edited ones kept" data-en="Update">تحديث</button></div></div>
+        <div class="t-card tp-pack"><div class="t-row between"><h3 data-en="Paediatrics">أطفال</h3><span class="t-chip paid" data-en="Installed for Dr. Noha">متثبتة لـ د. نهى</span></div><p class="t-small t-muted mb-0" data-en="12 templates · 45 favourites with weight-based doses · 18 shortcuts">١٢ قالب · ٤٥ روشتة بجرعات بالوزن · ١٨ اختصار</p><div class="t-row"><span class="t-hint" data-en="Up to date">آخر إصدار</span></div></div>
+        <div class="t-card tp-pack"><div class="t-row between"><h3 data-en="OB/GYN">نسا وتوليد</h3><span class="t-chip booked" data-en="Not installed">مش متثبتة</span></div><p class="t-small t-muted mb-0" data-en="16 templates (ANC visits, PCOS, vaginitis) · 30 favourites · 11 services">١٦ قالب (متابعة حمل، تكيس، التهابات) · ٣٠ روشتة · ١١ خدمة</p><div class="t-row"><button class="t-btn sm" type="button" data-toast="معاينة باقة النسا" data-toast-en="Previewing OB/GYN pack" data-en="Preview">معاينة</button><button class="t-btn sm soft t-end" type="button" data-toast="اتستوردت باقة النسا والتوليد" data-toast-en="OB/GYN pack imported" data-en="Import">استيراد</button></div></div>
+        <div class="t-card tp-pack"><div class="t-row between"><h3 data-en="Dermatology">جلدية</h3><span class="t-chip booked" data-en="Not installed">مش متثبتة</span></div><p class="t-small t-muted mb-0" data-en="10 templates (acne, eczema, tinea) · 34 favourites · 12 services">١٠ قوالب (حب شباب، إكزيما، فطريات) · ٣٤ روشتة · ١٢ خدمة</p><div class="t-row"><button class="t-btn sm" type="button" data-en="Preview">معاينة</button><button class="t-btn sm soft t-end" type="button" data-toast="اتستوردت باقة الجلدية" data-toast-en="Dermatology pack imported" data-en="Import">استيراد</button></div></div>
+        <div class="t-card tp-pack"><div class="t-row between"><h3 data-en="ENT">أنف وأذن</h3><span class="t-chip booked" data-en="Not installed">مش متثبتة</span></div><p class="t-small t-muted mb-0" data-en="9 templates · 26 favourites · 6 services">٩ قوالب · ٢٦ روشتة · ٦ خدمات</p><div class="t-row"><button class="t-btn sm" type="button" data-en="Preview">معاينة</button><button class="t-btn sm soft t-end" type="button" data-toast="اتستوردت باقة الأنف والأذن" data-toast-en="ENT pack imported" data-en="Import">استيراد</button></div></div>
+        <div class="t-card tp-pack sunk"><div class="t-row between"><h3 data-en="Dentistry">أسنان</h3><span class="t-chip plain" data-en="Later">لاحقًا</span></div><p class="t-small t-muted mb-0" data-en="Needs the tooth chart (odontogram), planned after launch.">محتاجة رسم الأسنان، مخطط لها بعد الإطلاق.</p></div>
+      </div>
+    </section>
+
+  </div>
+</main>
+<script src="../assets/shell.js"></script>
+<script>
+(function () {
+  var L = function () { return window.Tamargi && Tamargi.lang() === "en"; };
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  function setT(el, ar, en) { el.setAttribute("data-ar", ar); el.setAttribute("data-en", en); el.innerHTML = L() ? en : ar; }
+
+  /* tabs */
+  function show(n) {
+    $$(".t-tab[data-tab]").forEach(function (x) { x.setAttribute("aria-selected", String(x.getAttribute("data-tab") === n)); });
+    $$("[data-panel]").forEach(function (p) { p.hidden = p.getAttribute("data-panel") !== n; });
+    Tamargi.setState(undefined);
+  }
+  $$(".t-tab[data-tab]").forEach(function (t) { t.addEventListener("click", function () { show(t.getAttribute("data-tab")); }); });
+  var m = location.hash.match(/tab=(\w+)/); if (m) show(m[1]);
+
+  /* template list select */
+  $$(".tp-item").forEach(function (b) {
+    b.addEventListener("click", function () {
+      $$(".tp-item").forEach(function (x) { x.classList.toggle("is-on", x === b); });
+      var nameEl = $("b", b), ar = nameEl.getAttribute("data-ar") || nameEl.textContent, en = nameEl.getAttribute("data-en") || ar;
+      setT($("#tp-title"), ar, en); $("#tp-name").value = L() ? en : ar;
+    });
+  });
+  $("#tp-q").addEventListener("input", function (e) {
+    var q = e.target.value.trim().toLowerCase();
+    $$(".tp-item").forEach(function (b) { b.hidden = q && b.textContent.toLowerCase().indexOf(q) === -1; });
+  });
+  $("#tp-own").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    $$("button", this).forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+    var mine = b === $$("button", this)[1];
+    $$(".tp-item").forEach(function (it) { it.hidden = mine && ["ton", "bro"].indexOf(it.getAttribute("data-k")) > -1; });
+    $$(".tp-group")[1].hidden = mine;
+  });
+
+  /* selective apply toggles */
+  $$(".tp-line input[type=checkbox]").forEach(function (c) { c.addEventListener("change", function () { c.closest(".tp-line").classList.toggle("is-off", !c.checked); }); });
+
+  /* new template */
+  function newTpl() {
+    show("tpl"); $$(".tp-item").forEach(function (x) { x.classList.remove("is-on"); });
+    setT($("#tp-title"), "قالب جديد", "New template"); $("#tp-name").value = ""; $("#tp-name").focus();
+  }
+  $("#tp-new").addEventListener("click", newTpl);
+  document.addEventListener("keydown", function (e) {
+    var typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
+    if (!typing && (e.key === "n" || e.key === "N") && !e.ctrlKey && !e.altKey && !e.metaKey) { e.preventDefault(); newTpl(); }
+  });
+
+  /* shortcut expansion demo */
+  var SC = { "/cbc": "CBC, ESR, CRP", "/lft": "ALT, AST, Albumin, Bilirubin (T & D)", "/neg": "لا يوجد سخونية أو قيء أو إسهال", "/htn": "الضغط ___/___ على Concor 5 مرة يوميًا، ملتزم بالعلاج", "/diet": "تجنب الأكل الحار والمقلي والمنبهات، وجبات صغيرة", "/fu": "متابعة بعد أسبوعين ومعاه نتيجة التحاليل", "/wt": "الوزن ___ كجم، الجرعة محسوبة على الوزن" };
+  $("#tp-try").addEventListener("input", function (e) {
+    var t = e.target, v = t.value, mm = v.match(/(\/[a-z]+)(\s)$/i);
+    if (mm && SC[mm[1].toLowerCase()]) {
+      t.value = v.slice(0, v.length - mm[0].length) + SC[mm[1].toLowerCase()] + " ";
+      Tamargi.toast((L() ? "Expanded " : "اتفرد ") + mm[1]);
+    }
+  });
+})();
+</script>
+</body>
+</html>

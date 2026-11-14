@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Visit workspace — Tamargi">الكشف — تمرجي</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style>
+    /* visit-note: tokens only */
+    .vn-last { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-4); padding: var(--s-2) var(--s-4); margin-block-end: var(--s-4); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface-sunk); font-size: var(--fs-sm); }
+    .vn-last b { font-weight: var(--fw-sb); }
+    .vn-save { font-size: var(--fs-xs); color: var(--text-3); display: inline-flex; align-items: center; gap: var(--s-1); }
+    .vn-save.is-saving { color: var(--warning-fg); }
+    .vn-soap { display: grid; gap: var(--s-3); }
+    .vn-soap .t-field { display: grid; grid-template-columns: 36px 1fr; gap: var(--s-2); align-items: start; }
+    .vn-letter { width: 36px; height: 36px; border-radius: var(--r-sm); display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); font-family: var(--font-en); font-weight: var(--fw-b); }
+    .vn-soap .t-textarea { min-height: 64px; }
+    .vn-soap .vn-letter { grid-row: 1 / span 2; }
+    .vn-soap .t-label, .vn-soap .t-textarea { grid-column: 2; }
+    .vn-exam { display: grid; grid-template-columns: max-content 1fr; gap: var(--s-2) var(--s-4); align-items: center; font-size: var(--fs-sm); }
+    .vn-chips { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+    .vn-dx { display: inline-flex; align-items: center; gap: var(--s-2); height: 32px; padding-inline: var(--s-3) var(--s-1); border-radius: var(--r-sm); border: 1px solid var(--primary-line); background: var(--primary-soft); font-size: var(--fs-sm); }
+    .vn-dx code { font-family: var(--font-en); font-weight: var(--fw-sb); color: var(--primary); direction: ltr; }
+    .vn-dx button { border: 0; background: none; color: var(--text-3); cursor: pointer; padding: 2px; display: grid; place-items: center; border-radius: var(--r-xs); }
+    .vn-dx button:hover { color: var(--danger-fg); background: var(--danger-bg); }
+    .vn-icd { position: relative; }
+    .vn-icd .t-menu { position: absolute; inset-inline: 0; top: calc(100% + 4px); z-index: 20; max-height: 260px; overflow: auto; }
+    .vn-icd .t-menu code { font-family: var(--font-en); color: var(--primary); min-width: 52px; direction: ltr; }
+    .vn-tpl-prev { border: 1px solid var(--primary-line); border-radius: var(--r-sm); padding: var(--s-3); background: var(--surface-sunk); }
+    .vn-tpl-prev h4 { font-size: var(--fs-xs); color: var(--text-3); margin: var(--s-2) 0 var(--s-1); }
+    .vn-tpl-prev .t-check { display: flex; padding-block: 3px; }
+    .vn-tpl-prev .t-check.pen { color: var(--danger-fg); }
+    .vn-rx-empty { padding: var(--s-4); text-align: center; color: var(--text-3); font-size: var(--fs-sm); }
+    .t-rx-line .t-chip { height: 20px; }
+    .vn-cell { font-size: var(--fs-sm); color: var(--text-2); }
+    .vn-fu-date { font-size: var(--fs-lg); font-weight: var(--fw-sb); }
+    @media (max-width: 640px) { .vn-exam { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body data-screen="visit-note">
+<main id="screen">
+
+  <section class="t-banner" aria-label="المريض" data-en-aria-label="Patient">
+    <div class="t-banner-id">
+      <span class="t-avatar">م ش</span>
+      <div>
+        <div class="t-banner-name">منى عبد الرحمن السيد الشناوي</div>
+        <div class="t-banner-facts">
+          <span><b>٣٤</b> <span data-en="yrs · F">سنة · أنثى</span></span>
+          <span><span data-en="File">ملف</span> <b class="t-ltr">1043</b></span>
+          <span class="t-ltr">0100 234 5678</span>
+          <span data-en="Ticket A-16 · started 7:41 pm">تذكرة A-16 · بدأ ٧:٤١ م</span>
+        </div>
+      </div>
+    </div>
+    <div class="t-banner-alerts">
+      <span class="t-allergy"><svg class="t-icon sm"><use href="#i-alert"/></svg><span data-en="Allergy: Penicillin (severe)">حساسية: بنسلين (شديدة)</span></span>
+      <span class="t-flag" data-en="Hypertension · Hypothyroidism">ضغط · غدة درقية</span>
+      <span class="t-balance debt" data-en="Owes 40 EGP">عليها ٤٠ ج.م</span>
+      <span class="t-balance followup" data-en="Free follow-up · today 0 EGP">استشارة مجانية · النهارده ٠ ج.م</span>
+    </div>
+  </section>
+
+  <div class="t-container">
+    <header class="t-screen-head">
+      <div>
+        <h1 data-en="Visit">الكشف</h1>
+        <p class="t-sub mb-0"><span data-en="Dr. Ahmed Selim · Internal medicine · Sat 14 Nov">د. أحمد سليم · باطنة · السبت ١٤ نوفمبر</span> · <span class="vn-save" id="saveState"><svg class="t-icon sm"><use href="#i-check"/></svg><span id="saveTxt" data-en="Draft saved 7:42 pm">المسودة محفوظة ٧:٤٢ م</span></span></p>
+      </div>
+      <div class="t-actions">
+        <a class="t-btn" href="patient-file.html"><svg class="t-icon sm"><use href="#i-file"/></svg><span data-en="Full file">الملف كامل</span></a>
+        <a class="t-btn" href="prescription-builder.html"><svg class="t-icon sm"><use href="#i-rx"/></svg><span data-en="Full prescription">الروشتة كاملة</span></a>
+        <button class="t-btn primary" type="button" data-open="#finishDrawer" id="finishBtn"><svg class="t-icon sm"><use href="#i-check"/></svg><span data-en="Finish visit">إنهاء الكشف</span><span class="t-kbd">Ctrl ↵</span></button>
+      </div>
+    </header>
+
+    <div class="vn-last"
+         data-note="Last-visit summary under the banner: date, diagnosis, drugs, today's vitals and the nurse note. The doctor does not need to open history to continue the story. NITCO v24–29 puts history on a separate tab of ≈14."
+         data-note-ar="ملخص آخر زيارة تحت الشريط: التشخيص والأدوية وقياسات النهارده وملاحظة التمريض، من غير ما تفتح التاريخ.">
+      <span><b data-en="Last visit 2 Nov:">آخر زيارة ٢ نوفمبر:</b> <span data-en="Essential hypertension · Concor 5 started · ECG normal">ضغط مرتفع · بدأ كونكور ٥ · رسم القلب طبيعي</span></span>
+      <span><b data-en="Today:">النهارده:</b> <span class="t-chip danger plain t-ltr">BP 150/95</span> <span class="t-ltr">P 88 · T 37.1 · SpO₂ 98 · 72 kg</span></span>
+      <span class="t-faint" data-en="Nurse: headache 3 days, missed Concor twice">التمريض: صداع ٣ أيام، نسيت الكونكور مرتين</span>
+      <a class="t-end t-small" href="patient-file.html" data-en="All visits (4)">كل الزيارات (٤)</a>
+    </div>
+
+    <div class="t-split aside-end">
+      <div class="t-stack lg">
+
+        <!-- Note -->
+        <section class="t-card" aria-labelledby="noteT">
+          <div class="t-card-head mb-0"><h2 id="noteT" data-en="Note">الملاحظة</h2></div>
+          <div class="t-tabs mt-2" role="tablist"
+               data-note="One SOAP note instead of NITCO's 8 free-text boxes, plus only the doctor's own specialty tab (Internal medicine). NITCO v24–29 shows all ≈14 specialty tabs to every doctor. Type a dot-shortcut (.chest, .lsd) and press space to expand it."
+               data-note-ar="ملاحظة SOAP واحدة بدل ٨ خانات، وتاب تخصص الدكتور بس (باطنة). اكتب اختصار بنقطة (.chest) واضغط مسافة.">
+            <button class="t-tab" role="tab" aria-selected="true" data-tab="soap" data-en="SOAP note">ملاحظة SOAP</button>
+            <button class="t-tab" role="tab" aria-selected="false" data-tab="exam" data-en="Internal medicine exam">فحص الباطنة</button>
+          </div>
+
+          <div data-pane="soap">
+            <div class="vn-soap">
+              <div class="t-field"><span class="vn-letter">S</span><label class="t-label" for="s" data-en="Complaint & history">الشكوى والتاريخ</label><textarea id="s" class="t-textarea" data-soap>صداع من ٣ أيام، أكتر الصبح. نسيت الكونكور مرتين الأسبوع ده. التهاب في الزور وسخونية خفيفة من امبارح.</textarea></div>
+              <div class="t-field"><span class="vn-letter">O</span><label class="t-label" for="o" data-en="Examination">الفحص</label><textarea id="o" class="t-textarea" data-soap>ضغط ١٥٠/٩٥، نبض ٨٨ (التمريض ٧:١٨ م). </textarea></div>
+              <div class="t-field"><span class="vn-letter">A</span><label class="t-label" for="a" data-en="Assessment">التقييم</label><textarea id="a" class="t-textarea" data-soap placeholder="التقييم… (التشخيص تحت)" data-en-placeholder="Assessment… (diagnosis below)"></textarea></div>
+              <div class="t-field"><span class="vn-letter">P</span><label class="t-label" for="p" data-en="Plan & advice">الخطة والنصايح</label><textarea id="p" class="t-textarea" data-soap placeholder="اكتب .lsd للنصايح الجاهزة" data-en-placeholder="Type .lsd for saved advice"></textarea></div>
+            </div>
+            <div class="t-row tight mt-4">
+              <span class="t-small t-muted" data-en="Shortcuts:">اختصارات:</span>
+              <button class="t-pick" type="button" data-sc=".chest"><span class="t-ltr">.chest</span> <span data-en="chest normal">صدر طبيعي</span></button>
+              <button class="t-pick" type="button" data-sc=".heart"><span class="t-ltr">.heart</span> <span data-en="heart normal">قلب طبيعي</span></button>
+              <button class="t-pick" type="button" data-sc=".throat"><span class="t-ltr">.throat</span> <span data-en="red throat">زور ملتهب</span></button>
+              <button class="t-pick" type="button" data-sc=".lsd"><span class="t-ltr">.lsd</span> <span data-en="low-salt advice">نصايح الملح</span></button>
+              <a class="t-small t-end" href="settings-templates.html" data-en="Edit shortcuts">تعديل الاختصارات</a>
+            </div>
+          </div>
+
+          <div data-pane="exam" hidden>
+            <div class="t-row between mb-4">
+              <span class="t-small t-muted" data-en="Nothing is marked normal until you examine it.">مفيش حاجة بتتعلّم طبيعي إلا لما تفحصها.</span>
+              <button class="t-btn sm soft" type="button" id="allNormal"><svg class="t-icon sm"><use href="#i-check"/></svg><span data-en="Mark all normal → write to O">الكل طبيعي ← اكتب في الفحص</span></button>
+            </div>
+            <div class="vn-exam" id="examGrid"></div>
+          </div>
+        </section>
+
+        <!-- Diagnosis -->
+        <section class="t-card" aria-labelledby="dxT"
+                 data-note="Diagnosis: ICD-10 search is optional (Arabic or English words, or the code); free text is always allowed. Chronic conditions from the file are one-click suggestions (NITCO v3, v29: ICD with diagnosis type; type comes later)."
+                 data-note-ar="التشخيص: بحث ICD-10 اختياري بالعربي أو الإنجليزي أو الكود، والكتابة الحرة مسموحة دايمًا.">
+          <div class="t-card-head"><h2 id="dxT" data-en="Diagnosis">التشخيص</h2><span class="t-faint t-small" data-en="ICD-10 optional">ICD-10 اختياري</span></div>
+          <div class="vn-icd mb-2">
+            <div class="t-input-wrap"><svg class="t-icon"><use href="#i-search"/></svg>
+              <input id="icd" class="t-input" placeholder="ابحث: ضغط، pharyngitis، J02…" data-en-placeholder="Search: hypertension, pharyngitis, J02…" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="icdMenu">
+            </div>
+            <ul class="t-menu" id="icdMenu" role="listbox" hidden></ul>
+          </div>
+          <div class="vn-chips mb-2" id="dxList"></div>
+          <div class="t-row tight"><span class="t-small t-muted" data-en="From file:">من الملف:</span>
+            <button class="t-pick" type="button" data-adddx="I10"><span class="t-ltr">I10</span> <span data-en="Hypertension">ضغط مرتفع</span></button>
+            <button class="t-pick" type="button" data-adddx="E03.9"><span class="t-ltr">E03.9</span> <span data-en="Hypothyroidism">قصور الغدة</span></button>
+          </div>
+        </section>
+
+        <!-- Services -->
+        <section class="t-card flush" aria-labelledby="svT"
+                 data-note="Services added here go straight onto this visit's bill; reception sees 'Balance due' on the queue. Replaces NITCO's 'send cash invoice' round-trip (v24–29, v34). The consult line came from check-in and is free because of the follow-up window."
+                 data-note-ar="الخدمات اللي تضيفها هنا بتروح للفاتورة على طول، والاستقبال بيشوف «مطلوب تحصيل». بدل «إرسال فاتورة كاش» في NITCO.">
+          <div class="t-card-head"><h2 id="svT" data-en="Services → bill">الخدمات ← الفاتورة</h2>
+            <div class="t-actions">
+              <button class="t-pick" type="button" data-svc="ECG"><span data-en="+ ECG 150">+ رسم قلب ١٥٠</span></button>
+              <button class="t-pick" type="button" data-svc="RBS"><span data-en="+ Blood sugar 40">+ سكر عشوائي ٤٠</span></button>
+              <button class="t-pick" type="button" data-svc="INJ"><span data-en="+ Injection 30">+ حقنة ٣٠</span></button>
+            </div>
+          </div>
+          <table class="t-table">
+            <thead><tr><th data-en="Service">الخدمة</th><th data-en="Added by">أضافها</th><th class="num" data-en="Price">السعر</th><th></th></tr></thead>
+            <tbody id="svcBody"></tbody>
+            <tfoot><tr><td colspan="2" data-en="Due for this visit">المطلوب للزيارة دي</td><td class="num"><span class="t-money" id="svcTotal">0<span class="cur">ج.م</span></span></td><td></td></tr></tfoot>
+          </table>
+        </section>
+
+        <!-- Rx -->
+        <section class="t-card" aria-labelledby="rxT">
+          <div class="t-card-head"><h2 id="rxT" data-en="Prescription">الروشتة</h2>
+            <div class="t-actions">
+              <a class="t-btn sm ghost" href="prescription-builder.html"><svg class="t-icon sm"><use href="#i-edit"/></svg><span data-en="Open builder">فتح الروشتة</span></a>
+              <a class="t-btn sm" href="prescription-print.html"><svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Print Rx">طباعة</span></a>
+            </div>
+          </div>
+          <div class="t-row tight mb-2"><span class="t-small t-muted" data-en="Favourites:">المفضلة:</span>
+            <button class="t-pick" type="button" data-fav="concor">Concor 5</button>
+            <button class="t-pick" type="button" data-fav="euthyrox">Euthyrox 50</button>
+            <button class="t-pick" type="button" data-fav="panadol">Panadol 500</button>
+            <button class="t-pick" type="button" data-fav="augmentin">Augmentin 1 g</button>
+            <button class="t-pick" type="button" data-fav="klacid">Klacid 500</button>
+          </div>
+          <div id="rxList"></div>
+        </section>
+
+        <!-- Follow-up -->
+        <section class="t-card" aria-labelledby="fuT"
+                 data-note="Follow-up in one click: the date is suggested from the clinic's free follow-up window (14 days here, NITCO v13/v62 'visit days'), so the patient's next visit is free and the slot respects the doctor's hours. The whole note autosaves as a draft."
+                 data-note-ar="المتابعة بضغطة: التاريخ مقترح من مدة الاستشارة المجانية (١٤ يوم) والميعاد بيحترم مواعيد الدكتور. والكشف كله بيتحفظ تلقائي.">
+          <div class="t-card-head"><h2 id="fuT" data-en="Follow-up">المتابعة</h2></div>
+          <div class="t-row">
+            <div class="t-seg" role="group" aria-label="المتابعة بعد" data-en-aria-label="Follow-up after">
+              <button type="button" aria-pressed="false" data-fu="7" data-en="1 week">أسبوع</button>
+              <button type="button" aria-pressed="true" data-fu="14" data-en="2 weeks (free)">أسبوعين (مجانية)</button>
+              <button type="button" aria-pressed="false" data-fu="30" data-en="1 month">شهر</button>
+              <button type="button" aria-pressed="false" data-fu="0" data-en="None">بدون</button>
+            </div>
+            <div class="t-grow">
+              <div class="vn-fu-date" id="fuDate">السبت ٢٨ نوفمبر · ٧:٠٠ م</div>
+              <div class="t-hint" id="fuHint">جوه مدة الاستشارة المجانية · د. أحمد فاضي ٣ مواعيد بالليل</div>
+            </div>
+            <button class="t-btn" type="button" id="fuBook"><svg class="t-icon sm"><use href="#i-calendar"/></svg><span data-en="Book follow-up">احجز المتابعة</span></button>
+          </div>
+        </section>
+      </div>
+
+      <!-- Right: templates + summary -->
+      <aside class="t-stack lg">
+        <section class="t-card" aria-labelledby="tplT"
+                 data-note="Visit templates (NITCO v3): one template holds diagnosis + drugs + services. Preview it, untick what does not fit this patient, apply. Every drug is checked against the file: a severe allergy match is the only interrupting modal in the visit (try 'Bacterial sore throat')."
+                 data-note-ar="قوالب الكشف: تشخيص + أدوية + خدمات. اعرض، شيل اللي مش مناسب، طبّق. أي دوا عليه حساسية شديدة بيطلع التحذير الوحيد اللي بيوقفك.">
+          <div class="t-card-head"><h2 id="tplT" data-en="Visit templates">قوالب الكشف</h2><a class="t-end t-small" href="settings-templates.html" data-en="Manage">إدارة</a></div>
+          <div class="t-stack" id="tplList">
+            <button class="t-fav" type="button" data-tpl="htn"><svg class="t-icon"><use href="#i-template"/></svg><span><span data-en="Hypertension follow-up">متابعة ضغط</span><small>I10 · Concor · ECG</small></span><span class="t-kbd">Alt 1</span></button>
+            <button class="t-fav" type="button" data-tpl="throat"><svg class="t-icon"><use href="#i-template"/></svg><span><span data-en="Bacterial sore throat">التهاب حلق بكتيري</span><small>J02.9 · Augmentin · Panadol · Strepsils</small></span><span class="t-kbd">Alt 2</span></button>
+            <button class="t-fav" type="button" data-tpl="gastro"><svg class="t-icon"><use href="#i-template"/></svg><span><span data-en="Gastroenteritis">نزلة معوية</span><small>A09 · Antinal · Rehydran · Injection</small></span><span class="t-kbd">Alt 3</span></button>
+          </div>
+          <div class="vn-tpl-prev mt-4" id="tplPrev" hidden></div>
+        </section>
+
+        <section class="t-card sunk" aria-labelledby="sumT">
+          <div class="t-card-head"><h3 id="sumT" data-en="When you finish">لما تخلص</h3></div>
+          <dl class="t-totals">
+            <dt data-en="Consult">الكشف</dt><dd><span class="t-chip free" data-en="Free follow-up">مجانية</span></dd>
+            <dt data-en="Services added">خدمات مضافة</dt><dd><span class="t-money" id="sumSvc">0<span class="cur">ج.م</span></span></dd>
+            <dt data-en="Old debt">مديونية قديمة</dt><dd><span class="t-money debt">40<span class="cur">ج.م</span></span></dd>
+            <dt class="grand" data-en="Reception will collect">الاستقبال هيحصّل</dt><dd class="grand"><span class="t-money" id="sumDue">40<span class="cur">ج.م</span></span></dd>
+          </dl>
+          <p class="t-hint mt-2 mb-0" data-en="You never handle money. Reception sees this on the queue as 'Balance due'.">إنت مش بتمسك فلوس. الاستقبال بيشوفها في الدور «مطلوب تحصيل».</p>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Severe allergy interrupt (the only blocking modal) -->
+  <div class="t-scrim" id="allergyModal" hidden>
+    <div class="t-severe" role="alertdialog" aria-modal="true" aria-labelledby="alT" aria-describedby="alD" style="width:min(560px,100%)">
+      <div class="t-severe-head"><svg class="t-icon"><use href="#i-alert"/></svg><span id="alT" data-en="Severe allergy: Penicillin">حساسية شديدة: بنسلين</span></div>
+      <div class="t-modal-body t-stack">
+        <p id="alD" class="mb-0"><b class="t-ltr">Augmentin 1 g</b> <span data-en="contains amoxicillin (a penicillin). Mona's file: penicillin allergy, severe — rash and shortness of breath (2015).">فيه أموكسيسيلين (من البنسلين). ملف منى: حساسية بنسلين شديدة — طفح وضيق نفس (٢٠١٥).</span></p>
+        <div class="t-alert info"><svg class="t-icon"><use href="#i-info"/></svg><span data-en="Suggested alternative from your favourites: Klacid 500 mg (clarithromycin), 1 tab every 12 h · 7 days.">بديل من المفضلة: Klacid 500 (كلاريثروميسين)، قرص كل ١٢ ساعة · ٧ أيام.</span></div>
+        <details class="t-more">
+          <summary data-en="Prescribe anyway (reason required)">اكتبه برضه (لازم سبب)</summary>
+          <div class="t-field mt-2">
+            <label class="t-label" for="ovr" data-en="Reason — saved in the file and the activity log">السبب — بيتسجل في الملف وسجل النشاط</label>
+            <input id="ovr" class="t-input" placeholder="مثال: الحساسية اتنفت بعد اختبار" data-en-placeholder="e.g. allergy ruled out by testing">
+            <button class="t-btn danger-ghost sm" type="button" id="alKeep" style="align-self:flex-start"><span data-en="Prescribe Augmentin with this reason">اكتب أوجمنتين بالسبب ده</span></button>
+          </div>
+        </details>
+      </div>
+      <div class="t-modal-foot">
+        <button class="t-btn" type="button" id="alSkip"><span data-en="Don't add it">متضيفوش</span></button>
+        <button class="t-btn primary" type="button" id="alSwap"><span data-en="Use Klacid 500 instead">استخدم Klacid 500 بداله</span><span class="t-kbd">↵</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Finish drawer -->
+  <div class="t-scrim" id="finishDrawer" hidden style="place-items:stretch end">
+    <div class="t-drawer" role="dialog" aria-modal="true" aria-labelledby="fdT">
+      <div class="t-modal-head"><h2 id="fdT" data-en="Finish visit">إنهاء الكشف</h2>
+        <button class="t-btn icon ghost" type="button" data-close aria-label="إغلاق" data-en-aria-label="Close" title="إغلاق" data-en-title="Close"><svg class="t-icon"><use href="#i-close"/></svg></button></div>
+      <div class="t-modal-body t-stack" id="fdBody"></div>
+      <div class="t-modal-foot" style="flex-wrap:wrap">
+        <a class="t-btn" href="doctor-home.html" data-en="Finish, no print">إنهاء بدون طباعة</a>
+        <a class="t-btn primary" href="prescription-print.html"><svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Finish & print Rx">إنهاء وطباعة الروشتة</span></a>
+      </div>
+    </div>
+  </div>
+</main>
+<script src="../assets/shell.js"></script>
+<script>
+(function () {
+  var EN = function () { return Tamargi.lang() === "en"; };
+  var L = function (ar, en) { return EN() ? en : ar; };
+  var $ = function (id) { return document.getElementById(id); };
+  var money = function (n, cls) { return '<span class="t-money ' + (cls || "") + '">' + n + '<span class="cur">' + L("ج.م", "EGP") + "</span></span>"; };
+
+  /* ---------- data ---------- */
+  var ICD = [
+    ["I10", "ضغط مرتفع أساسي", "Essential hypertension"],
+    ["E03.9", "قصور الغدة الدرقية", "Hypothyroidism, unspecified"],
+    ["J02.9", "التهاب البلعوم الحاد", "Acute pharyngitis, unspecified"],
+    ["J03.9", "التهاب اللوزتين الحاد", "Acute tonsillitis, unspecified"],
+    ["J06.9", "عدوى الجهاز التنفسي العلوي", "Acute upper respiratory infection"],
+    ["R51", "صداع", "Headache"],
+    ["E11.9", "سكر نوع ٢", "Type 2 diabetes mellitus"],
+    ["A09", "نزلة معوية", "Infectious gastroenteritis"],
+    ["K29.7", "التهاب المعدة", "Gastritis, unspecified"],
+    ["D50.9", "أنيميا نقص الحديد", "Iron deficiency anaemia"]
+  ];
+  var DRUGS = {
+    concor:   { d: "Concor 5 mg", g: "bisoprolol", dose: ["قرص", "1 tab"], fr: ["مرة يوميًا بعد الفطار", "once daily after breakfast"], du: ["٣٠ يوم", "30 days"] },
+    euthyrox: { d: "Euthyrox 50 mcg", g: "levothyroxine", dose: ["قرص", "1 tab"], fr: ["الصبح على الريق", "morning, empty stomach"], du: ["٣٠ يوم", "30 days"] },
+    panadol:  { d: "Panadol 500 mg", g: "paracetamol", dose: ["قرصين", "2 tabs"], fr: ["عند اللزوم، أقصى ٣ مرات", "when needed, max 3×/day"], du: ["٥ أيام", "5 days"] },
+    augmentin:{ d: "Augmentin 1 g", g: "amoxicillin + clavulanate", pen: true, dose: ["قرص", "1 tab"], fr: ["كل ١٢ ساعة", "every 12 h"], du: ["٧ أيام", "7 days"] },
+    klacid:   { d: "Klacid 500 mg", g: "clarithromycin", dose: ["قرص", "1 tab"], fr: ["كل ١٢ ساعة", "every 12 h"], du: ["٧ أيام", "7 days"] },
+    strepsils:{ d: "Strepsils lozenges", g: "amylmetacresol", dose: ["استحلاب", "1 lozenge"], fr: ["كل ٣ ساعات", "every 3 h"], du: ["٥ أيام", "5 days"] },
+    antinal:  { d: "Antinal 200 mg", g: "nifuroxazide", dose: ["كبسولة", "1 cap"], fr: ["كل ٨ ساعات", "every 8 h"], du: ["٥ أيام", "5 days"] },
+    rehydran: { d: "Rehydran sachets", g: "ORS", dose: ["كيس على كوباية مية", "1 sachet in a glass of water"], fr: ["بعد كل إسهال", "after each loose stool"], du: ["٣ أيام", "3 days"] }
+  };
+  var SVC = {
+    ECG: ["رسم قلب", "ECG", 150], RBS: ["سكر عشوائي", "Random blood sugar", 40], INJ: ["حقنة عضل", "IM injection", 30]
+  };
+  var TPL = {
+    htn:    { n: ["متابعة ضغط", "Hypertension follow-up"], dx: ["I10"], rx: ["concor"], svc: ["ECG"] },
+    throat: { n: ["التهاب حلق بكتيري", "Bacterial sore throat"], dx: ["J02.9"], rx: ["augmentin", "panadol", "strepsils"], svc: [] },
+    gastro: { n: ["نزلة معوية", "Gastroenteritis"], dx: ["A09"], rx: ["antinal", "rehydran"], svc: ["INJ"] }
+  };
+  var SHORT = {
+    ".chest": ["الصدر: دخول هواء متساوي على الناحيتين، مفيش أصوات زيادة.", "Chest: equal air entry bilaterally, no added sounds."],
+    ".heart": ["القلب: S1 و S2 طبيعيين، مفيش لغط.", "Heart: S1 and S2 normal, no murmur."],
+    ".throat": ["الزور: احمرار في البلعوم واللوز، مفيش صديد.", "Throat: congested pharynx and tonsils, no exudate."],
+    ".lsd": ["تقليل الملح، مشي ٣٠ دقيقة يوميًا، قياس الضغط في البيت مرتين يوميًا وتسجيله، الانتظام على الدوا.", "Low-salt diet, walk 30 min daily, home BP twice daily and record it, take medicines regularly."]
+  };
+
+  /* ---------- state ---------- */
+  var S = {
+    dx: [],
+    rx: [{ k: "concor", cont: true }, { k: "euthyrox", cont: true }],
+    svc: [{ k: "CONSULT", free: true }],
+    fu: 14
+  };
+
+  /* ---------- autosave ---------- */
+  var saveT;
+  function dirty() {
+    var st = $("saveState"); st.classList.add("is-saving");
+    $("saveTxt").textContent = L("بيتحفظ…", "Saving…");
+    $("saveTxt").setAttribute("data-ar", "بيتحفظ…"); $("saveTxt").setAttribute("data-en", "Saving…");
+    clearTimeout(saveT);
+    saveT = setTimeout(function () {
+      st.classList.remove("is-saving");
+      var d = new Date(), h = d.getHours(), t = (h % 12 || 12) + ":" + String(d.getMinutes()).padStart(2, "0");
+      var ar = "المسودة محفوظة " + t + (h < 12 ? " ص" : " م"), en = "Draft saved " + t + (h < 12 ? " am" : " pm");
+      $("saveTxt").setAttribute("data-ar", ar); $("saveTxt").setAttribute("data-en", en);
+      $("saveTxt").textContent = L(ar, en);
+    }, 700);
+  }
+
+  /* ---------- tabs ---------- */
+  document.querySelectorAll("[data-tab]").forEach(function (t) {
+    t.addEventListener("click", function () {
+      document.querySelectorAll("[data-tab]").forEach(function (x) { x.setAttribute("aria-selected", String(x === t)); });
+      document.querySelectorAll("[data-pane]").forEach(function (p) { p.hidden = p.getAttribute("data-pane") !== t.getAttribute("data-tab"); });
+    });
+  });
+
+  /* ---------- exam (specialty tab) ---------- */
+  var EXAM = [["general", "الحالة العامة", "General"], ["chest", "الصدر", "Chest"], ["heart", "القلب", "Heart"], ["abd", "البطن", "Abdomen"], ["throat", "الزور", "Throat"], ["ll", "الرجلين (تورم)", "Legs (oedema)"]];
+  var examState = {};
+  function renderExam() {
+    $("examGrid").innerHTML = EXAM.map(function (r) {
+      var v = examState[r[0]] || "none";
+      var b = function (val, ar, en) { return '<button type="button" data-ex="' + r[0] + '" data-val="' + val + '" aria-pressed="' + (v === val) + '">' + L(ar, en) + "</button>"; };
+      return "<span>" + L(r[1], r[2]) + '</span><div class="t-seg" role="group">' + b("none", "لم يُفحص", "Not examined") + b("ok", "طبيعي", "Normal") + b("abn", "غير طبيعي", "Abnormal") + "</div>";
+    }).join("");
+  }
+  $("examGrid").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-ex]"); if (!b) return;
+    examState[b.getAttribute("data-ex")] = b.getAttribute("data-val"); renderExam(); dirty();
+  });
+  $("allNormal").addEventListener("click", function () {
+    EXAM.forEach(function (r) { if (r[0] !== "throat") examState[r[0]] = "ok"; });
+    renderExam();
+    var o = $("o"); o.value = o.value.replace(/\s*$/, " ") + SHORT[".chest"][EN() ? 1 : 0] + " " + SHORT[".heart"][EN() ? 1 : 0];
+    dirty(); Tamargi.toast(L("اتكتب في خانة الفحص (O)", "Written to Examination (O)"));
+  });
+
+  /* ---------- shortcuts ---------- */
+  var lastTA = $("s");
+  document.querySelectorAll("[data-soap]").forEach(function (ta) {
+    ta.addEventListener("focus", function () { lastTA = ta; });
+    ta.addEventListener("input", function () {
+      dirty();
+      var pos = ta.selectionStart, before = ta.value.slice(0, pos);
+      var m = before.match(/(\.[a-z]+)\s$/i);
+      if (m && SHORT[m[1].toLowerCase()]) {
+        var txt = SHORT[m[1].toLowerCase()][EN() ? 1 : 0] + " ";
+        var start = before.length - m[0].length;
+        ta.value = ta.value.slice(0, start) + txt + ta.value.slice(pos);
+        ta.selectionStart = ta.selectionEnd = start + txt.length;
+      }
+    });
+  });
+  document.querySelectorAll("[data-sc]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var ta = lastTA; var txt = SHORT[b.getAttribute("data-sc")][EN() ? 1 : 0];
+      ta.value = ta.value.replace(/\s*$/, ta.value ? " " : "") + txt + " "; ta.focus(); dirty();
+    });
+  });
+
+  /* ---------- diagnosis ---------- */
+  function icd(code) { return ICD.filter(function (x) { return x[0] === code; })[0]; }
+  function addDx(code) { if (S.dx.indexOf(code) === -1 && icd(code)) { S.dx.push(code); renderDx(); dirty(); } }
+  function renderDx() {
+    $("dxList").innerHTML = S.dx.length ? S.dx.map(function (c) {
+      var r = icd(c);
+      return '<span class="vn-dx">' + (c.charAt(0) === "—" ? "" : "<code>" + c + "</code>") + "<span>" + L(r[1], r[2]) + '</span><button type="button" data-rmdx="' + c + '" aria-label="' + L("حذف", "Remove") + '" title="' + L("حذف", "Remove") + '"><svg class="t-icon sm"><use href="#i-close"/></svg></button></span>';
+    }).join("") : '<span class="t-hint">' + L("مفيش تشخيص لسه. ابحث فوق أو اختار من الملف.", "No diagnosis yet. Search above or pick from the file.") + "</span>";
+  }
+  $("dxList").addEventListener("click", function (e) { var b = e.target.closest("[data-rmdx]"); if (!b) return; S.dx.splice(S.dx.indexOf(b.getAttribute("data-rmdx")), 1); renderDx(); dirty(); });
+  document.querySelectorAll("[data-adddx]").forEach(function (b) { b.addEventListener("click", function () { addDx(b.getAttribute("data-adddx")); }); });
+  var icdIn = $("icd"), icdMenu = $("icdMenu");
+  function norm(s) { return s.toLowerCase().replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي"); }
+  icdIn.addEventListener("input", function () {
+    var q = norm(icdIn.value.trim());
+    if (!q) { icdMenu.hidden = true; icdIn.setAttribute("aria-expanded", "false"); return; }
+    var hits = ICD.filter(function (r) { return norm(r.join(" ")).indexOf(q) > -1; });
+    icdMenu.innerHTML = hits.length ? hits.map(function (r, i) { return '<li role="option" data-icd="' + r[0] + '"' + (i === 0 ? ' class="is-active"' : "") + "><code>" + r[0] + "</code><span>" + L(r[1], r[2]) + "</span></li>"; }).join("")
+      : '<li data-free="1"><svg class="t-icon sm"><use href="#i-plus"/></svg><span>' + L("إضافة كنص حر: ", "Add as free text: ") + "«" + icdIn.value + "»</span></li>";
+    icdMenu.hidden = false; icdIn.setAttribute("aria-expanded", "true");
+  });
+  icdIn.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { e.preventDefault(); var a = icdMenu.querySelector(".is-active,[data-free]"); if (a) a.click(); }
+    if (e.key === "Escape") icdMenu.hidden = true;
+  });
+  icdMenu.addEventListener("click", function (e) {
+    var li = e.target.closest("li"); if (!li) return;
+    if (li.hasAttribute("data-icd")) addDx(li.getAttribute("data-icd"));
+    else { ICD.push(["—" + (ICD.length), icdIn.value, icdIn.value]); addDx("—" + (ICD.length - 1)); }
+    icdIn.value = ""; icdMenu.hidden = true; icdIn.focus();
+  });
+  document.addEventListener("click", function (e) { if (!e.target.closest(".vn-icd")) icdMenu.hidden = true; });
+
+  /* ---------- services ---------- */
+  function svcTotal() { return S.svc.reduce(function (s, x) { return s + (x.free ? 0 : SVC[x.k][2]); }, 0); }
+  function renderSvc() {
+    $("svcBody").innerHTML = S.svc.map(function (x, i) {
+      if (x.k === "CONSULT") return "<tr><td><span class=\"t-name\">" + L("استشارة (متابعة)", "Consult (follow-up)") + '</span><span class="t-meta">' + L("جوه مدة الـ ١٤ يوم من ٢ نوفمبر", "Inside the 14-day window from 2 Nov") + "</span></td><td>" + L("الاستقبال · عند الوصول", "Reception · at check-in") + '</td><td class="num"><span class="t-chip free">' + L("مجانية · ٠", "Free · 0") + "</span></td><td></td></tr>";
+      var s = SVC[x.k];
+      return '<tr><td><span class="t-name">' + L(s[0], s[1]) + '</span><span class="t-meta">' + (x.src ? L("من القالب", "From template") : L("أضفتها دلوقتي", "Added now")) + "</span></td><td>" + L("د. أحمد", "Dr. Ahmed") + ' <span class="t-chip info">' + L("على الفاتورة", "On the bill") + '</span></td><td class="num">' + money(s[2]) + '</td><td class="actions"><button class="t-btn sm ghost" type="button" data-rmsvc="' + i + '">' + L("شيل", "Remove") + "</button></td></tr>";
+    }).join("");
+    var t = svcTotal();
+    $("svcTotal").outerHTML = '<span class="t-money" id="svcTotal">' + t + '<span class="cur">' + L("ج.م", "EGP") + "</span></span>";
+    $("sumSvc").outerHTML = '<span class="t-money" id="sumSvc">' + t + '<span class="cur">' + L("ج.م", "EGP") + "</span></span>";
+    $("sumDue").outerHTML = '<span class="t-money" id="sumDue">' + (t + 40) + '<span class="cur">' + L("ج.م", "EGP") + "</span></span>";
+  }
+  function addSvc(k, src) { if (!S.svc.some(function (x) { return x.k === k; })) { S.svc.push({ k: k, src: src }); renderSvc(); dirty(); } }
+  document.querySelectorAll("[data-svc]").forEach(function (b) { b.addEventListener("click", function () { addSvc(b.getAttribute("data-svc")); Tamargi.toast(L("اتضافت للفاتورة", "Added to the bill")); }); });
+  $("svcBody").addEventListener("click", function (e) { var b = e.target.closest("[data-rmsvc]"); if (!b) return; S.svc.splice(+b.getAttribute("data-rmsvc"), 1); renderSvc(); dirty(); });
+
+  /* ---------- prescription ---------- */
+  function renderRx() {
+    if (!S.rx.length) { $("rxList").innerHTML = '<div class="vn-rx-empty">' + L("الروشتة فاضية. اختار من المفضلة أو قالب.", "Prescription is empty. Pick a favourite or a template.") + "</div>"; return; }
+    $("rxList").innerHTML = S.rx.map(function (x, i) {
+      var d = DRUGS[x.k], j = EN() ? 1 : 0;
+      return '<div class="t-rx-line"><span class="t-rx-no">' + (i + 1) + '</span><span class="t-rx-drug"><span class="t-ltr">' + d.d + "</span>" +
+        (x.cont ? ' <span class="t-chip plain">' + L("مستمر", "Continuing") + "</span>" : "") +
+        (x.ovr ? ' <span class="t-chip danger plain">' + L("رغم الحساسية", "Allergy overridden") + "</span>" : "") +
+        '<small class="t-ltr">' + d.g + '</small></span><span class="vn-cell">' + d.dose[j] + '</span><span class="vn-cell">' + d.fr[j] + '</span><span class="vn-cell">' + d.du[j] +
+        '</span><button class="t-btn icon ghost sm" type="button" data-rmrx="' + i + '" aria-label="' + L("حذف", "Remove") + '" title="' + L("حذف", "Remove") + '"><svg class="t-icon sm"><use href="#i-trash"/></svg></button></div>';
+    }).join("");
+  }
+  $("rxList").addEventListener("click", function (e) { var b = e.target.closest("[data-rmrx]"); if (!b) return; S.rx.splice(+b.getAttribute("data-rmrx"), 1); renderRx(); dirty(); });
+  function hasRx(k) { return S.rx.some(function (x) { return x.k === k; }); }
+
+  /* severe allergy gate: callback receives "swap" | "skip" | "keep" */
+  var pendingCb = null;
+  function allergyCheck(k, cb) {
+    if (!DRUGS[k].pen) { cb("ok"); return; }
+    pendingCb = cb; $("allergyModal").hidden = false; $("alSwap").focus();
+  }
+  function closeAllergy(choice) {
+    $("allergyModal").hidden = true; var cb = pendingCb; pendingCb = null; if (cb) cb(choice);
+  }
+  $("alSwap").addEventListener("click", function () { closeAllergy("swap"); });
+  $("alSkip").addEventListener("click", function () { closeAllergy("skip"); });
+  $("alKeep").addEventListener("click", function () {
+    if (!$("ovr").value.trim()) { $("ovr").classList.add("is-invalid"); $("ovr").focus(); return; }
+    $("ovr").classList.remove("is-invalid"); closeAllergy("keep");
+  });
+  function addDrug(k, choice) {
+    if (choice === "skip") return;
+    if (choice === "swap") k = "klacid";
+    if (!hasRx(k)) S.rx.push({ k: k, ovr: choice === "keep" });
+  }
+  document.querySelectorAll("[data-fav]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var k = b.getAttribute("data-fav");
+      if (hasRx(k)) { Tamargi.toast(L("موجود في الروشتة", "Already on the prescription")); return; }
+      allergyCheck(k, function (c) { addDrug(k, c); renderRx(); dirty(); });
+    });
+  });
+
+  /* ---------- templates: preview + selective apply ---------- */
+  var curTpl = null;
+  function renderTplPrev() {
+    var t = TPL[curTpl], p = $("tplPrev");
+    if (!t) { p.hidden = true; return; }
+    var row = function (kind, k, label, pen) {
+      return '<label class="t-check' + (pen ? " pen" : "") + '"><input type="checkbox" checked data-pick="' + kind + ":" + k + '"><span>' + label + "</span></label>";
+    };
+    p.innerHTML = '<div class="t-row between"><b>' + L(t.n[0], t.n[1]) + '</b><button class="t-btn sm ghost" type="button" id="tplX">' + L("إلغاء", "Cancel") + "</button></div>" +
+      "<h4>" + L("التشخيص", "Diagnosis") + "</h4>" + t.dx.map(function (c) { var r = icd(c); return row("dx", c, '<span class="t-ltr">' + c + "</span> " + L(r[1], r[2])); }).join("") +
+      "<h4>" + L("الأدوية", "Drugs") + "</h4>" + t.rx.map(function (k) { var d = DRUGS[k]; return row("rx", k, '<span class="t-ltr">' + d.d + "</span>" + (d.pen ? " — " + L("⚠ بنسلين، عندها حساسية", "⚠ penicillin, she is allergic") : "") + (hasRx(k) ? " — " + L("موجود", "already on") : ""), d.pen); }).join("") +
+      (t.svc.length ? "<h4>" + L("الخدمات", "Services") + "</h4>" + t.svc.map(function (k) { var s = SVC[k]; return row("svc", k, L(s[0], s[1]) + " · " + s[2] + " " + L("ج.م", "EGP")); }).join("") : "") +
+      '<button class="t-btn soft block mt-2" type="button" id="tplApply"><svg class="t-icon sm"><use href="#i-check"/></svg>' + L("طبّق المختار", "Apply selected") + "</button>";
+    p.hidden = false;
+  }
+  document.querySelectorAll("[data-tpl]").forEach(function (b) {
+    b.addEventListener("click", function () { curTpl = b.getAttribute("data-tpl"); renderTplPrev(); });
+  });
+  $("tplPrev").addEventListener("click", function (e) {
+    if (e.target.closest("#tplX")) { curTpl = null; renderTplPrev(); return; }
+    if (!e.target.closest("#tplApply")) return;
+    var picks = Array.prototype.filter.call($("tplPrev").querySelectorAll("[data-pick]"), function (c) { return c.checked; }).map(function (c) { return c.getAttribute("data-pick").split(":"); });
+    var drugs = [];
+    picks.forEach(function (p) {
+      if (p[0] === "dx") addDx(p[1]);
+      if (p[0] === "svc") addSvc(p[1], true);
+      if (p[0] === "rx") drugs.push(p[1]);
+    });
+    var n = picks.length;
+    (function next() {
+      if (!drugs.length) { renderRx(); dirty(); curTpl = null; renderTplPrev(); Tamargi.toast(L("اتطبّق القالب (" + n + " عنصر)", "Template applied (" + n + " items)")); return; }
+      var k = drugs.shift();
+      if (hasRx(k)) { next(); return; }
+      allergyCheck(k, function (c) { addDrug(k, c); next(); });
+    })();
+  });
+  document.addEventListener("keydown", function (e) {
+    var alOpen = !$("allergyModal").hidden;
+    if (alOpen && (e.altKey || ((e.ctrlKey || e.metaKey) && e.key === "Enter"))) { e.preventDefault(); return; }
+    if (e.altKey && /^[123]$/.test(e.key)) { e.preventDefault(); curTpl = ["htn", "throat", "gastro"][+e.key - 1]; renderTplPrev(); }
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); openFinish(); }
+    if (e.key === "Escape" && pendingCb) closeAllergy("skip");
+    if (e.key === "Enter" && alOpen && !e.target.closest("details, #alSkip, #alKeep")) { e.preventDefault(); closeAllergy("swap"); }
+  });
+
+  /* ---------- follow-up ---------- */
+  var FU = {
+    7:  ["السبت ٢١ نوفمبر · ٧:٠٠ م", "Sat 21 Nov · 7:00 pm", "جوه مدة الاستشارة المجانية", "Inside the free follow-up window"],
+    14: ["السبت ٢٨ نوفمبر · ٧:٠٠ م", "Sat 28 Nov · 7:00 pm", "جوه مدة الاستشارة المجانية · د. أحمد فاضي ٣ مواعيد بالليل", "Inside the free window · Dr. Ahmed has 3 free evening slots"],
+    30: ["الاتنين ١٤ ديسمبر · ٧:٠٠ م", "Mon 14 Dec · 7:00 pm", "بعد المدة المجانية: كشف بأجر ٢٥٠ ج.م", "After the free window: paid consult 250 EGP"],
+    0:  ["بدون متابعة", "No follow-up", "المريضة ترجع لو احتاجت", "Patient returns if needed"]
+  };
+  function renderFu() {
+    var f = FU[S.fu];
+    $("fuDate").textContent = L(f[0], f[1]); $("fuHint").textContent = L(f[2], f[3]);
+    $("fuBook").disabled = S.fu === 0;
+  }
+  document.querySelectorAll("[data-fu]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      S.fu = +b.getAttribute("data-fu");
+      document.querySelectorAll("[data-fu]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      renderFu(); dirty();
+    });
+  });
+  $("fuBook").addEventListener("click", function () {
+    var f = FU[S.fu]; S.booked = true;
+    Tamargi.toast(L("اتحجزت المتابعة: " + f[0], "Follow-up booked: " + f[1]));
+    $("fuBook").innerHTML = '<svg class="t-icon sm"><use href="#i-check"/></svg><span>' + L("اتحجزت", "Booked") + "</span>";
+  });
+
+  /* ---------- finish drawer ---------- */
+  function openFinish() {
+    var t = svcTotal(), f = FU[S.fu];
+    $("fdBody").innerHTML =
+      '<div class="t-alert success"><svg class="t-icon"><use href="#i-check"/></svg><span>' + L("الملاحظة محفوظة. بعد الإنهاء التعديل بيتسجل كإضافة بتاريخها.", "Note saved. After finishing, edits are logged as dated addenda.") + "</span></div>" +
+      '<dl class="t-dl">' +
+      "<dt>" + L("التشخيص", "Diagnosis") + "</dt><dd>" + (S.dx.length ? S.dx.map(function (c) { return '<span class="t-ltr">' + c + "</span>"; }).join("، ") : '<span class="t-faint">' + L("مفيش (مسموح)", "None (allowed)") + "</span>") + "</dd>" +
+      "<dt>" + L("الروشتة", "Prescription") + "</dt><dd>" + S.rx.length + " " + L("أدوية", "drugs") + "</dd>" +
+      "<dt>" + L("للاستقبال", "To reception") + "</dt><dd>" + money(t) + " " + L("خدمات", "services") + " + " + money(40, "debt") + " " + L("قديم", "old") + "</dd>" +
+      "<dt>" + L("المتابعة", "Follow-up") + "</dt><dd>" + L(f[0], f[1]) + (S.booked ? ' <span class="t-chip confirmed">' + L("محجوزة", "Booked") + "</span>" : (S.fu ? ' <span class="t-chip booked">' + L("هتتحجز", "Will be booked") + "</span>" : "")) + "</dd>" +
+      "</dl>" +
+      '<p class="t-hint mb-0">' + L("منى هترجع للدور بحالة «انتهى — مطلوب تحصيل " + (t + 40) + " ج.م».", "Mona returns to the queue as 'Done — balance due " + (t + 40) + " EGP'.") + "</p>";
+    $("finishDrawer").hidden = false;
+  }
+  $("finishBtn").addEventListener("click", function (e) { e.stopPropagation(); openFinish(); });
+
+  /* ---------- render all (also on language switch) ---------- */
+  function renderAll() { renderExam(); renderDx(); renderSvc(); renderRx(); renderFu(); if (curTpl) renderTplPrev(); }
+  renderAll();
+  document.addEventListener("click", function (e) { if (e.target.closest("[data-shell-lang]")) renderAll(); });
+})();
+</script>
+</body>
+</html>

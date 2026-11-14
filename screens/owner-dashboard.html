@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Owner dashboard — Tamargi">لوحة المالك — تمرجي</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style>
+    /* page-specific CSS: tokens only */
+    .od-kpi { display: flex; flex-direction: column; gap: var(--s-2); }
+    .od-kpi .t-stat-value { font-size: var(--fs-2xl); }
+    .od-kpi-foot { font-size: var(--fs-xs); color: var(--text-3); }
+    .od-kpi a.od-link { font-size: var(--fs-sm); }
+    .od-live { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-xs); color: var(--success-fg); }
+    .od-live::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+    /* Horizontal meter bars (single hue = magnitude) */
+    .od-bars { display: flex; flex-direction: column; gap: var(--s-3); }
+    .od-bar-row { display: grid; grid-template-columns: 120px minmax(0,1fr) auto; gap: var(--s-3); align-items: center; font-size: var(--fs-sm); }
+    .od-track { height: 10px; background: var(--surface-sunk); border: 1px solid var(--line); border-radius: var(--r-pill); overflow: hidden; }
+    .od-fill { display: block; height: 100%; background: var(--primary); border-radius: var(--r-pill); }
+    .od-fill.soft { background: var(--ink-400); }
+    /* Trend columns */
+    .od-trend { display: flex; align-items: flex-end; gap: 6px; height: 170px; padding-block-start: var(--s-6); border-block-end: 1px solid var(--line-strong); }
+    .od-col { position: relative; flex: 1; min-width: 6px; height: 100%; display: flex; align-items: flex-end; border: 0; background: none; padding: 0; cursor: default; }
+    .od-col > i { display: block; width: 100%; background: var(--primary-line); border-radius: 4px 4px 0 0; transition: background var(--dur) var(--ease); }
+    .od-col.is-today > i { background: var(--primary); }
+    .od-col:hover > i, .od-col:focus-visible > i { background: var(--primary-hover); }
+    .od-col .od-tip { display: none; position: absolute; inset-block-end: calc(100% + 4px); inset-inline-start: 50%; transform: translateX(-50%); white-space: nowrap; background: var(--surface-raise); border: 1px solid var(--line); box-shadow: var(--e-2); border-radius: var(--r-sm); padding: 4px 8px; font-size: var(--fs-xs); color: var(--text); z-index: 3; }
+    [dir="rtl"] .od-col .od-tip { transform: translateX(50%); }
+    .od-col:hover .od-tip, .od-col:focus-visible .od-tip { display: block; }
+    .od-axis { display: flex; justify-content: space-between; font-size: var(--fs-xs); color: var(--text-3); padding-block-start: var(--s-1); }
+    .od-avg { font-size: var(--fs-xs); color: var(--text-3); }
+    .od-reason { font-size: var(--fs-xs); color: var(--text-2); display: block; }
+    .od-over { color: var(--success-fg); } .od-short { color: var(--danger-fg); }
+    @media (max-width: 640px) {
+      .od-bar-row { grid-template-columns: 90px minmax(0,1fr) auto; }
+      .od-hide-sm { display: none; }
+      .od-trend { height: 130px; gap: 3px; }
+    }
+  </style>
+</head>
+<body data-screen="owner-dashboard">
+<main id="screen">
+  <div class="t-container">
+
+    <header class="t-screen-head">
+      <div>
+        <h1 data-en="Today at the clinic">النهارده في العيادة</h1>
+        <p class="t-sub mb-0"><span data-en="Saturday 14 Nov 2026 · updated live">السبت 14 نوفمبر 2026 · بيتحدّث لحظيًا</span> &nbsp;<span class="od-live" data-en="Live">مباشر</span></p>
+      </div>
+      <div class="t-actions">
+        <div class="t-seg" role="group" aria-label="Period" data-en-aria-label="Period">
+          <button type="button" aria-pressed="true" data-en="Today">النهارده</button>
+          <button type="button" aria-pressed="false" data-en="Yesterday" data-toast="عرض أمس (نموذج: الأرقام لسه بتاعة النهارده)" data-toast-en="Yesterday (prototype: figures still show today)">أمس</button>
+          <button type="button" aria-pressed="false" data-en="This month" data-toast="عرض الشهر ده (نموذج: الأرقام لسه بتاعة النهارده)" data-toast-en="This month (prototype: figures still show today)">الشهر ده</button>
+        </div>
+        <a class="t-btn primary" href="reports.html">
+          <svg class="t-icon sm"><use href="#i-download"/></svg><span data-en="Open reports">فتح التقارير</span><span class="t-kbd">R</span>
+        </a>
+      </div>
+    </header>
+
+    <div data-state="default">
+
+      <!-- Attention strip: only exceptions -->
+      <div class="t-alert warning mb-4" role="status"
+           data-note="Exceptions first: the owner sees only what needs a decision (cash short, discount above the user's cap, an open shift). Each line links to the record. Inline, never a blocking popup."
+           data-note-ar="الاستثناءات الأول: المالك يشوف بس اللي محتاج قرار (عجز خزنة، خصم فوق الحد، وردية مفتوحة). كل سطر بيفتح السجل. تنبيه داخل الصفحة مش نافذة بتوقف الشغل.">
+        <svg class="t-icon"><use href="#i-alert"/></svg>
+        <div class="t-grow">
+          <b data-en="2 things need a look">حاجتين محتاجين مراجعة</b>
+          <ul class="mb-0" style="margin-block-start:var(--s-1);padding-inline-start:var(--s-5)">
+            <li><span data-en="Morning shift (Sara Ramadan) closed <b>20 EGP short</b>.">وردية الصبح (سارة رمضان) اتقفلت <b>بعجز 20 ج.م</b>.</span> <a href="cash-close.html" data-en="View close">عرض التقفيل</a></li>
+            <li><span data-en="Discount of 25% on invoice <span class='t-ltr'>INV-2611-0418</span> — above Menna's 20% cap (approved by Dr. Ahmed).">خصم 25% على فاتورة <span class="t-ltr">INV-2611-0418</span> — أعلى من حد منة (20%)، بموافقة د. أحمد.</span> <a href="invoice-detail.html" data-en="Open invoice">فتح الفاتورة</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- KPI row -->
+      <section class="t-grid c4 mb-4" aria-label="Today's figures" data-en-aria-label="Today's figures">
+        <div class="t-card od-kpi">
+          <div class="t-stat">
+            <span class="t-stat-label" data-en="Collected today">المحصّل النهارده</span>
+            <span class="t-stat-value t-num">6,850<small data-en="EGP">ج.م</small></span>
+            <span class="t-delta up" data-en="▲ 12% vs. last Saturday">▲ 12% عن السبت اللي فات</span>
+          </div>
+          <span class="od-kpi-foot" data-en="Excludes 1,200 EGP of free follow-ups (not revenue)">لا يشمل 1,200 ج.م استشارات مجانية (مش إيراد)</span>
+        </div>
+        <div class="t-card od-kpi">
+          <div class="t-stat">
+            <span class="t-stat-label" data-en="Visits">الزيارات</span>
+            <span class="t-stat-value t-num">31<small data-en="done · 4 waiting">انتهت · 4 منتظرين</small></span>
+            <span class="t-delta" style="color:var(--text-3)" data-en="9 new patients · 6 free follow-ups">9 مرضى جدد · 6 استشارات مجانية</span>
+          </div>
+          <a class="od-link" href="reception-queue.html" data-en="See live queue">شوف الدور المباشر</a>
+        </div>
+        <div class="t-card od-kpi"
+             data-note="No-shows counted automatically: a booked appointment not checked in by the end of the doctor's shift becomes a no-show (NITCO v6–8 status lifecycle, reduced to text chips)."
+             data-note-ar="الغياب بيتحسب لوحده: أي حجز ماتسجلش حضوره لحد آخر وردية الطبيب بيتحول «لم يحضر» (من دورة حالات المواعيد في NITCO لكن كحالات مكتوبة).">
+          <div class="t-stat">
+            <span class="t-stat-label" data-en="No-shows">لم يحضر</span>
+            <span class="t-stat-value t-num">3<small data-en="of 22 booked">من 22 حجز</small></span>
+            <span class="t-delta down" data-en="14% · clinic average 9%">14% · متوسط العيادة 9%</span>
+          </div>
+          <a class="od-link" href="appointments-calendar.html" data-en="Open calendar">فتح المواعيد</a>
+        </div>
+        <div class="t-card od-kpi"
+             data-note="Debt and deposits are two separate ledgers: debt = remainder the patient still owes (NITCO v32/89), deposit = money the clinic holds for the patient (wallet, v84/88). Both are liabilities the owner must see daily."
+             data-note-ar="المديونية والرصيد المقدّم دفترين منفصلين: المديونية = الباقي على المريض، والرصيد = فلوس محفوظة للمريض عند العيادة. الاتنين لازم المالك يشوفهم كل يوم.">
+          <div class="t-stat">
+            <span class="t-stat-label" data-en="Owed by patients">مديونية على المرضى</span>
+            <span class="t-stat-value"><span class="t-money debt">3,240<span class="cur" data-en="EGP">ج.م</span></span></span>
+            <span class="t-delta down" data-en="14 patients · +450 today">14 مريض · +450 النهارده</span>
+          </div>
+          <span class="od-kpi-foot"><span data-en="Deposits held:">رصيد مقدّم محفوظ:</span> <span class="t-money deposit">2,100<span class="cur" data-en="EGP">ج.م</span></span> <span data-en="(5 patients)">(5 مرضى)</span></span>
+        </div>
+      </section>
+
+      <div class="t-split aside-end mb-4">
+        <!-- Revenue breakdown -->
+        <section class="t-card">
+          <div class="t-card-head">
+            <h2 data-en="Where today's money came from">فلوس النهارده جت منين</h2>
+            <div class="t-actions"><a class="t-btn sm ghost" href="reports.html" data-en="Details">التفاصيل</a></div>
+          </div>
+          <div class="t-grid c2">
+            <div>
+              <h3 class="t-small t-muted mb-0" style="margin-block-end:var(--s-3)" data-en="By payment method">حسب طريقة الدفع</h3>
+              <div class="od-bars">
+                <div class="od-bar-row"><span data-en="Cash">نقدي</span><span class="od-track"><span class="od-fill" style="width:84%"></span></span><span class="t-money">5,750<span class="cur" data-en="EGP">ج.م</span></span></div>
+                <div class="od-bar-row"><span data-en="InstaPay">إنستاباي</span><span class="od-track"><span class="od-fill" style="width:9%"></span></span><span class="t-money">600<span class="cur" data-en="EGP">ج.م</span></span></div>
+                <div class="od-bar-row"><span data-en="Vodafone Cash">فودافون كاش</span><span class="od-track"><span class="od-fill" style="width:4.5%"></span></span><span class="t-money">300<span class="cur" data-en="EGP">ج.م</span></span></div>
+                <div class="od-bar-row"><span data-en="From deposit">من الرصيد المقدّم</span><span class="od-track"><span class="od-fill" style="width:3%"></span></span><span class="t-money">200<span class="cur" data-en="EGP">ج.م</span></span></div>
+              </div>
+            </div>
+            <div>
+              <h3 class="t-small t-muted mb-0" style="margin-block-end:var(--s-3)" data-en="By doctor">حسب الطبيب</h3>
+              <div class="od-bars">
+                <div class="od-bar-row"><span data-en="Dr. Ahmed Selim">د. أحمد سليم</span><span class="od-track"><span class="od-fill" style="width:63.5%"></span></span><span class="t-money">4,350<span class="cur" data-en="EGP">ج.م</span></span></div>
+                <div class="od-bar-row"><span data-en="Dr. Noha El-Sherbini">د. نهى الشربيني</span><span class="od-track"><span class="od-fill" style="width:36.5%"></span></span><span class="t-money">2,500<span class="cur" data-en="EGP">ج.م</span></span></div>
+              </div>
+              <dl class="t-dl" style="margin-block-start:var(--s-4)">
+                <dt data-en="Dr. Ahmed">د. أحمد</dt><dd data-en="19 visits · 4 free follow-ups · 1 procedure">19 زيارة · 4 استشارات مجانية · 1 إجراء</dd>
+                <dt data-en="Dr. Noha">د. نهى</dt><dd data-en="12 visits · 2 free follow-ups">12 زيارة · 2 استشارة مجانية</dd>
+              </dl>
+            </div>
+          </div>
+        </section>
+
+        <!-- Shift close -->
+        <section class="t-card flush"
+                 data-note="Shift close per cashier with expected vs counted and over/short (NITCO v34/v91 handover report). A closed shift is stamped and locked; only the owner can reopen it."
+                 data-note-ar="تقفيل الوردية لكل كاشير: المتوقع مقابل المعدود والزيادة/العجز (من تقرير الاستلام والتسليم في NITCO). الوردية المقفولة مختومة ومتقفلة، والمالك بس يقدر يفتحها.">
+          <div class="t-card-head"><h2 data-en="Cash shifts">ورديات الخزنة</h2></div>
+          <div class="t-card-body t-stack">
+            <div class="t-row between">
+              <div>
+                <span class="t-name" data-en="Sara Ramadan · morning">سارة رمضان · صباحي</span>
+                <span class="od-reason" data-en="9:00 – 13:05 · counted 3,100 of 3,120">9:00 – 13:05 · معدود 3,100 من 3,120</span>
+              </div>
+              <div class="t-row tight">
+                <span class="t-stamp" data-en="Closed">مقفولة</span>
+                <span class="t-money od-short">−20<span class="cur" data-en="EGP">ج.م</span></span>
+              </div>
+            </div>
+            <hr class="t-divider" style="margin:0">
+            <div class="t-row between">
+              <div>
+                <span class="t-name" data-en="Menna Khaled · evening">منة خالد · مسائي</span>
+                <span class="od-reason" data-en="Open since 16:00 · cash 2,630 + 200 float">مفتوحة من 16:00 · نقدي 2,630 + عهدة 200</span>
+              </div>
+              <span class="t-chip waiting" data-en="Open">مفتوحة</span>
+            </div>
+          </div>
+          <div class="t-card-foot">
+            <a class="t-btn sm" href="cash-close.html"><svg class="t-icon sm"><use href="#i-lock"/></svg><span data-en="Shift closes">تقفيلات الخزنة</span></a>
+          </div>
+        </section>
+      </div>
+
+      <div class="t-split aside-end mb-4">
+        <!-- Trend -->
+        <section class="t-card">
+          <div class="t-card-head">
+            <h2 data-en="Collected per day">المحصّل في اليوم</h2>
+            <div class="t-actions">
+              <div class="t-seg" role="group" aria-label="Range" data-en-aria-label="Range">
+                <button type="button" aria-pressed="true" data-range="7" data-en="7 days">7 أيام</button>
+                <button type="button" aria-pressed="false" data-range="30" data-en="30 days">30 يوم</button>
+              </div>
+            </div>
+          </div>
+          <div id="od-trend" class="od-trend" role="group" aria-label="Daily collected revenue" data-en-aria-label="Daily collected revenue"
+               data-note="7/30-day trend of collected money. Hover or focus a day for the exact figure; Friday is the clinic's day off so it shows as a gap, not a zero that drags the average."
+               data-note-ar="اتجاه التحصيل 7/30 يوم. مرّر أو ركّز على اليوم لتشوف الرقم بالظبط. الجمعة إجازة فبتظهر فراغ مش صفر يبوّظ المتوسط."></div>
+          <div class="od-axis" id="od-axis"></div>
+          <p class="od-avg mb-0" id="od-avg"></p>
+          <details class="t-more" style="margin-block-start:var(--s-3)">
+            <summary data-en="Show as table">عرض كجدول</summary>
+            <div class="t-table-wrap" style="margin-block-start:var(--s-2)"><table class="t-table"><thead><tr><th data-en="Day">اليوم</th><th class="num" data-en="Collected (EGP)">المحصّل (ج.م)</th></tr></thead><tbody id="od-table"></tbody></table></div>
+          </details>
+        </section>
+
+        <!-- Anti-leak -->
+        <section class="t-card flush"
+                 data-note="Anti-leak list: every discount and credit note today, with who, how much and the mandatory reason (NITCO v50: corrections are credit notes with a reason, never edits). Discount above a user's cap is flagged."
+                 data-note-ar="قائمة منع التسريب: كل خصم ومرتجع النهارده، مين عمله وكام والسبب الإجباري. الخصم الأعلى من حد المستخدم بيتعلّم عليه.">
+          <div class="t-card-head">
+            <h2 data-en="Discounts & credit notes">الخصومات والمرتجعات</h2>
+            <div class="t-actions"><span class="t-badge">5</span></div>
+          </div>
+          <div class="t-table-wrap" style="border:0;border-radius:0">
+            <table class="t-table">
+              <tbody>
+                <tr>
+                  <td><span class="t-chip info plain" data-en="Discount">خصم</span><span class="od-reason" data-en="Menna · Syndicate member 25% · ⚠ above cap">منة · عضو نقابة 25% · ⚠ فوق الحد</span></td>
+                  <td class="num"><span class="t-money">100<span class="cur" data-en="EGP">ج.م</span></span></td>
+                </tr>
+                <tr>
+                  <td><span class="t-chip info plain" data-en="Discount">خصم</span><span class="od-reason" data-en="Sara · Relative of staff">سارة · قريب موظف</span></td>
+                  <td class="num"><span class="t-money">100<span class="cur" data-en="EGP">ج.م</span></span></td>
+                </tr>
+                <tr>
+                  <td><span class="t-chip info plain" data-en="Discount">خصم</span><span class="od-reason" data-en="Sara · Elderly 10%">سارة · كبار السن 10%</span></td>
+                  <td class="num"><span class="t-money">30<span class="cur" data-en="EGP">ج.م</span></span></td>
+                </tr>
+                <tr>
+                  <td><span class="t-chip info plain" data-en="Discount">خصم</span><span class="od-reason" data-en="Dr. Ahmed · Doctor's decision">د. أحمد · قرار الطبيب</span></td>
+                  <td class="num"><span class="t-money">100<span class="cur" data-en="EGP">ج.م</span></span></td>
+                </tr>
+                <tr>
+                  <td><span class="t-chip credit" data-en="Credit note">مرتجع</span><span class="od-reason" data-en="Menna · Lab test not done · <span class='t-ltr'>CN-2611-0007</span>">منة · التحليل ماتعملش · <span class="t-ltr">CN-2611-0007</span></span></td>
+                  <td class="num"><span class="t-money debt">−150<span class="cur" data-en="EGP">ج.م</span></span></td>
+                </tr>
+              </tbody>
+              <tfoot><tr><td data-en="Total given away">إجمالي الخصم والمرتجع</td><td class="num"><span class="t-money">480<span class="cur" data-en="EGP">ج.م</span></span></td></tr></tfoot>
+            </table>
+          </div>
+          <div class="t-card-foot"><a class="t-btn sm ghost" href="reports.html#discounts" data-en="Discounts report">تقرير الخصومات</a></div>
+        </section>
+      </div>
+
+      <!-- Debt list -->
+      <section class="t-card flush mb-4">
+        <div class="t-card-head">
+          <h2 data-en="Biggest debts">أكبر المديونيات</h2>
+          <div class="t-actions"><a class="t-btn sm ghost" href="reports.html#debt" data-en="All 14 patients">كل الـ14 مريض</a></div>
+        </div>
+        <div class="t-table-wrap" style="border:0;border-radius:0">
+          <table class="t-table">
+            <thead><tr><th data-en="Patient">المريض</th><th class="od-hide-sm" data-en="Last visit">آخر زيارة</th><th class="num" data-en="Owes">عليه</th><th></th></tr></thead>
+            <tbody>
+              <tr>
+                <td><span class="t-name">محمود عبد الفتاح السيد الجمال</span><span class="t-meta t-ltr">0106 552 1903</span></td>
+                <td class="od-hide-sm" data-en="2 Nov · Dr. Ahmed">2 نوفمبر · د. أحمد</td>
+                <td class="num"><span class="t-money debt">650<span class="cur" data-en="EGP">ج.م</span></span></td>
+                <td class="actions"><a class="t-btn sm ghost" href="patient-account.html" data-en="Account">الحساب</a></td>
+              </tr>
+              <tr>
+                <td><span class="t-name">هبة سمير عبد الله النجار</span><span class="t-meta t-ltr">0128 004 7715</span></td>
+                <td class="od-hide-sm" data-en="Today · Dr. Noha">النهارده · د. نهى</td>
+                <td class="num"><span class="t-money debt">450<span class="cur" data-en="EGP">ج.م</span></span></td>
+                <td class="actions"><a class="t-btn sm ghost" href="patient-account.html" data-en="Account">الحساب</a></td>
+              </tr>
+              <tr>
+                <td><span class="t-name">رضا إبراهيم محمد الدسوقي</span><span class="t-meta t-ltr">0111 930 2264</span></td>
+                <td class="od-hide-sm" data-en="28 Oct · Dr. Ahmed">28 أكتوبر · د. أحمد</td>
+                <td class="num"><span class="t-money debt">400<span class="cur" data-en="EGP">ج.م</span></span></td>
+                <td class="actions"><a class="t-btn sm ghost" href="patient-account.html" data-en="Account">الحساب</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- First day of trial: nothing collected yet -->
+    <div data-state="first-day">
+      <div class="t-card">
+        <div class="t-empty">
+          <div class="t-empty-art"><svg class="t-icon"><use href="#i-chart"/></svg></div>
+          <h3 data-en="No money collected yet today">لسه مفيش تحصيل النهارده</h3>
+          <p data-en="Figures appear here the moment reception collects the first visit. Make sure your services and fees are set so the fee fills in by itself.">الأرقام هتظهر هنا أول ما الاستقبال يحصّل أول كشف. اتأكد إن الخدمات والأسعار متظبطة عشان السعر يتكتب لوحده.</p>
+          <div class="t-row tight">
+            <a class="t-btn" href="services-prices.html" data-en="Services & fees">الخدمات والأسعار</a>
+            <a class="t-btn ghost" href="onboarding-wizard.html" data-en="Finish setup">كمّل تجهيز العيادة</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+<script src="../assets/shell.js"></script>
+<script>
+(function () {
+  // Fake data: collected EGP per day, oldest first, ending today (Sat 14 Nov). null = Friday (closed).
+  var days30 = [null,5200,6100,5800,4300,5900,6400,null,5600,6000,6900,4800,5300,6200,null,5700,6600,7100,5100,5500,6300,null,6110,6100,6700,5400,5650,6400,null,6850];
+  var dayNamesAr = ["الأحد","الاتنين","التلات","الأربع","الخميس","الجمعة","السبت"];
+  var dayNamesEn = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  var range = 7;
+  function lang() { return window.Tamargi ? Tamargi.lang() : "ar"; }
+  function fmt(n) { return n.toLocaleString("en-US"); }
+  function render() {
+    var en = lang() === "en";
+    var data = days30.slice(-range), max = 7500, html = "", rows = "", sum = 0, cnt = 0;
+    var today = new Date(2026, 10, 14);
+    data.forEach(function (v, i) {
+      var d = new Date(today); d.setDate(today.getDate() - (data.length - 1 - i));
+      var label = (en ? dayNamesEn[d.getDay()] : dayNamesAr[d.getDay()]) + " " + d.getDate() + "/" + (d.getMonth() + 1);
+      var tip = v === null ? (en ? "Closed" : "إجازة") : fmt(v) + (en ? " EGP" : " ج.م");
+      html += '<button type="button" class="od-col' + (i === data.length - 1 ? " is-today" : "") + '" aria-label="' + label + ": " + tip + '">' +
+        '<i style="height:' + (v === null ? 0 : (v / max * 100)) + '%"></i><span class="od-tip">' + label + " · <b>" + tip + "</b></span></button>";
+      rows += "<tr><td>" + label + '</td><td class="num">' + (v === null ? "—" : fmt(v)) + "</td></tr>";
+      if (v !== null) { sum += v; cnt++; }
+    });
+    document.getElementById("od-trend").innerHTML = html;
+    document.getElementById("od-table").innerHTML = rows;
+    document.getElementById("od-axis").innerHTML = "<span>" + (en ? range + " days ago" : "من " + range + " يوم") + "</span><span>" + (en ? "Today" : "النهارده") + "</span>";
+    document.getElementById("od-avg").textContent = (en ? "Average on open days: " : "المتوسط في أيام الشغل: ") + fmt(Math.round(sum / cnt)) + (en ? " EGP · total " : " ج.م · الإجمالي ") + fmt(sum) + (en ? " EGP" : " ج.م");
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-range]");
+    if (b) {
+      range = +b.getAttribute("data-range");
+      b.parentNode.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      render(); return;
+    }
+    var p = e.target.closest(".t-screen-head .t-seg button");
+    if (p) p.parentNode.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === p)); });
+    if (e.target.closest("[data-shell-lang]")) setTimeout(render, 0);
+  });
+  document.addEventListener("keydown", function (e) {
+    var typing = /^(INPUT|TEXTAREA|SELECT)$/.test((e.target || {}).tagName || "");
+    if (!typing && !e.ctrlKey && !e.metaKey && !e.altKey && (e.key === "r" || e.key === "R")) location.href = "reports.html";
+  });
+  render();
+})();
+</script>
+</body>
+</html>

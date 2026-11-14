@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Services, fees & discounts — Tamargi">الخدمات والأسعار والخصومات — تمرجي</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style>
+    /* page-specific CSS: tokens only */
+    .sp-toolbar { display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-3); align-items: center; padding: var(--s-3) var(--s-4); border-block-end: 1px solid var(--line); }
+    .sp-toolbar .t-input-wrap { width: min(320px, 100%); }
+    .sp-type { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-xs); color: var(--text-2); }
+    .sp-type::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--line-strong); }
+    .sp-type.consult::before { background: var(--primary); }
+    .sp-type.followup::before { background: var(--inroom-fg); }
+    .sp-type.procedure::before { background: var(--waiting-fg); }
+    .sp-type.lab::before { background: var(--note); }
+    .sp-type.imaging::before { background: var(--n-700); }
+    .sp-doc { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--s-4); align-items: start; }
+    .sp-quick { display: flex; gap: var(--s-2); flex-wrap: wrap; padding: var(--s-3); border-radius: var(--r-sm); background: var(--surface-sunk); border: 1px dashed var(--line-strong); }
+    .sp-tier-list { display: flex; flex-direction: column; gap: var(--s-2); }
+    .sp-tier { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px var(--s-3); width: 100%; padding: var(--s-3) var(--s-4); border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface); text-align: start; font: inherit; color: var(--text); cursor: pointer; }
+    .sp-tier:hover { border-color: var(--primary-line); }
+    .sp-tier.is-on { border-color: var(--primary); background: var(--primary-soft); }
+    .sp-tier b { font-weight: var(--fw-sb); }
+    .sp-tier .sp-pct { font-size: var(--fs-xl); font-weight: var(--fw-b); font-variant-numeric: tabular-nums; grid-row: span 2; align-self: center; color: var(--primary); }
+    .sp-tier small { color: var(--text-3); font-size: var(--fs-xs); }
+    .sp-pct-input { width: 90px; }
+    .sp-new { color: var(--success-fg); font-weight: var(--fw-sb); }
+    .sp-old { color: var(--text-3); text-decoration: line-through; }
+    @media (max-width: 760px) { .sp-hide-sm { display: none; } }
+  </style>
+</head>
+<body data-screen="services-prices">
+<main id="screen">
+  <div class="t-container">
+
+    <header class="t-screen-head">
+      <div>
+        <h1 data-en="Services, fees & discounts">الخدمات والأسعار والخصومات</h1>
+        <p class="t-sub mb-0" data-en="What the clinic sells, at what price, and who gets a discount. The cashier fills these in by itself.">العيادة بتقدم إيه، بكام، ومين ليه خصم. الخزنة بتحطهم لوحدها.</p>
+      </div>
+      <div class="t-actions">
+        <button class="t-btn" type="button" data-toast="اتنزّل ملف Excel بالأسعار" data-toast-en="Price list exported to Excel"><svg class="t-icon sm"><use href="#i-download"/></svg><span data-en="Export price list">تصدير قائمة الأسعار</span></button>
+        <button class="t-btn primary" type="button" id="sp-add"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="Add service">إضافة خدمة</span><span class="t-kbd">N</span></button>
+      </div>
+    </header>
+
+    <div class="t-tabs" role="tablist" aria-label="Sections" data-en-aria-label="Sections">
+      <button class="t-tab" role="tab" aria-selected="true" data-tab="services"><span data-en="Services">الخدمات</span> <span class="t-badge muted">10</span></button>
+      <button class="t-tab" role="tab" aria-selected="false" data-tab="defaults" data-en="Doctor default fees">سعر الكشف لكل دكتور</button>
+      <button class="t-tab" role="tab" aria-selected="false" data-tab="tiers"><span data-en="Discount tiers">شرائح الخصم</span> <span class="t-badge muted">4</span></button>
+      <button class="t-tab" role="tab" aria-selected="false" data-tab="payers"
+              data-note="Tier 2 tabs (polyclinic plan, 699 EGP): corporate/syndicate payer and doctor commission. They exist in the same screen so there is one place for prices, but are clearly marked and locked on lower plans (NITCO spreads these over 4 screens and 2 apps)."
+              data-note-ar="تبويبات المرحلة ٢ (باقة المجمعات ٦٩٩ ج.م): الجهات المتعاقدة ونسب الأطباء. في نفس الشاشة عشان الأسعار تبقى في مكان واحد، بس عليها علامة واضحة ومقفولة في الباقات الأقل (NITCO بيوزعهم على ٤ شاشات وبرنامجين)."><span data-en="Contracts & syndicates">الشركات والنقابات</span> <span class="t-tier">Tier 2</span></button>
+      <button class="t-tab" role="tab" aria-selected="false" data-tab="commission"><span data-en="Doctor commission">نسب الأطباء</span> <span class="t-tier">Tier 2</span></button>
+    </div>
+
+    <!-- ===================== SERVICES ===================== -->
+    <section data-panel="services" aria-label="Services" data-en-aria-label="Services">
+      <div class="t-card flush">
+        <div class="sp-toolbar">
+          <div class="t-input-wrap"><svg class="t-icon"><use href="#i-search"/></svg><input class="t-input" type="search" id="sp-q" placeholder="ابحث باسم الخدمة" data-en-placeholder="Search by service name"></div>
+          <div class="t-seg" role="group" id="sp-filter" aria-label="Type" data-en-aria-label="Type">
+            <button type="button" aria-pressed="true" data-f="all" data-en="All">الكل</button>
+            <button type="button" aria-pressed="false" data-f="consult" data-en="Consult">كشف</button>
+            <button type="button" aria-pressed="false" data-f="followup" data-en="Follow-up">استشارة</button>
+            <button type="button" aria-pressed="false" data-f="procedure" data-en="Procedure">إجراء</button>
+            <button type="button" aria-pressed="false" data-f="lab" data-en="Lab">تحليل</button>
+            <button type="button" aria-pressed="false" data-f="imaging" data-en="Imaging">أشعة</button>
+          </div>
+          <label class="t-check t-end"><input type="checkbox" id="sp-arch"> <span data-en="Show archived (2)">اعرض المؤرشف (٢)</span></label>
+        </div>
+        <div class="t-table-wrap" style="border:0;border-radius:0">
+          <table class="t-table" id="sp-table">
+            <thead><tr>
+              <th data-en="Service">الخدمة</th>
+              <th data-en="Type">النوع</th>
+              <th class="num" data-en="Price">السعر</th>
+              <th class="num sp-hide-sm"
+                  data-note="Minimum price is the discount floor (NITCO v60/99: invoice price must stay within min–max). A receptionist cannot go below it; 'doctor may edit' lets the doctor change the price inside the visit, still not below the minimum."
+                  data-note-ar="أقل سعر هو أرضية الخصم (في NITCO سعر الفاتورة لازم يفضل بين الأدنى والأقصى). الاستقبال ميقدرش ينزل تحته؛ و'الدكتور يعدّل' بتخلي الدكتور يغيّر السعر جوه الكشف بس برضه مش تحت الأدنى." data-en="Minimum">أقل سعر</th>
+              <th class="sp-hide-sm" data-en="Free follow-up">استشارة مجانية</th>
+              <th class="sp-hide-sm" data-en="Doctor may edit">الدكتور يعدّل</th>
+              <th data-en="Status">الحالة</th>
+              <th></th>
+            </tr></thead>
+            <tbody>
+              <tr data-type="consult"><td><span class="t-name">كشف باطنة</span><span class="t-meta">Internal medicine consult · <span class="t-ltr">SV-001</span></span></td><td><span class="sp-type consult" data-en="Consult">كشف</span></td><td class="num"><span class="t-money">300<span class="cur" data-en="EGP">ج.م</span></span></td><td class="num sp-hide-sm">250</td><td class="sp-hide-sm"><span data-en="14 days (clinic)">١٤ يوم (العيادة)</span></td><td class="sp-hide-sm"><span class="t-chip plain info" data-en="Yes">أيوه</span></td><td><span class="t-chip paid" data-en="Active">مفعّلة</span></td><td class="actions"><button class="t-btn sm ghost" type="button" data-edit data-en="Edit">تعديل</button></td></tr>
+              <tr data-type="followup"><td><span class="t-name">استشارة باطنة</span><span class="t-meta">Internal medicine follow-up · <span class="t-ltr">SV-002</span></span></td><td><span class="sp-type followup" data-en="Follow-up">استشارة</span></td><td class="num"><span class="t-money">150<span class="cur" data-en="EGP">ج.م</span></span></td><td class="num sp-hide-sm">0</td><td class="sp-hide-sm"><span class="t-chip free" data-en="Free in 14 days · 1×">مجانًا خلال ١٤ يوم · مرة</span></td><td class="sp-hide-sm"><span class="t-chip plain info" data-en="Yes">أيوه</span></td><td><span class="t-chip paid" data-en="Active">مفعّلة</span></td><td class="actions"><button class="t-btn sm ghost" type="button" data-edit data-en="Edit">تعديل</button></td></tr>
+              <tr data-type="consult"><td><span class="t-name">كشف أطفال</span><span class="t-meta">Paediatrics consult · <span class="t-ltr">SV-003</span></span></td><td><span class="sp-type consult" data-en="Consult">كشف</span></td><td class="num"><span class="t-money">250<span class="cur" data-en="EGP">ج.م</span></span></td><td class="num sp-hide-sm">200</td><td class="sp-hide-sm"><span data-en="10 days (service)">١٠ أيام (الخدمة)</span></td><td class="sp-hide-sm"><span class="t-chip plain info" data-en="Yes">أيوه</span></td><td><span class="t-chip paid" data-en="Active">مفعّلة</span></td><td class="actions"><button class="t-btn sm ghost" type="button" data-edit data-en="Edit">تعديل</button></td></tr>
+              <tr data-type="followup"><td><span class="t-name">استشارة أطفال</span><span class="t-meta">Paediatrics follow-up · <span class="t-ltr">SV-004</span></span></td><td><span class="sp-type followup" data-en="Follow-up">استشارة</span></td><td class="num"><span class="t-money">100<span class="cur" data-en="EGP">ج.م</span></span></td><td class="num sp-hide-sm">0</td><td class="sp-hide-sm"><span class="t-chip free" data-en="Free in 10 days · 1×">مجانًا خلال ١٠ أيام · مرة</span></td><td class="sp-hide-sm"><span class="t-faint" data-en="No">لأ</span></td><td><span class="t-chip paid" data-en="Active">مفعّلة</span></td><td class="actions"><button class="t-btn sm ghost" type="button" data-edit data-en="Edit">تعديل</button></td></tr>
+              <tr data-type="procedure"><td><span class="t-name">رسم قلب</span><span class="t-meta">ECG (resting) · <span class="t-ltr">SV-005</span></span></td><td><span class="sp-type procedure" data-en="Procedure">إجراء</span></td><td class="num"><span class="t-money">150<span class="cur" data-en="EGP">ج.م</span></span></td><td class="num sp-hide-sm">120</td><td class="sp-hide-sm t-faint">—</td><td class="sp-hide-sm"><span class="t-chip plain info" data-en="Yes">أيوه</span></td><td><span class="t-chip paid" data-en="Active">مفعّلة</span></td><td class="actions"><button class="t-btn sm ghost" type="button" data-edit data-en="Edit">تعديل</button></td></tr>
+              <tr data-type="procedure"><td><span class="t-name">جلسة نيبولايزر</span><span class="t-meta">Nebuliser session · <span class="t-ltr">SV-006</span></span></td><td><span class="sp-type procedure" data-en="Procedure">إجراء</span></td><td class="num"><span class="t-money">80<span class="cur" data-en="EGP">ج.م</span></span></td><td class="num sp-hide-sm">60</td><td class="sp-hide-sm t-faint">—</td><td class="sp-hide-sm"><span class="t-faint" data-en="No">لأ</span></td><td><span class="t-chip paid" data-en="Active">مفعّلة</span></td><td class="actions"><button class="t-btn sm ghost" type="button" data-edit data-en="Edit">تعديل</button></td></tr>
+              <tr data-type="imaging"><td><span class="t-name">سونار بطن</span><span class="t-meta">Abdominal ultrasound · <span class="t-ltr">SV-007</span></span></td><td><span class="sp-type imaging" data-en="Imaging">أشعة</span></td><td class="num"><span class="t-money">350<span class="cur" data-en="EGP">ج.م</span></span></td><td class="num sp-hide-sm">300</td><td class="sp-hide-sm t-faint">—</td><td class="sp-hide-sm"><span class="t-chip plain info" data-en="Yes">أيوه</span></td><td><span class="t-chip paid" data-en="Active">مفعّلة</span></td><td class="actions"><button class="t-btn sm ghost" type="button" data-edit data-en="Edit">تعديل</button></td></tr>
+              <tr data-type="lab"><td><span class="t-name">سكر عشوائي (جهاز)</span><span class="t-meta">Random blood sugar (meter) · <span class="t-ltr">SV-008</span></span></td><td><span class="sp-type lab" data-en="Lab">تحليل</span></td><td class="num"><span class="t-money">40<span class="cur" data-en="EGP">ج.م</span></span></td><td class="num sp-hide-sm"><span data-en="40 · fixed">40 · ثابت</span></td><td class="sp-hide-sm t-faint">—</td><td class="sp-hide-sm"><span class="t-faint" data-en="No">لأ</span></td><td><span class="t-chip paid" data-en="Active">مفعّلة</span></td><td class="actions"><button class="t-btn sm ghost" type="button" data-edit data-en="Edit">تعديل</button></td></tr>
+              <tr data-type="procedure"><td><span class="t-name">حقنة عضل</span><span class="t-meta">IM injection · <span class="t-ltr">SV-009</span></span></td><td><span class="sp-type procedure" data-en="Procedure">إجراء</span></td><td class="num"><span class="t-money">30<span class="cur" data-en="EGP">ج.م</span></span></td><td class="num sp-hide-sm">30</td><td class="sp-hide-sm t-faint">—</td><td class="sp-hide-sm"><span class="t-faint" data-en="No">لأ</span></td><td><span class="t-chip paid" data-en="Active">مفعّلة</span></td><td class="actions"><button class="t-btn sm ghost" type="button" data-edit data-en="Edit">تعديل</button></td></tr>
+              <tr data-type="consult" class="is-muted"><td><span class="t-name">كشف منزلي</span><span class="t-meta">Home visit · <span class="t-ltr">SV-010</span></span></td><td><span class="sp-type consult" data-en="Consult">كشف</span></td><td class="num"><span class="t-money">800<span class="cur" data-en="EGP">ج.م</span></span></td><td class="num sp-hide-sm">700</td><td class="sp-hide-sm t-faint">—</td><td class="sp-hide-sm"><span class="t-chip plain info" data-en="Yes">أيوه</span></td><td><span class="t-chip done" data-en="Paused">متوقفة</span></td><td class="actions"><button class="t-btn sm ghost" type="button" data-edit data-en="Edit">تعديل</button></td></tr>
+              <tr data-type="lab" data-archived hidden class="is-muted"><td><span class="t-name">صورة دم كاملة</span><span class="t-meta">CBC · <span class="t-ltr">SV-011</span></span></td><td><span class="sp-type lab" data-en="Lab">تحليل</span></td><td class="num">120</td><td class="num sp-hide-sm">120</td><td class="sp-hide-sm t-faint">—</td><td class="sp-hide-sm t-faint">—</td><td><span class="t-chip void" data-en="Archived 3 Nov">مؤرشفة ٣ نوفمبر</span></td><td class="actions"><button class="t-btn sm" type="button" data-toast="الخدمة رجعت مفعّلة بنفس الكود" data-toast-en="Service restored with the same code" data-en="Restore">استرجاع</button></td></tr>
+              <tr data-type="procedure" data-archived hidden class="is-muted"><td><span class="t-name">غيار جرح صغير</span><span class="t-meta">Small wound dressing · <span class="t-ltr">SV-012</span></span></td><td><span class="sp-type procedure" data-en="Procedure">إجراء</span></td><td class="num">60</td><td class="num sp-hide-sm">50</td><td class="sp-hide-sm t-faint">—</td><td class="sp-hide-sm t-faint">—</td><td><span class="t-chip void" data-en="Archived 28 Oct">مؤرشفة ٢٨ أكتوبر</span></td><td class="actions"><button class="t-btn sm" type="button" data-toast="الخدمة رجعت مفعّلة بنفس الكود" data-toast-en="Service restored with the same code" data-en="Restore">استرجاع</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="t-card-foot">
+          <svg class="t-icon sm"><use href="#i-info"/></svg>
+          <span class="t-small t-muted" data-en="Services are archived, never deleted: old invoices keep their name and price. Codes are automatic."
+                data-note="Archive, not delete (NITCO v63: soft delete + restore). Old invoices and reports keep the service name and price. Codes are generated, never typed (NITCO's 'type an existing code to edit' pattern is gone)."
+                data-note-ar="أرشفة مش مسح (زي NITCO: حذف ناعم واسترجاع). الفواتير والتقارير القديمة بتحتفظ باسم الخدمة وسعرها. الأكواد أوتوماتيك، محدش بيكتبها.">الخدمات بتتأرشف ومبتتمسحش: الفواتير القديمة بتحتفظ باسمها وسعرها. الأكواد أوتوماتيك.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== DOCTOR DEFAULTS ===================== -->
+    <section data-panel="defaults" hidden aria-label="Doctor default fees" data-en-aria-label="Doctor default fees">
+      <div class="t-alert info mb-4"><svg class="t-icon"><use href="#i-info"/></svg><span data-en="Each doctor has one default consult and one default follow-up. Check-in and the cashier pick the right one by the follow-up window, so the receptionist never types a price (NITCO v1, 89, 97).">كل دكتور له كشف افتراضي واستشارة افتراضية. الدخول والخزنة بيختاروا الصح حسب مدة الاستشارة، فالاستقبال عمره ما بيكتب سعر.</span></div>
+      <div class="t-grid c2">
+        <div class="t-card" data-note="Per-doctor default consult and follow-up service (NITCO doctor master v1/97: default consult/follow-up services). They become the two one-tap buttons on the cashier screen."
+             data-note-ar="كشف واستشارة افتراضيين لكل دكتور (من بيانات الطبيب في NITCO). بيبقوا الزرارين السريعين في شاشة الخزنة.">
+          <div class="sp-doc">
+            <span class="t-avatar">أس</span>
+            <div class="t-stack">
+              <div><b data-en="Dr. Ahmed Selim">د. أحمد سليم</b><div class="t-small t-muted" data-en="Internal medicine · owner">باطنة · صاحب العيادة</div></div>
+              <div class="t-form-grid">
+                <div class="t-field"><label class="t-label" for="sp-d1c" data-en="Default consult">الكشف الافتراضي</label>
+                  <select id="sp-d1c" class="t-select"><option selected data-en="Internal medicine consult · 300">كشف باطنة · ٣٠٠</option><option data-en="Home visit · 800">كشف منزلي · ٨٠٠</option></select></div>
+                <div class="t-field"><label class="t-label" for="sp-d1f" data-en="Default follow-up">الاستشارة الافتراضية</label>
+                  <select id="sp-d1f" class="t-select"><option selected data-en="Internal medicine follow-up · 150">استشارة باطنة · ١٥٠</option></select></div>
+              </div>
+              <div>
+                <span class="t-hint" data-en="At the cashier:">في الخزنة:</span>
+                <div class="sp-quick mt-2"><span class="t-btn sm soft" data-en="Consult 300">كشف ٣٠٠</span><span class="t-btn sm soft" data-en="Follow-up 150 · free in 14 days">استشارة ١٥٠ · مجانًا خلال ١٤ يوم</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="t-card">
+          <div class="sp-doc">
+            <span class="t-avatar">نش</span>
+            <div class="t-stack">
+              <div><b data-en="Dr. Noha El-Sherbini">د. نهى الشربيني</b><div class="t-small t-muted" data-en="Paediatrics · Sat/Mon/Wed mornings">أطفال · السبت/الاتنين/الأربع صباحًا</div></div>
+              <div class="t-form-grid">
+                <div class="t-field"><label class="t-label" for="sp-d2c" data-en="Default consult">الكشف الافتراضي</label>
+                  <select id="sp-d2c" class="t-select"><option selected data-en="Paediatrics consult · 250">كشف أطفال · ٢٥٠</option></select></div>
+                <div class="t-field"><label class="t-label" for="sp-d2f" data-en="Default follow-up">الاستشارة الافتراضية</label>
+                  <select id="sp-d2f" class="t-select"><option selected data-en="Paediatrics follow-up · 100">استشارة أطفال · ١٠٠</option></select></div>
+              </div>
+              <div>
+                <span class="t-hint" data-en="At the cashier:">في الخزنة:</span>
+                <div class="sp-quick mt-2"><span class="t-btn sm soft" data-en="Consult 250">كشف ٢٥٠</span><span class="t-btn sm soft" data-en="Follow-up 100 · free in 10 days">استشارة ١٠٠ · مجانًا خلال ١٠ أيام</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="t-small t-muted mt-4"><span data-en="Hours, slot length and leaves are set in">المواعيد ومدة الكشف والإجازات في</span> <a href="doctor-schedule.html" data-en="Doctor hours & leaves">مواعيد الطبيب والإجازات</a>.</p>
+    </section>
+
+    <!-- ===================== DISCOUNT TIERS ===================== -->
+    <section data-panel="tiers" hidden aria-label="Discount tiers" data-en-aria-label="Discount tiers">
+      <div class="t-split" style="grid-template-columns: 320px minmax(0,1fr)">
+        <div class="t-stack">
+          <div class="sp-tier-list" id="sp-tiers" role="listbox" aria-label="Tiers" data-en-aria-label="Tiers">
+            <button class="sp-tier is-on" type="button" data-tier-id="rel"><b data-en="Relatives">أقارب</b><span class="sp-pct">50%</span><small data-en="12 patients · on consults and follow-ups">١٢ مريض · على الكشف والاستشارة</small></button>
+            <button class="sp-tier" type="button" data-tier-id="doc"><b data-en="Fellow doctors & families">زملاء أطباء وأسرهم</b><span class="sp-pct">100%</span><small data-en="7 patients · 2 exceptions">٧ مرضى · استثناءين</small></button>
+            <button class="sp-tier" type="button" data-tier-id="hard"><b data-en="Hardship">حالات إنسانية</b><span class="sp-pct">30%</span><small data-en="21 patients · reason required each time">٢١ مريض · سبب كل مرة</small></button>
+            <button class="sp-tier" type="button" data-tier-id="sen"><b data-en="Seniors 65+">كبار السن ٦٥+</b><span class="sp-pct">10%</span><small data-en="Applied by age automatically">بيتطبق بالسن تلقائيًا</small></button>
+          </div>
+          <button class="t-btn block" type="button" data-toast="اتضافت شريحة جديدة" data-toast-en="New tier added"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="New tier">شريحة جديدة</span></button>
+        </div>
+
+        <div class="t-card" data-note="Named discount tiers with per-service exceptions (NITCO v53: tier %, service-level % overrides the clinic %). We show the resulting price per service, so nobody has to guess which rule wins — NITCO's own trainer contradicted himself (10% vs 20%) in the demo."
+             data-note-ar="شرائح خصم بأسماء واستثناءات لكل خدمة (في NITCO نسبة الخدمة بتغلب نسبة العيادة). إحنا بنعرض السعر النهائي لكل خدمة عشان محدش يخمّن أنهي قاعدة بتكسب — مدرب NITCO نفسه اتلخبط بين ١٠٪ و٢٠٪.">
+          <div class="t-card-head">
+            <h2 id="sp-tier-title" data-en="Relatives — 50%">أقارب — ٥٠٪</h2>
+            <div class="t-actions"><button class="t-btn sm ghost" type="button" data-toast="الشريحة اتأرشفت" data-toast-en="Tier archived" data-en="Archive tier">أرشفة الشريحة</button></div>
+          </div>
+          <div class="t-form-grid mb-4">
+            <div class="t-field"><label class="t-label" for="sp-tname" data-en="Name">الاسم</label><input id="sp-tname" class="t-input" value="أقارب"></div>
+            <div class="t-field"><label class="t-label" for="sp-tpct" data-en="Discount on all services">الخصم على كل الخدمات</label>
+              <div class="t-input-affix"><input id="sp-tpct" class="t-input ltr" type="number" value="50" min="0" max="100"><span class="t-affix">%</span></div></div>
+            <div class="t-field span-2"><label class="t-switch"><input type="checkbox" checked> <span data-en="Cashier must write a reason (e.g. 'brother of Dr. Ahmed')">الخزنة لازم تكتب السبب (مثلًا 'أخو د. أحمد')</span></label></div>
+          </div>
+          <h3 class="mb-2" style="font-size:var(--fs-md)" data-en="Price per service with this tier">السعر لكل خدمة بالشريحة دي</h3>
+          <div class="t-table-wrap">
+            <table class="t-table" id="sp-tier-table">
+              <thead><tr><th data-en="Service">الخدمة</th><th class="num" data-en="List price">السعر</th><th data-en="Discount">الخصم</th><th class="num" data-en="Patient pays">المريض يدفع</th></tr></thead>
+              <tbody>
+                <tr data-price="300"><td data-en="Internal medicine consult">كشف باطنة</td><td class="num">300</td><td><span class="t-faint" data-en="Tier 50%">الشريحة ٥٠٪</span></td><td class="num"><b class="t-money" data-pay>150</b></td></tr>
+                <tr data-price="150"><td data-en="Internal medicine follow-up">استشارة باطنة</td><td class="num">150</td><td><span class="t-faint" data-en="Tier 50%">الشريحة ٥٠٪</span></td><td class="num"><b class="t-money" data-pay>75</b></td></tr>
+                <tr data-price="150" data-fixed="0"><td data-en="ECG">رسم قلب</td><td class="num">150</td><td><span class="t-chip waiting" data-en="Exception: 0%">استثناء: ٠٪</span></td><td class="num"><b class="t-money">150</b></td></tr>
+                <tr data-price="350" data-fixed="20"><td data-en="Abdominal ultrasound">سونار بطن</td><td class="num">350</td><td><span class="t-chip waiting" data-en="Exception: 20%">استثناء: ٢٠٪</span></td><td class="num"><b class="t-money">280</b></td></tr>
+                <tr data-price="40" data-fixed="0"><td data-en="Random blood sugar">سكر عشوائي</td><td class="num">40</td><td><span class="t-faint" data-en="Fixed price — no discount">سعر ثابت — بدون خصم</span></td><td class="num"><b class="t-money">40</b></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <button class="t-btn sm mt-2" type="button" data-toast="اختار خدمة عشان تعمل لها استثناء" data-toast-en="Pick a service to add an exception"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="Add exception">إضافة استثناء</span></button>
+          <div class="t-card-foot mt-4" style="margin-inline:calc(var(--pad-card) * -1);margin-block-end:calc(var(--pad-card) * -1)">
+            <span class="t-small t-muted" data-en="Patients join a tier from their file. A tier never pushes a price below the service minimum unless it is 100%.">المريض بيدخل الشريحة من ملفه. الشريحة عمرها ما تنزل السعر تحت الأدنى إلا لو ١٠٠٪.</span>
+            <button class="t-btn primary sm t-end" type="button" data-toast="اتحفظت الشريحة" data-toast-en="Tier saved" data-en="Save tier">احفظ الشريحة</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== PAYERS (TIER 2) ===================== -->
+    <section data-panel="payers" hidden aria-label="Contracts" data-en-aria-label="Contracts">
+      <div class="t-alert mb-4" style="border-style:dashed"><span class="t-tier">Tier 2</span><span data-en="Polyclinic plan (699 EGP). Solo clinics on 199/399 see this tab as a preview. Insurance companies come later; the data model is ready.">باقة المجمعات (٦٩٩ ج.م). العيادات على ١٩٩/٣٩٩ بتشوف التبويب ده كمعاينة. شركات التأمين لاحقًا، والبيانات جاهزة لها.</span><a class="t-btn sm t-end" href="subscription-plan.html" data-en="Upgrade">ترقية</a></div>
+      <div class="t-card flush" data-tier="2">
+        <div class="t-card-head"><h2 data-en="Corporate & syndicate contracts">التعاقدات مع الشركات والنقابات</h2><div class="t-actions"><button class="t-btn sm" type="button" disabled><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="New contract">تعاقد جديد</span></button></div></div>
+        <div class="t-table-wrap" style="border:0;border-radius:0">
+          <table class="t-table">
+            <thead><tr><th data-en="Payer">الجهة</th><th class="num" data-en="Discount">الخصم</th><th class="num" data-en="Patient co-pay">تحمّل المريض</th><th class="sp-hide-sm" data-en="Example: consult 300">مثال: كشف ٣٠٠</th><th data-en="Status">الحالة</th></tr></thead>
+            <tbody>
+              <tr><td><span class="t-name" data-en="Engineers' syndicate — Dakahlia (sample)">نقابة المهندسين — الدقهلية (عينة)</span><span class="t-meta" data-en="Syndicate card required · 46 patients">كارنيه النقابة مطلوب · ٤٦ مريض</span></td><td class="num">20%</td><td class="num">30%</td><td class="sp-hide-sm"><span data-en="240 after discount → patient 72, syndicate 168">٢٤٠ بعد الخصم ← المريض ٧٢، النقابة ١٦٨</span></td><td><span class="t-chip paid" data-en="Active">مفعّل</span></td></tr>
+              <tr><td><span class="t-name" data-en="Mansoura Contracting Co. — staff (sample)">شركة المنصورة للمقاولات — موظفين (عينة)</span><span class="t-meta" data-en="Monthly claim · 18 patients">مطالبة شهرية · ١٨ مريض</span></td><td class="num">15%</td><td class="num">0%</td><td class="sp-hide-sm"><span data-en="255 → company pays all">٢٥٥ ← الشركة تدفع الكل</span></td><td><span class="t-chip paid" data-en="Active">مفعّل</span></td></tr>
+              <tr class="is-muted"><td><span class="t-name" data-en="Teachers' syndicate (sample)">نقابة المعلمين (عينة)</span><span class="t-meta" data-en="Ended 30 Sep">انتهى ٣٠ سبتمبر</span></td><td class="num">10%</td><td class="num">50%</td><td class="sp-hide-sm t-faint">—</td><td><span class="t-chip done" data-en="Ended">منتهي</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="t-card-foot"><span class="t-small t-muted" data-en="The payer is chosen inline on the patient file and the invoice, one save (beats NITCO's save-as-cash-then-switch, v37–40). The patient's share is collected; the payer's share becomes a receivable.">الجهة بتتختار في ملف المريض والفاتورة مرة واحدة (مش زي NITCO: احفظ كاش وبعدين غيّر). نصيب المريض بيتحصّل، ونصيب الجهة بيتسجل مستحق عليها.</span></div>
+      </div>
+    </section>
+
+    <!-- ===================== COMMISSION (TIER 2) ===================== -->
+    <section data-panel="commission" hidden aria-label="Doctor commission" data-en-aria-label="Doctor commission">
+      <div class="t-alert mb-4" style="border-style:dashed"><span class="t-tier">Tier 2</span><span data-en="For polyclinics where doctors work for a share. Solo clinics don't need this.">للمجمعات اللي الأطباء فيها بيشتغلوا بنسبة. العيادة الفردية مش محتاجاه.</span></div>
+      <div class="t-card" data-tier="2" data-note="Doctor commission: % or fixed amount per service (NITCO v98). NITCO's bulk apply silently overwrites every service; here the change is previewed row by row with the effect on last month's income, and can be undone."
+           data-note-ar="نسبة الطبيب: نسبة أو مبلغ ثابت لكل خدمة (NITCO v98). في NITCO التطبيق على الكل بيكتب فوق كل الخدمات من غير ما يقول؛ هنا بتشوف التغيير سطر سطر وأثره على دخل الشهر اللي فات، وتقدر ترجع فيه.">
+        <div class="t-form-grid mb-4" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr))">
+          <div class="t-field"><label class="t-label" for="sp-cdoc" data-en="Doctor">الدكتور</label>
+            <select id="sp-cdoc" class="t-select"><option data-en="Dr. Noha El-Sherbini" selected>د. نهى الشربيني</option><option data-en="Dr. Ahmed Selim">د. أحمد سليم</option></select></div>
+          <div class="t-field"><span class="t-label" data-en="Share type">نوع النسبة</span>
+            <div class="t-seg" role="group" id="sp-cmode"><button type="button" aria-pressed="true" data-m="pct" data-en="% of price">٪ من السعر</button><button type="button" aria-pressed="false" data-m="fix" data-en="Fixed EGP">مبلغ ثابت</button></div></div>
+          <div class="t-field"><label class="t-label" for="sp-cval" data-en="Value">القيمة</label>
+            <div class="t-input-affix"><input id="sp-cval" class="t-input ltr" type="number" value="45" min="0"><span class="t-affix" id="sp-cunit">%</span></div></div>
+          <div class="t-field"><label class="t-label" for="sp-cscope" data-en="Apply to">تطبيق على</label>
+            <select id="sp-cscope" class="t-select"><option data-en="Consults & follow-ups (2)" selected>الكشف والاستشارة (٢)</option><option data-en="All her services (4)">كل خدماتها (٤)</option></select></div>
+        </div>
+        <h3 class="mb-2" style="font-size:var(--fs-md)" data-en="Preview before applying">معاينة قبل التطبيق</h3>
+        <div class="t-table-wrap">
+          <table class="t-table" id="sp-cprev">
+            <thead><tr><th data-en="Service">الخدمة</th><th class="num" data-en="Price">السعر</th><th data-en="Current share">النسبة الحالية</th><th data-en="New share">الجديدة</th><th class="num sp-hide-sm" data-en="Last month, doctor's part">الشهر اللي فات، نصيب الدكتور</th></tr></thead>
+            <tbody>
+              <tr data-p="250" data-n="168"><td data-en="Paediatrics consult">كشف أطفال</td><td class="num">250</td><td><span class="sp-old">40%</span></td><td><span class="sp-new" data-new>45%</span></td><td class="num sp-hide-sm"><span class="sp-old">16,800</span> → <b data-tot>18,900</b></td></tr>
+              <tr data-p="100" data-n="54"><td data-en="Paediatrics follow-up">استشارة أطفال</td><td class="num">100</td><td><span class="sp-old">40%</span></td><td><span class="sp-new" data-new>45%</span></td><td class="num sp-hide-sm"><span class="sp-old">2,160</span> → <b data-tot>2,430</b></td></tr>
+              <tr class="is-muted"><td data-en="Nebuliser session (not in scope)">جلسة نيبولايزر (مش ضمن التطبيق)</td><td class="num">80</td><td><span data-en="50 EGP fixed">٥٠ ج.م ثابت</span></td><td><span data-en="unchanged">من غير تغيير</span></td><td class="num sp-hide-sm">1,550</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="t-row mt-4">
+          <span class="t-small t-muted" data-en="Applies from tomorrow. Past invoices keep the share they were issued with.">بتتطبق من بكرة. الفواتير القديمة بتفضل بنسبتها وقت إصدارها.</span>
+          <button class="t-btn t-end" type="button" id="sp-capply" disabled title="Polyclinic plan" data-en-title="Polyclinic plan"><svg class="t-icon sm"><use href="#i-lock"/></svg><span data-en="Apply to 2 services">طبّق على خدمتين</span></button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<!-- Service drawer -->
+<div class="t-scrim" id="sp-drawer" hidden>
+  <aside class="t-drawer" role="dialog" aria-modal="true" aria-labelledby="sp-dr-h"
+         data-note="Edit in a side drawer, one level deep, one save. The service form keeps NITCO's useful fields (AR/EN name, type, price, minimum, doctor-may-edit, fixed price, active) and drops the noise (NPHIES codes, branch codes, tax, cost %, 16 inputs above the fold)."
+         data-note-ar="التعديل في درج جانبي، مستوى واحد، حفظ واحد. فورم الخدمة بياخد المفيد من NITCO (الاسم عربي/إنجليزي، النوع، السعر، الأدنى، الدكتور يعدّل، سعر ثابت، مفعّل) ويسيب الزحمة (أكواد نفيس والفروع والضريبة ونسبة التكلفة).">
+    <div class="t-modal-head">
+      <h2 id="sp-dr-h" data-en="Edit service">تعديل خدمة</h2>
+      <button class="t-btn icon ghost" type="button" data-close aria-label="Close" data-en-aria-label="Close" title="إغلاق" data-en-title="Close"><svg class="t-icon"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="t-modal-body t-stack lg">
+      <div class="t-form-grid">
+        <div class="t-field"><label class="t-label" for="sp-f-ar"><span data-en="Name (Arabic)">الاسم بالعربي</span><span class="req">*</span></label><input id="sp-f-ar" class="t-input" value="كشف باطنة"></div>
+        <div class="t-field"><label class="t-label" for="sp-f-en" data-en="Name (English)">الاسم بالإنجليزي</label><input id="sp-f-en" class="t-input ltr" value="Internal medicine consult"></div>
+        <div class="t-field span-2"><span class="t-label" data-en="Type">النوع</span>
+          <div class="t-seg" role="group" id="sp-f-type">
+            <button type="button" aria-pressed="true" data-en="Consult">كشف</button><button type="button" aria-pressed="false" data-en="Follow-up">استشارة</button><button type="button" aria-pressed="false" data-en="Procedure">إجراء</button><button type="button" aria-pressed="false" data-en="Lab">تحليل</button><button type="button" aria-pressed="false" data-en="Imaging">أشعة</button>
+          </div>
+          <span class="t-hint" data-en="Consult and follow-up drive the free follow-up rule.">الكشف والاستشارة هما اللي بيشغّلوا قاعدة الاستشارة المجانية.</span></div>
+        <div class="t-field"><label class="t-label" for="sp-f-price"><span data-en="Price">السعر</span><span class="req">*</span></label><div class="t-input-affix"><input id="sp-f-price" class="t-input ltr" type="number" value="300"><span class="t-affix" data-en="EGP">ج.م</span></div></div>
+        <div class="t-field"><label class="t-label" for="sp-f-min" data-en="Minimum price">أقل سعر</label><div class="t-input-affix"><input id="sp-f-min" class="t-input ltr" type="number" value="250" aria-describedby="sp-f-min-msg"><span class="t-affix" data-en="EGP">ج.م</span></div><span id="sp-f-min-msg" class="t-hint" data-en="No discount can go below this.">مفيش خصم ينزل تحت ده.</span></div>
+        <div class="t-field span-2"><label class="t-label" for="sp-f-fu" data-en="Free follow-up window for this service">مدة الاستشارة المجانية للخدمة دي</label>
+          <select id="sp-f-fu" class="t-select"><option selected data-en="Use clinic rule (14 days, 1 time)">قاعدة العيادة (١٤ يوم، مرة)</option><option data-en="7 days">٧ أيام</option><option data-en="10 days">١٠ أيام</option><option data-en="30 days">٣٠ يوم</option><option data-en="No free follow-up">مفيش استشارة مجانية</option></select></div>
+      </div>
+      <div class="t-stack">
+        <label class="t-switch"><input type="checkbox" checked> <span data-en="Doctor may change the price during the visit (not below minimum)">الدكتور يقدر يغيّر السعر في الكشف (مش تحت الأدنى)</span></label>
+        <label class="t-switch"><input type="checkbox"> <span data-en="Fixed price — no discounts at all">سعر ثابت — مفيش خصم خالص</span></label>
+        <label class="t-switch"><input type="checkbox" checked> <span data-en="Active — shows at the cashier and in the visit">مفعّلة — بتظهر في الخزنة والكشف</span></label>
+      </div>
+      <div class="t-field"><span class="t-label" data-en="Offered by">بيقدمها</span>
+        <div class="t-row tight"><label class="t-check"><input type="checkbox" checked> <span data-en="Dr. Ahmed Selim">د. أحمد سليم</span></label><label class="t-check"><input type="checkbox"> <span data-en="Dr. Noha El-Sherbini">د. نهى الشربيني</span></label></div></div>
+      <p class="t-hint mb-0" data-en="Code SV-001 · used on 1,284 invoices · last price change 1 Oct (250 → 300) by Dr. Ahmed">كود SV-001 · مستخدمة في ١٢٨٤ فاتورة · آخر تغيير سعر ١ أكتوبر (٢٥٠ ← ٣٠٠) بواسطة د. أحمد</p>
+    </div>
+    <div class="t-modal-foot">
+      <button class="t-btn danger-ghost" type="button" data-close data-toast="الخدمة اتأرشفت — الفواتير القديمة زي ما هي" data-toast-en="Service archived — old invoices unchanged" style="margin-inline-end:auto"><svg class="t-icon sm"><use href="#i-trash"/></svg><span data-en="Archive">أرشفة</span></button>
+      <button class="t-btn" type="button" data-close data-en="Cancel">إلغاء</button>
+      <button class="t-btn primary" type="button" id="sp-f-save"><span data-en="Save service">احفظ الخدمة</span><span class="t-kbd">Ctrl S</span></button>
+    </div>
+  </aside>
+</div>
+
+<script src="../assets/shell.js"></script>
+<script>
+(function () {
+  var L = function () { return window.Tamargi && Tamargi.lang() === "en"; };
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  function setT(el, ar, en) { el.setAttribute("data-ar", ar); el.setAttribute("data-en", en); el.innerHTML = L() ? en : ar; }
+  function toast(ar, en) { Tamargi.toast(L() ? en : ar); }
+
+  /* tabs */
+  var tabs = $$(".t-tab[data-tab]");
+  function show(name) {
+    tabs.forEach(function (t) { t.setAttribute("aria-selected", String(t.getAttribute("data-tab") === name)); });
+    $$("[data-panel]").forEach(function (p) { p.hidden = p.getAttribute("data-panel") !== name; });
+    try { history.replaceState(null, "", "#tab=" + name); } catch (e) {}
+    Tamargi.setState(undefined); /* re-pin annotations for the visible tab */
+  }
+  tabs.forEach(function (t) { t.addEventListener("click", function () { show(t.getAttribute("data-tab")); }); });
+  var m = location.hash.match(/tab=(\w+)/); if (m) show(m[1]);
+
+  /* filter + search + archived */
+  var filt = "all";
+  function apply() {
+    var q = ($("#sp-q").value || "").trim().toLowerCase(), arch = $("#sp-arch").checked;
+    $$("#sp-table tbody tr").forEach(function (tr) {
+      var okT = filt === "all" || tr.getAttribute("data-type") === filt;
+      var okQ = !q || tr.textContent.toLowerCase().indexOf(q) > -1;
+      var okA = !tr.hasAttribute("data-archived") || arch;
+      tr.hidden = !(okT && okQ && okA);
+    });
+  }
+  $("#sp-filter").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return; filt = b.getAttribute("data-f");
+    $$("button", this).forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); apply();
+  });
+  $("#sp-q").addEventListener("input", apply); $("#sp-arch").addEventListener("change", apply);
+
+  /* drawer */
+  function openDrawer(isNew) {
+    setT($("#sp-dr-h"), isNew ? "خدمة جديدة" : "تعديل خدمة", isNew ? "New service" : "Edit service");
+    if (isNew) { $("#sp-f-ar").value = ""; $("#sp-f-en").value = ""; $("#sp-f-price").value = ""; $("#sp-f-min").value = ""; }
+    $("#sp-drawer").hidden = false; $("#sp-f-ar").focus(); Tamargi.setState(undefined);
+  }
+  $$("[data-edit]").forEach(function (b) { b.addEventListener("click", function () { openDrawer(false); }); });
+  $("#sp-add").addEventListener("click", function () { openDrawer(true); });
+  $("#sp-drawer").addEventListener("click", function (e) { if (e.target === this) this.hidden = true; });
+  $$("#sp-f-type button").forEach(function (b) { b.addEventListener("click", function () { $$("#sp-f-type button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); }); });
+  function checkMin() {
+    var p = +$("#sp-f-price").value, mn = +$("#sp-f-min").value, msg = $("#sp-f-min-msg"), bad = $("#sp-f-min").value !== "" && mn > p;
+    $("#sp-f-min").classList.toggle("is-invalid", bad); msg.className = bad ? "t-error" : "t-hint";
+    if (bad) setT(msg, "أقل سعر لازم يكون أقل من السعر أو يساويه.", "Minimum must be at or below the price.");
+    else setT(msg, "مفيش خصم ينزل تحت ده.", "No discount can go below this.");
+    return !bad;
+  }
+  $("#sp-f-min").addEventListener("input", checkMin); $("#sp-f-price").addEventListener("input", checkMin);
+  function saveSvc() { if (!checkMin() || !$("#sp-f-ar").value.trim()) { $("#sp-f-ar").classList.toggle("is-invalid", !$("#sp-f-ar").value.trim()); return; } $("#sp-drawer").hidden = true; toast("اتحفظت الخدمة", "Service saved"); }
+  $("#sp-f-save").addEventListener("click", saveSvc);
+  document.addEventListener("keydown", function (e) {
+    var typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
+    if (!typing && (e.key === "n" || e.key === "N") && !e.ctrlKey && !e.altKey && !e.metaKey) { e.preventDefault(); openDrawer(true); }
+    if ((e.ctrlKey || e.metaKey) && (e.key === "s" || e.key === "S") && !$("#sp-drawer").hidden) { e.preventDefault(); saveSvc(); }
+  });
+
+  /* tiers */
+  var tiers = { rel: ["أقارب", "Relatives", 50], doc: ["زملاء أطباء وأسرهم", "Fellow doctors & families", 100], hard: ["حالات إنسانية", "Hardship", 30], sen: ["كبار السن ٦٥+", "Seniors 65+", 10] };
+  function calcTier() {
+    var pct = Math.max(0, Math.min(100, +$("#sp-tpct").value || 0));
+    $$("#sp-tier-table tbody tr").forEach(function (tr) {
+      var pay = $("[data-pay]", tr); if (!pay) return;
+      pay.textContent = Math.round(+tr.getAttribute("data-price") * (100 - pct) / 100);
+    });
+    var on = $(".sp-tier.is-on"); if (on) $(".sp-pct", on).textContent = pct + "%";
+    var name = $("#sp-tname").value;
+    setT($("#sp-tier-title"), name + " — " + pct + "٪", name + " — " + pct + "%");
+  }
+  $$("#sp-tiers .sp-tier").forEach(function (b) {
+    b.addEventListener("click", function () {
+      $$("#sp-tiers .sp-tier").forEach(function (x) { x.classList.toggle("is-on", x === b); });
+      var t = tiers[b.getAttribute("data-tier-id")]; $("#sp-tname").value = L() ? t[1] : t[0]; $("#sp-tpct").value = t[2]; calcTier();
+    });
+  });
+  $("#sp-tpct").addEventListener("input", calcTier); $("#sp-tname").addEventListener("input", calcTier);
+
+  /* commission preview */
+  var mode = "pct";
+  function calcCom() {
+    var v = +$("#sp-cval").value || 0;
+    $("#sp-cunit").textContent = mode === "pct" ? "%" : (L() ? "EGP" : "ج.م");
+    $$("#sp-cprev tbody tr[data-p]").forEach(function (tr) {
+      var p = +tr.getAttribute("data-p"), n = +tr.getAttribute("data-n");
+      var each = mode === "pct" ? p * v / 100 : v;
+      $("[data-new]", tr).textContent = mode === "pct" ? v + "%" : v + (L() ? " EGP" : " ج.م");
+      $("[data-tot]", tr).textContent = Math.round(each * n).toLocaleString("en");
+    });
+  }
+  $("#sp-cmode").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return; mode = b.getAttribute("data-m");
+    $$("button", this).forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+    $("#sp-cval").value = mode === "pct" ? 45 : 110; calcCom();
+  });
+  $("#sp-cval").addEventListener("input", calcCom);
+})();
+</script>
+</body>
+</html>

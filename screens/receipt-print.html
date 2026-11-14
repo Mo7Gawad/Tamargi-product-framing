@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Receipt print preview — Tamargi">معاينة طباعة الإيصال — تمرجي</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style id="rc-page">@page { size: 80mm auto; margin: 0; }</style>
+  <style>
+    /* back arrow: the sprite arrow points right, which is already "back" in RTL; mirror only in LTR */
+    [dir="ltr"] .co-back { transform: scaleX(-1); }
+    .rc-stage { min-height: 560px; align-items: flex-start; }
+    /* thermal receipt */
+    .rc-th { position: relative; font-variant-numeric: tabular-nums; }
+    .rc-th .rc-center { text-align: center; }
+    .rc-th .rc-clinic { font-family: var(--font-letterhead); font-size: 18px; font-weight: 700; line-height: 1.25; }
+    .rc-th .rc-small { font-size: 10.5px; color: #4E586C; line-height: 1.5; }
+    .rc-th .rc-rule { border: 0; border-top: 1px dashed #6B7588; margin: 2mm 0; }
+    .rc-th .rc-title { font-weight: 700; font-size: 13px; letter-spacing: .02em; margin-block: 1mm; }
+    .rc-th .rc-line small { display: block; font-size: 10px; color: #4E586C; }
+    .rc-th .rc-bal { border: 1px solid #172036; border-radius: 2px; padding: 1.5mm 2mm; margin-block-start: 2mm; }
+    /* reprint watermark */
+    .rc-copy { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+    .rc-copy span { transform: rotate(-24deg); border: 3px solid #C0322B; color: #C0322B; opacity: .28; font-weight: 700; font-size: 34px; padding: 2px 14px; border-radius: 4px; white-space: nowrap; }
+    .rc-copyline { text-align: center; font-weight: 700; font-size: 11px; border: 1px solid #172036; padding: 1mm; margin-block-end: 2mm; }
+    /* A5 receipt */
+    .rc-a5 { position: relative; font-size: 12.5px; }
+    .rc-a5 h2 { color: #172036; font-size: 16px; text-align: center; margin-block: 4mm 3mm; }
+    .rc-a5 .rc-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5mm 6mm; padding-block: 2mm 3mm; border-block-end: 1px dashed #B9C2D1; }
+    .rc-a5 .rc-meta b { color: #172036; }
+    .rc-a5 .rc-meta span { color: #4E586C; }
+    .rc-a5 table { width: 100%; border-collapse: collapse; margin-block: 3mm; }
+    .rc-a5 th { text-align: start; font-weight: 600; font-size: 11.5px; color: #4E586C; border-block-end: 1px solid #172036; padding: 1.5mm 1mm; }
+    .rc-a5 td { padding: 1.8mm 1mm; border-block-end: 1px dotted #D6DCE6; }
+    .rc-a5 .n { text-align: end; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .rc-a5 .rc-sum { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+    .rc-a5 .rc-box { border: 1px solid #D6DCE6; border-radius: 2mm; padding: 2.5mm 3mm; }
+    .rc-a5 .rc-box h4 { font-size: 11.5px; color: #4E586C; font-weight: 600; margin-block-end: 1.5mm; }
+    .rc-a5 .rc-sign { display: flex; justify-content: space-between; gap: 6mm; margin-block: 8mm 4mm; font-size: 11px; color: #4E586C; }
+    .rc-a5 .rc-sign span { border-block-start: 1px solid #B9C2D1; padding-block-start: 1mm; min-width: 40mm; text-align: center; }
+    @media print {
+      .t-split { display: block; }
+      .rc-stage { min-height: 0; }
+      .t-sheet.a5 { width: 148mm; min-height: 209mm; }
+    }
+  </style>
+</head>
+<body data-screen="receipt-print">
+<main id="screen">
+  <span data-state="original"></span><!-- first state in DOM = default -->
+  <div class="t-container">
+
+    <header class="t-screen-head">
+      <div>
+        <h1 data-en="Receipt preview">معاينة الإيصال</h1>
+        <p class="t-sub mb-0" data-en="Invoice INV-004812 was already collected. This page only prints; it never changes payment status.">الفاتورة INV-004812 اتحصّلت خلاص. الصفحة دي للطباعة بس، ومش بتغيّر حالة الدفع.</p>
+      </div>
+      <div class="t-actions">
+        <a class="t-btn" href="cashier-checkout.html"><svg class="t-icon sm co-back"><use href="#i-arrow"/></svg><span data-en="Back to checkout">رجوع للتحصيل</span></a>
+        <a class="t-btn" href="reception-queue.html"><span data-en="Next patient">المريض اللي بعده</span></a>
+      </div>
+    </header>
+
+    <div class="t-split aside-end">
+
+      <!-- Preview stage -->
+      <div class="t-print-stage rc-stage"
+           data-note="Inline preview, then the browser's own print dialog: no PDF popup window (NITCO v86, v89, v91 open a separate Report.pdf tab every time). Online-only MVP, so browser printing is the whole print stack."
+           data-note-ar="معاينة داخل الصفحة ثم طباعة المتصفح العادية: من غير نافذة PDF منفصلة زي NITCO.">
+
+        <!-- 80 mm thermal -->
+        <article class="t-sheet receipt rc-th" id="rc-80" aria-label="80 mm receipt">
+          <div class="rc-copy" data-state="reprint"><span data-en="COPY">نسخة</span></div>
+          <div class="rc-copyline" data-state="reprint" data-en="COPY — reprinted 14/11/2026 9:15 pm by Sara">نسخة — أُعيدت طباعتها 14/11/2026 9:15 م بواسطة سارة</div>
+          <div class="rc-center"
+               data-note="Letterhead comes from the clinic's Letterhead settings: same name, specialty, address and phones as the prescription, in the receipt's narrow format."
+               data-note-ar="الترويسة من إعدادات الترويسة: نفس الاسم والتخصص والعنوان والتليفون زي الروشتة.">
+            <div class="rc-clinic" data-en="Dr. Ahmed Selim Clinic">عيادة د. أحمد سليم</div>
+            <div class="rc-small" data-en="Consultant of internal medicine &amp; cardiology">استشاري الباطنة والقلب</div>
+            <div class="rc-small" data-en="24 El-Gomhoreya St., El-Nour Tower, 3rd floor, Mansoura">٢٤ ش الجمهورية، برج النور، الدور الثالث، المنصورة</div>
+            <div class="rc-small"><span class="t-ltr">050 2234 567</span> · <span class="t-ltr">0109 555 0142</span></div>
+          </div>
+          <hr class="rc-rule">
+          <div class="rc-center rc-title" data-en="CASH RECEIPT">إيصال استلام نقدية</div>
+          <div class="t-receipt-row"><span data-en="Receipt no.">رقم الإيصال</span><b class="t-ltr">RC-004812</b></div>
+          <div class="t-receipt-row"><span data-en="Invoice">الفاتورة</span><span class="t-ltr">INV-004812</span></div>
+          <div class="t-receipt-row"><span data-en="Date">التاريخ</span><span class="t-ltr">14/11/2026 19:42</span></div>
+          <div class="t-receipt-row"><span data-en="Cashier">الكاشير</span><span data-en="Sara Ramadan">سارة رمضان</span></div>
+          <hr class="rc-rule">
+          <div class="t-receipt-row"><span data-en="Patient">المريض</span><b>كريم محمود عبد العزيز</b></div>
+          <div class="t-receipt-row"><span data-en="File">ملف</span><span class="t-ltr">0872</span></div>
+          <div class="t-receipt-row"><span data-en="Doctor">الطبيب</span><span data-en="Dr. Ahmed Selim">د. أحمد سليم</span></div>
+          <hr class="rc-rule">
+          <div class="t-receipt-row rc-line"><span><span data-en="Follow-up consultation">كشف متابعة</span><small data-en="Free follow-up (within 14 days)">متابعة مجانية (خلال ١٤ يوم)</small></span><span>0.00</span></div>
+          <div class="t-receipt-row rc-line"><span data-en="ECG (resting)">رسم قلب</span><span>150.00</span></div>
+          <div class="t-receipt-row rc-line"><span data-en="Nebuliser session">جلسة نيبولايزر</span><span>50.00</span></div>
+          <hr class="rc-rule">
+          <div class="t-receipt-row"><span data-en="Subtotal">الإجمالي قبل الخصم</span><span>200.00</span></div>
+          <div class="t-receipt-row"><span><span data-en="Discount 10%">خصم ١٠٪</span><small style="display:block;font-size:10px;color:#4E586C" data-en="Reason: Seniors 65+ tier">السبب: شريحة كبار السن +٦٥</small></span><span>− 20.00</span></div>
+          <div class="t-receipt-row total"><span data-en="Invoice total (EGP)">إجمالي الفاتورة (ج.م)</span><span>180.00</span></div>
+          <div class="t-receipt-row"><span data-en="Paid · cash">مدفوع · كاش</span><span>100.00</span></div>
+          <div class="t-receipt-row"><span data-en="Paid · from deposit">مدفوع · من الرصيد المقدم</span><span>50.00</span></div>
+          <div class="t-receipt-row" style="font-weight:700"><span data-en="Unpaid (added to account)">الباقي (على الحساب)</span><span>30.00</span></div>
+          <div class="rc-bal"
+               data-note="Balances after this payment are printed so the patient leaves knowing exactly what they owe and what is left in their deposit; this removes the usual 'how much do I owe?' argument at the next visit."
+               data-note-ar="الرصيد بعد الدفع مطبوع عشان المريض يعرف عليه كام وفاضله كام في الرصيد، ومفيش خناقة في الزيارة الجاية.">
+            <div class="t-receipt-row"><span data-en="Total owed now">إجمالي المديونية الآن</span><b>90.00</b></div>
+            <div class="t-receipt-row"><span data-en="Deposit balance">الرصيد المقدم المتبقي</span><b>150.00</b></div>
+          </div>
+          <hr class="rc-rule">
+          <div class="rc-center rc-small" data-en="Issued electronically · cannot be edited. Corrections are made by credit note.">صادر إلكترونيًا ولا يُعدّل. التصحيح بإشعار مرتجع.</div>
+          <div class="rc-center rc-small" data-en="Get well soon">ألف سلامة</div>
+        </article>
+
+        <!-- A5 -->
+        <article class="t-sheet a5 rc-a5" id="rc-a5" aria-label="A5 receipt" hidden>
+          <div class="rc-copy" data-state="reprint"><span data-en="COPY">نسخة</span></div>
+          <header class="t-letterhead">
+            <div>
+              <div class="lh-name">د. أحمد سليم</div>
+              <div class="lh-title">استشاري الباطنة والقلب<br>دكتوراه الباطنة — جامعة المنصورة</div>
+            </div>
+            <div class="lh-logo">أ س</div>
+            <div class="lh-en">
+              <div class="lh-name">Dr. Ahmed Selim</div>
+              <div class="lh-title">Consultant, Internal Medicine &amp; Cardiology<br>MD, Mansoura University</div>
+            </div>
+          </header>
+          <div class="rc-copyline" data-state="reprint" style="margin-block-start:3mm" data-en="COPY — reprinted 14/11/2026 9:15 pm by Sara">نسخة — أُعيدت طباعتها 14/11/2026 9:15 م بواسطة سارة</div>
+          <h2 data-en="Cash receipt">إيصال استلام نقدية</h2>
+          <div class="rc-meta">
+            <div><span data-en="Receipt no.">رقم الإيصال:</span> <b class="t-ltr">RC-004812</b></div>
+            <div><span data-en="Date">التاريخ:</span> <b class="t-ltr">14/11/2026 19:42</b></div>
+            <div><span data-en="Patient">المريض:</span> <b>كريم محمود عبد العزيز</b></div>
+            <div><span data-en="File">رقم الملف:</span> <b class="t-ltr">0872</b></div>
+            <div><span data-en="Doctor">الطبيب:</span> <b data-en="Dr. Ahmed Selim">د. أحمد سليم</b></div>
+            <div><span data-en="Cashier">الكاشير:</span> <b data-en="Sara Ramadan">سارة رمضان</b></div>
+          </div>
+          <table>
+            <thead><tr><th data-en="Service">الخدمة</th><th class="n" data-en="Qty">العدد</th><th class="n" data-en="Price">السعر</th><th class="n" data-en="Total">الإجمالي</th></tr></thead>
+            <tbody>
+              <tr><td><span data-en="Follow-up consultation">كشف متابعة</span> <small style="color:#11684B" data-en="(free follow-up)">(متابعة مجانية)</small></td><td class="n">1</td><td class="n">0.00</td><td class="n">0.00</td></tr>
+              <tr><td data-en="ECG (resting)">رسم قلب</td><td class="n">1</td><td class="n">150.00</td><td class="n">150.00</td></tr>
+              <tr><td data-en="Nebuliser session">جلسة نيبولايزر</td><td class="n">1</td><td class="n">50.00</td><td class="n">50.00</td></tr>
+              <tr><td colspan="3"><span data-en="Discount 10% — reason: Seniors 65+ tier">خصم ١٠٪ — السبب: شريحة كبار السن +٦٥</span></td><td class="n">− 20.00</td></tr>
+              <tr><td colspan="3"><b data-en="Invoice total (EGP)">إجمالي الفاتورة (ج.م)</b></td><td class="n"><b>180.00</b></td></tr>
+            </tbody>
+          </table>
+          <div class="rc-sum">
+            <div class="rc-box">
+              <h4 data-en="Paid by">طريقة الدفع</h4>
+              <div class="t-receipt-row"><span data-en="Cash">كاش</span><span>100.00</span></div>
+              <div class="t-receipt-row"><span data-en="From deposit">من الرصيد المقدم</span><span>50.00</span></div>
+              <div class="t-receipt-row" style="font-weight:700"><span data-en="Unpaid on this invoice">الباقي على الفاتورة</span><span>30.00</span></div>
+            </div>
+            <div class="rc-box">
+              <h4 data-en="Patient account after payment">حساب المريض بعد الدفع</h4>
+              <div class="t-receipt-row"><span data-en="Total owed">إجمالي المديونية</span><b>90.00</b></div>
+              <div class="t-receipt-row"><span data-en="Deposit balance">الرصيد المقدم</span><b>150.00</b></div>
+            </div>
+          </div>
+          <div class="rc-sign"><span data-en="Cashier">توقيع الكاشير</span><span data-en="Clinic stamp">ختم العيادة</span></div>
+          <footer class="t-sheet-foot">
+            <span data-en="24 El-Gomhoreya St., El-Nour Tower, 3rd floor, Mansoura">٢٤ ش الجمهورية، برج النور، الدور ٣، المنصورة</span>
+            <span class="t-ltr">050 2234 567 · 0109 555 0142</span>
+          </footer>
+        </article>
+      </div>
+
+      <!-- Options -->
+      <aside class="t-stack no-print">
+        <section class="t-card">
+          <div class="t-card-head"><h2 data-en="Print">الطباعة</h2></div>
+          <div class="t-stack">
+            <div class="t-field"
+                 data-note="Paper toggle: 80 mm thermal (most reception printers) or A5 on the clinic letterhead. The clinic's default is set once in Letterhead settings and remembered here."
+                 data-note-ar="نوع الورق: حراري ٨٠ مم أو A5 على ترويسة العيادة. الافتراضي بيتحدد مرة واحدة في إعدادات الترويسة.">
+              <span class="t-label" data-en="Paper">الورق</span>
+              <div class="t-seg" role="group" id="rc-paper">
+                <button type="button" aria-pressed="true" data-paper="80" data-en="80 mm thermal">حراري ٨٠ مم</button>
+                <button type="button" aria-pressed="false" data-paper="a5" data-en="A5 letterhead">A5 بالترويسة</button>
+              </div>
+            </div>
+            <label class="t-check"><input type="checkbox" checked> <span data-en="Print account balances">اطبع رصيد الحساب</span></label>
+            <div data-state="original">
+              <div class="t-alert success"><svg class="t-icon"><use href="#i-check"/></svg><span data-en="First print of this receipt. Already paid (collected 7:42 pm).">أول طباعة للإيصال ده. مدفوع (اتحصّل ٧:٤٢ م).</span></div>
+            </div>
+            <div data-state="reprint">
+              <div class="t-alert warning"
+                   data-note="Every reprint is stamped 'COPY' with who and when, and is logged. Reprinting never creates a new payment; it closes the duplicate-receipt loophole."
+                   data-note-ar="أي إعادة طباعة بتتختم «نسخة» باسم مين وإمتى وبتتسجل. مش بتعمل دفعة جديدة.">
+                <svg class="t-icon"><use href="#i-copy"/></svg><span data-en="Reprint: marked COPY and logged (2nd print).">إعادة طباعة: عليها «نسخة» واتسجلت (الطباعة الثانية).</span></div>
+            </div>
+            <button class="t-btn primary block lg" type="button" id="rc-print"><svg class="t-icon"><use href="#i-print"/></svg><span data-en="Print">طباعة</span><span class="t-kbd">Ctrl P</span></button>
+            <button class="t-btn block" type="button" data-toast="الإيصال اتبعت في رسائل المريض" data-toast-en="Receipt sent in patient chat"><svg class="t-icon sm"><use href="#i-send"/></svg><span data-en="Send in patient chat">إرسال في شات المريض</span></button>
+            <button class="t-btn ghost block" type="button" data-set-state="reprint" id="rc-reprint-btn"><svg class="t-icon sm"><use href="#i-copy"/></svg><span data-en="Show as reprint (copy)">عرض كإعادة طباعة (نسخة)</span></button>
+          </div>
+        </section>
+        <section class="t-card sunk">
+          <h3 class="mb-2" data-en="Document">المستند</h3>
+          <dl class="t-dl">
+            <dt data-en="Invoice">الفاتورة</dt><dd><a href="invoice-detail.html" class="t-ltr">INV-004812</a> <span class="t-chip partial" data-en="Partial">جزئي</span></dd>
+            <dt data-en="Patient">المريض</dt><dd><a href="patient-account.html" data-en="Account: owes 90 · deposit 150">الحساب: عليه ٩٠ · رصيد ١٥٠</a></dd>
+            <dt data-en="Prints">مرات الطباعة</dt><dd><span data-state="original">1</span><span data-state="reprint">2</span></dd>
+          </dl>
+        </section>
+      </aside>
+    </div>
+  </div>
+</main>
+<script src="../assets/shell.js"></script>
+<script>
+(function () {
+  var page = document.getElementById("rc-page");
+  function setPaper(p) {
+    document.getElementById("rc-80").hidden = p !== "80";
+    document.getElementById("rc-a5").hidden = p !== "a5";
+    page.textContent = p === "a5" ? "@page { size: A5 portrait; margin: 0; }" : "@page { size: 80mm auto; margin: 0; }";
+    Array.prototype.forEach.call(document.querySelectorAll("#rc-paper [data-paper]"), function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-paper") === p)); });
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("#rc-paper [data-paper]"); if (b) setPaper(b.getAttribute("data-paper"));
+    if (e.target.closest("#rc-print")) window.print();
+  });
+  // data-state elements inside a hidden sheet stay governed by the sheet's own [hidden]
+  setPaper("80");
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Patient chat inbox — Tamargi">رسائل المرضى — تمرجي</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style>
+    /* chat-inbox: page-specific, tokens only */
+    .ci-grid { align-items: start; }
+    .ci-list { display: flex; flex-direction: column; min-height: 0; }
+    .ci-list .t-seg { margin: var(--s-3); display: flex; }
+    .ci-list .t-seg button { flex: 1; padding-inline: 6px; }
+    .ci-convs { list-style: none; margin: 0; padding: 0 var(--s-2) var(--s-2); overflow-y: auto; max-height: calc(100vh - 260px); }
+    .ci-conv { display: grid; grid-template-columns: auto 1fr auto; gap: 2px var(--s-3); padding: var(--s-3); border-radius: var(--r-sm); cursor: pointer; border: 1px solid transparent; }
+    .ci-conv:hover { background: var(--surface-hover); }
+    .ci-conv[aria-selected="true"] { background: var(--primary-soft); border-color: var(--primary-line); }
+    .ci-conv .ci-who { font-weight: var(--fw-m); font-size: var(--fs-sm); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ci-conv .ci-last { grid-column: 2 / 4; font-size: var(--fs-xs); color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ci-conv .ci-time { font-size: var(--fs-xs); color: var(--text-3); font-family: var(--font-en); direction: ltr; }
+    .ci-conv .ci-st { grid-column: 2 / 4; display: flex; gap: 6px; align-items: center; }
+    .ci-conv.is-unread .ci-who { font-weight: var(--fw-b); }
+    .ci-thread { display: flex; flex-direction: column; height: calc(100vh - 210px); min-height: 520px; }
+    .ci-msgs { flex: 1; display: flex; flex-direction: column; gap: var(--s-3); padding: var(--s-5); overflow-y: auto; background: var(--surface-sunk); }
+    .ci-msg { max-width: 78%; padding: var(--s-2) var(--s-3); border-radius: var(--r-md); font-size: var(--fs-md); line-height: var(--lh); border: 1px solid var(--line); background: var(--surface); }
+    .ci-msg.in { align-self: flex-start; border-start-start-radius: var(--r-xs); }
+    .ci-msg.out { align-self: flex-end; background: var(--primary-soft); border-color: var(--primary-line); border-start-end-radius: var(--r-xs); }
+    .ci-msg small { display: block; margin-block-start: 4px; font-size: var(--fs-xs); color: var(--text-3); }
+    .ci-sys { align-self: center; font-size: var(--fs-xs); color: var(--text-3); background: var(--surface); border: 1px dashed var(--line); border-radius: var(--r-pill); padding: 2px 12px; }
+    .ci-quick { display: flex; gap: var(--s-2); flex-wrap: wrap; padding: var(--s-3) var(--s-4) 0; }
+    .ci-compose { display: grid; grid-template-columns: 1fr auto; gap: var(--s-2); align-items: end; padding: var(--s-3) var(--s-4) var(--s-4); }
+    .ci-compose .t-textarea { min-height: 56px; }
+    .ci-slots { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+    .ci-slots .t-pick[disabled] { opacity: .45; text-decoration: line-through; cursor: not-allowed; }
+    .ci-tpl { font-size: var(--fs-sm); line-height: 1.9; padding: var(--s-3); border: 1px dashed var(--line-strong); border-radius: var(--r-sm); background: var(--surface-sunk); }
+    .ci-tok { display: inline-flex; align-items: center; height: 22px; padding-inline: 8px; border-radius: var(--r-pill); background: var(--info-bg); color: var(--info-fg); font-size: var(--fs-xs); font-weight: var(--fw-m); }
+    .ci-channel { display: inline-flex; align-items: center; gap: 6px; }
+    @media (max-width: 860px) { .ci-convs { max-height: 280px; } .ci-thread { height: auto; min-height: 480px; } .ci-msg { max-width: 92%; } }
+  </style>
+</head>
+<body data-screen="chat-inbox">
+<main id="screen">
+  <div class="t-container">
+
+    <header class="t-screen-head">
+      <div>
+        <h1 data-en="Patient messages">رسائل المرضى</h1>
+        <p class="t-sub mb-0" data-en="Chats from the clinic's web page. Reply, find the patient and book, all in one conversation.">الرسائل اللي جاية من صفحة العيادة على النت. ردّ، اعرف المريض، واحجز من نفس المحادثة.</p>
+      </div>
+      <div class="t-actions ci-channel"
+           data-note="Channels: web chat from the clinic page is live in the MVP (founder decision). WhatsApp will land in this same inbox later, not on a separate screen with manual file uploads and batch sends like NITCO (v44, v100)."
+           data-note-ar="القنوات: شات صفحة العيادة شغال في النسخة الأولى. واتساب هييجي بعدين في نفس الصندوق، مش شاشة منفصلة برفع ملفات وإرسال جماعي يدوي زي NITCO.">
+        <span class="t-chip inroom"><span data-en="Web chat · live">شات الموقع · شغال</span></span>
+        <span class="t-chip booked" title="Later" data-en="WhatsApp · later">واتساب · لاحقًا</span>
+        <a class="t-btn" href="clinic-web-page.html"><svg class="t-icon sm"><use href="#i-globe"/></svg><span data-en="Clinic page">صفحة العيادة</span></a>
+      </div>
+    </header>
+
+    <!-- ===== STATE: inbox ===== -->
+    <div class="t-split three ci-grid" data-state="inbox">
+
+      <!-- Conversation list -->
+      <section class="t-card flush ci-list" aria-label="Conversations" data-en-aria-label="Conversations">
+        <div class="t-seg" role="group" id="ci-filter"
+             data-note="Each conversation has a text status — New (not answered), Answered, Booked — plus an unread count. Filters let reception clear 'New' first. Status is a word, never colour alone."
+             data-note-ar="كل محادثة ليها حالة مكتوبة — جديدة، اتردّ عليها، اتحجزت — وعدد غير المقروء. الفلتر بيخلي الاستقبال يخلّص الجديد الأول.">
+          <button type="button" aria-pressed="true" data-f="all"><span data-en="All 7">الكل ٧</span></button>
+          <button type="button" aria-pressed="false" data-f="new"><span data-en="New 3">جديدة ٣</span></button>
+          <button type="button" aria-pressed="false" data-f="answered"><span data-en="Answered">اتردّ</span></button>
+          <button type="button" aria-pressed="false" data-f="booked"><span data-en="Booked">اتحجز</span></button>
+        </div>
+        <ul class="ci-convs" id="ci-convs" role="listbox">
+          <li class="ci-conv is-unread" role="option" aria-selected="true" data-s="new" data-id="1">
+            <span class="t-avatar sm">ن ع</span>
+            <span class="ci-who">نهى عبد الفتاح زكي</span>
+            <span class="ci-time">7:42 PM</span>
+            <span class="ci-last">ينفع بكره بالليل؟ وهل المتابعة بفلوس؟</span>
+            <span class="ci-st"><span class="t-chip info" data-st data-en="New">جديدة</span><span class="t-badge" data-unread>2</span></span>
+          </li>
+          <li class="ci-conv is-unread" role="option" aria-selected="false" data-s="new" data-id="2">
+            <span class="t-avatar sm">م د</span>
+            <span class="ci-who">محمود الدمرداش</span>
+            <span class="ci-time">7:31 PM</span>
+            <span class="ci-last">بكام الكشف عند دكتور الباطنة؟</span>
+            <span class="ci-st"><span class="t-chip info" data-en="New">جديدة</span><span class="t-badge">1</span></span>
+          </li>
+          <li class="ci-conv is-unread" role="option" aria-selected="false" data-s="new" data-id="3">
+            <span class="t-avatar sm">؟</span>
+            <span class="ci-who t-ltr">0155 667 7120</span>
+            <span class="ci-time">7:05 PM</span>
+            <span class="ci-last">العيادة فين بالظبط؟ أنا في طلخا</span>
+            <span class="ci-st"><span class="t-chip info" data-en="New">جديدة</span><span class="t-badge">1</span></span>
+          </li>
+          <li class="ci-conv" role="option" aria-selected="false" data-s="answered" data-id="4">
+            <span class="t-avatar sm">س ح</span>
+            <span class="ci-who">سارة الحسيني</span>
+            <span class="ci-time">6:50 PM</span>
+            <span class="ci-last">تمام شكرًا، هعدّي بكره</span>
+            <span class="ci-st"><span class="t-chip done" data-en="Answered">اتردّ عليها</span></span>
+          </li>
+          <li class="ci-conv" role="option" aria-selected="false" data-s="booked" data-id="5">
+            <span class="t-avatar sm">ن ج</span>
+            <span class="ci-who">نادية مصطفى الجمل</span>
+            <span class="ci-time">3:12 PM</span>
+            <span class="ci-last">أنتِ: اتحجز النهارده ٨:٣٠ م مع د. أحمد</span>
+            <span class="ci-st"><span class="t-chip paid" data-en="Booked · today 8:30">اتحجز · النهارده ٨:٣٠</span></span>
+          </li>
+          <li class="ci-conv" role="option" aria-selected="false" data-s="booked" data-id="6">
+            <span class="t-avatar sm">ع م</span>
+            <span class="ci-who">عادل منصور البيلي</span>
+            <span class="ci-time">1:05 PM</span>
+            <span class="ci-last">أنتِ: اتحجز الإتنين ٥:٤٠ م مع د. أحمد</span>
+            <span class="ci-st"><span class="t-chip paid" data-en="Booked · Mon 5:40">اتحجز · الإتنين ٥:٤٠</span></span>
+          </li>
+          <li class="ci-conv" role="option" aria-selected="false" data-s="answered" data-id="7">
+            <span class="t-avatar sm">ي ك</span>
+            <span class="ci-who">يسرا كمال</span>
+            <span class="ci-time" data-en="Yesterday">امبارح</span>
+            <span class="ci-last">أنتِ: د. هبة بتكشف أطفال لحد ١٤ سنة</span>
+            <span class="ci-st"><span class="t-chip done" data-en="Answered">اتردّ عليها</span></span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Thread -->
+      <section class="t-card flush ci-thread" aria-labelledby="ci-th-name">
+        <div class="t-card-head">
+          <span class="t-avatar sm">ن ع</span>
+          <div class="t-grow">
+            <h2 id="ci-th-name">نهى عبد الفتاح زكي</h2>
+            <span class="t-small t-muted"><span class="t-ltr">0109 332 0145</span> · <span data-en="via web chat · clinic page">من شات صفحة العيادة</span></span>
+          </div>
+          <span class="t-chip info" id="ci-th-status" data-en="New">جديدة</span>
+        </div>
+        <div class="ci-msgs" id="ci-msgs" aria-live="polite">
+          <span class="ci-sys" data-en="Visitor gave name and mobile on the clinic page · 7:38 PM">الزائرة كتبت الاسم والموبايل في صفحة العيادة · ٧:٣٨ م</span>
+          <div class="ci-msg in">السلام عليكم، أنا والدة ريم أحمد. د. هبة كشفت عليها السبت اللي فات وقالت نرجع للمتابعة بعد أسبوع.<small>7:40 PM</small></div>
+          <div class="ci-msg in">ينفع بكره بالليل؟ وهل المتابعة بفلوس؟<small>7:42 PM</small></div>
+        </div>
+        <div class="ci-quick"
+             data-note="Quick replies answer the four questions patients ask most (hours, fee, location, follow-up rule) in one click; the text comes from Clinic profile & rules, so fees and hours are never retyped wrong."
+             data-note-ar="ردود جاهزة على أكتر ٤ أسئلة (المواعيد، السعر، العنوان، المتابعة) بضغطة؛ الكلام جاي من إعدادات العيادة فمفيش سعر أو ميعاد يتكتب غلط.">
+          <button class="t-pick" type="button" data-reply="hours"><svg class="t-icon sm"><use href="#i-clock"/></svg><span data-en="Hours">المواعيد</span></button>
+          <button class="t-pick" type="button" data-reply="fees"><svg class="t-icon sm"><use href="#i-tag"/></svg><span data-en="Fees">سعر الكشف</span></button>
+          <button class="t-pick" type="button" data-reply="loc"><svg class="t-icon sm"><use href="#i-globe"/></svg><span data-en="Location">العنوان</span></button>
+          <button class="t-pick" type="button" data-reply="fu"><svg class="t-icon sm"><use href="#i-check"/></svg><span data-en="Free follow-up rule">المتابعة المجانية</span></button>
+        </div>
+        <div class="ci-compose">
+          <label class="t-sr" for="ci-text" data-en="Reply">الرد</label>
+          <textarea class="t-textarea" id="ci-text" placeholder="اكتب ردّك…  (Enter للإرسال، Shift+Enter لسطر جديد)" data-en-placeholder="Type a reply…  (Enter to send, Shift+Enter for a new line)"></textarea>
+          <button class="t-btn" type="button" id="ci-send"><svg class="t-icon sm flip"><use href="#i-send"/></svg><span data-en="Send">إرسال</span></button>
+        </div>
+      </section>
+
+      <!-- Side panel: patient, slots, book -->
+      <aside class="t-stack">
+        <section class="t-card"
+                 data-note="The mobile is matched against patient files and guardian phones: here it finds Reem (5 yrs), whose free follow-up with Dr. Heba runs until 18 Nov. No match → 'Create provisional patient' keyed on the mobile, completed at check-in (journey J2)."
+                 data-note-ar="الموبايل بيتطابق مع ملفات المرضى وأرقام أولياء الأمور: هنا لقى ريم (٥ سنين) ومتابعتها المجانية مع د. هبة لحد ١٨ نوفمبر. مفيش تطابق ← «ملف مبدئي» بالموبايل يكمل يوم الحضور.">
+          <div class="t-card-head"><h3 data-en="Patient">المريض</h3><span class="t-chip arrived plain" data-en="Matched by mobile">اتعرف بالموبايل</span></div>
+          <div class="t-row tight">
+            <span class="t-avatar">ر أ</span>
+            <div class="t-grow">
+              <b>ريم أحمد عبد الفتاح زكي</b>
+              <div class="t-small t-muted"><span data-en="5 yrs · F · file">٥ سنين · أنثى · ملف</span> <span class="t-ltr">2214</span> · <span data-en="guardian's phone">رقم ولي الأمر</span></div>
+            </div>
+          </div>
+          <div class="t-row tight mt-2">
+            <span class="t-balance followup" data-en="Free follow-up until 18 Nov">متابعة مجانية حتى ١٨ نوفمبر</span>
+            <span class="t-allergy none" data-en="No known allergies">لا حساسية معروفة</span>
+          </div>
+          <div class="t-row tight mt-4">
+            <a class="t-btn sm" href="patient-file.html"><span data-en="Open file">فتح الملف</span></a>
+            <button class="t-btn sm ghost" type="button" data-toast="اتعمل ملف مبدئي بالموبايل — يكمل يوم الحضور" data-toast-en="Provisional patient created on this mobile — completed at check-in"><span data-en="Another child? New provisional">طفل تاني؟ ملف مبدئي</span></button>
+          </div>
+        </section>
+
+        <section class="t-card"
+                 data-note="Free slots already respect the doctor's hours, split shifts, patients per slot and leaves (NITCO v57, v58, v102): Dr. Heba's Tuesday leave is shown, full slots are struck through. Visit type and fee come from the follow-up window, so the reply 'is it free?' is answered by the system."
+                 data-note-ar="المواعيد الفاضية بتحترم ساعات الطبيب والفترتين وعدد المرضى في الميعاد والإجازات (NITCO): إجازة د. هبة يوم الثلاثاء ظاهرة، والمليان متشطب. نوع الزيارة والسعر من مدة المتابعة.">
+          <div class="t-card-head"><h3 data-en="Free slots">مواعيد فاضية</h3></div>
+          <div class="t-stack">
+            <div class="t-seg" role="group" id="ci-doc">
+              <button type="button" aria-pressed="true" data-doc="B"><span data-en="Dr. Heba · Paeds">د. هبة · أطفال</span></button>
+              <button type="button" aria-pressed="false" data-doc="A"><span data-en="Dr. Ahmed · IM">د. أحمد · باطنة</span></button>
+            </div>
+            <div class="t-tabs mb-0" role="tablist" id="ci-days">
+              <button class="t-tab" role="tab" aria-selected="false" data-day="0"><span data-en="Today">النهارده</span></button>
+              <button class="t-tab" role="tab" aria-selected="true" data-day="1"><span data-en="Sun 15">الأحد ١٥</span></button>
+              <button class="t-tab" role="tab" aria-selected="false" data-day="2"><span data-en="Mon 16">الإتنين ١٦</span></button>
+              <button class="t-tab" role="tab" aria-selected="false" data-day="3"><span data-en="Tue 17">الثلاثاء ١٧</span></button>
+            </div>
+            <div class="ci-slots" id="ci-slots"></div>
+            <div class="t-small" id="ci-visit"></div>
+            <button class="t-btn primary block" type="button" id="ci-book"><svg class="t-icon sm"><use href="#i-calendar"/></svg><span id="ci-book-l"></span><span class="t-kbd">Ctrl Enter</span></button>
+            <a class="t-small" href="appointment-book.html" data-en="More options (duration, notes) →">خيارات أكتر (المدة، ملاحظات) ←</a>
+          </div>
+        </section>
+
+        <section class="t-card"
+                 data-note="The confirmation is sent from a template whose merge fields are readable labelled chips, not raw {AppointmentTime} tokens in English like NITCO's 17 templates (v44, v100). Each sent message shows its status (sent / seen)."
+                 data-note-ar="رسالة التأكيد من قالب حقوله ظاهرة كبطاقات بأسماء عربي، مش رموز خام زي {AppointmentTime} في NITCO. كل رسالة بتبين حالتها (اتبعتت / اتشافت).">
+          <div class="t-card-head"><h3 data-en="Booking confirmation message">رسالة تأكيد الحجز</h3><div class="t-actions"><a class="t-btn sm ghost" href="settings-templates.html"><svg class="t-icon sm"><use href="#i-edit"/></svg><span data-en="Edit">تعديل</span></a></div></div>
+          <div class="ci-tpl" data-en="You are booked for a &lt;span class=&quot;ci-tok&quot;&gt;Visit type&lt;/span&gt; for &lt;span class=&quot;ci-tok&quot;&gt;Patient name&lt;/span&gt; with &lt;span class=&quot;ci-tok&quot;&gt;Doctor&lt;/span&gt; on &lt;span class=&quot;ci-tok&quot;&gt;Day&lt;/span&gt; at &lt;span class=&quot;ci-tok&quot;&gt;Time&lt;/span&gt;. Address: &lt;span class=&quot;ci-tok&quot;&gt;Clinic address&lt;/span&gt;. Your queue number is given when you arrive. Reply to this message to cancel.">
+            اتحجزلك <span class="ci-tok">نوع الزيارة</span> لـ <span class="ci-tok">اسم المريض</span> مع <span class="ci-tok">الطبيب</span> يوم <span class="ci-tok">اليوم</span> الساعة <span class="ci-tok">الساعة</span>. العنوان: <span class="ci-tok">عنوان العيادة</span>. رقمك في الدور هيتحدد لما توصل. للإلغاء ردّ على الرسالة دي.
+          </div>
+          <p class="t-hint mt-2 mb-0" data-en="Sent in Arabic; the English version is used if the visitor wrote in English.">بتتبعت بالعربي، والنسخة الإنجليزي لو الزائر كتب بالإنجليزي.</p>
+        </section>
+      </aside>
+    </div>
+
+    <!-- ===== STATE: empty ===== -->
+    <section class="t-card" data-state="empty">
+      <div class="t-empty">
+        <div class="t-empty-art"><svg class="t-icon"><use href="#i-chat"/></svg></div>
+        <h3 data-en="No messages yet">مفيش رسايل لسه</h3>
+        <p data-en="Patients write here from your clinic's web page. Share the page link on Facebook and on the clinic sign so they can ask and book.">المرضى بيكتبوا هنا من صفحة العيادة على النت. شارك الرابط على فيسبوك وعلى يافطة العيادة عشان يسألوا ويحجزوا.</p>
+        <div class="t-row tight">
+          <button class="t-btn primary" type="button" data-toast="الرابط اتنسخ: tamargi.app/dr-ahmed-selim" data-toast-en="Link copied: tamargi.app/dr-ahmed-selim"><svg class="t-icon sm"><use href="#i-copy"/></svg><span data-en="Copy page link">نسخ رابط الصفحة</span></button>
+          <a class="t-btn" href="clinic-web-page.html"><span data-en="Preview clinic page">معاينة صفحة العيادة</span></a>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+<script src="../assets/shell.js"></script>
+<script>
+(function () {
+  "use strict";
+  var T = window.Tamargi;
+  function en() { return T.lang() === "en"; }
+  function setTx(el, ar, e) { el.setAttribute("data-ar", ar); el.setAttribute("data-en", e); el.innerHTML = en() ? e : ar; }
+  var $ = function (id) { return document.getElementById(id); };
+
+  var REPLIES = {
+    hours: ["العيادة شغالة من السبت للخميس من ٥ لـ ١٠ مساءً. د. هبة (أطفال) من ٦ لـ ١٠، والجمعة إجازة.", "We're open Sat–Thu, 5–10 PM. Dr. Heba (paediatrics) 6–10 PM. Closed Fridays."],
+    fees: ["كشف الباطنة ٣٠٠ ج.م وكشف الأطفال ٢٥٠ ج.م. الدفع كاش أو إنستاباي في العيادة.", "Internal medicine consult 300 EGP, paediatric consult 250 EGP. Pay cash or InstaPay at the clinic."],
+    loc: ["العيادة في المنصورة، ١٤ شارع الجمهورية، الدور التاني فوق صيدلية النور. خريطة: tamargi.app/dr-ahmed-selim/map", "14 El-Gomhoreya St., Mansoura, 2nd floor above El-Nour pharmacy. Map: tamargi.app/dr-ahmed-selim/map"],
+    fu: ["المتابعة مجانية خلال ١٠ أيام من كشف الأطفال (١٤ يوم للباطنة). ريم متابعتها المجانية لحد ١٨ نوفمبر.", "Follow-up is free within 10 days of a paediatric visit (14 days for internal medicine). Reem's free follow-up runs until 18 Nov."]
+  };
+  var SLOTS = {
+    B: [[["9:20", 0], ["9:40", 0]], [["6:00", 1], ["6:20", 0], ["6:40", 1], ["7:00", 0], ["7:20", 0], ["8:00", 0]], [["6:00", 0], ["6:20", 0], ["7:40", 0]], null],
+    A: [[["9:00", 0], ["9:30", 0]], [["5:00", 1], ["5:20", 1], ["5:40", 0], ["8:20", 0]], [["5:20", 0], ["6:00", 0]], [["5:00", 0], ["5:40", 0], ["6:20", 0]]]
+  };
+  var DAYS = [["النهارده", "today"], ["الأحد ١٥ نوفمبر", "Sun 15 Nov"], ["الإتنين ١٦ نوفمبر", "Mon 16 Nov"], ["الثلاثاء ١٧ نوفمبر", "Tue 17 Nov"]];
+  var st = { doc: "B", day: 1, slot: "6:20" };
+
+  function paintSlots() {
+    var list = SLOTS[st.doc][st.day], box = $("ci-slots");
+    Array.prototype.forEach.call(document.querySelectorAll("#ci-doc [data-doc]"), function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-doc") === st.doc)); });
+    Array.prototype.forEach.call(document.querySelectorAll("#ci-days [data-day]"), function (b) { b.setAttribute("aria-selected", String(+b.getAttribute("data-day") === st.day)); });
+    if (!list) {
+      box.innerHTML = '<div class="t-alert warning w-full"><svg class="t-icon"><use href="#i-alert"/></svg><span>' + (en() ? "Dr. Heba is on leave on Tue 17 Nov. Pick another day." : "د. هبة إجازة يوم الثلاثاء ١٧ نوفمبر. اختار يوم تاني.") + "</span></div>";
+      st.slot = null;
+    } else {
+      if (!list.some(function (s) { return s[0] === st.slot && !s[1]; })) st.slot = (list.filter(function (s) { return !s[1]; })[0] || [null])[0];
+      box.innerHTML = list.map(function (s) {
+        return '<button class="t-pick' + (s[0] === st.slot ? " is-on" : "") + '" type="button" data-slot="' + s[0] + '"' + (s[1] ? ' disabled title="' + (en() ? "Full" : "محجوز") + '"' : "") + '><span class="t-ltr">' + s[0] + " PM</span></button>";
+      }).join("");
+    }
+    var fu = st.doc === "B";
+    $("ci-visit").innerHTML = fu
+      ? '<span class="t-chip free">' + (en() ? "Free follow-up · 0 EGP" : "متابعة مجانية · ٠ ج.م") + '</span> <span class="t-faint">' + (en() ? "last visit with Dr. Heba 8 Nov" : "آخر كشف مع د. هبة ٨ نوفمبر") + "</span>"
+      : '<span class="t-chip info">' + (en() ? "New consult · 300 EGP" : "كشف جديد · ٣٠٠ ج.م") + '</span> <span class="t-faint">' + (en() ? "first visit with Dr. Ahmed" : "أول زيارة مع د. أحمد") + "</span>";
+    var b = $("ci-book"); b.disabled = !st.slot;
+    $("ci-book-l").textContent = st.slot ? (en() ? "Book " + DAYS[st.day][1] + " " + st.slot + " PM" : "احجز " + DAYS[st.day][0] + " " + st.slot + " م") : (en() ? "Pick a slot" : "اختار ميعاد");
+  }
+
+  function addMsg(text, out, status) {
+    var d = document.createElement("div");
+    d.className = "ci-msg " + (out ? "out" : "in");
+    d.textContent = text;
+    var s = document.createElement("small");
+    s.textContent = "7:4" + (5 + $("ci-msgs").children.length % 4) + " PM" + (status ? " · " + status : "");
+    d.appendChild(s); $("ci-msgs").appendChild(d); d.scrollIntoView({ behavior: "smooth", block: "end" });
+  }
+  function setStatus(kind) {
+    var chip = $("ci-th-status"), li = document.querySelector('.ci-conv[data-id="1"]'), lc = li.querySelector("[data-st]");
+    var map = { answered: ["t-chip done", "اتردّ عليها", "Answered"], booked: ["t-chip paid", "اتحجز · " + DAYS[st.day][0] + " " + st.slot, "Booked · " + DAYS[st.day][1] + " " + st.slot] };
+    var m = map[kind]; chip.className = m[0]; setTx(chip, m[1], m[2]); lc.className = m[0]; setTx(lc, m[1], m[2]);
+    li.setAttribute("data-s", kind); li.classList.remove("is-unread");
+    var u = li.querySelector("[data-unread]"); if (u) u.remove();
+  }
+  function send() {
+    var t = $("ci-text").value.trim(); if (!t) return;
+    addMsg(t, true, en() ? "sent" : "اتبعتت"); $("ci-text").value = "";
+    if (document.querySelector('.ci-conv[data-id="1"]').getAttribute("data-s") === "new") setStatus("answered");
+  }
+
+  document.addEventListener("click", function (e) {
+    var b;
+    if ((b = e.target.closest("[data-reply]"))) { var r = REPLIES[b.getAttribute("data-reply")]; var ta = $("ci-text"); ta.value = (ta.value ? ta.value + "\n" : "") + r[en() ? 1 : 0]; ta.focus(); return; }
+    if ((b = e.target.closest("#ci-send"))) { send(); return; }
+    if ((b = e.target.closest("#ci-doc [data-doc]"))) { st.doc = b.getAttribute("data-doc"); paintSlots(); return; }
+    if ((b = e.target.closest("#ci-days [data-day]"))) { st.day = +b.getAttribute("data-day"); paintSlots(); return; }
+    if ((b = e.target.closest("[data-slot]"))) { st.slot = b.getAttribute("data-slot"); paintSlots(); return; }
+    if ((b = e.target.closest("#ci-book"))) { book(); return; }
+    if ((b = e.target.closest("#ci-filter [data-f]"))) {
+      var f = b.getAttribute("data-f");
+      Array.prototype.forEach.call(document.querySelectorAll("#ci-filter [data-f]"), function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      Array.prototype.forEach.call(document.querySelectorAll(".ci-conv"), function (li) { li.hidden = f !== "all" && li.getAttribute("data-s") !== f; });
+      return;
+    }
+    if ((b = e.target.closest(".ci-conv"))) {
+      if (b.getAttribute("data-id") !== "1") T.toast(en() ? "Prototype: only the first conversation is wired" : "النموذج: أول محادثة بس هي المتوصّلة");
+    }
+  });
+  function book() {
+    if (!st.slot) return;
+    var fu = st.doc === "B";
+    var ar = "اتحجزلك " + (fu ? "متابعة مجانية" : "كشف جديد") + " لـ ريم أحمد عبد الفتاح مع " + (fu ? "د. هبة الشناوي" : "د. أحمد سليم") + " يوم " + DAYS[st.day][0] + " الساعة " + st.slot + " م. العنوان: ١٤ شارع الجمهورية، المنصورة. رقمك في الدور هيتحدد لما توصل. للإلغاء ردّ على الرسالة دي.";
+    var enT = "Booked: " + (fu ? "free follow-up" : "new consult") + " for Reem Ahmed with " + (fu ? "Dr. Heba El-Shennawy" : "Dr. Ahmed Selim") + " on " + DAYS[st.day][1] + " at " + st.slot + " PM. Address: 14 El-Gomhoreya St., Mansoura. Your queue number is given on arrival. Reply to cancel.";
+    addMsg(en() ? enT : ar, true, en() ? "sent · confirmation" : "اتبعتت · تأكيد");
+    setStatus("booked");
+    T.toast(en() ? "Booked and confirmation sent — added to the appointments calendar" : "اتحجز واتبعتت رسالة التأكيد — اتضاف لجدول المواعيد");
+    $("ci-book").disabled = true; setTx($("ci-book-l"), "اتحجز ✓", "Booked ✓");
+  }
+  $("ci-text").addEventListener("keydown", function (e) { if (e.key === "Enter" && !e.shiftKey && !e.ctrlKey) { e.preventDefault(); send(); } });
+  window.addEventListener("keydown", function (e) { if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); book(); } });
+  document.addEventListener("click", function (e) { if (e.target.closest("[data-shell-lang]")) setTimeout(paintSlots, 0); });
+  paintSlots();
+})();
+</script>
+</body>
+</html>
