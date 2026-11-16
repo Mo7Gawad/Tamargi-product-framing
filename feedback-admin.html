@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title data-en="Feedback download — Tamargi">تنزيل الملاحظات — تمرجي</title>
+  <link rel="stylesheet" href="assets/tamargi.css">
+  <style>
+    .fa { max-width: 1100px; margin-inline: auto; padding: var(--s-6) var(--s-4) var(--s-16); display: flex; flex-direction: column; gap: var(--s-5); }
+    .fa-head { display: flex; align-items: center; gap: var(--s-3); flex-wrap: wrap; }
+    .fa-head h1 { font-size: var(--fs-2xl); }
+    .fa-head .t-btn { margin-inline-start: auto; }
+    .fa-key { display: flex; gap: var(--s-2); flex-wrap: wrap; align-items: flex-end; }
+    .fa-key .t-field { flex: 1 1 260px; }
+    .fa-actions { display: flex; gap: var(--s-2); flex-wrap: wrap; }
+    .fa-count { font-size: var(--fs-lg); font-weight: var(--fw-sb); }
+    .fa table td { vertical-align: top; padding-block: var(--s-2); height: auto; }
+    .fa td.fa-comment { white-space: pre-wrap; overflow-wrap: anywhere; min-width: 260px; max-width: 520px; }
+    .fa td.fa-nowrap { white-space: nowrap; }
+  </style>
+</head>
+<body data-feedback="off">
+<main class="fa">
+  <header class="fa-head">
+    <h1 data-en="Tester feedback">ملاحظات المجرّبين</h1>
+    <button class="t-btn sm" type="button" id="fa-lang">English</button>
+  </header>
+
+  <section class="t-card">
+    <form class="fa-key" id="fa-form" autocomplete="off">
+      <div class="t-field">
+        <label class="t-label" for="fa-keyin" data-en="Admin key">مفتاح الإدارة</label>
+        <input class="t-input ltr" id="fa-keyin" type="password" autocomplete="off" spellcheck="false" required>
+        <span class="t-hint" data-en="Kept only in this browser tab and cleared when you close it.">بيتحفظ في التاب دي بس وبيتمسح لما تقفلها.</span>
+      </div>
+      <button class="t-btn primary" type="submit" data-en="Show feedback">اعرض الملاحظات</button>
+      <button class="t-btn ghost" type="button" id="fa-forget" data-en="Forget key">انسى المفتاح</button>
+    </form>
+  </section>
+
+  <div id="fa-status" role="status" aria-live="polite"></div>
+
+  <section class="t-card" id="fa-result" hidden>
+    <div class="t-card-head">
+      <span class="fa-count" id="fa-count"></span>
+      <div class="t-actions fa-actions">
+        <button class="t-btn" type="button" data-dl="csv" data-en="Download CSV (Excel)">تنزيل CSV (Excel)</button>
+        <button class="t-btn" type="button" data-dl="json" data-en="Download JSON">تنزيل JSON</button>
+      </div>
+    </div>
+    <div class="t-table-wrap">
+      <table class="t-table">
+        <thead><tr>
+          <th data-en="Received">وصلت</th><th data-en="Type">النوع</th><th data-en="Role">الدور</th><th data-en="Name">الاسم</th>
+          <th data-en="Comment">الملاحظة</th><th data-en="Screen">الشاشة</th><th data-en="Org / branch">المنشأة / الفرع</th><th data-en="Lang">اللغة</th>
+        </tr></thead>
+        <tbody id="fa-rows"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+<script src="assets/feedback-admin.js"></script>
+</body>
+</html>

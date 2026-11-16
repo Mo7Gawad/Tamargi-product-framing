@@ -21,3 +21,16 @@ The model is Organization, then Branches, then Rooms.
 
 ## Script order on each screen
 `demo-data.js` → (`demo-clinical.js` on clinical screens) → `shell.js` → the page's own inline script.
+
+## Feedback
+Every page shows a "💬 ملاحظات / Feedback" button (from `assets/shell.js`). Testers pick "This screen" or "General / system logic", their role and a comment; the screen, org/branch, language, time and viewport are added automatically. Comments go to `POST /api/feedback` and are stored one file per comment in a **private** Vercel Blob store (`feedback/<time>-<id>.json`). If sending fails, the comment stays queued in the browser and is retried. Opened as a local file, nothing is sent; testers can still download their own comments (JSON / CSV) from the same panel.
+
+**One-time setup on Vercel (founder)**
+1. Project → **Storage** → **Create** → **Blob**. Choose **Private** access (it cannot be changed later) and a region close to Egypt (for example Frankfurt), then create.
+2. In the store's **Projects** tab, **Connect to Project** → this project, all environments. Vercel adds `BLOB_STORE_ID` and uses OIDC, so no token is needed (`BLOB_READ_WRITE_TOKEN` also works if you add one).
+3. Project → **Settings** → **Environment Variables** → add `FEEDBACK_ADMIN_KEY` = a long random password (at least 12 characters; 24+ recommended), all environments. Keep it secret.
+4. **Deployments** → **Redeploy** the latest deployment so the functions see the new variables.
+
+**Download all feedback:** open `https://<your-site>/feedback-admin.html` (not linked anywhere), paste the admin key, then **Download CSV (Excel)** or **Download JSON**. The CSV is UTF-8 with BOM, so Excel shows Arabic correctly.
+
+**Developers:** `npm install` then `npm test` (node --test, Blob calls mocked). Code: `api/feedback.js`, `api/feedback-export.js`, shared logic in `api/_lib/feedback-core.js`.

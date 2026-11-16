@@ -1,0 +1,3 @@
+User-agent: *
+Disallow: /feedback-admin.html
+Disallow: /api/

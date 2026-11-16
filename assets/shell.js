@@ -42,6 +42,8 @@
      Tamargi.scopeNotice({org, branch, needBranch, what:{ar,en}, key, host}) shows or
      clears a "wrong organization / wrong branch / pick one branch" notice with switch
      buttons and returns {ok, reason}. Tamargi.clearNotice(key). Tamargi.tx(ar, en).
+   - Feedback: floating "ملاحظات / Feedback" button on every page (opt out with
+     body data-feedback="off"). Posts to /api/feedback; unsent items queue in localStorage.
    No external dependencies. Persists lang/theme/role/notes/org/branch in
    localStorage (wrapped in try/catch; page works without it).
    ===================================================================== */
@@ -572,6 +574,7 @@
     renderSpec();
     applyState();
     renderNotes();
+    if (feedback) feedback.render();
   }
   applyTheme();
   syncCtx();
@@ -629,6 +632,230 @@
   document.addEventListener("keydown", function (e) {
     if (e.target && e.target.matches && e.target.matches("[data-shell-search]") && e.key === "Enter") location.href = screensBase + "patient-search.html";
   });
+
+  /* ---------- Feedback widget (testers → POST /api/feedback) ----------
+     Floating "ملاحظات / Feedback" button on every page that loads shell.js, except
+     body[data-feedback="off"] and feedback-admin. Each comment is first saved in this
+     browser's log (localStorage "tamargi.feedback.log"), then sent; failures stay queued
+     and are retried on load / when back online. On file:// nothing is sent: comments are
+     kept locally and can be downloaded (JSON / CSV). */
+  var feedback = (function () {
+    if (body.getAttribute("data-feedback") === "off" || current === "feedback-admin") return null;
+    var API = "/api/feedback", LOG = "feedback.log", MAX_LOG = 300, MAX_COMMENT = 4000;
+    var isFile = location.protocol === "file:";
+    var L = {
+      fab: ["ملاحظات", "Feedback"],
+      title: ["شاركنا رأيك", "Share your feedback"],
+      intro: ["رأيك بيوصل لفريق تمرجي مباشرة.", "Your comments go straight to the Tamargi team."],
+      typeLegend: ["الملاحظة عن إيه؟", "What is this about?"],
+      typeScreen: ["الشاشة دي", "This screen"],
+      typeGeneral: ["عامة / منطق النظام", "General / system logic"],
+      name: ["اسمك", "Your name"], opt: ["(اختياري)", "(optional)"],
+      role: ["دورك", "Your role"], rolePick: ["اختار دورك", "Choose your role"],
+      r_doctor: ["طبيب", "Doctor"], r_reception_nurse: ["استقبال / تمريض", "Receptionist / Nurse"],
+      r_owner_manager: ["مالك / مدير عيادة", "Clinic owner / manager"], r_partner: ["شريك", "Partner"], r_other: ["أخرى", "Other"],
+      comment: ["ملاحظتك", "Your comment"],
+      commentPh: ["إيه اللي عجبك؟ إيه اللي مش واضح أو ناقص؟", "What works? What is unclear or missing?"],
+      errRole: ["اختار دورك", "Choose your role"], errComment: ["اكتب ملاحظتك", "Write your comment"],
+      context: ["بيتبعت معاها تلقائيًا: الشاشة، المنشأة والفرع، اللغة، الوقت، ومقاس الشاشة.", "Sent with it automatically: screen, organization and branch, language, time and screen size."],
+      send: ["ابعت", "Send"], sending: ["جاري الإرسال…", "Sending…"], cancel: ["إلغاء", "Cancel"], close: ["إغلاق", "Close"],
+      ok: ["وصلت، شكرًا! تقدر تبعت ملاحظة تانية.", "Received, thank you! You can send another."],
+      queued: ["معرفناش نبعتها دلوقتي. اتحفظت على الجهاز ده وهنحاول نبعتها تاني لوحدنا.", "Could not send right now. It is saved on this device and will be retried automatically."],
+      rejected: ["معرفناش نقبل الملاحظة دي. راجعها أو اختصرها وجرّب تاني.", "This comment could not be accepted. Check or shorten it and try again."],
+      file: ["النسخة دي مفتوحة كملف على الجهاز، فمفيش سيرفر يستقبل. الملاحظة اتحفظت هنا: نزّلها وابعتها لنا.", "This copy is opened as a local file, so there is no server to receive it. Your comment is saved here: download it and send it to us."],
+      mine: ["ملاحظاتك من الجهاز ده", "Your feedback from this device"],
+      mineCount: ["{s} اتبعتت · {q} مستنية", "{s} sent · {q} waiting"],
+      dlJson: ["تنزيل JSON", "Download JSON"], dlCsv: ["تنزيل CSV (Excel)", "Download CSV (Excel)"],
+      flushed: ["اتبعتت {n} ملاحظة كانت مستنية", "{n} waiting comments were sent"]
+    };
+    var ROLE_IDS = ["doctor", "reception_nurse", "owner_manager", "partner", "other"];
+    function tr(k) { var v = L[k]; return v ? (en() ? v[1] : v[0]) : k; }
+    function num(n) { var s = String(n); return en() ? s : s.replace(/\d/g, function (d) { return "٠١٢٣٤٥٦٧٨٩".charAt(+d); }); }
+    function fill(s, o) { return s.replace(/\{(\w+)\}/g, function (m, k) { return num(o[k]); }); }
+
+    /* ---- local log (never required) ---- */
+    function readLog() { try { var a = JSON.parse(localStorage.getItem("tamargi." + LOG) || "[]"); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+    function writeLog(a) {
+      if (a.length > MAX_LOG) { var drop = a.length - MAX_LOG; a = a.filter(function (x) { if (drop > 0 && x.status !== "queued") { drop--; return false; } return true; }); }
+      try { localStorage.setItem("tamargi." + LOG, JSON.stringify(a)); } catch (e) { /* storage full or blocked */ }
+      memLog = a;
+    }
+    var memLog = readLog();
+    function logAll() { var a = readLog(); return a.length || !memLog.length ? a : memLog; }
+    function updateEntry(id, patch) { var a = logAll(); a.forEach(function (x) { if (x.clientId === id) for (var k in patch) x[k] = patch[k]; }); writeLog(a); }
+    function newId() {
+      var b = new Uint8Array(12);
+      try { crypto.getRandomValues(b); } catch (e) { for (var i = 0; i < b.length; i++) b[i] = Math.floor(Math.random() * 256); }
+      return "c_" + Array.prototype.map.call(b, function (x) { return (x < 16 ? "0" : "") + x.toString(16); }).join("");
+    }
+
+    /* ---- DOM ---- */
+    var fbFab = el("button", { "class": "t-fb-fab no-print", type: "button", "aria-haspopup": "dialog", "aria-controls": "t-fb-dialog" });
+    var scrim = el("div", { "class": "t-fb-scrim no-print", hidden: "" });
+    scrim.innerHTML =
+      '<div class="t-fb-panel" id="t-fb-dialog" role="dialog" aria-modal="true" aria-labelledby="t-fb-title">' +
+        '<div class="t-modal-head"><h2 id="t-fb-title" data-fb-t="title"></h2>' +
+          '<button class="t-btn icon ghost" type="button" data-fb-close data-fb-aria="close">' + icon("close") + "</button></div>" +
+        '<form class="t-fb-form" novalidate>' +
+          '<div class="t-modal-body">' +
+            '<p class="t-muted t-fb-intro" data-fb-t="intro"></p>' +
+            '<div class="t-alert warning t-fb-filemsg" role="note"' + (isFile ? "" : " hidden") + ">" + icon("info") + '<span data-fb-t="file"></span></div>' +
+            '<fieldset class="t-fb-type"><legend class="t-label" data-fb-t="typeLegend"></legend>' +
+              '<div class="t-seg" role="radiogroup">' +
+                '<label><input type="radio" name="type" value="screen" checked><span data-fb-t="typeScreen"></span></label>' +
+                '<label><input type="radio" name="type" value="general"><span data-fb-t="typeGeneral"></span></label>' +
+              "</div><span class=\"t-hint t-fb-screen\"></span></fieldset>" +
+            '<div class="t-field"><label class="t-label" for="t-fb-name"><span data-fb-t="name"></span><span class="opt" data-fb-t="opt"></span></label>' +
+              '<input class="t-input" id="t-fb-name" name="name" maxlength="80" autocomplete="name"></div>' +
+            '<div class="t-field"><label class="t-label" for="t-fb-role"><span data-fb-t="role"></span><span class="req" aria-hidden="true">*</span></label>' +
+              '<select class="t-select" id="t-fb-role" name="role" required aria-describedby="t-fb-role-err"><option value="" data-fb-t="rolePick"></option>' +
+              ROLE_IDS.map(function (r) { return '<option value="' + r + '" data-fb-t="r_' + r + '"></option>'; }).join("") + "</select>" +
+              '<span class="t-error" id="t-fb-role-err" hidden data-fb-t="errRole"></span></div>' +
+            '<div class="t-field"><label class="t-label" for="t-fb-comment"><span data-fb-t="comment"></span><span class="req" aria-hidden="true">*</span></label>' +
+              '<textarea class="t-textarea" id="t-fb-comment" name="comment" rows="5" maxlength="' + MAX_COMMENT + '" required aria-describedby="t-fb-count t-fb-comment-err" data-fb-ph="commentPh"></textarea>' +
+              '<span class="t-hint t-fb-count" id="t-fb-count"></span>' +
+              '<span class="t-error" id="t-fb-comment-err" hidden data-fb-t="errComment"></span></div>' +
+            '<div class="t-fb-hp" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>' +
+            '<p class="t-hint" data-fb-t="context"></p>' +
+            '<div class="t-fb-status" role="status" aria-live="polite"></div>' +
+            '<div class="t-fb-mine"><b data-fb-t="mine"></b><span class="t-hint t-fb-minecount"></span>' +
+              '<div class="t-fb-dl"><button class="t-btn sm" type="button" data-fb-dl="json">' + icon("download", "sm") + '<span data-fb-t="dlJson"></span></button>' +
+              '<button class="t-btn sm" type="button" data-fb-dl="csv">' + icon("download", "sm") + '<span data-fb-t="dlCsv"></span></button></div></div>' +
+          "</div>" +
+          '<div class="t-modal-foot"><button class="t-btn ghost" type="button" data-fb-close data-fb-t="cancel"></button>' +
+            '<button class="t-btn primary" type="submit" data-fb-submit>' + icon("send", "sm") + '<span data-fb-t="send"></span></button></div>' +
+        "</form></div>";
+    body.appendChild(fbFab); body.appendChild(scrim);
+    var panelEl = scrim.firstChild, form = scrim.querySelector("form");
+    var f = { name: form.elements.name, role: form.elements.role, comment: form.elements.comment, website: form.elements.website };
+    var statusEl = scrim.querySelector(".t-fb-status"), lastFocus = null, sending = false, flushing = false;
+    f.name.value = load("feedback.name", ""); f.role.value = load("feedback.role", "");
+
+    function screenInfo() {
+      return { file: meta ? "screens/" + current + ".html" : (current || "index") + ".html", title: (document.title || "").slice(0, 200), state: activeState || "" };
+    }
+    function setStatus(kind, msg) {
+      statusEl.innerHTML = "";
+      if (!kind) return;
+      var a = el("div", { "class": "t-alert " + kind }); a.innerHTML = icon(kind === "success" ? "check" : kind === "danger" ? "alert" : "info");
+      var s = document.createElement("span"); s.textContent = msg; a.appendChild(s); statusEl.appendChild(a);
+    }
+    function renderMine() {
+      var a = logAll(), q = a.filter(function (x) { return x.status === "queued"; }).length, s = a.filter(function (x) { return x.status === "sent"; }).length;
+      scrim.querySelector(".t-fb-minecount").textContent = fill(tr("mineCount"), { s: s, q: q });
+      Array.prototype.forEach.call(scrim.querySelectorAll("[data-fb-dl]"), function (b) { b.disabled = !a.length; });
+      fbFab.classList.toggle("has-queue", q > 0);
+    }
+    function render() {
+      fbFab.innerHTML = '<span aria-hidden="true">💬</span><span>' + tr("fab") + "</span>";
+      fbFab.setAttribute("aria-label", tr("fab"));
+      Array.prototype.forEach.call(scrim.querySelectorAll("[data-fb-t]"), function (n) { n.textContent = tr(n.getAttribute("data-fb-t")); });
+      Array.prototype.forEach.call(scrim.querySelectorAll("[data-fb-aria]"), function (n) { n.setAttribute("aria-label", tr(n.getAttribute("data-fb-aria"))); n.title = tr(n.getAttribute("data-fb-aria")); });
+      Array.prototype.forEach.call(scrim.querySelectorAll("[data-fb-ph]"), function (n) { n.setAttribute("placeholder", tr(n.getAttribute("data-fb-ph"))); });
+      scrim.querySelector(".t-fb-screen").textContent = screenInfo().title;
+      updateCount(); renderMine();
+      if (sending) scrim.querySelector("[data-fb-submit] span").textContent = tr("sending");
+    }
+    function updateCount() { scrim.querySelector(".t-fb-count").textContent = num(f.comment.value.length) + " / " + num(MAX_COMMENT); }
+    function focusables() { return Array.prototype.filter.call(panelEl.querySelectorAll("button,input:not([tabindex='-1']),select,textarea"), function (n) { return !n.disabled && n.offsetParent !== null; }); }
+    function open() {
+      lastFocus = document.activeElement; scrim.hidden = false; html.classList.add("t-fb-open");
+      setStatus(null); render();
+      (f.role.value ? f.comment : f.role).focus();
+    }
+    function close() { scrim.hidden = true; html.classList.remove("t-fb-open"); (lastFocus && lastFocus !== body && lastFocus.focus && document.contains(lastFocus) ? lastFocus : fbFab).focus(); }
+    function showErr(field, errId, on) { field.setAttribute("aria-invalid", on ? "true" : "false"); document.getElementById(errId).hidden = !on; }
+
+    function buildItem() {
+      var si = screenInfo(), c = ctx || {};
+      var type = form.querySelector("input[name=type]:checked").value;
+      return { type: type, name: f.name.value.trim().slice(0, 80), role: f.role.value, comment: f.comment.value.trim().slice(0, MAX_COMMENT),
+        screenFile: si.file.slice(0, 120), screenTitle: si.title, screenState: String(si.state).slice(0, 40),
+        org: String(c.org || "").slice(0, 40), branch: String(c.branch || "").slice(0, 40), viewAs: String(state.role || "").slice(0, 20),
+        lang: state.lang === "en" ? "en" : "ar", clientTs: new Date().toISOString(),
+        viewport: Math.round(window.innerWidth || 0) + "x" + Math.round(window.innerHeight || 0), clientId: newId(), website: f.website.value };
+    }
+    /* -> "sent" | "rejected" | "queued" */
+    function send(item) {
+      if (isFile || !window.fetch) return Promise.resolve("queued");
+      var ctl = window.AbortController ? new AbortController() : null, timer = ctl ? setTimeout(function () { ctl.abort(); }, 15000) : null;
+      return fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(item), credentials: "same-origin", signal: ctl ? ctl.signal : undefined })
+        .then(function (r) { if (r.ok) return "sent"; return r.status === 400 || r.status === 413 || r.status === 415 ? "rejected" : "queued"; })
+        .catch(function () { return "queued"; })
+        .then(function (s) { if (timer) clearTimeout(timer); return s; });
+    }
+    function flush(silent) {
+      if (isFile || flushing || (navigator.onLine === false)) return;
+      var queued = logAll().filter(function (x) { return x.status === "queued"; });
+      if (!queued.length) return;
+      flushing = true; var sent = 0;
+      (function next(i) {
+        if (i >= queued.length) { flushing = false; renderMine(); if (sent && !silent) toast(fill(tr("flushed"), { n: sent })); return; }
+        send(queued[i].item).then(function (s) {
+          if (s === "queued") { flushing = false; renderMine(); return; }
+          updateEntry(queued[i].clientId, { status: s, sentAt: s === "sent" ? new Date().toISOString() : undefined });
+          if (s === "sent") sent++;
+          next(i + 1);
+        });
+      })(0);
+    }
+    function submit() {
+      if (sending) return;
+      var badRole = !f.role.value, badComment = !f.comment.value.trim();
+      showErr(f.role, "t-fb-role-err", badRole); showErr(f.comment, "t-fb-comment-err", badComment);
+      if (badRole) { f.role.focus(); return; }
+      if (badComment) { f.comment.focus(); return; }
+      save("feedback.name", f.name.value.trim().slice(0, 80)); save("feedback.role", f.role.value);
+      var item = buildItem();
+      if (item.website) { setStatus("success", tr("ok")); f.comment.value = ""; updateCount(); return; }   /* honeypot: drop silently */
+      var a = logAll(); a.push({ clientId: item.clientId, status: "queued", savedAt: item.clientTs, item: item }); writeLog(a);
+      if (isFile) { setStatus("warning", tr("file")); f.comment.value = ""; updateCount(); renderMine(); return; }
+      sending = true; var btn = scrim.querySelector("[data-fb-submit]"); btn.disabled = true; render();
+      send(item).then(function (s) {
+        sending = false; btn.disabled = false;
+        if (s === "sent") { updateEntry(item.clientId, { status: "sent", sentAt: new Date().toISOString() }); f.comment.value = ""; setStatus("success", tr("ok")); flush(false); }
+        else if (s === "rejected") { updateEntry(item.clientId, { status: "rejected" }); setStatus("danger", tr("rejected")); }
+        else { setStatus("warning", tr("queued")); }
+        render(); f.comment.focus();
+      });
+    }
+
+    /* ---- download what this browser sent / queued ---- */
+    var COLS = ["status", "savedAt", "sentAt", "type", "role", "name", "comment", "screenFile", "screenTitle", "screenState", "org", "branch", "viewAs", "lang", "viewport", "clientId"];
+    function csvCell(v) { var s = v == null ? "" : String(v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; }
+    function rows() { return logAll().map(function (x) { var r = {}; for (var k in x.item) r[k] = x.item[k]; delete r.website; r.status = x.status; r.savedAt = x.savedAt; r.sentAt = x.sentAt || ""; return r; }); }
+    function download(kind) {
+      var data = rows(), day = new Date().toISOString().slice(0, 10), text, type;
+      if (kind === "csv") { text = "﻿" + [COLS.join(",")].concat(data.map(function (r) { return COLS.map(function (c) { return csvCell(r[c]); }).join(","); })).join("\r\n") + "\r\n"; type = "text/csv;charset=utf-8"; }
+      else { text = JSON.stringify({ exportedAt: new Date().toISOString(), count: data.length, items: data }, null, 2); type = "application/json"; }
+      var url = URL.createObjectURL(new Blob([text], { type: type }));
+      var a = el("a", { href: url, download: "tamargi-my-feedback-" + day + "." + kind }); a.style.display = "none";
+      body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 1000);
+    }
+
+    /* ---- events ---- */
+    fbFab.addEventListener("click", open);
+    scrim.addEventListener("click", function (e) {
+      if (e.target === scrim || e.target.closest("[data-fb-close]")) { close(); return; }
+      var d = e.target.closest("[data-fb-dl]"); if (d) download(d.getAttribute("data-fb-dl"));
+    });
+    form.addEventListener("submit", function (e) { e.preventDefault(); submit(); });
+    f.comment.addEventListener("input", function () { updateCount(); if (f.comment.value.trim()) showErr(f.comment, "t-fb-comment-err", false); });
+    f.role.addEventListener("change", function () { if (f.role.value) showErr(f.role, "t-fb-role-err", false); });
+    scrim.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") { e.stopPropagation(); close(); return; }
+      if (e.key === "Tab") {
+        var list = focusables(); if (!list.length) return;
+        var first = list[0], last = list[list.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    });
+    window.addEventListener("online", function () { flush(false); });
+    setTimeout(function () { flush(true); }, 2500);
+    render();
+    return { render: render, open: open };
+  })();
 
   window.Tamargi = { toast: toast, screens: SCREENS, groups: GROUPS, orgs: ORGS, data: DATA, ctx: ctx,
     setState: function (s) { activeState = s; applyState(); renderNotes(); }, lang: function () { return state.lang; },
