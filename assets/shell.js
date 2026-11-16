@@ -106,8 +106,24 @@
     { f: "stock",                  g: "multi",      icon: "box",      roles: ["owner", "nurse", "reception"], phase: "later", ar: "مخزون العيادة", en: "Clinic stock" },
     { f: "equipment",              g: "multi",      icon: "device",   roles: ["owner"], phase: "later", ar: "سجل الأجهزة",          en: "Equipment register" }
   ];
+  /* Screen labels (AR/EN) by stable screen id = file name without .html. One map for the nav, the
+     hub, the feedback widget and feedback-admin. Unknown ids fall back to the id itself. */
+  var HUB_SCREEN = { f: "index", ar: "دليل النموذج", en: "Prototype hub" };
+  var SCREEN_LABELS = {};
+  SCREENS.concat([HUB_SCREEN]).forEach(function (s) { SCREEN_LABELS[s.f] = { ar: s.ar, en: s.en }; });
+  function screenIdFrom(p) {
+    var last = String(p || "").split(/[?#]/)[0].split("/").filter(Boolean).pop() || "index";
+    var id = last.replace(/\.html?$/i, "").toLowerCase();
+    return /^[a-z0-9-]+$/.test(id) ? id : "";
+  }
+  function screenLabel(id) { return SCREEN_LABELS[id] || { ar: id || "", en: id || "" }; }
+  /* body data-shell="registry" (feedback-admin): expose the registry only, build no UI. */
+  if (document.body && document.body.getAttribute("data-shell") === "registry") {
+    window.Tamargi = { screens: SCREENS, groups: GROUPS, screenLabel: screenLabel, screenIdFrom: screenIdFrom };
+    return;
+  }
   var ROLES = [
-    { id: "all",       ar: "كل الشاشات",  en: "All screens" },
+    { id: "all",      ar: "كل الشاشات",  en: "All screens" },
     { id: "reception", ar: "الاستقبال",   en: "Receptionist" },
     { id: "doctor",    ar: "الطبيب",      en: "Doctor" },
     { id: "nurse",     ar: "التمريض",     en: "Nurse" },
@@ -732,7 +748,10 @@
     f.name.value = load("feedback.name", ""); f.role.value = load("feedback.role", "");
 
     function screenInfo() {
-      return { file: meta ? "screens/" + current + ".html" : (current || "index") + ".html", title: (document.title || "").slice(0, 200), state: activeState || "" };
+      /* Not document.title: some screens (clinic-web-page) carry the clinic's own site title. */
+      var id = screenIdFrom(location.pathname) || current || "index", lb = screenLabel(id);
+      return { id: id, file: meta ? "screens/" + current + ".html" : (current || "index") + ".html", path: String(location.pathname || "/").slice(0, 200),
+        ar: lb.ar, en: lb.en, title: state.lang === "en" ? lb.en : lb.ar, state: activeState || "" };
     }
     function setStatus(kind, msg) {
       statusEl.innerHTML = "";
@@ -770,7 +789,8 @@
       var si = screenInfo(), c = ctx || {};
       var type = form.querySelector("input[name=type]:checked").value;
       return { type: type, name: f.name.value.trim().slice(0, 80), role: f.role.value, comment: f.comment.value.trim().slice(0, MAX_COMMENT),
-        screenFile: si.file.slice(0, 120), screenTitle: si.title, screenState: String(si.state).slice(0, 40),
+        screenFile: si.file.slice(0, 120), screenTitle: si.title.slice(0, 200), screenState: String(si.state).slice(0, 40),
+        screen_id: si.id.slice(0, 80), screen_label_ar: si.ar.slice(0, 200), screen_label_en: si.en.slice(0, 200), page_path: /^\/\S*$/.test(si.path) ? si.path : "",
         org: String(c.org || "").slice(0, 40), branch: String(c.branch || "").slice(0, 40), viewAs: String(state.role || "").slice(0, 20),
         lang: state.lang === "en" ? "en" : "ar", clientTs: new Date().toISOString(),
         viewport: Math.round(window.innerWidth || 0) + "x" + Math.round(window.innerHeight || 0), clientId: newId(), website: f.website.value };
@@ -821,7 +841,7 @@
     }
 
     /* ---- download what this browser sent / queued ---- */
-    var COLS = ["status", "savedAt", "sentAt", "type", "role", "name", "comment", "screenFile", "screenTitle", "screenState", "org", "branch", "viewAs", "lang", "viewport", "clientId"];
+    var COLS = ["status", "savedAt", "sentAt", "type", "role", "name", "comment", "screen_id", "screen_label_ar", "screen_label_en", "page_path", "screenFile", "screenTitle", "screenState", "org", "branch", "viewAs", "lang", "viewport", "clientId"];
     function csvCell(v) { var s = v == null ? "" : String(v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; }
     function rows() { return logAll().map(function (x) { var r = {}; for (var k in x.item) r[k] = x.item[k]; delete r.website; r.status = x.status; r.savedAt = x.savedAt; r.sentAt = x.sentAt || ""; return r; }); }
     function download(kind) {
@@ -857,7 +877,7 @@
     return { render: render, open: open };
   })();
 
-  window.Tamargi = { toast: toast, screens: SCREENS, groups: GROUPS, orgs: ORGS, data: DATA, ctx: ctx,
+  window.Tamargi = { toast: toast, screens: SCREENS, groups: GROUPS, screenLabel: screenLabel, screenIdFrom: screenIdFrom, orgs: ORGS, data: DATA, ctx: ctx,
     setState: function (s) { activeState = s; applyState(); renderNotes(); }, lang: function () { return state.lang; },
     tx: function (ar, enTxt) { return state.lang === "en" ? enTxt : ar; },
     scope: function () { return { org: state.org, branch: state.branch, all: state.branch === "all", mismatch: !!(pageOrg && pageOrg !== state.org), branchName: branchName(state.branch) }; },

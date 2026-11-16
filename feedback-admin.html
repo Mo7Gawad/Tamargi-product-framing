@@ -6,62 +6,83 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="referrer" content="no-referrer">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
-  <title data-en="Feedback download — Tamargi">تنزيل الملاحظات — تمرجي</title>
+  <title data-en="Tester feedback — Tamargi">ملاحظات المختبرين — تمرجي</title>
   <link rel="stylesheet" href="assets/tamargi.css">
   <style>
-    .fa { max-width: 1100px; margin-inline: auto; padding: var(--s-6) var(--s-4) var(--s-16); display: flex; flex-direction: column; gap: var(--s-5); }
-    .fa-head { display: flex; align-items: center; gap: var(--s-3); flex-wrap: wrap; }
-    .fa-head h1 { font-size: var(--fs-2xl); }
-    .fa-head .t-btn { margin-inline-start: auto; }
+    .fa { max-width: 1200px; margin-inline: auto; padding: var(--s-6) var(--s-4) var(--s-16); display: flex; flex-direction: column; gap: var(--s-5); min-width: 0; }
+    .fa-head { display: flex; align-items: center; gap: var(--s-2); flex-wrap: wrap; }
+    .fa-head h1 { font-size: var(--fs-2xl); margin: 0; }
+    .fa-head .fa-tools { margin-inline-start: auto; display: flex; gap: var(--s-2); flex-wrap: wrap; }
     .fa-key { display: flex; gap: var(--s-2); flex-wrap: wrap; align-items: flex-end; }
-    .fa-key .t-field { flex: 1 1 260px; }
-    .fa-actions { display: flex; gap: var(--s-2); flex-wrap: wrap; }
-    .fa-count { font-size: var(--fs-lg); font-weight: var(--fw-sb); }
+    .fa-key .t-field { flex: 1 1 240px; }
+    .fa-bar { display: flex; gap: var(--s-2); flex-wrap: wrap; align-items: center; margin-block-end: var(--s-4); }
+    .fa-bar .fa-count { font-size: var(--fs-lg); font-weight: var(--fw-sb); margin-inline-end: auto; }
+    .fa-filters { display: grid; grid-template-columns: repeat(3, minmax(0, 160px)) minmax(0, 1fr); gap: var(--s-2); margin-block-end: var(--s-4); }
+    .fa-filters .t-field { min-width: 0; }
     .fa table td { vertical-align: top; padding-block: var(--s-2); height: auto; }
-    .fa td.fa-comment { white-space: pre-wrap; overflow-wrap: anywhere; min-width: 260px; max-width: 520px; }
+    .fa td.fa-comment { white-space: pre-wrap; overflow-wrap: anywhere; min-width: 220px; max-width: 520px; }
     .fa td.fa-nowrap { white-space: nowrap; }
+    .fa .fa-sub { display: block; color: var(--text-3); font-size: var(--fs-xs); direction: ltr; text-align: start; overflow-wrap: anywhere; }
+    .fa-empty { padding: var(--s-6); text-align: center; color: var(--text-2); }
+    @media (max-width: 720px) {
+      .fa { padding-inline: var(--s-4); }
+      .fa-filters { grid-template-columns: 1fr 1fr; }
+      .fa-filters .fa-q { grid-column: 1 / -1; }
+      .fa-head .fa-tools { margin-inline-start: 0; }
+    }
   </style>
 </head>
-<body data-feedback="off">
+<body data-feedback="off" data-shell="registry">
 <main class="fa">
   <header class="fa-head">
-    <h1 data-en="Tester feedback">ملاحظات المجرّبين</h1>
-    <button class="t-btn sm" type="button" id="fa-lang">English</button>
+    <h1 data-en="Tester feedback">ملاحظات المختبرين</h1>
+    <div class="fa-tools">
+      <a class="t-btn sm ghost" href="index.html" data-en="Prototype hub">دليل النموذج</a>
+      <button class="t-btn sm" type="button" id="fa-lang">English</button>
+    </div>
   </header>
 
-  <section class="t-card">
+  <section class="t-card" id="fa-keycard" hidden>
     <form class="fa-key" id="fa-form" autocomplete="off">
       <div class="t-field">
         <label class="t-label" for="fa-keyin" data-en="Admin key">مفتاح الإدارة</label>
         <input class="t-input ltr" id="fa-keyin" type="password" autocomplete="off" spellcheck="false" required>
-        <span class="t-hint" data-en="Kept only in this browser tab and cleared when you close it.">بيتحفظ في التاب دي بس وبيتمسح لما تقفلها.</span>
+        <span class="t-hint" data-en="Asked once. Saved on this device after it works; use “Forget key” on shared devices.">بيتطلب مرة واحدة. بيتحفظ على الجهاز ده بعد ما يشتغل؛ استخدم «انسى المفتاح» على أي جهاز مشترك.</span>
       </div>
       <button class="t-btn primary" type="submit" data-en="Show feedback">اعرض الملاحظات</button>
-      <button class="t-btn ghost" type="button" id="fa-forget" data-en="Forget key">انسى المفتاح</button>
     </form>
   </section>
 
   <div id="fa-status" role="status" aria-live="polite"></div>
 
   <section class="t-card" id="fa-result" hidden>
-    <div class="t-card-head">
+    <div class="fa-bar">
       <span class="fa-count" id="fa-count"></span>
-      <div class="t-actions fa-actions">
-        <button class="t-btn" type="button" data-dl="csv" data-en="Download CSV (Excel)">تنزيل CSV (Excel)</button>
-        <button class="t-btn" type="button" data-dl="json" data-en="Download JSON">تنزيل JSON</button>
-      </div>
+      <button class="t-btn sm" type="button" id="fa-reload" data-en="Refresh">تحديث</button>
+      <button class="t-btn sm" type="button" data-dl="csv" data-en="Download CSV (Excel)">تنزيل CSV (Excel)</button>
+      <button class="t-btn sm" type="button" data-dl="json" data-en="Download JSON">تنزيل JSON</button>
+      <button class="t-btn sm" type="button" id="fa-copy" data-en="Copy private bookmark link">انسخ رابط المفضلة الخاص</button>
+      <button class="t-btn sm ghost" type="button" id="fa-forget" data-en="Forget key on this device">انسى المفتاح على الجهاز ده</button>
+    </div>
+    <div class="fa-filters">
+      <div class="t-field"><label class="t-label" for="fa-ftype" data-en="Type">النوع</label><select class="t-select" id="fa-ftype"></select></div>
+      <div class="t-field"><label class="t-label" for="fa-frole" data-en="Role">الدور</label><select class="t-select" id="fa-frole"></select></div>
+      <div class="t-field"><label class="t-label" for="fa-fscreen" data-en="Screen">الشاشة</label><select class="t-select" id="fa-fscreen"></select></div>
+      <div class="t-field fa-q"><label class="t-label" for="fa-fq" data-en="Search">بحث</label><input class="t-input" id="fa-fq" type="search" autocomplete="off"></div>
     </div>
     <div class="t-table-wrap">
       <table class="t-table">
         <thead><tr>
-          <th data-en="Received">وصلت</th><th data-en="Type">النوع</th><th data-en="Role">الدور</th><th data-en="Name">الاسم</th>
-          <th data-en="Comment">الملاحظة</th><th data-en="Screen">الشاشة</th><th data-en="Org / branch">المنشأة / الفرع</th><th data-en="Lang">اللغة</th>
+          <th data-en="Time">الوقت</th><th data-en="Type">النوع</th><th data-en="Screen">الشاشة</th><th data-en="Role">الدور</th><th data-en="Name">الاسم</th>
+          <th data-en="Org / branch">المنشأة / الفرع</th><th data-en="Lang">اللغة</th><th data-en="Comment">الملاحظة</th>
         </tr></thead>
         <tbody id="fa-rows"></tbody>
       </table>
+      <div class="fa-empty" id="fa-empty" hidden></div>
     </div>
   </section>
 </main>
+<script src="assets/shell.js"></script>
 <script src="assets/feedback-admin.js"></script>
 </body>
 </html>

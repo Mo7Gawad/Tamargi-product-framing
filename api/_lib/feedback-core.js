@@ -35,7 +35,8 @@ export function cleanText(v, max, multiline) {
 // field -> [maxLength, required, multiline]
 const STRING_FIELDS = {
   name: [80, false], comment: [MAX_COMMENT, true, true], screenFile: [120, false], screenTitle: [200, false],
-  screenState: [40, false], org: [40, false], branch: [40, false], viewAs: [20, false],
+  screenState: [40, false], screen_id: [80, false], screen_label_ar: [200, false], screen_label_en: [200, false],
+  page_path: [200, false], org: [40, false], branch: [40, false], viewAs: [20, false],
   clientTs: [40, false], viewport: [20, false], clientId: [64, false], website: [200, false]
 };
 const ENUM_FIELDS = { type: TYPES, role: ROLES, lang: ["ar", "en"] };
@@ -63,6 +64,8 @@ export function validateFeedback(input) {
   if (out.clientTs && Number.isNaN(Date.parse(out.clientTs))) return { ok: false, error: "invalid clientTs" };
   if (out.viewport && !/^\d{1,5}x\d{1,5}$/.test(out.viewport)) return { ok: false, error: "invalid viewport" };
   if (out.clientId && !/^[A-Za-z0-9_-]+$/.test(out.clientId)) return { ok: false, error: "invalid clientId" };
+  if (out.screen_id && !/^[a-z0-9-]+$/.test(out.screen_id)) return { ok: false, error: "invalid screen_id" };
+  if (out.page_path && !/^\/\S*$/.test(out.page_path)) return { ok: false, error: "invalid page_path" };
   return { ok: true, value: out };
 }
 
@@ -129,6 +132,21 @@ export function keyMatches(given, expected) {
   return timingSafeEqual(a, b);
 }
 
+/* ---------- Screen id ----------
+   "screens/clinic-web-page.html", "/screens/clinic-web-page", "/" -> "clinic-web-page" / "index".
+   Fills screen_id for records saved before it existed (they carry screenFile, sometimes page_path). */
+export function screenIdFromPath(p) {
+  if (typeof p !== "string" || !p) return "";
+  const last = p.split(/[?#]/)[0].split("/").filter(Boolean).pop() || "index";
+  const id = last.replace(/\.html?$/i, "").toLowerCase();
+  return /^[a-z0-9-]+$/.test(id) ? id : "";
+}
+export function withScreenId(it) {
+  if (it.screen_id || it.type === "general") return it;
+  const id = screenIdFromPath(it.page_path) || screenIdFromPath(it.screenFile);
+  return id ? Object.assign({}, it, { screen_id: id }) : it;
+}
+
 /* ---------- Storage naming ---------- */
 export function newPathname(now = new Date()) {
   const id = randomBytes(16).toString("hex");
@@ -137,7 +155,8 @@ export function newPathname(now = new Date()) {
 }
 
 /* ---------- CSV ---------- */
-export const CSV_COLUMNS = ["receivedAt", "type", "role", "name", "comment", "screenFile", "screenTitle", "screenState",
+export const CSV_COLUMNS = ["receivedAt", "type", "role", "name", "comment", "screen_id", "screen_label_ar", "screen_label_en", "page_path",
+  "screenFile", "screenTitle", "screenState",
   "org", "branch", "viewAs", "lang", "viewport", "clientTs", "id"];
 
 export function csvCell(v) {
@@ -242,7 +261,8 @@ export function createExportHandler(deps) {
     const seen = new Set();
     const items = read.filter(Boolean)
       .sort((a, b) => String(a.receivedAt).localeCompare(String(b.receivedAt)))
-      .filter((it) => { if (!it.clientId) return true; if (seen.has(it.clientId)) return false; seen.add(it.clientId); return true; });
+      .filter((it) => { if (!it.clientId) return true; if (seen.has(it.clientId)) return false; seen.add(it.clientId); return true; })
+      .map(withScreenId);
     const day = new Date().toISOString().slice(0, 10);
     const headers = Object.assign({}, NO_STORE, { "Content-Disposition": 'attachment; filename="tamargi-feedback-' + day + "." + format + '"' });
     if (format === "csv") {

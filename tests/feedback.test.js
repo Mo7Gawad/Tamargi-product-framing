@@ -3,7 +3,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   createFeedbackHandler, createExportHandler, createRateLimiter, validateFeedback, cleanText,
-  csvCell, toCsv, keyMatches, MAX_BODY_BYTES
+  csvCell, toCsv, keyMatches, screenIdFromPath, withScreenId, MAX_BODY_BYTES
 } from "../api/_lib/feedback-core.js";
 
 const BASE = "https://proto.example.com";
@@ -205,4 +205,38 @@ test("keyMatches is exact", () => {
   assert.equal(keyMatches(KEY + "x", KEY), false);
   assert.equal(keyMatches("", ""), false);
   assert.equal(keyMatches(undefined, KEY), false);
+});
+
+test("screen id fields: accepted, validated, and stored", async () => {
+  const ok = validateFeedback(Object.assign(good(), { screen_id: "clinic-web-page", screen_label_ar: "صفحة العيادة للمرضى",
+    screen_label_en: "Clinic public page", page_path: "/screens/clinic-web-page.html" }));
+  assert.equal(ok.ok, true);
+  assert.equal(ok.value.screen_id, "clinic-web-page");
+  assert.equal(validateFeedback(Object.assign(good(), { screen_id: "../x" })).ok, false);
+  assert.equal(validateFeedback(Object.assign(good(), { page_path: "https://evil.example/x" })).ok, false);
+  assert.equal(validateFeedback(Object.assign(good(), { page_path: "/a b" })).ok, false);
+  assert.equal(validateFeedback(good()).value.screen_id, "");   // old clients still accepted
+});
+
+test("screenIdFromPath / withScreenId derive the id for records saved before screen_id", () => {
+  assert.equal(screenIdFromPath("screens/clinic-web-page.html"), "clinic-web-page");
+  assert.equal(screenIdFromPath("/screens/clinic-web-page?x=1#y"), "clinic-web-page");
+  assert.equal(screenIdFromPath("/"), "index");
+  assert.equal(screenIdFromPath("index.html"), "index");
+  assert.equal(screenIdFromPath(""), "");
+  assert.equal(withScreenId({ type: "screen", screenFile: "screens/rooms.html" }).screen_id, "rooms");
+  assert.equal(withScreenId({ type: "screen", page_path: "/screens/stock.html", screenFile: "screens/rooms.html" }).screen_id, "stock");
+  assert.equal(withScreenId({ type: "screen", screen_id: "keep", screenFile: "screens/rooms.html" }).screen_id, "keep");
+  assert.equal(withScreenId({ type: "general", screenFile: "index.html" }).screen_id, undefined);
+});
+
+test("export fills screen_id for old records and CSV has the new columns", async () => {
+  const old = [{ id: "o", receivedAt: "2026-11-16T09:00:00.000Z", type: "screen", role: "doctor", comment: "x",
+    screenFile: "screens/clinic-web-page.html", screenTitle: "عيادة د. أحمد سليم — المنصورة" }];
+  const { handle } = mkExport(old);
+  const data = await (await handle(exp("?format=json", { "x-admin-key": KEY }))).json();
+  assert.equal(data.items[0].screen_id, "clinic-web-page");
+  const csv = await (await handle(exp("?format=csv", { "x-admin-key": KEY }))).text();
+  assert.ok(csv.split("\r\n")[0].includes("screen_id,screen_label_ar,screen_label_en,page_path"));
+  assert.ok(csv.includes('"clinic-web-page"'));
 });

@@ -31,6 +31,8 @@ Every page shows a "💬 ملاحظات / Feedback" button (from `assets/shell.j
 3. Project → **Settings** → **Environment Variables** → add `FEEDBACK_ADMIN_KEY` = a long random password (at least 12 characters; 24+ recommended), all environments. Keep it secret.
 4. **Deployments** → **Redeploy** the latest deployment so the functions see the new variables.
 
-**Download all feedback:** open `https://<your-site>/feedback-admin.html` (not linked anywhere), paste the admin key, then **Download CSV (Excel)** or **Download JSON**. The CSV is UTF-8 with BOM, so Excel shows Arabic correctly.
+**View / download all feedback:** the hub has a "📋 ملاحظات المختبرين / Tester feedback" button that opens `feedback-admin.html` (noindex, disallowed in robots.txt). The first time on a device, paste the admin key once; after it works it is remembered on that device ("Forget key on this device" removes it). "Copy private bookmark link" gives a `…/feedback-admin.html#key=…` link that opens the list straight away (the key is removed from the address bar on load; never share that link). All comments show newest first, with filters (type, role, screen, search) and **Download CSV (Excel)** / **Download JSON**. The CSV is UTF-8 with BOM, so Excel shows Arabic correctly; its screen label follows the page language.
+
+**Screen names:** each comment stores `screen_id` (file name without `.html`, e.g. `clinic-web-page`), `screen_label_ar` / `screen_label_en` (from the one screen registry in `assets/shell.js`, also used by the hub) and `page_path`. `screenTitle` / `screenFile` are kept for compatibility; older comments get their `screen_id` from `page_path` or `screenFile`.
 
 **Developers:** `npm install` then `npm test` (node --test, Blob calls mocked). Code: `api/feedback.js`, `api/feedback-export.js`, shared logic in `api/_lib/feedback-core.js`.
