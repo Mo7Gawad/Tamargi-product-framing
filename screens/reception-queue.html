@@ -83,8 +83,8 @@
     <!-- Omnibox + live counters -->
     <div class="rq-top">
       <div class="rq-omni"
-           data-note="Omnibox: Ctrl K, type a name, phone, NID or file no. (Arabic-normalised), Enter → the add-to-queue drawer opens with doctor, visit type and fee already filled → Enter. Walk-in to queued in 3 keystrokes. Searches the organization's one patient file list, so a patient registered in another branch is found here too. Replaces NITCO's 14-field search modal + separate invoice screen (v8, v90, v94)."
-           data-note-ar="بحث موحد: Ctrl K ثم اكتب الاسم أو الموبايل أو الرقم القومي ثم Enter، فيفتح درج الإضافة بالطبيب ونوع الزيارة والسعر جاهزين ثم Enter. البحث في ملفات المنشأة كلها، فالمريض المسجل في فرع تاني بيظهر هنا. بدل نافذة البحث ذات ١٤ خانة في NITCO.">
+           data-note="Omnibox: Ctrl K, type a name, phone, NID or file no. (Arabic-normalised), Enter → the add-to-queue drawer opens with doctor, visit type and fee already filled → Enter. Walk-in to queued in 3 keystrokes. Searches the organization's one patient file list, so a patient registered in another branch is found here too."
+           data-note-ar="بحث موحد: Ctrl K ثم اكتب الاسم أو الموبايل أو الرقم القومي ثم Enter، فيفتح درج الإضافة بالطبيب ونوع الزيارة والسعر جاهزين ثم Enter. البحث في ملفات المنشأة كلها، فالمريض المسجل في فرع تاني بيظهر هنا.">
         <div class="t-search-xl">
           <svg class="t-icon"><use href="#i-search"/></svg>
           <input class="t-input" id="rq-omni" type="search" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="rq-sugg"
@@ -109,15 +109,15 @@
               <span class="t-badge muted" id="rq-book-n">0</span>
               <div class="t-actions"><a class="t-btn sm ghost" href="appointments-calendar.html"><span data-en="Open calendar">فتح الجدول</span><svg class="t-icon sm flip"><use href="#i-chevron"/></svg></a></div>
             </div>
-            <div data-note="Check in a booking with one click: the appointment becomes 'arrived', joins the doctor's lane in this branch with a ticket, and its visit + bill are created and linked. NITCO links appointment↔invoice too (v6, v90) but blocks the save with a 'link or cancel' dialog; we link automatically."
-                 data-note-ar="تسجيل حضور الحجز بضغطة: الموعد يبقى «حضر» ويدخل دور الطبيب في الفرع ده برقم، والزيارة والفاتورة تتعمل مربوطة بالموعد تلقائيًا بدل سؤال «اربط ولا الغي» في NITCO.">
+            <div data-note="Check in a booking with one click: the appointment becomes 'arrived', joins the doctor's lane in this branch with a ticket, and its visit + bill are created and linked automatically."
+                 data-note-ar="تسجيل حضور الحجز بضغطة: الموعد يبقى «حضر» ويدخل دور الطبيب في الفرع ده برقم، والزيارة والفاتورة تتعمل مربوطة بالموعد تلقائيًا.">
               <div class="rq-book-strip" id="rq-strip"></div>
             </div>
           </section>
 
           <!-- Lanes: one per doctor x room in the branch -->
-          <div data-note="One lane per doctor and room in the selected branch, with the specialty and room on the lane head; under 'All branches' (owner) each lane also shows its branch. Every state is a word + colour + dot: waiting (saffron), called (ink), in room (green), done (slate), left (brick). Charge capture: when the doctor adds a service, the done card stays on top with 'Balance due' until reception collects. One next-step button per row (Collect → Call), everything else in the '…' menu. NITCO uses row colour with a 9–10 dot legend and 9–11 unlabelled icons per row (v6–8, v24, v30, v34, v90, v91)."
-               data-note-ar="دور لكل طبيب وغرفة في الفرع المختار، والتخصص والغرفة على راس الدور؛ في «كل الفروع» (المالك) كل دور مكتوب عليه الفرع. كل حالة كلمة + لون + نقطة. لما الطبيب يضيف خدمة الكارت المنتهي يفضل فوق بعلامة «مطلوب تحصيل». زرار واحد للخطوة الجاية والباقي في «…»، بدل ألوان الصفوف و٩–١١ أيقونة من غير اسم في NITCO.">
+          <div data-note="One lane per doctor and room in the selected branch, with the specialty and room on the lane head; under 'All branches' (owner) each lane also shows its branch. Every state is a word + colour + dot: waiting (saffron), called (ink), in room (green), done (slate), left (brick). Charge capture: when the doctor adds a service, the done card stays on top with 'Balance due' until reception collects. One next-step button per row (Collect → Call), everything else in the '…' menu."
+               data-note-ar="دور لكل طبيب وغرفة في الفرع المختار، والتخصص والغرفة على راس الدور؛ في «كل الفروع» (المالك) كل دور مكتوب عليه الفرع. كل حالة كلمة + لون + نقطة. لما الطبيب يضيف خدمة الكارت المنتهي يفضل فوق بعلامة «مطلوب تحصيل». زرار واحد للخطوة الجاية والباقي في «…».">
             <div class="t-lanes" id="rq-lanes"></div>
           </div>
         </div>
@@ -125,7 +125,7 @@
         <!-- Aside: who owes money, cash today, chat -->
         <aside class="t-stack">
           <section class="t-card" aria-labelledby="rq-owe-h"
-                   data-note="Visit type and fee are set for you: inside the patient's free follow-up window → 'Free follow-up', 0 EGP; otherwise the doctor's fee for this branch (a doctor can charge differently per branch). Same rules as NITCO's per-doctor default consult/follow-up services and 'visit days' (v1, v89, v97, v13/v62), with the reason shown in plain words. Collecting before or after the visit is a clinic setting, never a hard block on the doctor (NITCO v30)."
+                   data-note="Visit type and fee are set for you: inside the patient's free follow-up window → 'Free follow-up', 0 EGP; otherwise the doctor's fee for this branch (a doctor can charge differently per branch), with the reason shown in plain words. Collecting before or after the visit is a clinic setting, never a hard block on the doctor."
                    data-note-ar="نوع الزيارة والسعر بيتحددوا لوحدهم: جوه مدة المتابعة المجانية ← «متابعة مجانية» صفر، غير كده سعر الطبيب في الفرع ده (الطبيب ممكن يكون سعره مختلف من فرع لفرع). التحصيل قبل أو بعد الكشف إعداد للعيادة، مش قفل على الطبيب.">
             <div class="t-card-head"><h2 id="rq-owe-h" data-en="Waiting to pay">محتاجين تحصيل</h2><span class="t-badge" id="rq-owe-n">0</span></div>
             <div id="rq-owe"></div>
@@ -152,8 +152,8 @@
     <div data-state="empty">
       <div class="t-split aside-end">
         <section class="t-card">
-          <div class="t-empty" data-note="Start of day: no mood illustration, just the two things reception does first. Bookings are shown so the first check-in is one click away."
-               data-note-ar="بداية اليوم: من غير رسومات، بس أول حاجتين الاستقبال بيعملهم. الحجوزات ظاهرة عشان أول تسجيل حضور يبقى بضغطة.">
+          <div class="t-empty" data-note="Start of day: just the two things reception does first. Bookings are shown so the first check-in is one click away."
+               data-note-ar="بداية اليوم: بس أول حاجتين الاستقبال بيعملهم. الحجوزات ظاهرة عشان أول تسجيل حضور يبقى بضغطة.">
             <div class="t-empty-art"><svg class="t-icon"><use href="#i-queue"/></svg></div>
             <h3 data-en="No one in the queue yet">مفيش حد في الدور لسه</h3>
             <p id="rq-empty-p"></p>

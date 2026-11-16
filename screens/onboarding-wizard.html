@@ -72,8 +72,8 @@
 
           <!-- Step A: mobile -->
           <div id="ob-a" class="t-stack lg">
-            <div class="t-field" data-note="Sign-up is one field: the Egyptian mobile (11 digits, starts with 010/011/012/015). The OTP proves the number. No email, no password, no 40-field doctor form (NITCO v1/v97 needs 17 steps across 2 apps to create one doctor)."
-                 data-note-ar="التسجيل خانة واحدة: موبايل مصري ١١ رقم يبدأ بـ 010/011/012/015، والكود بيأكد الرقم. من غير إيميل ولا باسورد ولا فورم ٤٠ خانة (NITCO بيحتاج ١٧ خطوة في برنامجين عشان يعمل دكتور واحد).">
+            <div class="t-field" data-note="Sign-up is one field: the Egyptian mobile (11 digits, starts with 010/011/012/015). The OTP proves the number. No email and no password."
+                 data-note-ar="التسجيل خانة واحدة: موبايل مصري ١١ رقم يبدأ بـ 010/011/012/015، والكود بيأكد الرقم. من غير إيميل ولا باسورد.">
               <label class="t-label" for="ob-mobile"><span data-en="Mobile number">رقم الموبايل</span><span class="req">*</span></label>
               <input id="ob-mobile" class="t-input ltr" inputmode="tel" autocomplete="tel" maxlength="11" value="" placeholder="01xxxxxxxxx" aria-describedby="ob-mobile-hint">
               <span id="ob-mobile-hint" class="t-hint" data-en="We send a 6-digit code by SMS. 11 digits, starts with 010, 011, 012 or 015.">هنبعتلك كود من ٦ أرقام في رسالة. ١١ رقم يبدأ بـ 010 أو 011 أو 012 أو 015.</span>
@@ -184,8 +184,8 @@
 
         <div class="t-split aside-end">
           <section aria-labelledby="ob-list-h">
-            <div class="t-card mb-4" data-note="Readiness checklist instead of hidden prerequisites. NITCO hides a policy until it has a class, an insurer until it has visit days, a service until 'active' is ticked (v11, 13, 99, 107). Here every step says what it unlocks and can be skipped."
-                 data-note-ar="قائمة جاهزية بدل الشروط المخفية. في NITCO العقد مش بيظهر غير لما يبقى له فئة، والخدمة مش بتشتغل غير لما تعلّم 'مفعّل'. هنا كل خطوة بتقول بتفتح إيه، وممكن تتأجل.">
+            <div class="t-card mb-4" data-note="Readiness checklist: every setup step says what it unlocks, shows its progress, and can be skipped and finished later."
+                 data-note-ar="قائمة الجاهزية: كل خطوة تجهيز بتقول بتفتح إيه وبتبيّن وصلت لفين، وممكن تتأجل وتتكمّل بعدين.">
               <div class="t-row between mb-2">
                 <h2 id="ob-list-h" style="font-size:var(--fs-lg)"><span id="ob-count">3</span> <span id="ob-of"></span></h2>
                 <span class="t-small t-muted" data-en="Saved as you go">بيتحفظ أول بأول</span>
@@ -214,7 +214,7 @@
                 <span class="t-chip paid" data-en="Done">تم</span>
               </summary>
               <div class="ob-task-body">
-                <p class="t-small t-muted" data-en="The cashier screen fills these in by itself, and a returning patient inside the window is priced as a free follow-up automatically (NITCO v13/v62 'visit days').">شاشة الخزنة بتحطهم لوحدها، والمريض اللي راجع جوه المدة بيتحسب استشارة مجانية تلقائيًا.</p>
+                <p class="t-small t-muted" data-en="The cashier screen fills these in by itself, and a returning patient inside the window is priced as a free follow-up automatically.">شاشة الخزنة بتحطهم لوحدها، والمريض اللي راجع جوه المدة بيتحسب استشارة مجانية تلقائيًا.</p>
                 <a class="t-btn sm" href="services-prices.html"><span data-en="All services and prices">كل الخدمات والأسعار</span><svg class="t-icon sm flip"><use href="#i-chevron"/></svg></a>
               </div>
             </details>
@@ -334,8 +334,8 @@
           </section>
 
           <aside class="t-stack">
-            <div class="t-card" data-note="Trial counter with the expiry rule stated up front: after 14 days the clinic becomes read-only, nothing is deleted. Owners in Dakahlia fear losing patient files more than paying."
-                 data-note-ar="عدّاد التجربة ومعاه القاعدة واضحة من الأول: بعد ١٤ يوم العيادة تبقى قراءة بس، ولا حاجة بتتمسح. أصحاب العيادات بيخافوا على ملفات المرضى أكتر من الدفع.">
+            <div class="t-card" data-note="Trial counter with the expiry rule stated up front: after 14 days the clinic becomes read-only, nothing is deleted."
+                 data-note-ar="عدّاد التجربة ومعاه القاعدة واضحة من الأول: بعد ١٤ يوم العيادة تبقى قراءة بس، ولا حاجة بتتمسح.">
               <div class="t-row between">
                 <div>
                   <div class="t-small t-muted" data-en="Free trial">التجربة المجانية</div>
@@ -348,8 +348,8 @@
               <a href="subscription-plan.html" class="t-small" data-en="See plans">شوف الباقات</a>
             </div>
 
-            <div class="t-card" data-note="What the specialty already loaded. Shown so the doctor trusts the defaults and knows where to change them (no NITCO-style support-loaded setup)."
-                 data-note-ar="اللي اتحمّل بالفعل من التخصص، عشان الدكتور يثق في الإعدادات الجاهزة ويعرف يغيّرها منين (مش زي NITCO اللي الدعم الفني بيحمّل الإعدادات).">
+            <div class="t-card" data-note="What the specialty already loaded, with where to change each default."
+                 data-note-ar="اللي اتحمّل بالفعل من التخصص، ومعاه مكان تغيير كل إعداد جاهز.">
               <div class="t-card-head"><h3 id="ob-ready-h"></h3></div>
               <ul class="ob-loaded mb-0" style="list-style:none;padding:0;margin:0">
                 <li><svg class="t-icon sm"><use href="#i-check"/></svg><a href="settings-templates.html" data-en="14 visit templates (e.g. gastritis, UTI, hypertension)">١٤ قالب كشف (التهاب معدة، التهاب مسالك، ضغط)</a></li>

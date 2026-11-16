@@ -47,8 +47,8 @@
     </header>
 
     <div class="t-alert info mb-4"
-         data-note="Scope guard: this is clinic stock, not a pharmacy. Items are used during a visit (an injection, a vaccine, dental anaesthetic) and appear on that visit's invoice. Selling medicines over the counter needs a separate pharmacy licence in Egypt (Law 127/1955), so there is no retail sale screen. Pending domain verification (T3)."
-         data-note-ar="حدود الموديول: ده مخزون عيادة مش صيدلية. الأصناف بتتصرف جوه الكشف (حقنة، لقاح، بنج أسنان) وبتظهر في فاتورة الزيارة. بيع الأدوية للجمهور محتاج ترخيص صيدلية منفصل في مصر (قانون ١٢٧ لسنة ١٩٥٥)، فمفيش شاشة بيع. لسه محتاج تأكيد من مراجعة المجال.">
+         data-note="Clinic stock only: this is clinic stock, not a pharmacy. Items are used during a visit (an injection, a vaccine, dental anaesthetic) and appear on that visit's invoice. Selling medicines over the counter needs a separate pharmacy licence in Egypt (Law 127/1955), so there is no retail sale screen."
+         data-note-ar="حدود الموديول: ده مخزون عيادة مش صيدلية. الأصناف بتتصرف جوه الكشف (حقنة، لقاح، بنج أسنان) وبتظهر في فاتورة الزيارة. بيع الأدوية للجمهور محتاج ترخيص صيدلية منفصل في مصر (قانون ١٢٧ لسنة ١٩٥٥)، فمفيش شاشة بيع.">
       <svg class="t-icon"><use href="#i-info"/></svg>
       <span data-en="Clinic stock, not a pharmacy: items are used inside a visit and billed on that visit. No over-the-counter sales.">مخزون عيادة مش صيدلية: الصنف بيتصرف جوه الكشف وبيتحسب على فاتورة الزيارة. مفيش بيع للجمهور.</span>
     </div>
@@ -106,7 +106,7 @@
     <section data-panel="receive" hidden>
       <div class="t-split aside-end">
         <div class="t-card"
-             data-note="Receiving = one supplier invoice, one store, several lines; every line needs a batch number and an expiry date, because expiry drives the warnings and the issue order. A photo of the supplier invoice is attached instead of typing every field. No purchase orders or approvals in this phase (NITCO's two-tier request approval, v45/111, is not needed in a clinic)."
+             data-note="Receiving = one supplier invoice, one store, several lines; every line needs a batch number and an expiry date, because expiry drives the warnings and the issue order. A photo of the supplier invoice is attached instead of typing every field. No purchase orders or approvals in this phase."
              data-note-ar="الاستلام = فاتورة مورد واحدة لمخزن واحد وكذا سطر؛ كل سطر لازم رقم تشغيلة وتاريخ انتهاء، لأن الانتهاء هو اللي بيحرّك التنبيهات وترتيب الصرف. بتتصور فاتورة المورد بدل ما تكتب كل خانة. مفيش أوامر شراء ولا موافقات في المرحلة دي.">
           <div class="t-card-head"><h2 data-en="Receive from supplier">استلام من مورد</h2></div>
           <div class="t-form-grid mb-4">
@@ -152,7 +152,7 @@
     <!-- ============ MOVEMENTS ============ -->
     <section data-panel="moves" hidden id="st-moves">
       <div class="t-table-wrap"
-           data-note="Every quantity change is a movement row that cannot be edited: receive, issue in a visit, transfer between branches, count adjustment, write-off. 'Issued in visit' links to the visit and its invoice, so the owner can trace each injection to a patient bill (NITCO v46/101 links clinic ↔ store and service consumables)."
+           data-note="Every quantity change is a movement row that cannot be edited: receive, issue in a visit, transfer between branches, count adjustment, write-off. 'Issued in visit' links to the visit and its invoice, so the owner can trace each injection to a patient bill."
            data-note-ar="كل تغيير في الكمية سطر حركة مبيتعدلش: استلام، صرف في زيارة، تحويل بين الفروع، تسوية جرد، هالك. 'صرف في زيارة' مربوط بالزيارة وفاتورتها، فالمالك يقدر يتتبع كل حقنة لحد فاتورة المريض.">
         <table class="t-table">
           <thead><tr><th data-en="When">إمتى</th><th data-en="Type">النوع</th><th data-en="Item · batch">الصنف · التشغيلة</th><th class="num" data-en="Qty">الكمية</th><th data-en="Reference">المرجع</th><th data-en="By">بواسطة</th><th class="t-only-all" data-en="Store">المخزن</th></tr></thead>
@@ -181,7 +181,7 @@
         </div>
       </div>
       <div class="t-table-wrap"
-           data-note="Blind-ish count: the counter types what is on the shelf; the difference and a required reason appear per line. Differences post as 'count adjustment' movements only after the owner approves, so stock and cash can be reconciled the same night."
+           data-note="Stock count: the counter types what is on the shelf; the difference and a required reason appear per line. Differences post as 'count adjustment' movements only after the owner approves, so stock and cash can be reconciled the same night."
            data-note-ar="الجرد: اللي بيعد بيكتب الموجود على الرف؛ الفرق والسبب الإجباري بيظهروا لكل سطر. الفروقات بتتسجل حركة 'تسوية جرد' بعد موافقة المالك بس.">
         <table class="t-table" id="st-count">
           <thead><tr><th data-en="Item · batch">الصنف · التشغيلة</th><th class="t-only-all" data-en="Store">المخزن</th><th class="num" data-en="System">في السيستم</th><th class="num" data-en="Counted">المعدود</th><th class="num" data-en="Difference">الفرق</th><th data-en="Reason">السبب</th></tr></thead>

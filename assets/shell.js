@@ -1,5 +1,5 @@
 /* =====================================================================
-   Tamargi prototype shell — shell.js  (v1.3, 2026-11-14)
+   Tamargi prototype shell — shell.js
    Include at the end of <body>, AFTER the shared demo data:
      <script src="../assets/demo-data.js"></script>
      <script src="../assets/shell.js"></script>
@@ -9,8 +9,8 @@
    - AR/EN: flips <html dir/lang>; swaps text of any element carrying
      data-en (Arabic is the authored default, cached into data-ar).
      Also data-en-placeholder / data-en-title / data-en-aria-label.
-   - Annotations: every [data-note] (English) / [data-note-ar] gets a numbered
-     magenta pin + an entry in the floating "Annotations" panel.
+   - Feature guide: every [data-note] (English) / [data-note-ar] gets a numbered
+     magenta pin + an entry in the floating "Feature guide" panel.
    - States: elements with [data-state="name"] are alternative states of the
      screen (e.g. results / no-results). A state switcher appears in the spec
      strip; only the active state is shown. Deep link: #state=name
@@ -20,8 +20,8 @@
    - Body options: data-shell="bare" (sign-in, public page: no side nav),
      data-screen="file-name" (auto-detected from the URL otherwise).
    - Screen meta: { tier: 2 } marks a polyclinic-plan screen (nav + spec strip badge).
-     { phase: "later" } marks a post-v1 module (badge "مرحلة لاحقة").
-   - Tenancy (v1.2): ORG switcher (Organization = tenant) + BRANCH switcher in the
+     { phase: "later" } marks a later-release module (badge "مرحلة لاحقة").
+   - Tenancy: ORG switcher (Organization = tenant) + BRANCH switcher in the
      top bar. One person can belong to several orgs (switch without re-login).
      Owner (and "all screens" view) also gets "كل الفروع". An org with one branch
      shows the branch name statically. Body data-org="nile" pins a screen's sample
@@ -29,7 +29,7 @@
      those branches (all show under "كل الفروع"); .t-only-all shows only under
      "كل الفروع"; [data-branch-name] is filled with the current branch name.
      Event: document "tamargi:scope" {org, branch}. API: Tamargi.scope().
-   - Context (v1.3): orgs/branches come from assets/demo-data.js (window.TamargiData,
+   - Context: orgs/branches come from assets/demo-data.js (window.TamargiData,
      also Tamargi.data). Tamargi.ctx is ONE live object (same reference, updated in
      place): {org, branch, all, role, lang, mismatch, branches[], allowed[], orgRec,
      branchRec, branchName}. Tamargi.onCtx(fn) subscribes (fn(ctx, reason); reason =
@@ -97,7 +97,7 @@
     { f: "settings-templates",     g: "setup",      icon: "note",     roles: ["doctor", "owner"], ar: "قوالب الكشف والاختصارات", en: "Visit templates & shortcuts" },
     { f: "subscription-plan",      g: "setup",      icon: "card",     roles: ["owner"], ar: "الاشتراك والتجربة",       en: "Subscription & trial" },
     { f: "clinic-web-page",        g: "setup",      icon: "globe",    roles: ["public"], ar: "صفحة العيادة للمرضى",      en: "Clinic public page" },
-    /* Branches, stock & equipment (tenancy round, 2026-11-14) */
+    /* Branches, stock & equipment */
     { f: "org-branches",           g: "multi",      icon: "building", roles: ["owner"], tier: 2, ar: "المنشأة والفروع",          en: "Organization & branches" },
     { f: "rooms",                  g: "multi",      icon: "door",     roles: ["owner", "reception"], tier: 2, ar: "الغرف والعيادات",   en: "Rooms & chairs" },
     { f: "doctors-branches",       g: "multi",      icon: "users",    roles: ["owner", "doctor"], tier: 2, ar: "الأطباء والفروع",     en: "Doctors & branches" },
@@ -454,7 +454,7 @@
         out += '<a class="t-nav-link' + (dim ? " is-dim" : "") + '" href="' + screensBase + s.f + '.html"' + (s.f === current ? ' aria-current="page"' : "") + ">" +
           icon(s.icon, "sm") + "<span>" + t(s) + "</span>" + (isHome ? '<span class="t-nav-home">' + (state.lang === "en" ? "home" : "الرئيسية") + "</span>" : "") +
           (s.tier === 2 ? '<span class="t-tier" title="' + (state.lang === "en" ? "Polyclinic plan, not in solo MVP" : "باقة المجمعات، ليست في نسخة العيادة الفردية") + '">' + (state.lang === "en" ? "Tier 2" : "المرحلة ٢") + "</span>" : "") +
-          (s.phase === "later" ? '<span class="t-tier t-phase" title="' + (state.lang === "en" ? "Post-v1 module, shown for discussion" : "موديول بعد النسخة الأولى، للعرض والنقاش") + '">' + (state.lang === "en" ? "Later" : "مرحلة لاحقة") + "</span>" : "") + "</a>";
+          (s.phase === "later" ? '<span class="t-tier t-phase" title="' + (state.lang === "en" ? "Coming in a later release" : "متاح في إصدار لاحق") + '">' + (state.lang === "en" ? "Later" : "مرحلة لاحقة") + "</span>" : "") + "</a>";
       });
       out += "</div>";
     });
@@ -527,7 +527,7 @@
 
   /* ---------- Annotations ---------- */
   var fab = el("button", { "class": "t-notes-fab no-print", type: "button", "aria-pressed": "false" });
-  var panel = el("aside", { "class": "t-notes-panel no-print", "aria-label": "Annotations" });
+  var panel = el("aside", { "class": "t-notes-panel no-print", "aria-label": "Feature guide" });
   function collectNotes() { return Array.prototype.filter.call(document.querySelectorAll("[data-note]"), function (n) { return !n.closest("[hidden]"); }); }
   function renderNotes() {
     Array.prototype.forEach.call(document.querySelectorAll(".t-note-pin"), function (p) { p.remove(); });
@@ -541,8 +541,8 @@
       else n.insertAdjacentElement("afterend", pin);
       list += '<li data-goto="' + i + '"><span class="n">' + (i + 1) + "</span><span>" + txt + "</span></li>";
     });
-    panel.innerHTML = "<h4>" + (state.lang === "en" ? "Annotations" : "ملاحظات التصميم") + "</h4>" + (notes.length ? "<ol>" + list + "</ol>" : '<p class="t-muted">' + (state.lang === "en" ? "No annotations on this screen." : "لا توجد ملاحظات في هذه الشاشة.") + "</p>");
-    fab.innerHTML = icon("note") + "<span>" + (state.lang === "en" ? "Annotations" : "ملاحظات التصميم") + '</span><span class="t-badge">' + notes.length + "</span>";
+    panel.innerHTML = "<h4>" + (state.lang === "en" ? "Feature guide" : "شرح المزايا") + "</h4>" + (notes.length ? "<ol>" + list + "</ol>" : '<p class="t-muted">' + (state.lang === "en" ? "No feature notes on this screen." : "لا توجد ملاحظات في هذه الشاشة.") + "</p>");
+    fab.innerHTML = icon("note") + "<span>" + (state.lang === "en" ? "Feature guide" : "شرح المزايا") + '</span><span class="t-badge">' + notes.length + "</span>";
     fab.setAttribute("aria-pressed", String(state.notes));
     html.classList.toggle("notes-on", state.notes);
     panel.onclick = function (e) {

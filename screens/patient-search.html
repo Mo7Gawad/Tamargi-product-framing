@@ -41,8 +41,8 @@
     </header>
 
     <div class="t-search-xl"
-         data-note="One omnibox replaces NITCO's 14–20-field search modal (v8, v31, v44, v90, v94: Arabic + English name parts × 4, ID, card no.). It matches name, mobile (any part, spaces ignored), 14-digit NID and file no., and normalises Arabic: ة=ه, ى=ي, أ/إ/آ=ا, 'عبد الله' = 'عبدالله', Arabic-Indic digits = Western."
-         data-note-ar="خانة بحث واحدة بدل نافذة البحث ذات ١٤–٢٠ خانة في NITCO. بتدور في الاسم والموبايل (أي جزء) والرقم القومي ورقم الملف، وبتوحّد الإملاء: ة=ه، ى=ي، أ/إ/آ=ا، «عبد الله» = «عبدالله».">
+         data-note="One omnibox matches name, mobile (any part, spaces ignored), 14-digit NID and file no., and normalises Arabic: ة=ه, ى=ي, أ/إ/آ=ا, 'عبد الله' = 'عبدالله', Arabic-Indic digits = Western."
+         data-note-ar="خانة بحث واحدة بتدور في الاسم والموبايل (أي جزء) والرقم القومي ورقم الملف، وبتوحّد الإملاء: ة=ه، ى=ي، أ/إ/آ=ا، «عبد الله» = «عبدالله».">
       <svg class="t-icon"><use href="#i-search"/></svg>
       <input class="t-input" id="ps-q" type="search" autocomplete="off" value="محمد عبد الله" aria-describedby="ps-norm"
              placeholder="اكتب الاسم أو الموبايل أو الرقم القومي أو رقم الملف"
@@ -50,7 +50,7 @@
       <span class="t-kbd">Ctrl K</span>
     </div>
     <div class="ps-norm" id="ps-norm"
-         data-note="One patient file per organization (ADR-017): search always covers every branch of the selected organization, so a patient registered in Toreil is found from University. Each result shows the branch where the file was opened and where the last visit was. Another organization's patients never appear: switching org switches the file list."
+         data-note="One patient file per organization: search always covers every branch of the selected organization, so a patient registered in Toreil is found from University. Each result shows the branch where the file was opened and where the last visit was. Another organization's patients never appear: switching org switches the file list."
          data-note-ar="ملف واحد للمريض في المنشأة: البحث بيغطي كل فروع المنشأة المختارة، فالمريض المسجل في توريل بيتلاقي من الجامعة. كل نتيجة فيها الفرع اللي اتفتح فيه الملف وفرع آخر زيارة. مرضى منشأة تانية عمرهم ما بيظهروا.">
       <span data-en="Finds both spellings:">بيلاقي الكتابتين:</span>
       <code>هبة = هبه</code><code>مني = منى</code><code>إسراء = اسراء</code><code>عبد الله = عبدالله</code><code class="t-ltr">٠١٠ = 010</code>
@@ -69,8 +69,8 @@
             <th class="ps-hide-sm" data-en="Age · sex">السن · النوع</th>
             <th data-en="Mobile">الموبايل</th>
             <th class="ps-hide-sm" data-en="Last visit">آخر زيارة</th>
-            <th data-note="Money and follow-up status are visible in the result row (NITCO shows debt and advances only after opening the invoice: v89, v90). Text pills, never colour alone."
-                data-note-ar="الفلوس وحالة المتابعة ظاهرين في صف النتيجة نفسه (في NITCO بتظهر بس بعد فتح الفاتورة). كلام مش لون بس."><span data-en="Account">الحساب</span></th>
+            <th data-note="Money and follow-up status are visible in the result row, as text pills, never colour alone."
+                data-note-ar="الفلوس وحالة المتابعة ظاهرين في صف النتيجة نفسه. كلام مش لون بس."><span data-en="Account">الحساب</span></th>
             <th></th>
           </tr></thead>
           <tbody id="ps-body"></tbody>
@@ -105,7 +105,7 @@
     <!-- ===== STATE: no results ===== -->
     <section class="t-card" data-state="no-results">
       <div class="t-empty"
-           data-note="No-results is a next step, not a dead end: 'Register' carries what was typed (name or mobile) into Quick register, so nothing is typed twice. NITCO needs closing the modal, New, and retyping into a 40-field form (v41, v94)."
+           data-note="No-results is a next step, not a dead end: 'Register' carries what was typed (name or mobile) into Quick register, so nothing is typed twice."
            data-note-ar="مفيش نتايج = خطوة جاية مش طريق مسدود: «سجّل» بياخد اللي اتكتب (الاسم أو الموبايل) لشاشة التسجيل السريع من غير إعادة كتابة.">
         <div class="t-empty-art"><svg class="t-icon"><use href="#i-user"/></svg></div>
         <h3 id="ps-none-h" data-en="No patient matches">مفيش مريض بالبيانات دي</h3>

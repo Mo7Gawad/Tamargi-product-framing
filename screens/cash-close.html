@@ -6,7 +6,7 @@
   <title data-en="Cashier shift close — Tamargi">تقفيل الخزنة — تمرجي</title>
   <link rel="stylesheet" href="../assets/tamargi.css">
   <style>
-    /* scope notice: let its branch buttons wrap at phone width (shared fix requested for tamargi.css) */
+    /* scope notice: let its branch buttons wrap at phone width */
     .cc-den { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--s-2); }
     .cc-den label { display: grid; grid-template-columns: 64px 1fr; align-items: center; gap: var(--s-2); padding: var(--s-2); border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface-sunk); }
     .cc-note { font-family: var(--font-en); font-weight: var(--fw-sb); text-align: center; padding: 6px 4px; border-radius: var(--r-xs); background: var(--surface); border: 1px solid var(--line-strong); font-variant-numeric: tabular-nums; }
@@ -59,7 +59,7 @@
 
         <!-- Expected vs counted by method -->
         <section class="t-card flush"
-                 data-note="Expected totals by payment method come from collected payments only (Collect, not printing), so the number is trustworthy. Cash, card and InstaPay are counted; 'deposit used' is shown but not counted because no money moved today (NITCO v34, v74, v91: per-method close and handover report). Only this branch's invoices count."
+                 data-note="Expected totals by payment method come from collected payments only (Collect, not printing), so the number is trustworthy. Cash, card and InstaPay are counted; 'deposit used' is shown but not counted because no money moved today. Only this branch's invoices count."
                  data-note-ar="المتوقع لكل طريقة دفع محسوب من التحصيل بس (مش الطباعة) ولفواتير الفرع ده بس. الكاش والكارت وإنستاباي بيتعدّوا؛ «من الرصيد» ظاهر بس مش بيتعد.">
           <div class="t-card-head"><h2 data-en="Expected vs counted">المتوقع مقابل الفعلي</h2><div class="t-actions" id="cc-brtag"></div></div>
           <div class="t-table-wrap" style="border:0;border-radius:0">
@@ -73,7 +73,7 @@
 
         <!-- Denomination counter -->
         <section class="t-card" data-state="counting"
-                 data-note="Denomination counter: type how many of each note; the total and the difference update live. Egyptian receptionists already count by note (the '200s for change' problem), so this mirrors what they do on paper."
+                 data-note="Denomination counter: type how many of each note; the total and the difference update live. It works the same way as counting by note on paper."
                  data-note-ar="عدّاد الفئات: اكتب عدد كل ورقة؛ الإجمالي والفرق بيتحدثوا لحظيًا. نفس طريقة العد على الورق.">
           <div class="t-card-head">
             <h2 data-en="Count the cash">عدّ الكاش</h2>
@@ -92,7 +92,7 @@
 
         <!-- Money movements -->
         <section class="t-card flush"
-                 data-note="Everything the owner asks about, with reasons: debts created, refunds (credit notes), free follow-ups at list value and every discount with its reason and who gave it. Discounts are the owner's #1 blind spot today ('assistant discounts he never sees')."
+                 data-note="Everything the owner asks about, with reasons: debts created, refunds (credit notes), free follow-ups at list value and every discount with its reason and who gave it."
                  data-note-ar="كل اللي المالك بيسأل عنه بأسبابه: مديونيات، مرتجعات، متابعات مجانية، وكل خصم بسببه ومين اداه.">
           <div class="t-card-head"><h2 data-en="Money in and out, with reasons">الداخل والخارج بالأسباب</h2></div>
           <div class="t-card-body">

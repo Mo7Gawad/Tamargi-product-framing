@@ -66,8 +66,8 @@
     </div>
 
     <div class="pa-bal mb-6"
-         data-note="Balance header: two separate buckets, never netted: debt (what the patient owes the clinic) and deposit (what the clinic holds for the patient). NITCO v84 shows how a single checkbox put 1,000 SAR in the wrong bucket; keeping them visibly apart prevents that."
-         data-note-ar="رأس الحساب: خانتين منفصلتين مايتخصموش من بعض: المديونية والرصيد المقدم. في NITCO علامة واحدة حطت ١٠٠٠ ريال في الخانة الغلط.">
+         data-note="Balance header: two separate buckets, never netted: debt (what the patient owes the clinic) and deposit (what the clinic holds for the patient). Keeping them visibly apart means money never lands in the wrong bucket."
+         data-note-ar="رأس الحساب: خانتين منفصلتين مايتخصموش من بعض: المديونية والرصيد المقدم. فصلهم قدام العين بيمنع إن الفلوس تروح الخانة الغلط.">
       <div class="t-card debt">
         <span class="t-small t-muted" data-en="Debt owed to the clinic">مديونية على المريض</span>
         <span class="t-money xl debt"><span id="pa-debt">90</span><span class="cur" data-en="EGP">ج.م</span></span>
@@ -99,8 +99,8 @@
           </div>
         </div>
         <div class="t-table-wrap" style="border:0;border-radius:0"
-             data-note="Ledger: invoices, payments, credit notes, deposits and debt receipts in one list, with two running balances (debt and deposit). Every document number opens the document. Replaces NITCO's separate voucher list, statement and reprint screens (v88, v91)."
-             data-note-ar="الكشف: الفواتير والمدفوعات والمرتجعات والإيداعات في قائمة واحدة برصيدين جاريين. كل رقم مستند بيفتحه.">
+             data-note="Ledger: invoices, payments, credit notes, deposits and debt receipts in one list, with two running balances (debt and deposit). Every document number opens the document for viewing or reprint."
+             data-note-ar="الكشف: الفواتير والمدفوعات والمرتجعات والإيداعات في قائمة واحدة برصيدين جاريين. كل رقم مستند بيفتحه للعرض أو إعادة الطباعة.">
           <table class="t-table">
             <thead><tr>
               <th data-en="Date">التاريخ</th><th data-en="Document">المستند</th><th data-en="Details">البيان</th>
@@ -115,7 +115,7 @@
 
       <aside class="t-stack pa-side">
         <section class="t-card"
-                 data-note="Pay an open invoice from the deposit in one click. The button is disabled when the deposit is smaller than what is due, with the reason shown, so the deposit can never go negative (NITCO v84 rule)."
+                 data-note="Pay an open invoice from the deposit in one click. The button is disabled when the deposit is smaller than what is due, with the reason shown, so the deposit can never go negative."
                  data-note-ar="ادفع فاتورة مفتوحة من الرصيد بضغطة. الزرار بيتقفل لو الرصيد أقل من المطلوب، والسبب ظاهر، عشان الرصيد مايبقاش سالب.">
           <div class="t-card-head"><h3 data-en="Open invoices">فواتير عليها باقي</h3><div class="t-actions"><span class="t-badge muted" id="pa-open-n">0</span></div></div>
           <div id="pa-open"></div>
@@ -144,8 +144,8 @@
       </div>
       <div class="t-modal-body t-stack lg">
         <div class="t-field"
-             data-note="Explicit choice, not a checkbox: two big options say exactly where the money goes. NITCO uses one 'دفعات مقدمة' tick and a trainer spends a whole video (v84) on fixing receipts saved in the wrong bucket."
-             data-note-ar="اختيار واضح مش علامة صح: اختيارين كبار بيقولوا الفلوس رايحة فين. في NITCO علامة واحدة وفيديو كامل لتصليح الغلط.">
+             data-note="Explicit choice: two big options say exactly where the money goes, settle debt or add to deposit."
+             data-note-ar="اختيار واضح: اختيارين كبار بيقولوا الفلوس رايحة فين، سداد مديونية ولا إضافة للرصيد.">
           <span class="t-label" data-en="What is this money for?">الفلوس دي لإيه؟</span>
           <div class="pa-choice" role="radiogroup">
             <label class="pa-opt"><input type="radio" name="pa-kind" value="debt" checked>
@@ -212,7 +212,7 @@
     return D.patient(DEF[C.org]) || D.scoped("patients", C)[0];
   }
   /* new receipts/deposits take the number series of the branch that takes the cash */
-  function docNo(kind) { var b = C.branchRec; return b ? D.docNo(kind, b.id, seq++) : kind + "-" + seq++; }   /* per-branch series (D39) */
+  function docNo(kind) { var b = C.branchRec; return b ? D.docNo(kind, b.id, seq++) : kind + "-" + seq++; }   /* per-branch series */
 
   function load() {
     P = current(); debt = P.debt; dep = P.deposit; extra = [];

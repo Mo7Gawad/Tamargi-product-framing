@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="../assets/tamargi.css">
   <style id="rc-page">@page { size: 80mm auto; margin: 0; }</style>
   <style>
-    /* scope notice: let its branch buttons wrap at phone width (shared fix requested for tamargi.css) */
+    /* scope notice: let its branch buttons wrap at phone width */
     /* back arrow: the sprite arrow points right, which is already "back" in RTL; mirror only in LTR */
     [dir="ltr"] .co-back { transform: scaleX(-1); }
     .rc-stage { min-height: 560px; align-items: flex-start; }
@@ -68,8 +68,8 @@
 
       <!-- Preview stage -->
       <div class="t-print-stage rc-stage"
-           data-note="Inline preview, then the browser's own print dialog: no PDF popup window (NITCO v86, v89, v91 open a separate Report.pdf tab every time). Online-only MVP, so browser printing is the whole print stack."
-           data-note-ar="معاينة داخل الصفحة ثم طباعة المتصفح العادية: من غير نافذة PDF منفصلة زي NITCO.">
+           data-note="Inline preview, then the browser's own print dialog: no separate PDF window."
+           data-note-ar="معاينة داخل الصفحة ثم طباعة المتصفح العادية، من غير نافذة PDF منفصلة.">
 
         <!-- 80 mm thermal -->
         <article class="t-sheet receipt rc-th" id="rc-80" aria-label="80 mm receipt">
@@ -84,7 +84,7 @@
                data-note="Receipt and invoice numbers come from the invoice; the branch is printed next to them, and the doctor is shown with the specialty that was billed."
                data-note-ar="رقم الإيصال والفاتورة من الفاتورة نفسها، واسم الفرع مطبوع جنبهم، والطبيب بتخصصه."></div>
           <div class="rc-bal" id="rc-80-bal"
-               data-note="Balances after this payment are printed so the patient leaves knowing exactly what they owe and what is left in their deposit; this removes the usual 'how much do I owe?' argument at the next visit. Balances are org-wide: the same in every branch."
+               data-note="Balances after this payment are printed so the patient leaves knowing exactly what they owe and what is left in their deposit. Balances are org-wide: the same in every branch."
                data-note-ar="الرصيد بعد الدفع مطبوع عشان المريض يعرف عليه كام وفاضله كام في الرصيد. الرصيد على مستوى المنشأة كلها."></div>
           <hr class="rc-rule">
           <div class="rc-center rc-small" data-en="Issued electronically · cannot be edited. Corrections are made by credit note.">صادر إلكترونيًا ولا يُعدّل. التصحيح بإشعار مرتجع.</div>
@@ -137,7 +137,7 @@
             </div>
             <div data-state="reprint">
               <div class="t-alert warning"
-                   data-note="Every reprint is stamped 'COPY' with who and when, and is logged. Reprinting never creates a new payment; it closes the duplicate-receipt loophole."
+                   data-note="Every reprint is stamped 'COPY' with who and when, and is logged. Reprinting never creates a new payment."
                    data-note-ar="أي إعادة طباعة بتتختم «نسخة» باسم مين وإمتى وبتتسجل. مش بتعمل دفعة جديدة.">
                 <svg class="t-icon"><use href="#i-copy"/></svg><span data-en="Reprint: marked COPY and logged (2nd print).">إعادة طباعة: عليها «نسخة» واتسجلت (الطباعة الثانية).</span></div>
             </div>

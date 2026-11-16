@@ -6,7 +6,7 @@
   <title data-en="Invoice &amp; credit note — Tamargi">الفاتورة والمرتجع — تمرجي</title>
   <link rel="stylesheet" href="../assets/tamargi.css">
   <style>
-    /* scope notice: let its branch buttons wrap at phone width (shared fix requested for tamargi.css) */
+    /* scope notice: let its branch buttons wrap at phone width */
     .iv-list { display: flex; flex-direction: column; }
     .iv-item { display: grid; grid-template-columns: 1fr auto; gap: 2px var(--s-3); padding: var(--s-3) var(--s-4); border-block-end: 1px solid var(--line); text-decoration: none; color: var(--text); }
     .iv-item:hover { background: var(--surface-hover); color: var(--text); }
@@ -50,8 +50,8 @@
     </header>
 
     <div class="t-search-xl mb-4"
-         data-note="One search box for patient name, mobile or invoice/credit-note number, Arabic-normalised. Replaces NITCO's reprint screen with 10 filters defaulting to the last 2 days (v86) and the separate returns screen (v49)."
-         data-note-ar="خانة بحث واحدة بالاسم أو الموبايل أو رقم الفاتورة/المرتجع. بدل شاشة إعادة الطباعة في NITCO بعشرة فلاتر.">
+         data-note="One search box for patient name, mobile or invoice/credit-note number, Arabic-normalised."
+         data-note-ar="خانة بحث واحدة بالاسم أو الموبايل أو رقم الفاتورة/المرتجع.">
       <svg class="t-icon"><use href="#i-search"/></svg>
       <input id="iv-q" class="t-input" type="search" placeholder="اسم المريض أو الموبايل أو رقم الفاتورة" data-en-placeholder="Patient name, mobile or invoice no." aria-label="Search invoices" data-en-aria-label="Search invoices">
       <span class="t-kbd">Ctrl K</span>
@@ -83,7 +83,7 @@
           <div class="iv-head mb-4">
             <h2 id="iv-no"></h2>
             <span class="t-stamp"
-                  data-note="Issued = immutable. There is no Edit button on an issued invoice; the only correction is a credit note (NITCO v4, v48–50, v86: edit = counter invoice + new invoice). This is the owner's anti-theft guarantee."
+                  data-note="Issued = immutable. There is no Edit button on an issued invoice; the only correction is a credit note. This is the owner's anti-theft guarantee."
                   data-note-ar="الفاتورة الصادرة مقفولة: مفيش زرار تعديل. التصحيح الوحيد بإشعار مرتجع. ده ضمان المالك ضد التلاعب."><svg class="t-icon sm"><use href="#i-lock"/></svg><span data-en="Issued · locked">صادرة · مقفولة</span></span>
             <span id="iv-chip"></span>
             <div class="t-actions t-end t-row tight">
@@ -115,8 +115,8 @@
 
         <!-- Linked documents chain -->
         <section class="t-card"
-                 data-note="Linked documents chain: invoice → credit note → corrected invoice, each clickable. NITCO shows this only as yellow/red row colours in a reprint grid (v86); here the whole story of a correction is one readable line."
-                 data-note-ar="سلسلة المستندات: فاتورة ← إشعار مرتجع ← فاتورة مصححة، كل واحدة بتتفتح. في NITCO مجرد ألوان صفوف.">
+                 data-note="Linked documents chain: invoice → credit note → corrected invoice, each clickable. The whole story of a correction is one readable line."
+                 data-note-ar="سلسلة المستندات: فاتورة ← إشعار مرتجع ← فاتورة مصححة، كل واحدة بتتفتح. قصة التصحيح كلها في سطر واحد.">
           <div class="t-card-head"><h3 data-en="Linked documents">المستندات المرتبطة</h3></div>
           <div class="iv-chain" id="iv-chain"></div>
           <p class="t-small t-muted mt-4 mb-0" id="iv-chain-note"></p>
@@ -140,7 +140,7 @@
       </div>
       <div class="t-modal-body t-stack lg">
         <div class="t-alert info"
-             data-note="Role-gated and audited: owner and cashier can issue; cashier up to a daily limit, above it the owner approves with a PIN on the spot. Every credit note lands in the activity log and the owner's report. NITCO sends a request to an approval queue (v50, v86); we keep it on the invoice. A credit note is issued in the invoice's own branch, so a refund in cash leaves that branch's drawer."
+             data-note="Role-gated and audited: owner and cashier can issue; cashier up to a daily limit, above it the owner approves with a PIN on the spot. Every credit note lands in the activity log and the owner's report. A credit note is issued in the invoice's own branch, so a refund in cash leaves that branch's drawer."
              data-note-ar="بالصلاحيات ومسجل: المالك والكاشير بس. الكاشير لحد حد يومي، وفوقه المالك يوافق بالرقم السري. المرتجع بيصدر في فرع الفاتورة نفسه.">
           <svg class="t-icon"><use href="#i-lock"/></svg>
           <span id="cn-who"></span>
@@ -154,8 +154,8 @@
           </div>
         </div>
         <div id="cn-lines"
-             data-note="Lines are copied from the original invoice: tick the line, set the quantity. NITCO's return screen makes the user retype the invoice no., patient, clinic, doctor and services by hand (v49)."
-             data-note-ar="البنود متنسخة من الفاتورة الأصلية: علّم البند وحدد العدد. في NITCO بيكتبوا كل حاجة من الأول."></div>
+             data-note="Lines are copied from the original invoice: tick the line, set the quantity."
+             data-note-ar="البنود متنسخة من الفاتورة الأصلية: علّم البند وحدد العدد."></div>
 
         <div class="t-form-grid">
           <div class="t-field span-2">
@@ -220,7 +220,7 @@
 
   function cnOf(inv) { return inv.creditNote || sim[inv.id] || null; }
   function curState() { return $('main > [data-state="credited"]').hidden ? "issued" : "credited"; }
-  /* per-branch series (D39): credit note and replacement invoice follow the invoice's branch */
+  /* per-branch series: credit note and replacement invoice follow the invoice's branch */
   function simNos(key) { var out = []; for (var k in sim) if (sim[k][key]) out.push(sim[k][key]); return out; }
   function nextCn(inv) { return D.nextNo(D.series("CN", (inv || sel).branch), simNos("no")); }
   function nextInv(inv) { return D.nextInvoiceNo((inv || sel).branch, simNos("newInv")); }

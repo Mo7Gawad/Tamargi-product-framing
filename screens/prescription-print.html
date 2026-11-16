@@ -56,7 +56,7 @@
         <a class="t-btn ghost" id="lnRx" href="prescription-builder.html"><svg class="t-icon sm"><use href="#i-edit"/></svg><span data-en="Edit Rx">تعديل الروشتة</span></a>
         <a class="t-btn ghost" id="lnFile" href="patient-file.html"><svg class="t-icon sm"><use href="#i-file"/></svg><span data-en="Patient file">ملف المريض</span></a>
         <button class="t-btn primary" type="button" id="print-btn"
-                data-note="Browser print, no popup window and no PDF download step (NITCO v23 opens a Chrome popup report). Ctrl P works too because only the sheet is styled for print. Every print is logged with doctor, branch and time."
+                data-note="Browser print, no popup window and no PDF download step. Ctrl P works too because only the sheet is styled for print. Every print is logged with doctor, branch and time."
                 data-note-ar="طباعة من المتصفح مباشرة، من غير نافذة منبثقة ولا تحميل PDF. Ctrl P شغال برضه لأن الورقة بس هي اللي بتتطبع. كل طباعة بتتسجل بالدكتور والفرع والوقت.">
           <svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Print">اطبع</span><span class="t-kbd">Ctrl P</span>
         </button>
@@ -68,7 +68,7 @@
     <div id="vBody">
     <!-- Document switcher (uses the shared state mechanism) -->
     <div class="t-tabs rxp-tabs" role="group" aria-label="Document" data-en-aria-label="Document"
-         data-note="One preview, three documents from the same visit: prescription, sick-leave certificate, medical report. Egyptian patients ask for a 'شهادة مرضية' for work or school almost daily (NITCO v23, v29: Must)."
+         data-note="One preview, three documents from the same visit: prescription, sick-leave certificate, medical report. Egyptian patients ask for a 'شهادة مرضية' for work or school almost daily."
          data-note-ar="معاينة واحدة لتلات أوراق من نفس الزيارة: الروشتة، الشهادة المرضية، والتقرير الطبي. المرضى بيطلبوا شهادة مرضية للشغل أو المدرسة تقريبًا كل يوم.">
       <button type="button" class="t-tab" data-show-state="prescription"><svg class="t-icon sm"><use href="#i-rx"/></svg><span data-en="Prescription">الروشتة</span></button>
       <button type="button" class="t-tab" data-show-state="certificate"><svg class="t-icon sm"><use href="#i-file"/></svg><span data-en="Sick-leave certificate">شهادة مرضية</span></button>
@@ -124,14 +124,14 @@
             <div class="t-rx-patient" data-sheet-patient="rx"></div>
             <div class="t-rx-symbol">R/</div>
             <div class="rx-diag" id="rx-dx"></div>
-            <div data-note="Numbered lines: drug as written on the box (LTR), instruction in plain Egyptian Arabic under it (dose + frequency + timing + duration). Legibility was the #1 Rx complaint in research."
-                 data-note-ar="سطور مرقمة: اسم الدواء زي العلبة، وتحته التعليمات بالعربي (الجرعة + التكرار + التوقيت + المدة). وضوح الخط كان أكبر شكوى في البحث.">
+            <div data-note="Numbered lines: drug as written on the box (LTR), instruction in plain Egyptian Arabic under it (dose + frequency + timing + duration)."
+                 data-note-ar="سطور مرقمة: اسم الدواء زي العلبة، وتحته التعليمات بالعربي (الجرعة + التكرار + التوقيت + المدة).">
               <ol class="t-rx-items" id="rx-items"></ol>
             </div>
             <div class="rx-note" id="rx-note"></div>
             <div class="rx-sign" id="rx-sign"><span>توقيع الطبيب</span></div>
             <footer class="t-sheet-foot"
-                    data-note="Footer: the follow-up date (a day the doctor works in THIS branch) and his hours here, plus the branch's own address and phone. Same doctor, other branch = other footer (tenancy: branch address block on the letterhead)."
+                    data-note="Footer: the follow-up date (a day the doctor works in THIS branch) and his hours here, plus the branch's own address and phone. Same doctor, other branch = other footer."
                     data-note-ar="الذيل: ميعاد الاستشارة (يوم الدكتور شغال فيه في الفرع ده) ومواعيده هنا، وعنوان الفرع وتليفونه. نفس الدكتور في فرع تاني = ذيل تاني.">
               <span id="rx-fu"></span>
               <span data-branch-foot></span>
@@ -146,8 +146,8 @@
       <div class="t-split">
         <aside class="t-stack no-print">
           <div class="t-card"
-               data-note="Sick-leave fields from NITCO v23 cut to what an Egyptian private clinic needs: start date (pre-filled with the visit date) + number of days → end date computed. No approve/reject status, no Hijri date, no companion leave (Saudi-only)."
-               data-note-ar="حقول الشهادة المرضية من NITCO بعد التبسيط: تاريخ البداية (تاريخ الزيارة تلقائي) + عدد الأيام ← تاريخ النهاية بيتحسب. من غير حالة موافقة/رفض ولا تاريخ هجري ولا إجازة مرافق.">
+               data-note="Sick-leave fields: start date (pre-filled with the visit date) + number of days → end date computed."
+               data-note-ar="حقول الشهادة المرضية: تاريخ البداية (تاريخ الزيارة تلقائي) + عدد الأيام ← تاريخ النهاية بيتحسب.">
             <div class="t-card-head"><h2 data-en="Certificate details">بيانات الشهادة</h2></div>
             <div class="t-stack">
               <div class="t-form-grid">
@@ -188,7 +188,7 @@
               <div class="t-field">
                 <span class="t-label" data-en="Certificate language">لغة الشهادة</span>
                 <div class="t-seg" role="group" aria-label="Certificate language"
-                     data-note="Arabic or English certificate from the same data (NITCO v23 prints bilingual). English is needed for private companies and embassies."
+                     data-note="Arabic or English certificate from the same data. English is needed for private companies and embassies."
                      data-note-ar="شهادة عربي أو إنجليزي من نفس البيانات. الإنجليزي مطلوب للشركات الخاصة والسفارات.">
                   <button type="button" aria-pressed="true" data-clang="ar" data-en="Arabic">عربي</button>
                   <button type="button" aria-pressed="false" data-clang="en" data-en="English">English</button>
@@ -198,7 +198,7 @@
           </div>
 
           <div class="t-card flush rxp-history"
-               data-note="Issued certificates are numbered per BRANCH series (D39: e.g. C-TOR-2026-0412) and immutable: reprint any time, cancel only with a reason (logged). The file is org-wide, so a certificate issued at another branch shows here with its branch. NITCO v23 lets anyone delete a certificate — a data-integrity hole."
+               data-note="Issued certificates are numbered per BRANCH series (e.g. C-TOR-2026-0412) and immutable: reprint any time, cancel only with a reason (logged). The file is org-wide, so a certificate issued at another branch shows here with its branch."
                data-note-ar="الشهادات الصادرة مرقمة بمسلسل كل فرع (مثلًا C-TOR-2026-0412) وما ينفعش تتمسح: إعادة طباعة في أي وقت، والإلغاء بسبب بس. الملف واحد للمنشأة، فالشهادة اللي طلعت من فرع تاني بتظهر هنا بفرعها.">
             <div class="t-card-head"><h3 id="c-hist-title"></h3></div>
             <div class="t-table-wrap" style="border:0;border-radius:0">
@@ -243,8 +243,8 @@
             </div>
           </div>
           <div class="t-alert info"
-               data-note="Medical report = structured sections pulled from the SOAP note, not a Word-like editor (NITCO uses CKEditor for short clinical text). Doctor edits wording once, in the visit note."
-               data-note-ar="التقرير الطبي = أقسام منظمة من ملاحظة الكشف (SOAP)، مش محرر نصوص زي Word. الطبيب بيعدل الصياغة مرة واحدة في الكشف.">
+               data-note="Medical report = structured sections pulled from the SOAP note. The doctor edits wording once, in the visit note."
+               data-note-ar="التقرير الطبي = أقسام منظمة من ملاحظة الكشف (SOAP). الطبيب بيعدل الصياغة مرة واحدة في الكشف.">
             <svg class="t-icon"><use href="#i-info"/></svg>
             <span data-en="Need a different layout? Report templates are in Visit templates &amp; shortcuts.">عايز شكل تاني؟ قوالب التقارير في <a href="settings-templates.html">قوالب الكشف والاختصارات</a>.</span>
           </div>
@@ -289,7 +289,7 @@
   function L(ar, en) { return C.lang === "en" ? en : ar; }
 
   var V = null, curId = null, want = K.wanted(), sigLang = "ar", clang = "ar", DX = null, RX = [];
-  /* demo per-branch document counters (D39: certificate / report numbering per branch) */
+  /* demo per-branch document counters (certificate / report numbering per branch) */
   var SEQ = { C: { main: 186, tor: 412, gam: 97 }, R: { main: 33, tor: 58, gam: 21 } };
 
   /* Paper size: sheet class + @page size, so the browser dialog needs no setup */

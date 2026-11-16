@@ -104,8 +104,8 @@
 
     <!-- ============ ORGANIZATION: plan + seats ============ -->
     <section class="t-card mb-6" aria-labelledby="sb-org-h"
-             data-note="The subscription belongs to the organization, not to a branch or a user. Seats are counted per organization: doctors and branches (D45-A). Rooms and chairs are unlimited, and staff users are generous so nobody shares a login. A doctor who works in two organizations takes one seat in each and never pays himself."
-             data-note-ar="الاشتراك للمنشأة مش للفرع ولا للمستخدم. المقاعد بتتحسب على مستوى المنشأة: أطباء وفروع (قرار D45-A). الغرف والكراسي من غير حد، والمستخدمين كتير عشان محدش يشارك حساب. الدكتور اللي شغال في منشأتين بياخد مقعد في كل واحدة ومابيدفعش حاجة.">
+             data-note="The subscription belongs to the organization, not to a branch or a user. Seats are counted per organization: doctors and branches. Rooms and chairs are unlimited, and staff users are generous so nobody shares a login. A doctor who works in two organizations takes one seat in each and never pays himself."
+             data-note-ar="الاشتراك للمنشأة مش للفرع ولا للمستخدم. المقاعد بتتحسب على مستوى المنشأة: أطباء وفروع. الغرف والكراسي من غير حد، والمستخدمين كتير عشان محدش يشارك حساب. الدكتور اللي شغال في منشأتين بياخد مقعد في كل واحدة ومابيدفعش حاجة.">
       <div class="t-card-head">
         <h2 id="sb-org-h"></h2>
         <span class="t-chip confirmed plain" id="sb-org-plan"></span>
@@ -124,8 +124,8 @@
     <!-- ============ PLANS ============ -->
     <h2 class="mb-4" style="font-size:var(--fs-lg)" data-en="Plans">الباقات</h2>
     <div class="sb-plans mb-6" id="sb-plans"
-         data-note="Three flat plans per organization, 199 / 399 / 699 EGP, gated by doctors and branches with add-ons (D45-A; EGP numbers still validated with MedicaRep). Every plan has the full clinical and cash core, so a solo doctor never pays for features he can't use. Limits are soft: the 4th doctor on the Clinic plan shows the add-on or the upgrade, nothing already working is blocked."
-         data-note-ar="٣ باقات ثابتة للمنشأة ١٩٩ / ٣٩٩ / ٦٩٩ ج.م، على حسب عدد الأطباء والفروع ومعاها إضافات (قرار D45-A؛ الأرقام لسه بتتأكد مع MedicaRep). كل باقة فيها الكشف والخزنة كاملين، فالدكتور الفردي ميدفعش في حاجة مش هيستخدمها. الحدود مرنة: الدكتور الرابع في باقة العيادة بيظهرله الإضافة أو الترقية، ومفيش حاجة شغالة بتتوقف."></div>
+         data-note="Three flat plans per organization, 199 / 399 / 699 EGP, gated by doctors and branches with add-ons. Every plan has the full clinical and cash core, so a solo doctor never pays for features he can't use. Limits are soft: the 4th doctor on the Clinic plan shows the add-on or the upgrade, nothing already working is blocked."
+         data-note-ar="٣ باقات ثابتة للمنشأة ١٩٩ / ٣٩٩ / ٦٩٩ ج.م، على حسب عدد الأطباء والفروع ومعاها إضافات. كل باقة فيها الكشف والخزنة كاملين، فالدكتور الفردي ميدفعش في حاجة مش هيستخدمها. الحدود مرنة: الدكتور الرابع في باقة العيادة بيظهرله الإضافة أو الترقية، ومفيش حاجة شغالة بتتوقف."></div>
 
     <!-- ============ BILLING HISTORY ============ -->
     <section class="t-card flush" aria-labelledby="sb-hist-h" data-note="Subscription invoices live here, downloadable as PDF with the organization's name for its accountant. Tamargi's own invoices follow the same immutable-invoice rule we enforce for clinics."
@@ -163,8 +163,8 @@
     </div>
     <div class="t-modal-body t-stack lg">
       <div class="t-stack" role="group" aria-label="Payment method" data-en-aria-label="Payment method" id="sb-methods"
-           data-note="Local payment methods Egyptian doctors actually use: Fawry (cash at any outlet), Vodafone Cash, InstaPay and cards (Visa/Meeza). Each shows its next step inline; no redirect maze."
-           data-note-ar="طرق دفع محلية الدكاترة بيستخدموها فعلًا: فوري (كاش من أي منفذ)، فودافون كاش، إنستاباي، والكروت (فيزا/ميزة). كل طريقة بتوضح الخطوة الجاية في نفس المكان.">
+           data-note="Local payment methods: Fawry (cash at any outlet), Vodafone Cash, InstaPay and cards (Visa/Meeza). Each shows its next step inline."
+           data-note-ar="طرق دفع محلية: فوري (كاش من أي منفذ)، فودافون كاش، إنستاباي، والكروت (فيزا/ميزة). كل طريقة بتوضح الخطوة الجاية في نفس المكان.">
         <button type="button" class="sb-method" aria-pressed="false" data-m="fawry"><span class="sb-logo">FAWRY</span><span><b data-en="Fawry">فوري</b><small data-en="Get a code, pay cash at any Fawry outlet within 48 hours">خد كود وادفع كاش من أي منفذ فوري خلال ٤٨ ساعة</small></span></button>
         <button type="button" class="sb-method" aria-pressed="true" data-m="vf"><span class="sb-logo">VF</span><span><b data-en="Vodafone Cash">فودافون كاش</b><small data-en="Confirm on your phone with your wallet PIN">أكّد من موبايلك بالرقم السري للمحفظة</small></span></button>
         <button type="button" class="sb-method" aria-pressed="false" data-m="ipa"><span class="sb-logo">IPA</span><span><b data-en="InstaPay">إنستاباي</b><small data-en="Send to tamargi@instapay with the reference">حوّل لـ tamargi@instapay ومعاه الرقم المرجعي</small></span></button>
@@ -206,7 +206,7 @@
 <script src="../assets/shell.js"></script>
 <script>
 (function () {
-  /* Org, branches, doctors, staff, phones and plan limits (D.plans, D45-A) come from Tamargi.data. */
+  /* Org, branches, doctors, staff, phones and plan limits (D.plans) come from Tamargi.data. */
   var D = Tamargi.data, C = Tamargi.ctx, F = D.fmt;
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };

@@ -52,8 +52,8 @@
         <p class="t-sub mb-0" data-en="Chats from the clinic's web page. Reply, find the patient and book, all in one conversation.">الرسائل اللي جاية من صفحة العيادة على النت. ردّ، اعرف المريض، واحجز من نفس المحادثة.</p>
       </div>
       <div class="t-actions ci-channel"
-           data-note="Channels: web chat from the clinic page is live in the MVP (founder decision). WhatsApp will land in this same inbox later, not on a separate screen with manual file uploads and batch sends like NITCO (v44, v100)."
-           data-note-ar="القنوات: شات صفحة العيادة شغال في النسخة الأولى. واتساب هييجي بعدين في نفس الصندوق، مش شاشة منفصلة برفع ملفات وإرسال جماعي يدوي زي NITCO.">
+           data-note="Channels: web chat from the clinic page is live in the first release. WhatsApp will land in this same inbox later."
+           data-note-ar="القنوات: شات صفحة العيادة شغال في النسخة الأولى. واتساب هييجي بعدين في نفس الصندوق.">
         <span class="t-chip inroom"><span data-en="Web chat · live">شات الموقع · شغال</span></span>
         <span class="t-chip booked" title="Later" data-en="WhatsApp · later">واتساب · لاحقًا</span>
         <a class="t-btn" href="clinic-web-page.html"><svg class="t-icon sm"><use href="#i-globe"/></svg><span data-en="Clinic page">صفحة العيادة</span></a>
@@ -114,8 +114,8 @@
         </section>
 
         <section class="t-card"
-                 data-note="Free slots already respect the doctor's hours in THIS branch, split shifts, patients per slot and leaves (NITCO v57, v58, v102): a doctor's leave is shown, full slots are struck through. A doctor who also works in another branch only offers this branch's days. Visit type and fee come from the follow-up window and the branch price list, so 'is it free?' is answered by the system."
-                 data-note-ar="المواعيد الفاضية بتحترم ساعات الطبيب في الفرع ده، والفترتين، وعدد المرضى في الميعاد، والإجازات (NITCO): الإجازة ظاهرة والمليان متشطب. الدكتور اللي شغال في فرعين بيظهر بأيام الفرع ده بس. نوع الزيارة والسعر من مدة المتابعة وأسعار الفرع.">
+                 data-note="Free slots already respect the doctor's hours in THIS branch, split shifts, patients per slot and leaves: a doctor's leave is shown, full slots are struck through. A doctor who also works in another branch only offers this branch's days. Visit type and fee come from the follow-up window and the branch price list, so 'is it free?' is answered by the system."
+                 data-note-ar="المواعيد الفاضية بتحترم ساعات الطبيب في الفرع ده، والفترتين، وعدد المرضى في الميعاد، والإجازات: الإجازة ظاهرة والمليان متشطب. الدكتور اللي شغال في فرعين بيظهر بأيام الفرع ده بس. نوع الزيارة والسعر من مدة المتابعة وأسعار الفرع.">
           <div class="t-card-head"><h3 data-en="Free slots">مواعيد فاضية</h3><span class="t-chip plain" id="ci-slot-branch" hidden></span></div>
           <div class="t-stack">
             <div class="t-field"><label class="t-label" for="ci-doc" data-en="Doctor">الطبيب</label><select class="t-select" id="ci-doc"></select></div>
@@ -128,8 +128,8 @@
         </section>
 
         <section class="t-card"
-                 data-note="The confirmation is sent from a template whose merge fields are readable labelled chips, not raw {AppointmentTime} tokens in English like NITCO's 17 templates (v44, v100). Each sent message shows its status (sent / seen). In a polyclinic the address and room are the booked branch's."
-                 data-note-ar="رسالة التأكيد من قالب حقوله ظاهرة كبطاقات بأسماء عربي، مش رموز خام زي {AppointmentTime} في NITCO. كل رسالة بتبين حالتها (اتبعتت / اتشافت). في المجمع العنوان والغرفة بتوع الفرع اللي اتحجز فيه.">
+                 data-note="The confirmation is sent from a template whose merge fields are readable labelled chips. Each sent message shows its status (sent / seen). In a polyclinic the address and room are the booked branch's."
+                 data-note-ar="رسالة التأكيد من قالب حقوله ظاهرة كبطاقات بأسماء عربي. كل رسالة بتبين حالتها (اتبعتت / اتشافت). في المجمع العنوان والغرفة بتوع الفرع اللي اتحجز فيه.">
           <div class="t-card-head"><h3 data-en="Booking confirmation message">رسالة تأكيد الحجز</h3><div class="t-actions"><a class="t-btn sm ghost" href="settings-templates.html"><svg class="t-icon sm"><use href="#i-edit"/></svg><span data-en="Edit">تعديل</span></a></div></div>
           <div class="ci-tpl" data-en="You are booked for a &lt;span class=&quot;ci-tok&quot;&gt;Visit type&lt;/span&gt; for &lt;span class=&quot;ci-tok&quot;&gt;Patient name&lt;/span&gt; with &lt;span class=&quot;ci-tok&quot;&gt;Doctor&lt;/span&gt; on &lt;span class=&quot;ci-tok&quot;&gt;Day&lt;/span&gt; at &lt;span class=&quot;ci-tok&quot;&gt;Time&lt;/span&gt;. Address: &lt;span class=&quot;ci-tok&quot;&gt;Branch address&lt;/span&gt;. Your queue number is given when you arrive. Reply to this message to cancel.">
             اتحجزلك <span class="ci-tok">نوع الزيارة</span> لـ <span class="ci-tok">اسم المريض</span> مع <span class="ci-tok">الطبيب</span> يوم <span class="ci-tok">اليوم</span> الساعة <span class="ci-tok">الساعة</span>. العنوان: <span class="ci-tok">عنوان الفرع</span>. رقمك في الدور هيتحدد لما توصل. للإلغاء ردّ على الرسالة دي.

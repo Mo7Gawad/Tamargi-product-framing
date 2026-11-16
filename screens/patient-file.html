@@ -44,7 +44,7 @@
 <main id="screen">
 
   <section class="t-banner" aria-label="المريض" data-en-aria-label="Patient"
-           data-note="Pinned patient banner on every clinical screen: name, age/sex, file no., phone, allergy (solid red, icon + word), chronic conditions, debt, free follow-up window. NITCO v94 spreads this over 3 header cards and 15 grey boxes; here it is one line that stays visible while scrolling."
+           data-note="Pinned patient banner on every clinical screen: name, age/sex, file no., phone, allergy (solid red, icon + word), chronic conditions, debt, free follow-up window. One line that stays visible while scrolling."
            data-note-ar="شريط المريض الثابت: الاسم والسن ورقم الملف والموبايل والحساسية والأمراض المزمنة والمديونية ومدة الاستشارة المجانية في سطر واحد ثابت.">
     <div class="t-banner-id">
       <span class="t-avatar" id="pf-av"></span>
@@ -63,7 +63,7 @@
         <p class="t-sub mb-0" id="pf-sub"></p>
       </div>
       <div class="t-actions"
-           data-note="Actions live on the patient, not in separate apps: New visit, Book, Collect, Statement. NITCO v94 hides these behind a toolbar of unlabelled icons and opens the statement in a new blank tab."
+           data-note="Actions live on the patient, not in separate apps: New visit, Book, Collect, Statement. Each is a labelled button."
            data-note-ar="الإجراءات على ملف المريض نفسه بكلمات واضحة: كشف جديد، حجز، تحصيل، كشف حساب.">
         <a class="t-btn" href="patient-account.html" id="pf-acc-btn"><svg class="t-icon sm"><use href="#i-receipt"/></svg><span data-en="Statement">كشف حساب</span></a>
         <a class="t-btn" href="cashier-checkout.html"><svg class="t-icon sm"><use href="#i-cash"/></svg><span data-en="Collect">تحصيل</span><span class="t-kbd">F9</span></a>
@@ -83,7 +83,7 @@
         </section>
 
         <section class="t-card" aria-labelledby="clinT"
-                 data-note="Allergies and chronic conditions with a start date (NITCO v24, v29). Entering one turns on the red banner badge everywhere and feeds the allergy check in the prescription. 'No known allergies' is an explicit answer, not an empty box."
+                 data-note="Allergies and chronic conditions with a start date. Entering one turns on the red banner badge everywhere and feeds the allergy check in the prescription. 'No known allergies' is an explicit answer, not an empty box."
                  data-note-ar="الحساسية والأمراض المزمنة بتاريخ البداية. أي حساسية بتظهر في الشريط الأحمر وبتتراجع عليها الروشتة. «لا توجد حساسية» إجابة صريحة مش خانة فاضية.">
           <div class="t-card-head"><h2 id="clinT" data-en="Allergies & conditions">الحساسية والأمراض المزمنة</h2>
             <div class="t-actions"><button class="t-btn sm" type="button" data-open="#clinEditor"><svg class="t-icon sm"><use href="#i-edit"/></svg><span data-en="Edit">تعديل</span></button></div>
@@ -95,8 +95,8 @@
         </section>
 
         <section class="t-card" aria-labelledby="altT"
-                 data-note="Alerts and comments on the file, each with who sees it (doctor, billing, reception). From NITCO v94 (patient comments shown in invoice and doctor screens); we add the audience and the author so notes are not anonymous."
-                 data-note-ar="تنبيهات وتعليقات على الملف وكل واحد مكتوب مين بيشوفه (الدكتور، الحسابات، الاستقبال) ومين كتبه.">
+                 data-note="Alerts and comments on the file, each with who sees it (doctor, billing, reception). Comments show in the invoice and doctor screens, with their audience and author."
+                 data-note-ar="تنبيهات وتعليقات على الملف وكل واحد مكتوب مين بيشوفه (الدكتور، الحسابات، الاستقبال) ومين كتبه، وبتظهر في شاشات الفاتورة والدكتور.">
           <div class="t-card-head"><h2 id="altT" data-en="Alerts & comments">تنبيهات وتعليقات</h2></div>
           <div class="t-stack">
             <div class="t-stack" id="pf-comments"></div>
@@ -113,7 +113,7 @@
           </div>
         </section>
         <section class="t-card sunk" aria-labelledby="visT"
-                 data-note="Tenancy: the patient file belongs to the organization, not to a branch (ADR-017). Visits, payments and files from every branch land on the same timeline, each tagged with its branch and room. Clinical visibility is an org setting (default: every doctor of the org sees the whole file); a doctor membership can be limited to own patients (e.g. a dentist renting a shift), and front-desk roles see visits and money but never clinical notes."
+                 data-note="Tenancy: the patient file belongs to the organization, not to a branch. Visits, payments and files from every branch land on the same timeline, each tagged with its branch and room. Clinical visibility is an org setting (default: every doctor of the org sees the whole file); a doctor membership can be limited to own patients (e.g. a dentist renting a shift), and front-desk roles see visits and money but never clinical notes."
                  data-note-ar="الملف تبع المنشأة مش الفرع: زيارات ومدفوعات ومرفقات كل الفروع على نفس الخط الزمني، وكل عنصر عليه الفرع والغرفة. رؤية البيانات الطبية إعداد للمنشأة (الافتراضي: كل أطباء المنشأة يشوفوا الملف كله)، وممكن طبيب يتحدد بمرضاه بس (زي دكتور أسنان مأجّر وردية)، والاستقبال والخزنة يشوفوا الزيارات والفلوس من غير الملاحظات الطبية.">
           <div class="t-card-head"><h3 id="visT" data-en="File scope &amp; who sees it">نطاق الملف ومين يشوفه</h3></div>
           <div class="t-small t-muted t-stack" id="pf-scope"></div>
@@ -126,7 +126,7 @@
           <div class="t-actions"><button class="t-btn sm ghost" type="button" data-toast="(نموذج) طباعة ملخص الملف" data-toast-en="(prototype) print file summary"><svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Print summary">طباعة ملخص</span></button></div>
         </div>
         <div class="t-tabs mt-2" role="tablist"
-             data-note="One timeline for everything: visits, prescriptions, certificates, payments, attachments, vitals. Filters are tabs over the same list, so nothing lives on a separate page (NITCO keeps attachments, statement and visit history on three different screens)."
+             data-note="One timeline for everything: visits, prescriptions, certificates, payments, attachments, vitals. Filters are tabs over the same list, so nothing lives on a separate page."
              data-note-ar="خط زمني واحد لكل حاجة: زيارات وروشتات وشهادات ومدفوعات ومرفقات. الفلاتر تابات على نفس القائمة.">
           <button class="t-tab" role="tab" aria-selected="true" data-tl="all" data-en="All">الكل</button>
           <button class="t-tab" role="tab" aria-selected="false" data-tl="visit" data-en="Visits">الزيارات</button>
@@ -154,8 +154,8 @@
       <!-- Aside -->
       <aside class="t-stack">
         <section class="t-card" aria-labelledby="attT"
-                 data-note="Attachments: drag-drop on desktop, or scan a QR to shoot with the phone camera; each file gets a type (lab, imaging, ID, report). Beats NITCO v94's native 'Browse… / Upload' page that leaves the patient file."
-                 data-note-ar="المرفقات: اسحب وأفلت أو صوّر بالموبايل عن طريق كود QR، وكل ملف له نوع (تحاليل، أشعة، بطاقة، تقرير).">
+                 data-note="Attachments: drag-drop on desktop, or scan a QR to shoot with the phone camera; each file gets a type (lab, imaging, ID, report). Uploading never leaves the patient file."
+                 data-note-ar="المرفقات: اسحب وأفلت أو صوّر بالموبايل عن طريق كود QR، وكل ملف له نوع (تحاليل، أشعة، بطاقة، تقرير)، والرفع من غير ما تسيب ملف المريض.">
           <div class="t-card-head"><h2 id="attT" data-en="Attachments">المرفقات</h2><span class="t-badge muted" id="pf-att-n">0</span></div>
           <div class="t-field mb-2">
             <label class="t-label" for="attType" data-en="Type of the next upload">نوع الملف اللي هيترفع</label>

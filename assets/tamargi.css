@@ -1,5 +1,5 @@
 /* =====================================================================
-   Tamargi design system — tamargi.css  (v1, 2026-11-14)
+   Tamargi design system — tamargi.css
    Arabic-first (dir="rtl" default), [dir="ltr"] supported.
    Dark mode: prefers-color-scheme + [data-theme="dark"|"light"] on <html>.
    Density: [data-density="compact"|"comfortable"] on <html> (compact default).
@@ -653,9 +653,8 @@ html.notes-on .t-notes-panel { display: block; }
 .mb-0 { margin-block-end: 0 !important; } .mb-2 { margin-block-end: var(--s-2); } .mb-4 { margin-block-end: var(--s-4); } .mb-6 { margin-block-end: var(--s-6); }
 .w-full { width: 100%; }
 
-/* ---------- 20. v1.1 additions (2026-11-14): money, appointment & invoice states, Tier 2 ----------
-   Source: NITCO eCarePlus teardown (03_Healthcare_Domain/competitors/nitco/). Copy their states,
-   beat their colour-only legends: every state below is colour + text (+ dot). */
+/* ---------- 20. Money, appointment & invoice states, Tier 2 ----------
+   Every state below is colour + text (+ dot). */
 
 /* Appointment lifecycle (≤6 states): booked → confirmed → arrived → (queue states) | no-show | cancelled */
 .t-chip.arrived   { background: var(--inroom-bg); color: var(--inroom-fg); border-color: var(--inroom-line); }
@@ -708,9 +707,9 @@ html.notes-on .t-notes-panel { display: block; }
 .t-stamp { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border: 2px solid currentColor; border-radius: var(--r-xs); color: var(--primary); font-weight: var(--fw-b); font-size: var(--fs-sm); transform: rotate(-2deg); }
 .t-stamp.void { color: var(--danger-fg); }
 
-/* ---------- 23. v1.2 additions (2026-11-14): tenancy switchers, branch scope, stock & equipment ----------
+/* ---------- 23. Tenancy switchers, branch scope, stock & equipment ----------
    Organization (tenant) → Branch → Room. Org switcher sits in the brand slot, branch pill next to it.
-   Choosing a branch is a header action, never a login step (NITCO v65/71/76 pick the branch at login). */
+   Choosing a branch is a header action, never a login step. */
 
 /* Org switcher (brand slot) */
 .t-brand .t-brand-mark { text-decoration: none; flex: none; }
@@ -756,7 +755,7 @@ html:not([data-scope-all]) .t-only-all { display: none !important; }
 .t-scope-alert { margin-block-end: var(--s-4); align-items: center; }
 .t-scope-alert { flex-wrap: wrap; } .t-scope-alert > span { flex: 1 1 200px; min-width: 0; } .t-scope-alert .t-actions { flex-wrap: wrap; min-width: 0; }   /* phones: switch buttons wrap instead of widening the page */
 
-/* Phase badge: post-v1 module (honest demos) */
+/* Phase badge: later-release module */
 .t-tier.t-phase { background: var(--done-bg); color: var(--text-2); border-color: var(--line-strong); }
 
 /* Branch tag (inline): which branch a row belongs to */

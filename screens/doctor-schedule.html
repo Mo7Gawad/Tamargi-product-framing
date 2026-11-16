@@ -64,7 +64,7 @@
             </div>
           </div>
           <div class="ds-settings"
-               data-note="Slot length and patients per slot are what booking uses. Overbooking above the limit stays possible but is marked and logged, because Egyptian clinics routinely squeeze patients in (NITCO v57 'book more than one patient' flag, v102)."
+               data-note="Slot length and patients per slot are what booking uses. Overbooking above the limit stays possible but is marked and logged."
                data-note-ar="مدة الميعاد وعدد المرضى في الميعاد هما اللي الحجز بيستخدمهم. الحجز الزيادة ممكن بس بيتعلم ويتسجل.">
             <div class="t-field">
               <label class="t-label" for="slot-len" data-en="Slot length">مدة الميعاد</label>
@@ -86,7 +86,7 @@
             </div>
           </div>
           <div class="t-table-wrap" style="border:0;border-radius:0"
-               data-note="Weekly grid: up to two periods per day for the classic Egyptian split day, each period tied to a branch and a room. A doctor who works in two branches sees both on one grid, and the grid flags the same doctor in two branches at once and a room already given to another doctor. A period may run past midnight as ONE period. NITCO forces a split into 12:00–00:59 + 21:00–23:59:59 and 7 separate add passes (v57, v102)."
+               data-note="Weekly grid: up to two periods per day for the classic Egyptian split day, each period tied to a branch and a room. A doctor who works in two branches sees both on one grid, and the grid flags the same doctor in two branches at once and a room already given to another doctor. A period may run past midnight as ONE period."
                data-note-ar="جدول الأسبوع: لحد فترتين في اليوم، وكل فترة مربوطة بفرع وغرفة. الدكتور اللي شغال في فرعين بيشوف الاتنين في جدول واحد، والجدول بينبه لو الدكتور في فرعين في نفس الوقت أو الغرفة متاخدة لدكتور تاني. الفترة ممكن تعدي نص الليل كفترة واحدة.">
             <table class="t-table">
               <thead><tr>
@@ -100,7 +100,7 @@
 
         <!-- Exceptions -->
         <section class="t-card flush anchor" id="exceptions"
-                 data-note="Exception periods (Ramadan, summer) replace the weekly hours only between two dates, then the normal week comes back by itself. No splitting of the base schedule into before/after rows (NITCO v102 does), and the same screen as the weekly hours (NITCO v57 needs a separate modal)."
+                 data-note="Exception periods (Ramadan, summer) replace the weekly hours only between two dates, then the normal week comes back by itself."
                  data-note-ar="الفترات الاستثنائية (رمضان، الصيف) بتغير مواعيد الأسبوع بين تاريخين بس، وبعدها الأسبوع العادي بيرجع لوحده.">
           <div class="t-card-head">
             <h2 data-en="Exception periods">فترات استثنائية</h2>
@@ -135,7 +135,7 @@
 
         <!-- Leaves -->
         <section class="t-card flush anchor" id="leaves"
-                 data-note="Leaves (full or partial day) close the slots immediately and list every booking inside them, with one decision per patient: move, cancel and tell them in chat, or keep. NITCO v58 blocks the slots but never warns about existing bookings."
+                 data-note="Leaves (full or partial day) close the slots immediately and list every booking inside them, with one decision per patient: move, cancel and tell them in chat, or keep."
                  data-note-ar="الإجازة (يوم كامل أو جزء من يوم) بتقفل المواعيد فورًا وبتعرض كل الحجوزات اللي جواها، وقرار لكل مريض: نقل، إلغاء وإبلاغ في الشات، أو سيبه.">
           <div class="t-card-head">
             <h2 data-en="Leaves">الإجازات</h2>
@@ -153,7 +153,7 @@
       <!-- Preview -->
       <aside>
         <div class="t-card sticky-aside"
-             data-note="Live preview of the slots reception will see for the chosen day, recalculated as you type, with errors (overlapping periods) shown before saving. NITCO only refreshes the grid after a manual reload (v102)."
+             data-note="Live preview of the slots reception will see for the chosen day, recalculated as you type, with errors (overlapping periods) shown before saving."
              data-note-ar="معاينة مباشرة للمواعيد اللي الاستقبال هيشوفها لليوم المختار، بتتحسب وإنت بتكتب، والأخطاء (فترات متداخلة) بتبان قبل الحفظ.">
           <div class="t-card-head"><h3 data-en="Slots preview">معاينة المواعيد</h3></div>
           <label class="t-sr" for="pv-day" data-en="Day">اليوم</label>

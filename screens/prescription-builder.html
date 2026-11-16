@@ -78,8 +78,8 @@
         <a class="t-btn" id="lnCert" href="prescription-print.html#state=certificate"><svg class="t-icon sm"><use href="#i-file"/></svg><span data-en="Sick-leave certificate">شهادة مرضية</span></a>
         <button class="t-btn" type="button" data-open="#set-modal"><svg class="t-icon sm"><use href="#i-template"/></svg><span data-en="Save as Rx set">حفظ كروشتة جاهزة</span></button>
         <button class="t-btn primary" type="button" id="print-btn"
-                data-note="Print is one key (Ctrl P) straight to the browser's print dialog: the preview is exactly what prints, A5 on letterhead. No popup window and the Rx is not tied to payment (NITCO weakness: paid status tied to printing)."
-                data-note-ar="الطباعة بزرار واحد (Ctrl P) لنافذة طباعة المتصفح مباشرة، والمعاينة هي نفس الورقة. مفيش نافذة منبثقة والروشتة مش مربوطة بالدفع (عكس NITCO).">
+                data-note="Print is one key (Ctrl P) straight to the browser's print dialog: the preview is exactly what prints, A5 on letterhead. No popup window, and printing the Rx is not tied to payment."
+                data-note-ar="الطباعة بزرار واحد (Ctrl P) لنافذة طباعة المتصفح مباشرة، والمعاينة هي نفس الورقة. مفيش نافذة منبثقة والروشتة مش مربوطة بالدفع.">
           <svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Print Rx">اطبع الروشتة</span><span class="t-kbd">Ctrl P</span>
         </button>
       </div>
@@ -92,7 +92,7 @@
       <!-- (1) Favourites, Rx sets, repeat last -->
       <aside class="t-stack no-print" aria-label="Favourites" data-en-aria-label="Favourites">
         <section class="t-card"
-                 data-note="Favourites of the visit doctor's profile in THIS organization (a doctor working in two orgs keeps two separate lists). One click adds drug + dose + frequency + duration + instruction. Alt+1…9 adds the top nine. Sorted by usage. (NITCO v29: add-drug modal starts empty with no recent/frequent items.)"
+                 data-note="Favourites of the visit doctor's profile in THIS organization (a doctor working in two orgs keeps two separate lists). One click adds drug + dose + frequency + duration + instruction. Alt+1…9 adds the top nine. Sorted by usage."
                  data-note-ar="مفضلة بروفايل الدكتور في المنشأة دي (الدكتور اللي شغال في منشأتين ليه قائمتين منفصلين). ضغطة واحدة تضيف الدواء بالجرعة والتكرار والمدة. Alt+1…9 للتسعة الأوائل. الترتيب حسب الاستخدام.">
           <div class="t-card-head">
             <h2><svg class="t-icon sm"><use href="#i-star"/></svg> <span data-en="Favourites">المفضلة</span></h2>
@@ -107,8 +107,8 @@
         </section>
 
         <section class="t-card"
-                 data-note="Rx sets = the drug part of NITCO's visit templates (v3), but applied in one click and shown with their content, not as an opaque 'test' row. Each line still passes the allergy check."
-                 data-note-ar="الروشتات الجاهزة = جزء الأدوية من قوالب الزيارة في NITCO، بس بتتطبق بضغطة وبيظهر محتواها. كل سطر بيعدي على فحص الحساسية.">
+                 data-note="Rx sets = ready-made groups of drugs, applied in one click and shown with their content. Each line still passes the allergy check."
+                 data-note-ar="الروشتات الجاهزة = مجموعات أدوية جاهزة، بتتطبق بضغطة وبيظهر محتواها. كل سطر بيعدي على فحص الحساسية.">
           <div class="t-card-head">
             <h2><svg class="t-icon sm"><use href="#i-template"/></svg> <span data-en="Rx sets">روشتات جاهزة</span></h2>
           </div>
@@ -138,7 +138,7 @@
             </div>
           </div>
           <div class="t-card-body">
-            <div data-note="Allergy cross-check runs on every line against the org-wide patient file. A match is the ONLY interrupting modal; pregnancy cautions stay inline on the line (non-blocking), so the doctor is not trained to click through alerts."
+            <div data-note="Allergy cross-check runs on every line against the org-wide patient file. A match is the ONLY interrupting modal; pregnancy cautions stay inline on the line (non-blocking)."
                  data-note-ar="فحص الحساسية بيشتغل على كل سطر مقابل ملف المريض في المنشأة. التعارض مع الحساسية هو النافذة الوحيدة اللي بتقاطع؛ تنبيهات الحمل بتفضل جنب السطر."><div id="check-status" class="t-alert success mb-4" role="status"></div></div>
 
             <div class="rxb-lines">
@@ -149,7 +149,7 @@
           <!-- Free-text add -->
           <div class="t-card-body">
             <div class="rxb-add t-stack"
-                 data-note="Free-text drug line with one-tap presets for frequency, duration and instruction; Enter adds it. Our own drug catalogue search comes later (founder decision); until then any trade name is accepted and checked by name keywords."
+                 data-note="Free-text drug line with one-tap presets for frequency, duration and instruction; Enter adds it. Our own drug catalogue search comes later; until then any trade name is accepted and checked by name keywords."
                  data-note-ar="سطر دواء بكتابة حرة مع اختيارات سريعة للتكرار والمدة والتعليمات؛ Enter يضيفه. البحث في دليل الأدوية الخاص بنا لاحقًا؛ لحد دلوقتي أي اسم تجاري مقبول ويتفحص بالكلمات.">
               <div class="t-row tight">
                 <div class="t-field t-grow">
@@ -198,7 +198,7 @@
       <!-- (3) Live letterhead preview -->
       <aside class="rxb-preview-col">
         <section class="t-card"
-                 data-note="Live preview on the letterhead: org logo + the doctor's block from his profile in this org (title, specialty, syndicate no.) + this branch's address and phone in the footer (tenancy: letterhead = org layout, branch address block, doctor block). Updates on every click. Set once in settings-letterhead."
+                 data-note="Live preview on the letterhead: org logo + the doctor's block from his profile in this org (title, specialty, syndicate no.) + this branch's address and phone in the footer. Updates on every click. Set once in settings-letterhead."
                  data-note-ar="معاينة لحظية على الترويسة: لوجو المنشأة + بيانات الدكتور من بروفايله في المنشأة دي + عنوان الفرع وتليفونه في الذيل. بتتحدث مع كل ضغطة.">
           <div class="t-card-head no-print">
             <h2 data-en="Letterhead preview">معاينة على الترويسة</h2>

@@ -346,7 +346,7 @@
     out.sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : b.from - a.from; });
     return out;
   };
-  /* Clinical visibility (D36): a doctor with "own patients only" sees only their own notes,
+  /* Clinical visibility: a doctor with "own patients only" sees only their own notes,
      and their notes are hidden from every other doctor. */
   K.canSee = function (viewerDoctorId, authorDoctorId) {
     if (viewerDoctorId === authorDoctorId) return true;
@@ -380,7 +380,7 @@
       return s.days.map(function (d) { return D.fmt.day(d, lang); }).join(lang === "en" ? ", " : "، ") + " " + D.fmt.range(s.from, s.to, lang);
     }).join(" · ");
   };
-  /* Per-branch document series (D39): certificate / report numbers carry the branch code */
+  /* Per-branch document series: certificate / report numbers carry the branch code */
   K.branchCode = function (br) { return br.code || D.branchCode(br.id); };   /* branches carry `code` in demo-data.js */
   K.docNo = function (kind, br, seq) { return kind + "-" + K.branchCode(br) + "-2026-" + ("000" + seq).slice(-4); };
 

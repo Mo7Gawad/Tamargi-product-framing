@@ -91,10 +91,10 @@
         <div class="t-card od-kpi" id="od-k-cash"></div>
         <div class="t-card od-kpi" id="od-k-visits"></div>
         <div class="t-card od-kpi" id="od-k-noshow"
-             data-note="No-shows counted automatically: a booked appointment not checked in by the end of the doctor's shift becomes a no-show (NITCO v6–8 status lifecycle, reduced to text chips)."
-             data-note-ar="الغياب بيتحسب لوحده: أي حجز ماتسجلش حضوره لحد آخر وردية الطبيب بيتحول «لم يحضر» (من دورة حالات المواعيد في NITCO لكن كحالات مكتوبة)."></div>
+             data-note="No-shows counted automatically: a booked appointment not checked in by the end of the doctor's shift becomes a no-show, shown as a text status chip."
+             data-note-ar="الغياب بيتحسب لوحده: أي حجز ماتسجلش حضوره لحد آخر وردية الطبيب بيتحول «لم يحضر» ويظهر كحالة مكتوبة."></div>
         <div class="t-card od-kpi" id="od-k-debt"
-             data-note="Debt and deposits are two separate ledgers: debt = remainder the patient still owes (NITCO v32/89), deposit = money the clinic holds for the patient (wallet, v84/88). Both are liabilities the owner must see daily. One patient file per organization, so both are org-wide."
+             data-note="Debt and deposits are two separate ledgers: debt = remainder the patient still owes, deposit = money the clinic holds for the patient (wallet). Both are liabilities the owner must see daily. One patient file per organization, so both are org-wide."
              data-note-ar="المديونية والرصيد المقدّم دفترين منفصلين: المديونية = الباقي على المريض، والرصيد = فلوس محفوظة للمريض عند العيادة. الاتنين لازم المالك يشوفهم كل يوم. ملف المريض واحد للمنشأة، فالاتنين على مستوى المنشأة كلها."></div>
       </section>
 
@@ -110,8 +110,8 @@
 
         <!-- Shift close -->
         <section class="t-card flush"
-                 data-note="Cash sessions are per branch: each cashier has one open session in one branch, with expected cash and the over/short at close (NITCO v34/v91 handover report). A closed shift is stamped and locked; only the owner can reopen it."
-                 data-note-ar="الخزنة لكل فرع لوحده: كل كاشير ليه وردية مفتوحة في فرع واحد، بالمتوقع والزيادة/العجز عند التقفيل (من تقرير الاستلام والتسليم في NITCO). الوردية المقفولة مختومة ومتقفلة، والمالك بس يقدر يفتحها.">
+                 data-note="Cash sessions are per branch: each cashier has one open session in one branch, with expected cash and the over/short at close in the handover report. A closed shift is stamped and locked; only the owner can reopen it."
+                 data-note-ar="الخزنة لكل فرع لوحده: كل كاشير ليه وردية مفتوحة في فرع واحد، بالمتوقع والزيادة/العجز عند التقفيل في تقرير الاستلام والتسليم. الوردية المقفولة مختومة ومتقفلة، والمالك بس يقدر يفتحها.">
           <div class="t-card-head"><h2 data-en="Cash shifts">ورديات الخزنة</h2></div>
           <div class="t-card-body t-stack" id="od-shifts"></div>
           <div class="t-card-foot">
@@ -145,8 +145,8 @@
 
         <!-- Anti-leak -->
         <section class="t-card flush"
-                 data-note="Anti-leak list: every discount and credit note of the last 7 days, with who, how much, the branch and the mandatory reason (NITCO v50: corrections are credit notes with a reason, never edits). A discount above the user's cap is flagged."
-                 data-note-ar="قائمة منع التسريب: كل خصم ومرتجع آخر ٧ أيام، مين عمله وكام وفي أنهي فرع والسبب الإجباري. الخصم الأعلى من حد المستخدم بيتعلّم عليه.">
+                 data-note="Anti-leak list: every discount and credit note of the last 7 days, with who, how much, the branch and the mandatory reason. Corrections are credit notes with a reason, never edits. A discount above the user's cap is flagged."
+                 data-note-ar="قائمة منع التسريب: كل خصم ومرتجع آخر ٧ أيام، مين عمله وكام وفي أنهي فرع والسبب الإجباري. التصحيح بيبقى مرتجع بسبب، مش تعديل. الخصم الأعلى من حد المستخدم بيتعلّم عليه.">
           <div class="t-card-head">
             <h2 data-en="Discounts &amp; credit notes · 7 days">الخصومات والمرتجعات · ٧ أيام</h2>
             <div class="t-actions"><span class="t-badge" id="od-leak-n">0</span></div>

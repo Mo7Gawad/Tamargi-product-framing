@@ -42,8 +42,8 @@
       </div>
       <div class="t-actions">
         <div class="ur-seats t-card" style="padding:var(--s-2) var(--s-3)"
-             data-note="Seats used vs plan, shown before inviting (NITCO v64 counts licences per user type but only inside the admin app). Deactivated users free their seat and keep their history."
-             data-note-ar="المقاعد المستخدمة مقابل الباقة، ظاهرة قبل الدعوة (NITCO بيعدّ التراخيص بس جوه برنامج الإدارة). المستخدم الموقوف بيفضّي مقعده وتاريخه بيفضل.">
+             data-note="Seats used vs plan, shown before inviting. Deactivated users free their seat and keep their history."
+             data-note-ar="المقاعد المستخدمة مقابل الباقة، ظاهرة قبل الدعوة. المستخدم الموقوف بيفضّي مقعده وتاريخه بيفضل.">
           <div><div class="t-small"><b>5</b> <span data-en="of 6 seats">من ٦ مقاعد</span></div><div class="ur-meter" aria-hidden="true"><i style="width:83%"></i></div></div>
           <a class="t-small" href="subscription-plan.html" data-en="Clinic plan">باقة العيادة</a>
         </div>
@@ -62,7 +62,7 @@
         <table class="t-table">
           <thead><tr>
             <th data-en="Person">الشخص</th>
-            <th data-en="Roles" data-note="Five presets (owner, doctor, receptionist, cashier, nurse); one person can hold several. Most Egyptian solo clinics have one assistant who is receptionist and cashier at once (NITCO v65 applies RECEPTIONIST + reception-cashier to one user)." data-note-ar="٥ أدوار جاهزة، والشخص ممكن ياخد أكتر من دور. أغلب العيادات الفردية فيها مساعدة واحدة هي الاستقبال والخزنة مع بعض.">الأدوار</th>
+            <th data-en="Roles" data-note="Five presets (owner, doctor, receptionist, cashier, nurse); one person can hold several. Most Egyptian solo clinics have one assistant who is receptionist and cashier at once." data-note-ar="٥ أدوار جاهزة، والشخص ممكن ياخد أكتر من دور. أغلب العيادات الفردية فيها مساعدة واحدة هي الاستقبال والخزنة مع بعض.">الأدوار</th>
             <th class="ur-hide-sm" data-en="Branches">الفروع</th>
             <th class="num ur-hide-sm" data-en="Max discount" data-note="Each person's discount cap is visible in the list, so the owner can audit it at a glance; discounts above it need his approval and appear on the owner dashboard." data-note-ar="حد الخصم لكل شخص ظاهر في القايمة عشان صاحب العيادة يراجعه بنظرة؛ الخصم الأعلى محتاج موافقته وبيظهر في لوحة المالك.">أقصى خصم</th>
             <th class="ur-hide-sm" data-en="Last active">آخر نشاط</th>
@@ -78,8 +78,8 @@
     <!-- ============ ROLE PRESETS ============ -->
     <section data-panel="roles" hidden>
       <div class="t-alert info mb-4"><svg class="t-icon"><use href="#i-info"/></svg><span data-en="Five fixed presets cover a clinic. One person can hold several (the receptionist is usually also the cashier). Fine-grained per-person overrides come later.">٥ أدوار جاهزة بتغطي العيادة. الشخص الواحد ممكن ياخد أكتر من دور (الاستقبال غالبًا هي الخزنة كمان). التعديل الدقيق لكل شخص لاحقًا.</span></div>
-      <div class="t-table-wrap" data-note="Capabilities in plain Arabic ('Can issue credit notes'), never page names. NITCO's permission screen lists raw .aspx pages and action keys (MstServices.aspx, SaveCustomerBill) over 79 pages, and 'Select all' also grants deny rights (v64, 65)."
-           data-note-ar="الصلاحيات بكلام عربي واضح ('تعمل مرتجع')، مش أسماء صفحات. شاشة الصلاحيات في NITCO بتعرض أسماء صفحات .aspx وأكواد على ٧٩ صفحة، و'تحديد الكل' بيدي صلاحيات المنع كمان.">
+      <div class="t-table-wrap" data-note="Capabilities in plain Arabic ('Can issue credit notes'), never page names."
+           data-note-ar="الصلاحيات بكلام عربي واضح ('تعمل مرتجع')، مش أسماء صفحات.">
         <table class="t-table ur-matrix">
           <thead><tr>
             <th data-en="Can…">يقدر…</th>
@@ -102,8 +102,8 @@
       <button class="t-btn icon ghost" type="button" data-close aria-label="Close" data-en-aria-label="Close" title="إغلاق" data-en-title="Close"><svg class="t-icon"><use href="#i-close"/></svg></button>
     </div>
     <div class="t-modal-body t-stack lg">
-      <div class="t-field" data-note="Several roles per user (NITCO v65: reception + cashier). Ticking a role updates the capability list below instantly, so the owner sees exactly what Sara can do before saving."
-           data-note-ar="أكتر من دور للشخص (زي NITCO: استقبال + خزنة). أول ما تعلّم دور، قايمة الصلاحيات تحت بتتغير على طول، فصاحب العيادة يشوف سارة تقدر تعمل إيه بالظبط قبل الحفظ.">
+      <div class="t-field" data-note="Several roles per user (e.g. reception + cashier). Ticking a role updates the capability list below instantly, so the owner sees exactly what Sara can do before saving."
+           data-note-ar="أكتر من دور للشخص (زي استقبال + خزنة). أول ما تعلّم دور، قايمة الصلاحيات تحت بتتغير على طول، فصاحب العيادة يشوف سارة تقدر تعمل إيه بالظبط قبل الحفظ.">
         <span class="t-label" data-en="Roles">الأدوار</span>
         <div class="t-row tight" id="ur-dr-roles">
           <button type="button" class="t-pick" data-role="owner" data-en="Owner">صاحب العيادة</button>
@@ -121,8 +121,8 @@
         <div id="ur-br"></div>
       </div>
 
-      <div class="t-field" data-note="Max discount % per user (NITCO v1/97 per-doctor/user discount cap). Above the cap the cashier asks the owner, who approves on his phone; the discount and approval are logged."
-           data-note-ar="أقصى خصم لكل مستخدم (زي حد الخصم في NITCO). فوق الحد الخزنة تطلب موافقة صاحب العيادة من موبايله، والخصم والموافقة بيتسجلوا.">
+      <div class="t-field" data-note="Max discount % per user. Above the cap the cashier asks the owner, who approves on his phone; the discount and approval are logged."
+           data-note-ar="أقصى خصم لكل مستخدم. فوق الحد الخزنة تطلب موافقة صاحب العيادة من موبايله، والخصم والموافقة بيتسجلوا.">
         <label class="t-label" for="ur-dr-disc" data-en="Max discount she can give alone">أقصى خصم تديه لوحدها</label>
         <div class="t-row tight">
           <input id="ur-dr-disc" type="range" min="0" max="100" step="5" value="20" style="flex:1;accent-color:var(--primary)">
@@ -162,8 +162,8 @@
       <button class="t-btn icon ghost" type="button" data-close aria-label="Close" data-en-aria-label="Close" title="إغلاق" data-en-title="Close"><svg class="t-icon"><use href="#i-close"/></svg></button>
     </div>
     <div class="t-modal-body t-stack lg"
-         data-note="Invite = name + mobile + preset, one screen. They set their own password from the SMS link. Replaces NITCO's 17-step doctor creation across eCare and sCare (v1, 67, 97)."
-         data-note-ar="الدعوة = اسم + موبايل + دور، شاشة واحدة. الشخص بيعمل الباسورد بنفسه من لينك الرسالة. بدل ١٧ خطوة في NITCO عشان تعمل دكتور في برنامجين.">
+         data-note="Invite = name + mobile + preset, one screen. They set their own password from the SMS link."
+         data-note-ar="الدعوة = اسم + موبايل + دور، شاشة واحدة. الشخص بيعمل الباسورد بنفسه من لينك الرسالة.">
       <div class="t-form-grid">
         <div class="t-field"><label class="t-label" for="ur-inv-name"><span data-en="Name">الاسم</span><span class="req">*</span></label><input id="ur-inv-name" class="t-input" placeholder="مثلًا: مي حسن" data-en-placeholder="e.g. Mai Hassan"></div>
         <div class="t-field"><label class="t-label" for="ur-inv-mob"><span data-en="Mobile">الموبايل</span><span class="req">*</span></label><input id="ur-inv-mob" class="t-input ltr" inputmode="tel" placeholder="01xxxxxxxxx"></div>

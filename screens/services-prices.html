@@ -6,7 +6,7 @@
   <title data-en="Services, fees & discounts — Tamargi">الخدمات والأسعار والخصومات — تمرجي</title>
   <link rel="stylesheet" href="../assets/tamargi.css">
   <style>
-    /* scope notice: let its branch buttons wrap at phone width (shared fix requested for tamargi.css) */
+    /* scope notice: let its branch buttons wrap at phone width */
     /* page-specific CSS: tokens only */
     .sp-toolbar { display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-3); align-items: center; padding: var(--s-3) var(--s-4); border-block-end: 1px solid var(--line); }
     .sp-toolbar .t-input-wrap { width: min(320px, 100%); }
@@ -64,8 +64,8 @@
       <button class="t-tab" role="tab" aria-selected="false" data-tab="defaults" data-en="Doctor fees by branch">سعر الكشف لكل دكتور وفرع</button>
       <button class="t-tab" role="tab" aria-selected="false" data-tab="tiers"><span data-en="Discount tiers">شرائح الخصم</span> <span class="t-badge muted">4</span></button>
       <button class="t-tab" role="tab" aria-selected="false" data-tab="payers"
-              data-note="Tier 2 tabs (polyclinic plan, 699 EGP): corporate/syndicate payer and doctor commission. They exist in the same screen so there is one place for prices, but are clearly marked and locked on lower plans (NITCO spreads these over 4 screens and 2 apps). The lock follows the selected organization's plan."
-              data-note-ar="تبويبات المرحلة ٢ (باقة المجمعات ٦٩٩ ج.م): الجهات المتعاقدة ونسب الأطباء. في نفس الشاشة عشان الأسعار تبقى في مكان واحد، بس عليها علامة واضحة ومقفولة في الباقات الأقل (NITCO بيوزعهم على ٤ شاشات وبرنامجين)."><span data-en="Contracts & syndicates">الشركات والنقابات</span> <span class="t-tier">Tier 2</span></button>
+              data-note="Tier 2 tabs (polyclinic plan, 699 EGP): corporate/syndicate payer and doctor commission. They exist in the same screen so there is one place for prices, but are clearly marked and locked on lower plans. The lock follows the selected organization's plan."
+              data-note-ar="تبويبات المرحلة ٢ (باقة المجمعات ٦٩٩ ج.م): الجهات المتعاقدة ونسب الأطباء. في نفس الشاشة عشان الأسعار تبقى في مكان واحد، بس عليها علامة واضحة ومقفولة في الباقات الأقل."><span data-en="Contracts & syndicates">الشركات والنقابات</span> <span class="t-tier">Tier 2</span></button>
       <button class="t-tab" role="tab" aria-selected="false" data-tab="commission"><span data-en="Doctor commission">نسب الأطباء</span> <span class="t-tier">Tier 2</span></button>
     </div>
 
@@ -95,8 +95,8 @@
                   data-note-ar="السعر بيتحسب من الأدق للأعم: دكتور + فرع، بعدين دكتور، بعدين فرع، بعدين السعر الأساسي. العمود ده بيعرض كل الاستثناءات، فالمالك يشوف إن نفس كشف الباطنة ٣٠٠ في توريل و٢٥٠ في الجامعة.">
                 <span data-en="Branch / doctor prices">أسعار الفروع والأطباء</span></th>
               <th class="num sp-hide-sm"
-                  data-note="Minimum price is the discount floor (NITCO v60/99: invoice price must stay within min–max). A receptionist cannot go below it; 'doctor may edit' lets the doctor change the price inside the visit, still not below the minimum."
-                  data-note-ar="أقل سعر هو أرضية الخصم (في NITCO سعر الفاتورة لازم يفضل بين الأدنى والأقصى). الاستقبال ميقدرش ينزل تحته؛ و'الدكتور يعدّل' بتخلي الدكتور يغيّر السعر جوه الكشف بس برضه مش تحت الأدنى."><span data-en="Minimum">أقل سعر</span></th>
+                  data-note="Minimum price is the discount floor: the invoice price must stay between minimum and maximum. A receptionist cannot go below it; 'doctor may edit' lets the doctor change the price inside the visit, still not below the minimum."
+                  data-note-ar="أقل سعر هو أرضية الخصم: سعر الفاتورة لازم يفضل بين الأدنى والأقصى. الاستقبال ميقدرش ينزل تحته؛ و'الدكتور يعدّل' بتخلي الدكتور يغيّر السعر جوه الكشف بس برضه مش تحت الأدنى."><span data-en="Minimum">أقل سعر</span></th>
               <th class="sp-hide-sm" data-en="Free follow-up">استشارة مجانية</th>
               <th class="sp-hide-sm" data-en="Doctor may edit">الدكتور يعدّل</th>
               <th data-en="Status">الحالة</th>
@@ -108,18 +108,18 @@
         <div class="t-card-foot">
           <svg class="t-icon sm"><use href="#i-info"/></svg>
           <span class="t-small t-muted" data-en="Services are archived, never deleted: old invoices keep their name and price. Codes are automatic. The catalogue belongs to the organization; branches only override prices."
-                data-note="Archive, not delete (NITCO v63: soft delete + restore). Old invoices and reports keep the service name and price. Codes are generated, never typed (NITCO's 'type an existing code to edit' pattern is gone)."
-                data-note-ar="أرشفة مش مسح (زي NITCO: حذف ناعم واسترجاع). الفواتير والتقارير القديمة بتحتفظ باسم الخدمة وسعرها. الأكواد أوتوماتيك، محدش بيكتبها.">الخدمات بتتأرشف ومبتتمسحش: الفواتير القديمة بتحتفظ باسمها وسعرها. الأكواد أوتوماتيك. قائمة الخدمات للمنشأة كلها، والفروع بتغيّر السعر بس.</span>
+                data-note="Archive, not delete: an archived service can be restored. Old invoices and reports keep the service name and price. Codes are generated, never typed."
+                data-note-ar="أرشفة مش مسح: الخدمة المؤرشفة ممكن ترجع. الفواتير والتقارير القديمة بتحتفظ باسم الخدمة وسعرها. الأكواد أوتوماتيك، محدش بيكتبها.">الخدمات بتتأرشف ومبتتمسحش: الفواتير القديمة بتحتفظ باسمها وسعرها. الأكواد أوتوماتيك. قائمة الخدمات للمنشأة كلها، والفروع بتغيّر السعر بس.</span>
         </div>
       </div>
     </section>
 
     <!-- ===================== DOCTOR DEFAULTS ===================== -->
     <section data-panel="defaults" hidden aria-label="Doctor fees by branch" data-en-aria-label="Doctor fees by branch">
-      <div class="t-alert info mb-4"><svg class="t-icon"><use href="#i-info"/></svg><span data-en="Each doctor has one default consult and one default follow-up. Check-in and the cashier pick the right one by the follow-up window, so the receptionist never types a price (NITCO v1, 89, 97). A doctor who works in two branches can have a different fee in each.">كل دكتور له كشف افتراضي واستشارة افتراضية. الدخول والخزنة بيختاروا الصح حسب مدة الاستشارة، فالاستقبال عمره ما بيكتب سعر. الدكتور اللي شغال في فرعين ممكن يبقى له سعر مختلف في كل فرع.</span></div>
+      <div class="t-alert info mb-4"><svg class="t-icon"><use href="#i-info"/></svg><span data-en="Each doctor has one default consult and one default follow-up. Check-in and the cashier pick the right one by the follow-up window, so the receptionist never types a price. A doctor who works in two branches can have a different fee in each.">كل دكتور له كشف افتراضي واستشارة افتراضية. الدخول والخزنة بيختاروا الصح حسب مدة الاستشارة، فالاستقبال عمره ما بيكتب سعر. الدكتور اللي شغال في فرعين ممكن يبقى له سعر مختلف في كل فرع.</span></div>
       <div class="t-grid c2" id="sp-docs"
-           data-note="Per-doctor default consult and follow-up service (NITCO doctor master v1/97: default consult/follow-up services). They become the two one-tap buttons on the cashier screen, priced for each branch the doctor works in, with the specialty and the days/hours from the doctor's shifts."
-           data-note-ar="كشف واستشارة افتراضيين لكل دكتور (من بيانات الطبيب في NITCO). بيبقوا الزرارين السريعين في شاشة الخزنة، بسعر كل فرع الدكتور شغال فيه."></div>
+           data-note="Per-doctor default consult and follow-up service. They become the two one-tap buttons on the cashier screen, priced for each branch the doctor works in, with the specialty and the days/hours from the doctor's shifts."
+           data-note-ar="كشف واستشارة افتراضيين لكل دكتور. بيبقوا الزرارين السريعين في شاشة الخزنة، بسعر كل فرع الدكتور شغال فيه."></div>
       <p class="t-small t-muted mt-4"><span data-en="Hours, slot length and leaves are set in">المواعيد ومدة الكشف والإجازات في</span> <a href="doctor-schedule.html" data-en="Doctor hours & leaves">مواعيد الطبيب والإجازات</a> · <a href="doctors-branches.html" data-en="Doctors & branches">الأطباء والفروع</a>.</p>
     </section>
 
@@ -136,8 +136,8 @@
           <button class="t-btn block" type="button" data-toast="اتضافت شريحة جديدة" data-toast-en="New tier added"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="New tier">شريحة جديدة</span></button>
         </div>
 
-        <div class="t-card" data-note="Named discount tiers with per-service exceptions (NITCO v53: tier %, service-level % overrides the clinic %). We show the resulting price per service, so nobody has to guess which rule wins — NITCO's own trainer contradicted himself (10% vs 20%) in the demo. Tiers are org-wide: the same patient gets the same tier in every branch."
-             data-note-ar="شرائح خصم بأسماء واستثناءات لكل خدمة (في NITCO نسبة الخدمة بتغلب نسبة العيادة). إحنا بنعرض السعر النهائي لكل خدمة عشان محدش يخمّن أنهي قاعدة بتكسب — مدرب NITCO نفسه اتلخبط بين ١٠٪ و٢٠٪. الشرائح على مستوى المنشأة.">
+        <div class="t-card" data-note="Named discount tiers with per-service exceptions: a service-level % overrides the tier %. The resulting price is shown per service, so it is always clear which discount applies. Tiers are org-wide: the same patient gets the same tier in every branch."
+             data-note-ar="شرائح خصم بأسماء واستثناءات لكل خدمة: نسبة الخدمة بتغلب نسبة الشريحة. السعر النهائي ظاهر لكل خدمة، فواضح دايمًا أنهي خصم اتطبق. الشرائح على مستوى المنشأة.">
           <div class="t-card-head">
             <h2 id="sp-tier-title"></h2>
             <div class="t-actions"><button class="t-btn sm ghost" type="button" data-toast="الشريحة اتأرشفت" data-toast-en="Tier archived" data-en="Archive tier">أرشفة الشريحة</button></div>
@@ -175,15 +175,15 @@
             <tbody id="sp-payers"></tbody>
           </table>
         </div>
-        <div class="t-card-foot"><span class="t-small t-muted" data-en="The payer is chosen inline on the patient file and the invoice, one save (beats NITCO's save-as-cash-then-switch, v37–40). The patient's share is collected; the payer's share becomes a receivable.">الجهة بتتختار في ملف المريض والفاتورة مرة واحدة (مش زي NITCO: احفظ كاش وبعدين غيّر). نصيب المريض بيتحصّل، ونصيب الجهة بيتسجل مستحق عليها.</span></div>
+        <div class="t-card-foot"><span class="t-small t-muted" data-en="The payer is chosen inline on the patient file and the invoice, one save. The patient's share is collected; the payer's share becomes a receivable.">الجهة بتتختار في ملف المريض والفاتورة مرة واحدة. نصيب المريض بيتحصّل، ونصيب الجهة بيتسجل مستحق عليها.</span></div>
       </div>
     </section>
 
     <!-- ===================== COMMISSION (TIER 2) ===================== -->
     <section data-panel="commission" hidden aria-label="Doctor commission" data-en-aria-label="Doctor commission">
       <div class="t-alert mb-4 sp-plan-lock" style="border-style:dashed"><span class="t-tier">Tier 2</span><span data-en="For polyclinics where doctors work for a share. Solo clinics don't need this.">للمجمعات اللي الأطباء فيها بيشتغلوا بنسبة. العيادة الفردية مش محتاجاه.</span></div>
-      <div class="t-card" data-tier="2" data-note="Doctor commission: % or fixed amount per service (NITCO v98). NITCO's bulk apply silently overwrites every service; here the change is previewed row by row with the effect on last month's income, and can be undone."
-           data-note-ar="نسبة الطبيب: نسبة أو مبلغ ثابت لكل خدمة (NITCO v98). في NITCO التطبيق على الكل بيكتب فوق كل الخدمات من غير ما يقول؛ هنا بتشوف التغيير سطر سطر وأثره على دخل الشهر اللي فات، وتقدر ترجع فيه.">
+      <div class="t-card" data-tier="2" data-note="Doctor commission: % or fixed amount per service. A bulk change is previewed row by row with the effect on last month's income, and can be undone."
+           data-note-ar="نسبة الطبيب: نسبة أو مبلغ ثابت لكل خدمة. التغيير الجماعي بيبان سطر سطر وأثره على دخل الشهر اللي فات، وتقدر ترجع فيه.">
         <div class="t-form-grid mb-4" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr))">
           <div class="t-field"><label class="t-label" for="sp-cdoc" data-en="Doctor">الدكتور</label>
             <select id="sp-cdoc" class="t-select"></select></div>
@@ -214,8 +214,8 @@
 <!-- Service drawer -->
 <div class="t-scrim" id="sp-drawer" hidden>
   <aside class="t-drawer" role="dialog" aria-modal="true" aria-labelledby="sp-dr-h"
-         data-note="Edit in a side drawer, one level deep, one save. The service form keeps NITCO's useful fields (AR/EN name, type, price, minimum, doctor-may-edit, fixed price, active) and drops the noise (NPHIES codes, branch codes, tax, cost %, 16 inputs above the fold). Branch prices sit in the same drawer: blank means 'use the base price'."
-         data-note-ar="التعديل في درج جانبي، مستوى واحد، حفظ واحد. فورم الخدمة بياخد المفيد من NITCO ويسيب الزحمة. أسعار الفروع في نفس الدرج: الفاضي = السعر الأساسي.">
+         data-note="Edit in a side drawer, one level deep, one save. The service form has only the fields a clinic needs: AR/EN name, type, price, minimum, doctor-may-edit, fixed price, active. Branch prices sit in the same drawer: blank means 'use the base price'."
+         data-note-ar="التعديل في درج جانبي، مستوى واحد، حفظ واحد. فورم الخدمة فيه الخانات اللي العيادة محتاجاها بس: الاسم عربي وإنجليزي، النوع، السعر، أقل سعر، الدكتور يعدّل، سعر ثابت، مفعّل. أسعار الفروع في نفس الدرج: الفاضي = السعر الأساسي.">
     <div class="t-modal-head">
       <h2 id="sp-dr-h"></h2>
       <button class="t-btn icon ghost" type="button" data-close aria-label="Close" data-en-aria-label="Close" title="إغلاق" data-en-title="Close"><svg class="t-icon"><use href="#i-close"/></svg></button>

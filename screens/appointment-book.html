@@ -40,7 +40,7 @@
     .slot[aria-pressed="true"] { border-color: var(--primary); background: var(--primary-soft); box-shadow: 0 0 0 1px var(--primary); }
     .sum { position: sticky; top: calc(var(--topbar-h) + var(--s-4)); }
     .sum .t-dl { grid-template-columns: 90px 1fr; }
-    /* local fix (shared-asset gap): icon was painted under the input; kbd flipped sides in RTL */
+    /* icon was painted under the input; kbd flipped sides in RTL */
     .t-search-xl > .t-icon { z-index: 1; pointer-events: none; }
     .t-search-xl > .t-kbd { direction: inherit; unicode-bidi: isolate; }
     .t-search-xl .t-input { padding-inline-end: 84px; }
@@ -72,7 +72,7 @@
 
         <!-- 1. Patient -->
         <div class="bk-sec"
-             data-note="One omnibox (name, mobile or file no.) instead of NITCO's 14–20-field search modal. No file? Book on mobile + name only: a provisional patient that becomes a full file at check-in (NITCO v7 uses a shared code '0' for this)."
+             data-note="One omnibox (name, mobile or file no.). No file? Book on mobile + name only: a provisional patient that becomes a full file at check-in."
              data-note-ar="خانة بحث واحدة (اسم أو موبايل أو رقم ملف). مفيش ملف؟ احجز بالموبايل والاسم بس: مريض مؤقت يتحول لملف كامل عند الحضور.">
           <h2><span class="bk-n">1</span><span data-en="Patient">المريض</span></h2>
 
@@ -118,7 +118,7 @@
 
         <!-- 2. Doctor, day, slot -->
         <div class="bk-sec"
-             data-note="Free slots come straight from the doctor's shifts in each branch and room: split shifts, leaves and patients per slot. A doctor who works in two branches shows each period with its branch and room, and the booking takes that branch. Full or leave slots stay visible with a plain-Arabic reason and the nearest alternative, and overbooking is a soft choice, never a hard block (NITCO v57, v58, v102)."
+             data-note="Free slots come straight from the doctor's shifts in each branch and room: split shifts, leaves and patients per slot. A doctor who works in two branches shows each period with its branch and room, and the booking takes that branch. Full or leave slots stay visible with a plain-Arabic reason and the nearest alternative, and overbooking is a soft choice, never a hard block."
              data-note-ar="المواعيد الفاضية جاية من ورديات الدكتور في كل فرع وغرفة: فترتين، الإجازات، وعدد المرضى في الميعاد. الدكتور اللي شغال في فرعين بتظهر كل فترة بفرعها وغرفتها، والحجز بياخد الفرع ده. المواعيد الكاملة أو الإجازة بتبان بسبب واضح وأقرب بديل.">
           <h2><span class="bk-n">2</span><span data-en="Doctor, day and time">الدكتور واليوم والميعاد</span></h2>
           <div class="doc-opts mb-4" id="doc-opts" role="group" aria-label="الدكتور" data-en-aria-label="Doctor"></div>
@@ -132,7 +132,7 @@
           <h2><span class="bk-n">3</span><span data-en="Visit details">تفاصيل الزيارة</span></h2>
           <div class="t-form-grid">
             <div class="t-field span-2"
-                 data-note="Visit type is pre-selected from the patient's free follow-up window and drives the price: follow-up inside the window = 0, after it = follow-up fee, new = consult fee (NITCO v7, v90 visit type; v13 visit days)."
+                 data-note="Visit type is pre-selected from the patient's free follow-up window and drives the price: follow-up inside the window = 0, after it = follow-up fee, new = consult fee."
                  data-note-ar="نوع الزيارة بيتحدد تلقائي من مدة المتابعة المجانية وبيحدد السعر: متابعة جوه المدة = صفر، بعدها = سعر الاستشارة، جديد = سعر الكشف.">
               <span class="t-label" data-en="Visit type">نوع الزيارة</span>
               <div class="t-row tight">
@@ -152,7 +152,7 @@
                 <option value="45" data-en="45 min">٤٥ دقيقة</option>
                 <option value="60" data-en="60 min (takes 2 slots)">٦٠ دقيقة (بتاخد ميعادين)</option>
               </select>
-              <span class="t-hint" id="dur-hint" data-en="Override only for long procedures (NITCO v8).">غيّرها بس للإجراءات الطويلة.</span>
+              <span class="t-hint" id="dur-hint" data-en="Override only for long procedures">غيّرها بس للإجراءات الطويلة.</span>
             </div>
             <div class="t-field">
               <span class="t-label" data-en="Booked via">الحجز عن طريق</span>

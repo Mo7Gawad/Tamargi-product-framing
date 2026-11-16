@@ -91,15 +91,15 @@
           <label class="t-sr" for="doc-filter" data-en="Doctor">الطبيب</label>
           <select id="doc-filter" class="t-select" style="width:auto;height:34px;font-size:var(--fs-sm)"></select>
           <button class="t-btn sm t-end" type="button" id="fu-filter" aria-pressed="false"
-                  data-note="Follow-ups due: filters the grid to follow-up visits and lists patients whose free follow-up window is closing without a booking (NITCO v7–8 'follow-up days' column, turned into a to-do list)."
+                  data-note="Follow-ups due: filters the grid to follow-up visits and lists patients whose free follow-up window is closing without a booking."
                   data-note-ar="المتابعات المستحقة: يفلتر الجدول على زيارات المتابعة ويعرض المرضى اللي مدة الاستشارة المجانية بتاعتهم قربت تخلص ومن غير حجز.">
             <svg class="t-icon sm"><use href="#i-filter"/></svg><span data-en="Follow-ups only">المتابعات بس</span>
           </button>
         </div>
 
         <div class="cal-counts" aria-label="Today's totals" data-en-aria-label="Today's totals"
-             data-note="Six appointment states, each a word + colour + dot, everywhere in the product: booked, confirmed, arrived (waiting, called or in the room), done, no-show, cancelled. Counts follow the selected branch and doctor. NITCO uses ~10 row colours with a legend nobody can read (v6–8)."
-             data-note-ar="ست حالات للموعد، كل حالة كلمة + لون + نقطة: محجوز، مؤكد، وصل (منتظر أو اتنادى أو في الكشف)، خلص، مجاش، ملغي. العدد بيتبع الفرع والدكتور المختار. بدل ١٠ ألوان صفوف في NITCO.">
+             data-note="Six appointment states, each a word + colour + dot, everywhere in the product: booked, confirmed, arrived (waiting, called or in the room), done, no-show, cancelled. Counts follow the selected branch and doctor."
+             data-note-ar="ست حالات للموعد، كل حالة كلمة + لون + نقطة: محجوز، مؤكد، وصل (منتظر أو اتنادى أو في الكشف)، خلص، مجاش، ملغي. العدد بيتبع الفرع والدكتور المختار.">
           <span class="t-chip booked"><span data-en="Booked">محجوز</span> <b id="n-booked">6</b></span>
           <span class="t-chip confirmed"><span data-en="Confirmed">مؤكد</span> <b id="n-confirmed">5</b></span>
           <span class="t-chip arrived"><span data-en="Arrived">وصل</span> <b id="n-arrived">2</b></span>
@@ -113,7 +113,7 @@
           <div data-state="day">
             <div class="cal-scroll">
               <div class="cal" id="cal"
-                   data-note="Multi-doctor day grid built from each doctor's hours: hatched = outside working hours, brick = leave, the 1–5 pm gap collapses into one 'break' row. Reception can never book into a closed slot by accident (NITCO v57, v58, v102 schedules feed the booking grid)."
+                   data-note="Multi-doctor day grid built from each doctor's hours: hatched = outside working hours, brick = leave, the 1–5 pm gap collapses into one 'break' row. Reception can never book into a closed slot by accident."
                    data-note-ar="جدول يومي لكل الأطباء مبني على مواعيد عمل كل دكتور: المخطط = خارج المواعيد، الأحمر الطوبي = إجازة، والاستراحة من ١ لـ ٥ بتتلم في صف واحد."></div>
             </div>
           </div>
@@ -150,7 +150,7 @@
           </div>
           <div id="fu-list"></div>
         </div>
-<div class="t-card sunk" data-note="Check in = one click: the appointment becomes Arrived, the visit and the bill (with the planned services and the right fee, 0 for a free follow-up) are created, and the patient gets a queue ticket. No second search at the cashier (NITCO v6, v90 appointment-invoice link, without the &quot;link or cancel?&quot; prompt)." data-note-ar="تسجيل الحضور بضغطة: الموعد يبقى وصل، والزيارة والفاتورة بالخدمات والسعر الصح بيتفتحوا، والمريض ياخد تذكرة في الدور.">
+<div class="t-card sunk" data-note="Check in = one click: the appointment becomes Arrived, the visit and the bill (with the planned services and the right fee, 0 for a free follow-up) are created, and the patient gets a queue ticket. No second search at the cashier." data-note-ar="تسجيل الحضور بضغطة: الموعد يبقى وصل، والزيارة والفاتورة بالخدمات والسعر الصح بيتفتحوا، والمريض ياخد تذكرة في الدور.">
           <div class="t-card-head mb-2"><h3 data-en="How states work">حالات الموعد</h3></div>
           <ul class="t-small t-muted" style="margin:0;padding-inline-start:var(--s-4);line-height:1.9">
             <li><span data-en="Booked → Confirmed when the patient confirms (call or chat).">محجوز ← مؤكد لما المريض يأكد (تليفون أو شات).</span></li>
@@ -163,7 +163,7 @@
 
     <!-- Appointment side panel -->
     <aside class="t-drawer" id="appt-drawer" hidden aria-labelledby="drw-title"
-           data-note="Side panel per appointment: one next-step button (Check in), secondary actions labelled in words, planned services with prices, and the full audit trail of who booked, confirmed, moved or cancelled it (NITCO v6 per-appointment log). Replaces NITCO's 9 unlabelled round icons on every row."
+           data-note="Side panel per appointment: one next-step button (Check in), secondary actions labelled in words, planned services with prices, and the full audit trail of who booked, confirmed, moved or cancelled it."
            data-note-ar="لوحة جانبية لكل موعد: زرار واحد للخطوة الجاية (تسجيل حضور)، باقي الأوامر مكتوبة بالكلام، الخدمات المخططة بأسعارها، وسجل كامل مين حجز وأكد ونقل وألغى.">
       <div class="t-modal-head">
         <h2 id="drw-title" data-en="Appointment">الموعد</h2>
@@ -298,7 +298,7 @@
     cal.innerHTML = h;
     var ob = cal.querySelector("[data-overbook]") || cal.querySelector("[data-first-add]");
     if (ob) {
-      ob.setAttribute("data-note", "Overbooked slot marker: each doctor takes N patients per 30-min slot (from the length of the main service); one more booking is allowed (Egyptian reality) but the slot is outlined and labelled with the count, never a hard block (NITCO v57 'more than one patient' flag).");
+      ob.setAttribute("data-note", "Overbooked slot marker: each doctor takes N patients per 30-min slot (from the length of the main service); one more booking is allowed but the slot is outlined and labelled with the count, never a hard block.");
       ob.setAttribute("data-note-ar", "علامة الميعاد المحجوز زيادة: كل دكتور بياخد عدد مرضى في كل نص ساعة (حسب مدة الكشف)؛ الحجز الزيادة مسموح بس الميعاد بيتعلم بالعدد، من غير منع.");
     }
   }
@@ -427,7 +427,7 @@
       "<dt>" + tx("نوع الزيارة", "Visit type") + "</dt><dd>" + esc(t(s)) + "</dd>" +
       "<dt>" + tx("الحجز عن طريق", "Booked via") + "</dt><dd>" + esc(tx(via[0], via[1])) + "</dd>" +
       (a.queueNo ? "<dt>" + tx("التذكرة", "Ticket") + '</dt><dd><span class="t-ltr">' + D.ticket(a) + "</span></dd>" : "") + "</dl>";
-    b += '<div class="drw-sec" data-note="Planned services are attached at booking (NITCO v5) and become the bill lines at check-in, so reception never re-types them. Prices come from the price list: doctor + branch, then doctor, then branch, then the default." data-note-ar="الخدمات المخططة بتتسجل مع الحجز وبتتحول لبنود الفاتورة عند الحضور. الأسعار من قائمة الأسعار: دكتور + فرع، ثم دكتور، ثم فرع، ثم السعر الأساسي."><h4>' +
+    b += '<div class="drw-sec" data-note="Planned services are attached at booking and become the bill lines at check-in, so reception never re-types them. Prices come from the price list: doctor + branch, then doctor, then branch, then the default." data-note-ar="الخدمات المخططة بتتسجل مع الحجز وبتتحول لبنود الفاتورة عند الحضور. الأسعار من قائمة الأسعار: دكتور + فرع، ثم دكتور، ثم فرع، ثم السعر الأساسي."><h4>' +
       (inv ? esc(tx("الفاتورة ", "Bill ")) + '<span class="t-ltr">' + inv.no + "</span> " + '<span class="t-chip ' + inv.status + '">' + t(D.invoiceStatus[inv.status]) + "</span>" : tx("الخدمات المخططة", "Planned services")) + '</h4><table class="t-table"><tbody>' +
       lines.map(function (l) { return "<tr><td>" + esc(t(l)) + '</td><td class="num">' + money(l.price) + "</td></tr>"; }).join("") +
       "</tbody><tfoot><tr><td>" + (inv ? tx("الإجمالي", "Total") : tx("المتوقع", "Expected")) + '</td><td class="num">' + money(total) + "</td></tr></tfoot></table></div>";
@@ -459,7 +459,7 @@
     openId = id; dr.hidden = false; dr.dataset.id = id; render();
     var first = document.querySelector("#drw-foot .t-btn"); if (first) first.focus();
   }
-  /* next number in the branch's invoice series (D39: one series per branch) */
+  /* next number in the branch's invoice series (one series per branch) */
   function nextInvoiceNo(branch) {
     return D.nextInvoiceNo(branch, D.appointments.map(function (a) { return a._inv && a._inv.no; }));
   }

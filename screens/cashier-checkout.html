@@ -6,7 +6,7 @@
   <title data-en="Cashier checkout — Tamargi">الخزنة — تحصيل — تمرجي</title>
   <link rel="stylesheet" href="../assets/tamargi.css">
   <style>
-    /* scope notice: let its branch buttons wrap at phone width (shared fix requested for tamargi.css) */
+    /* scope notice: let its branch buttons wrap at phone width */
     /* back arrow: the sprite arrow points right, which is already "back" in RTL; mirror only in LTR */
     [dir="ltr"] .co-back { transform: scaleX(-1); }
     .co-num { width: 88px; height: 32px; font-size: var(--fs-sm); text-align: end; }
@@ -40,7 +40,7 @@
 
   <!-- Patient banner -->
   <section class="t-banner" aria-label="Patient" data-en-aria-label="Patient" id="co-banner"
-           data-note="Patient banner from the org-wide patient file: the same file in every branch of the organization (one file per org, ADR-017). Debt, deposit and the free follow-up window are org-wide, so a patient who owes money in one branch is reminded in the other too."
+           data-note="Patient banner from the org-wide patient file: the same file in every branch of the organization. Debt, deposit and the free follow-up window are org-wide, so a patient who owes money in one branch is reminded in the other too."
            data-note-ar="شريط المريض من ملف المنشأة: نفس الملف في كل الفروع. المديونية والرصيد ومدة المتابعة على مستوى المنشأة كلها."></section>
 
   <div class="t-container">
@@ -88,8 +88,8 @@
               </div>
 
               <div class="co-quick mb-4"
-                   data-note="Quick buttons come from the doctor's default consult and follow-up services (NITCO v1, v89, v97). The type-ahead replaces NITCO's 1,600-row service grid paged 20 at a time: type 2 letters, Enter adds the first match."
-                   data-note-ar="أزرار سريعة من خدمات الكشف والمتابعة الافتراضية للطبيب. البحث بالكتابة بدل جدول ١٦٠٠ خدمة في NITCO: حرفين وEnter.">
+                   data-note="Quick buttons come from the doctor's default consult and follow-up services. Type-ahead search: type 2 letters, Enter adds the first match."
+                   data-note-ar="أزرار سريعة من خدمات الكشف والمتابعة الافتراضية للطبيب. البحث بالكتابة: حرفين وEnter.">
                 <button class="t-pick" type="button" data-add="consult"><svg class="t-icon sm"><use href="#i-plus"/></svg><span id="co-q-consult"></span></button>
                 <button class="t-pick" type="button" data-add="followup"><svg class="t-icon sm"><use href="#i-plus"/></svg><span id="co-q-fu"></span></button>
                 <div class="co-ta">
@@ -103,7 +103,7 @@
               </div>
 
               <div class="t-table-wrap"
-                   data-note="Free follow-up is priced 0 automatically and the reason is shown on the line (NITCO v13, v62, v106: 'visit days'); the window length is the org setting. Charging it anyway needs a reason, which is logged. No silent overrides, no hard block. Prices resolve doctor + branch first, so the same doctor can cost less in another branch."
+                   data-note="Free follow-up is priced 0 automatically and the reason is shown on the line; the window length is the org setting. Charging it anyway needs a reason, which is logged. No silent overrides, no hard block. Prices resolve doctor + branch first, so the same doctor can cost less in another branch."
                    data-note-ar="المتابعة المجانية سعرها صفر تلقائيًا والسبب ظاهر على البند، ومدتها من إعدادات المنشأة. لو هتتحاسب لازم سبب ويتسجل. الأسعار بتتحسب حسب الطبيب والفرع.">
                 <table class="t-table" id="co-lines">
                   <thead><tr>
@@ -117,13 +117,13 @@
                   <tbody id="co-body"></tbody>
                 </table>
               </div>
-              <p class="t-hint mt-2 mb-0" data-en="Services the doctor adds during the visit land here automatically (charge capture). No “send cash invoice” round-trip.">الخدمات اللي الدكتور بيضيفها في الكشف بتنزل هنا لوحدها. من غير «إرسال فاتورة نقدي» زي NITCO.</p>
+              <p class="t-hint mt-2 mb-0" data-en="Services the doctor adds during the visit land here automatically (charge capture).">الخدمات اللي الدكتور بيضيفها في الكشف بتنزل هنا لوحدها.</p>
             </div>
           </section>
 
           <!-- Invoice discount -->
           <section class="t-card"
-                   data-note="Invoice discount as amount or %, with a named tier and a mandatory reason. Each user has a cap set by the owner (NITCO v1, v53, v89: tiers + per-user discount %). Above the cap the cashier asks the owner inline (PIN) instead of being blocked or discounting silently."
+                   data-note="Invoice discount as amount or %, with a named tier and a mandatory reason. Each user has a cap set by the owner. Above the cap the cashier asks the owner inline (PIN) instead of being blocked or discounting silently."
                    data-note-ar="خصم على الفاتورة بالمبلغ أو النسبة مع شريحة وسبب إجباري. لكل مستخدم حد أقصى يحدده المالك؛ فوق الحد بيطلب موافقة المالك بالرقم السري.">
             <div class="t-card-head">
               <h3 data-en="Invoice discount">خصم على الفاتورة</h3>
@@ -183,7 +183,7 @@
             </dl>
 
             <div class="t-paylines" id="co-pays"
-                 data-note="Split payment: one line per method (cash, card, InstaPay, from deposit). Paid defaults to full cash; editing it rebalances. 'From deposit' cannot exceed the deposit held (NITCO v84 error 'رصيد المريض لا يكفي')."
+                 data-note="Split payment: one line per method (cash, card, InstaPay, from deposit). Paid defaults to full cash; editing it rebalances. 'From deposit' cannot exceed the deposit held."
                  data-note-ar="دفع مقسّم: سطر لكل طريقة (كاش، كارت، إنستاباي، من الرصيد). الافتراضي كاش بالكامل. «من الرصيد» ما يزيدش عن الرصيد المتاح.">
               <div class="t-payline" data-method="cash">
                 <span class="co-method"><svg class="t-icon sm"><use href="#i-cash"/></svg><span data-en="Cash">كاش</span></span>
@@ -199,7 +199,7 @@
             </div>
 
             <div class="t-remainder mt-4" id="co-rem"
-                 data-note="Remainder row: whatever is not paid becomes 'debt on patient' automatically and posts to the patient account (NITCO v32, v34, v89). Overpaid cash shows the change to hand back. The colour always comes with words."
+                 data-note="Remainder row: whatever is not paid becomes 'debt on patient' automatically and posts to the patient account. Overpaid cash shows the change to hand back. The colour always comes with words."
                  data-note-ar="الباقي بيتحول لمديونية على المريض تلقائيًا ويتسجل في حسابه. لو دفع كاش زيادة بيظهر الباقي اللي يرجعله.">
               <span id="co-rem-l" data-en="Debt on patient">مديونية على المريض</span>
               <span class="t-money"><span id="co-rem-v">0</span> <span data-en="EGP">ج.م</span></span>
@@ -213,8 +213,8 @@
             </div>
 
             <button class="t-btn primary block co-collect mt-4" type="button" id="co-collect"
-                    data-note="Collect (F9) is the action that marks the invoice paid, not printing. NITCO marks paid only on 'Save & Print' and its trainers warn about it in five videos (v34, v36, v88, v89, v91). After Collect the receipt preview is offered, never forced."
-                    data-note-ar="«تحصيل» (F9) هو اللي بيعلّم الفاتورة مدفوعة، مش الطباعة. في NITCO الدفع مربوط بالطباعة والمدربين بيحذروا منه في ٥ فيديوهات.">
+                    data-note="Collect (F9) is the action that marks the invoice paid, not printing. After Collect the receipt preview is offered, never forced."
+                    data-note-ar="«تحصيل» (F9) هو اللي بيعلّم الفاتورة مدفوعة، مش الطباعة. بعد التحصيل بيتعرض الإيصال، من غير إجبار.">
               <svg class="t-icon"><use href="#i-check"/></svg><span data-en="Collect">تحصيل</span> <span class="t-money" id="co-collect-amt">0</span> <span data-en="EGP">ج.م</span><span class="t-kbd">F9</span>
             </button>
             <p class="t-hint mt-2 mb-0" style="text-align:center" data-en="The invoice is issued and locked when you collect. Corrections go through a credit note.">الفاتورة بتتقفل بعد التحصيل. أي تصحيح بيبقى بإشعار مرتجع.</p>
@@ -328,7 +328,7 @@
     var fu = live.filter(function (a) { return D.service(a.service).kind === "followup"; })[0];
     return fu || live[0] || q.filter(function (a) { return a.status === "done"; }).slice(-1)[0] || q[0] || null;
   }
-  function nextInvoiceNo() { return D.nextInvoiceNo(S.branch); }   /* per-branch series (D39) */
+  function nextInvoiceNo() { return D.nextInvoiceNo(S.branch); }   /* per-branch series */
 
   /* ---------- load the visit for the current scope ---------- */
   function load() {

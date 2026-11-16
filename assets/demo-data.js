@@ -1,12 +1,12 @@
 /* =====================================================================
-   Tamargi prototype — demo-data.js  (v1.1, 2026-11-14)
+   Tamargi prototype — demo-data.js
    ONE shared FAKE dataset for every screen. No real people, no real phones.
    Load BEFORE shell.js:
      <script src="../assets/demo-data.js"></script>
      <script src="../assets/shell.js"></script>
    Global: window.TamargiData  (alias: Tamargi.data once shell.js has run)
 
-   Tenancy (ADR-017, 02_Product/tenancy-model.md):
+   Tenancy:
      Organization (tenant) -> Branches -> Rooms.
      Specialty belongs to the DOCTOR. Doctor profile is per org.
      One patient file per org (shared by its branches, never across orgs).
@@ -18,7 +18,7 @@
      - Day index: 0 = Sat, 1 = Sun, 2 = Mon, 3 = Tue, 4 = Wed, 5 = Thu, 6 = Fri.
      - Money is whole EGP.
      - Demo clock: TODAY = 2026-11-14 (Saturday), NOW = 17.5.
-     - Numbering (D39-A): invoices, receipts, credit notes run one series PER BRANCH
+     - Numbering: invoices, receipts, credit notes run one series PER BRANCH
        (D.invoiceNo / D.docNo / D.nextInvoiceNo, branch `code`); file numbers run one
        series per ORG. Queue numbers per branch per day (D.ticket = room-number).
      - Also here: D.leaves, D.vitals, D.visits (+ slot/leave/ticket/initials helpers).
@@ -93,7 +93,7 @@
   /* ---------------- Organizations ----------------
      kind: solo | polyclinic. plan: clinic | poly.
      clinicalVisibility: "org" = every doctor of the org sees the whole file (default);
-     a membership may override with "own" (own patients only, D36).
+     a membership may override with "own" (own patients only).
      myRole*: how the signed-in person (D.me) sits in this org (org switcher label). */
   D.orgs = [
     { id: "selim", kind: "solo", ar: "عيادة د. أحمد سليم", en: "Dr. Ahmed Selim Clinic", ini: "أس",
@@ -104,7 +104,7 @@
       gov: { ar: "الدقهلية", en: "Dakahlia" }, invPrefix: "NMC", clinicalVisibility: "org", followupDays: 10, discountApprovalAbove: 10 }
   ];
 
-  /* ---------------- Plans (D45-A): monthly EGP price + included seats; extra doctor / branch add-ons ----------------
+  /* ---------------- Plans: monthly EGP price + included seats; extra doctor / branch add-ons ----------------
      Rooms and chairs are never limited. org.plan points here. */
   D.plans = {
     solo:   { ar: "فردي", en: "Solo", price: 199, doctors: 1, branches: 1, staff: 3, addDoc: 99, addBranch: null, subAr: "دكتور واحد ومساعدة", subEn: "One doctor and an assistant" },
@@ -378,7 +378,7 @@
       "n-a9": { extra: [["n-ecg", 1, 0]], method: "instapay" }
     };
     var cashier = { selim: { main: "m-s-sara" }, nile: { tor: "m-n-mahmoud", gam: "m-n-esraa" } };
-    var seq = { main: 2390, tor: 3120, gam: 1240 };   /* per-branch series (D39-A) */
+    var seq = { main: 2390, tor: 3120, gam: 1240 };   /* per-branch series */
     D.appointments.forEach(function (a) {
       if (a.status !== "done") return;
       var q = special[a.id] || {}, lines = [];
@@ -603,7 +603,7 @@
   /* devices per room (rooms screen "N devices" link) */
   D.devicesIn = function (roomId) { return D.equipment.filter(function (e) { return e.room === roomId; }); };
 
-  /* ---------------- Document numbering (D39-A: one series per branch) ----------------
+  /* ---------------- Document numbering (one series per branch) ----------------
      Invoice:  <org invPrefix>-<branch code>-<year>-<6 digits>   e.g. NMC-TOR-2026-003121
      Others:   <kind>-<branch code>-<year>-<6 digits>             e.g. CN-TOR-2026-000007, RCV-UNI-2026-000193
      The patient FILE number stays one sequence per org (no branch prefix). */

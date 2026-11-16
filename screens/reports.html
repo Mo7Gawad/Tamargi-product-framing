@@ -37,8 +37,8 @@
         <p class="t-sub mb-0"><span data-en="Pick a report, set the dates, read it right here. Export only if your accountant needs a file.">اختار التقرير وحدد التاريخ واقرأه هنا على طول. صدّر ملف بس لو المحاسب محتاجه.</span> <span id="rp-scope" class="t-small"></span></p>
       </div>
       <div class="t-actions"
-           data-note="Export inline: PDF uses the browser's print-to-PDF of exactly what is on screen (letterhead of the branch on top, or the organization under All branches); Excel downloads the same rows. No popup Crystal-style viewer with an English toolbar and parameters in the URL (NITCO v42/v103)."
-           data-note-ar="التصدير من نفس الصفحة: PDF بيطبع اللي على الشاشة بالظبط بترويسة الفرع (أو المنشأة في «كل الفروع»)، وExcel بينزّل نفس الصفوف. مفيش نافذة منبثقة إنجليزي والبيانات في الرابط زي NITCO.">
+           data-note="Export inline: PDF uses the browser's print-to-PDF of exactly what is on screen (letterhead of the branch on top, or the organization under All branches); Excel downloads the same rows."
+           data-note-ar="التصدير من نفس الصفحة: PDF بيطبع اللي على الشاشة بالظبط بترويسة الفرع (أو المنشأة في «كل الفروع»)، وExcel بينزّل نفس الصفوف.">
         <a class="t-btn ghost" href="owner-dashboard.html"><svg class="t-icon sm flip"><use href="#i-arrow"/></svg><span data-en="Dashboard">لوحة المالك</span></a>
         <button class="t-btn" type="button" data-toast="تم تنزيل ملف Excel" data-toast-en="Excel file downloaded"><svg class="t-icon sm"><use href="#i-download"/></svg><span data-en="Excel">Excel</span></button>
         <button class="t-btn primary" type="button" id="rp-pdf"><svg class="t-icon sm"><use href="#i-print"/></svg><span data-en="Print / PDF">طباعة / PDF</span><span class="t-kbd">Ctrl P</span></button>
@@ -47,8 +47,8 @@
 
     <!-- Tabs -->
     <div class="t-tabs" role="tablist" aria-label="Reports" data-en-aria-label="Reports"
-         data-note="Six reports, not 50 in four dropdowns. They answer the owner's real questions: how much came in, who still owes, what was given away (discounts, credit notes), and who did what. Commission is Tier 2 (polyclinics). Every report follows the branch picked in the top bar; owners also get All branches with a By-branch view."
-         data-note-ar="ست تقارير بس مش 50 في 4 قوايم. بترد على أسئلة المالك الحقيقية: دخل كام، مين لسه عليه، إيه اللي اتخصم أو اترجع، ومين عمل إيه. العمولة للمجمعات (المرحلة 2). كل تقرير ماشي على الفرع المختار فوق، والمالك عنده كمان «كل الفروع» وعرض حسب الفرع.">
+         data-note="Six focused reports. They answer the owner's real questions: how much came in, who still owes, what was given away (discounts, credit notes), and who did what. Commission is Tier 2 (polyclinics). Every report follows the branch picked in the top bar; owners also get All branches with a By-branch view."
+         data-note-ar="ست تقارير مركّزة. بترد على أسئلة المالك الحقيقية: دخل كام، مين لسه عليه، إيه اللي اتخصم أو اترجع، ومين عمل إيه. العمولة للمجمعات (المرحلة 2). كل تقرير ماشي على الفرع المختار فوق، والمالك عنده كمان «كل الفروع» وعرض حسب الفرع.">
       <button class="t-tab" role="tab" aria-selected="true" data-tab="income" data-en="Daily income">الدخل اليومي</button>
       <button class="t-tab" role="tab" aria-selected="false" data-tab="debt" data-en="Unpaid & debt">غير المدفوع والمديونية</button>
       <button class="t-tab" role="tab" aria-selected="false" data-tab="credits" data-en="Credit notes">المرتجعات</button>
@@ -59,8 +59,8 @@
 
     <!-- Filters (shared by all tabs) -->
     <form class="t-card sunk mb-4 rp-filters" onsubmit="return false"
-          data-note="One filter row, same for every report: quick periods (today, yesterday, 7 days, this month) instead of 12:00:00 AM date-time spinners; doctor and payment method default to 'All'. The branch comes from the top bar, so a report never mixes branches by accident. Results update as you change a filter, no 'Show' button."
-          data-note-ar="صف فلاتر واحد لكل التقارير: فترات سريعة بدل منتقي الوقت 12:00:00 ص، والطبيب وطريقة الدفع افتراضيًا «الكل». الفرع جاي من الشريط اللي فوق، فالتقرير مايخلطش الفروع بالغلط. النتايج بتتحدّث أول ما تغيّر الفلتر من غير زرار «عرض».">
+          data-note="One filter row, same for every report: quick periods (today, yesterday, 7 days, this month); doctor and payment method default to 'All'. The branch comes from the top bar, so a report never mixes branches by accident. Results update as you change a filter, no 'Show' button."
+          data-note-ar="صف فلاتر واحد لكل التقارير: فترات سريعة (النهارده، امبارح، ٧ أيام، الشهر ده)، والطبيب وطريقة الدفع افتراضيًا «الكل». الفرع جاي من الشريط اللي فوق، فالتقرير مايخلطش الفروع بالغلط. النتايج بتتحدّث أول ما تغيّر الفلتر من غير زرار «عرض».">
       <div class="t-field">
         <span class="t-label" data-en="Period">الفترة</span>
         <div class="t-seg" role="group" id="rp-period" aria-label="Period" data-en-aria-label="Period">
@@ -124,7 +124,7 @@
           <tfoot id="rp-debt-foot"></tfoot>
         </table>
       </div>
-      <p class="t-small t-muted" style="margin-block-start:var(--s-2)" data-en="Debt is created only when an invoice is collected partly; the remainder is recorded on the patient (no 'save without paying' trap).">المديونية بتتسجّل بس لما الفاتورة تتحصّل جزئيًا؛ الباقي بيتسجّل على المريض (مفيش «حفظ من غير دفع» زي NITCO).</p>
+      <p class="t-small t-muted" style="margin-block-start:var(--s-2)" data-en="Debt is created only when an invoice is collected partly; the remainder is recorded on the patient.">المديونية بتتسجّل بس لما الفاتورة تتحصّل جزئيًا؛ الباقي بيتسجّل على المريض.</p>
     </section>
 
     <!-- ============ CREDIT NOTES ============ -->
@@ -140,7 +140,7 @@
           <tbody id="rp-cn"></tbody>
         </table>
       </div>
-      <p class="t-small t-muted" style="margin-block-start:var(--s-2)" data-en="Issued invoices are never edited or deleted. Every correction is a credit note with a reason, linked to the original, numbered in the same branch series (NITCO v48–50).">الفواتير المصدرة مابتتعدلش ولا تتمسح. أي تصحيح = مرتجع بسبب ومربوط بالفاتورة الأصلية، ورقمه من سلسلة نفس الفرع.</p>
+      <p class="t-small t-muted" style="margin-block-start:var(--s-2)" data-en="Issued invoices are never edited or deleted. Every correction is a credit note with a reason, linked to the original, numbered in the same branch series.">الفواتير المصدرة مابتتعدلش ولا تتمسح. أي تصحيح = مرتجع بسبب ومربوط بالفاتورة الأصلية، ورقمه من سلسلة نفس الفرع.</p>
     </section>
 
     <!-- ============ DISCOUNTS ============ -->
@@ -166,7 +166,7 @@
     <!-- ============ COMMISSION (Tier 2) ============ -->
     <section data-panel="commission" role="tabpanel" hidden>
       <div class="t-card" data-tier="2"
-           data-note="Doctor commission is Tier 2 (polyclinic plan): % or fixed amount per service, set once in Services & fees (NITCO v98 has 4 shares per service; we start with one). A doctor who rents the shift keeps his fees and pays a fixed rent. A solo clinic owner-doctor does not need it, so on the Clinic plan the tab only explains and upsells."
+           data-note="Doctor commission is Tier 2 (polyclinic plan): % or fixed amount per service, set once in Services & fees. A doctor who rents the shift keeps his fees and pays a fixed rent. A solo clinic owner-doctor does not need it, so on the Clinic plan the tab only explains and upsells."
            data-note-ar="عمولة الأطباء للمجمعات (المرحلة 2): نسبة أو مبلغ ثابت لكل خدمة. الدكتور اللي مأجر الوردية بياخد فلوسه ويدفع إيجار ثابت. العيادة الفردية مش محتاجاها، فالتبويب في باقة العيادة بيشرح بس.">
         <div class="t-card-head"><h2 id="rp-cm-h"></h2><span class="t-tier" data-en="Tier 2 — polyclinic plan">المرحلة ٢ — باقة المجمعات</span></div>
         <div id="rp-cm-note"></div>
@@ -196,7 +196,7 @@
         </div>
       </div>
       <div class="t-table-wrap"
-           data-note="Activity log in plain Arabic sentences (not raw permission or table names): time, user, branch, action, the record (linked) and the reason when one was required. Read-only; nobody, including the owner, can delete entries (NITCO v2/v64 audit, made readable)."
+           data-note="Activity log in plain Arabic sentences: time, user, branch, action, the record (linked) and the reason when one was required. Read-only; nobody, including the owner, can delete entries."
            data-note-ar="سجل النشاط بجمل عربي واضحة: الوقت والمستخدم والفرع والإجراء والسجل (برابط) والسبب لو كان مطلوب. للقراءة بس ومحدش يقدر يمسحه حتى المالك.">
         <table class="t-table" id="rp-logtable">
           <thead><tr><th data-en="Time">الوقت</th><th data-en="User">المستخدم</th><th data-en="Action">الإجراء</th><th class="rp-hide-sm" data-en="Details">التفاصيل</th></tr></thead>

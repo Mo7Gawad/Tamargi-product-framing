@@ -60,8 +60,8 @@
 
   <!-- Today counters -->
   <section class="t-grid c4 dh-stats mb-4" aria-label="اليوم" data-en-aria-label="Today" id="dh-stats"
-           data-note="Today counters: seen, waiting, booked still to come, no-shows, for this doctor in the selected branch. The doctor's own waiting-list KPIs (NITCO v24–30) reduced to four numbers that matter tonight; each opens the filtered list."
-           data-note-ar="عدادات اليوم: اتكشف، منتظر، حجوزات لسه جاية، مجاش، للدكتور ده في الفرع المختار. مؤشرات قائمة انتظار NITCO مختصرة لأربع أرقام بس."></section>
+           data-note="Today counters: seen, waiting, booked still to come, no-shows, for this doctor in the selected branch. Each opens the filtered list."
+           data-note-ar="عدادات اليوم: اتكشف، منتظر، حجوزات لسه جاية، مجاش، للدكتور ده في الفرع المختار. كل رقم بيفتح القايمة متفلترة."></section>
 
   <div data-state="default">
   <div class="t-split aside-end">
@@ -86,8 +86,8 @@
           </div>
         </div>
         <div class="dh-q" id="qList"
-             data-note="Queue with status chips (colour + word), ticket (room + arrival number in the branch) and wait time. Payment is soft information only (Unpaid chip): the doctor is never blocked from opening a visit. Beats NITCO v29–30, where an unpaid visit cannot be opened."
-             data-note-ar="الدور بحالات مكتوبة، والتذكرة (الغرفة + رقم الوصول في الفرع) ووقت الانتظار. الدفع معلومة بس، ومش بيقفل الكشف على الدكتور (عكس NITCO اللي بيمنع فتح زيارة مش مدفوعة)."></div>
+             data-note="Queue with status chips (colour + word), ticket (room + arrival number in the branch) and wait time. Payment is soft information only (Unpaid chip): the doctor is never blocked from opening a visit."
+             data-note-ar="الدور بحالات مكتوبة، والتذكرة (الغرفة + رقم الوصول في الفرع) ووقت الانتظار. الدفع معلومة بس، ومش بيقفل الكشف على الدكتور."></div>
       </section>
     </div>
 
@@ -96,7 +96,7 @@
       <section class="t-card" id="inRoom"></section>
 
       <section class="t-card" aria-labelledby="fuTitle"
-               data-note="Follow-ups due: patients whose free follow-up window (NITCO v13/v62) ends in the next days with this doctor, with whether they arrived, are booked, or have not booked. Free ones are marked so no consult fee is charged by mistake."
+               data-note="Follow-ups due: patients whose free follow-up window ends in the next days with this doctor, with whether they arrived, are booked, or have not booked. Free ones are marked so no consult fee is charged by mistake."
                data-note-ar="المتابعات المستحقة: المرضى اللي مدة المتابعة المجانية بتاعتهم مع الدكتور ده بتخلص قريب، مين وصل ومين حاجز ومين لسه محجزش. المجانية متعلّمة عشان محدش يتحاسب على كشف بالغلط.">
         <div class="t-card-head"><h3 id="fuTitle" data-en="Follow-ups due">متابعات مستحقة</h3><span class="t-badge muted" id="fuCount">0</span></div>
         <ul class="dh-fu" id="fuList"></ul>

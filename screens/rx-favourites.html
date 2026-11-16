@@ -55,20 +55,20 @@
         <a class="t-btn ghost" href="prescription-builder.html"><svg class="t-icon sm"><use href="#i-rx"/></svg><span data-en="Open Rx builder">فتح شاشة الروشتة</span></a>
         <button class="t-btn" type="button" data-open="#import-modal" data-note="Specialty starter pack: common Egyptian trade names with typical adult doses, so a new doctor's favourites are not empty on day 1 (picked at sign-up in onboarding-wizard). Every line is reviewed before import; existing favourites are never overwritten."
            data-note-ar="حزمة البداية: أشهر الأسماء التجارية في مصر بجرعات البالغين المعتادة، عشان مفضلة الطبيب الجديد ما تبقاش فاضية من أول يوم. كل سطر بيتراجع قبل الاستيراد، ومفيش حاجة موجودة بتتمسح."><svg class="t-icon sm"><use href="#i-download"/></svg><span data-en="Import specialty pack">استيراد حزمة التخصص</span></button>
-        <button class="t-btn primary" type="button" id="add-fav-btn" data-note="Add favourite: one short drawer (drug, dose, frequency/duration chips, Arabic instruction) with a live &quot;prints as&quot; line — not a 40-field drug master. N opens it from anywhere on the page." data-note-ar="إضافة مفضلة: درج قصير (الدواء، الجرعة، اختيارات التكرار والمدة، التعليمات بالعربي) مع معاينة للسطر المطبوع — مش شاشة دواء فيها ٤٠ خانة. حرف N يفتحه."><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="Add favourite">إضافة مفضلة</span><span class="t-kbd">N</span></button>
+        <button class="t-btn primary" type="button" id="add-fav-btn" data-note="Add favourite: one short drawer (drug, dose, frequency/duration chips, Arabic instruction) with a live &quot;prints as&quot; line. N opens it from anywhere on the page." data-note-ar="إضافة مفضلة: درج قصير (الدواء، الجرعة، اختيارات التكرار والمدة، التعليمات بالعربي) مع معاينة للسطر المطبوع. حرف N يفتحه."><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="Add favourite">إضافة مفضلة</span><span class="t-kbd">N</span></button>
       </div>
     </header>
 
     <div class="t-alert info mb-4" id="favScope"
-         data-note="Favourites and Rx sets belong to the doctor's profile in THIS organization (tenancy: doctor profile is per org). The same doctor in another org keeps a separate list there, because each org is a separate data controller; he can import a specialty pack into each. Switching org in the top bar switches the list."
+         data-note="Favourites and Rx sets belong to the doctor's profile in THIS organization. The same doctor in another org keeps a separate list there, because each org is a separate data controller; he can import a specialty pack into each. Switching org in the top bar switches the list."
          data-note-ar="المفضلة والروشتات الجاهزة تبع بروفايل الدكتور في المنشأة دي. نفس الدكتور في منشأة تانية ليه قائمة منفصلة هناك (كل منشأة مسؤولة عن بياناتها)، ويقدر يستورد باقة التخصص في كل واحدة."><svg class="t-icon"><use href="#i-info"/></svg><span id="favScopeTxt"></span></div>
 
     <!-- ============ STATE: list ============ -->
     <div data-state="list">
       <div class="t-tabs" role="tablist">
         <button class="t-tab" role="tab" aria-selected="true" data-tab="favs"><span data-en="Favourites">المفضلة</span> <span class="t-badge muted" id="fav-count">0</span></button>
-        <button class="t-tab" role="tab" aria-selected="false" data-tab="sets" data-note="Rx sets are named prescriptions built from favourites (e.g. 'URTI adult'), optionally linked to an ICD-10 code so the builder suggests them. This is the drug part of NITCO's visit templates (v3); full visit templates (complaint, exam, services) live in settings-templates."
-             data-note-ar="الروشتات الجاهزة روشتات بأسماء مبنية من المفضلة، وممكن تتربط بكود ICD-10 عشان تتقترح. ده جزء الأدوية من قوالب الزيارة في NITCO؛ القوالب الكاملة في إعدادات القوالب."><span data-en="Rx sets">الروشتات الجاهزة</span> <span class="t-badge muted" id="set-count">0</span></button>
+        <button class="t-tab" role="tab" aria-selected="false" data-tab="sets" data-note="Rx sets are named prescriptions built from favourites (e.g. 'URTI adult'), optionally linked to an ICD-10 code so the builder suggests them. Full visit templates (complaint, exam, services) live in Settings > Templates."
+             data-note-ar="الروشتات الجاهزة روشتات بأسماء مبنية من المفضلة، وممكن تتربط بكود ICD-10 عشان تتقترح. قوالب الزيارة الكاملة (الشكوى، الكشف، الخدمات) في إعدادات القوالب."><span data-en="Rx sets">الروشتات الجاهزة</span> <span class="t-badge muted" id="set-count">0</span></button>
       </div>
 
       <!-- Favourites table -->
@@ -82,7 +82,7 @@
           <span class="t-small t-faint t-end" data-en="Drag the handle (or focus it and press ↑ ↓) to reorder. Top 9 get Alt+1…9.">اسحب المقبض (أو اختاره واضغط ↑ ↓) لتغيير الترتيب. أول ٩ ليهم Alt+1…9.</span>
         </div>
         <div class="t-table-wrap" style="border:0;border-radius:0"
-             data-note="Favourites table: drag to reorder; the order drives the builder's Alt+1…9 keys. Usage count + last used surface what the doctor really prescribes, so the list stays short (NITCO v29: no recent/frequent items at all)."
+             data-note="Favourites table: drag to reorder; the order drives the builder's Alt+1…9 keys. Usage count + last used surface what the doctor really prescribes, so the list stays short."
              data-note-ar="جدول المفضلة: اسحب لتغيير الترتيب، والترتيب ده هو مفاتيح Alt+1…9 في الروشتة. عدد مرات الاستخدام وآخر استخدام بيظهروا اللي الطبيب بيكتبه فعلًا.">
           <table class="t-table">
             <thead><tr>

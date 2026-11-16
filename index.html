@@ -72,9 +72,6 @@
     .prio.should { background: var(--info-bg); color: var(--info-fg); }
     .prio.later { background: var(--done-bg); color: var(--done-fg); }
     .prio.tier2 { background: var(--warning-bg); color: var(--warning-fg); }
-    /* NITCO */
-    .two { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); }
-    .t-table td small { color: var(--text-3); display: block; }
     /* Design system */
     .sw { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--s-3); }
     .sw div { border: 1px solid var(--line); border-radius: var(--r-sm); overflow: hidden; background: var(--surface); font-size: var(--fs-xs); }
@@ -83,7 +80,6 @@
     .typo > div { display: flex; align-items: baseline; gap: var(--s-4); padding-block: 6px; border-block-end: 1px dashed var(--line); }
     .typo code { font-family: var(--font-en); font-size: var(--fs-xs); color: var(--text-3); min-width: 90px; direction: ltr; }
     .lh-demo { font-family: var(--font-letterhead); font-size: 26px; font-weight: 700; color: var(--primary); }
-    .gaps li { margin-block: 6px; }
     /* Multi-branch & stock section */
     .mt-tree { display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: stretch; margin-block-end: var(--s-5); }
     .mt-tree > div { flex: 1 1 200px; padding: var(--s-3) var(--s-4); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); }
@@ -100,7 +96,7 @@
     .mt-card p { margin: 0; font-size: var(--fs-sm); color: var(--text-2); }
     .mt-card .f { font-family: var(--font-en); font-size: var(--fs-xs); color: var(--text-3); direction: ltr; text-align: start; }
     @media (max-width: 860px) {
-      .hero, .two { grid-template-columns: 1fr; }
+      .hero { grid-template-columns: 1fr; }
       .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .hero h1 { font-size: var(--fs-3xl); }
       .feat-grid { grid-template-columns: 1fr; }
@@ -118,7 +114,6 @@
   <header class="hero">
     <div>
       <div class="pillrow">
-        <span class="t-chip info plain" data-en="Design sprint 1 · closed 14 Nov 2026">سبرنت التصميم ١ · اتقفل ١٤ نوفمبر ٢٠٢٦</span>
         <span class="t-chip plain" data-en="Clickable prototype · AR / EN · light / dark">نموذج تفاعلي · عربي / إنجليزي · فاتح / داكن</span>
       </div>
       <h1><span class="ink" data-en="Tamargi">تمرجي</span> <span data-en="— the clinic, run from one screen per role">— العيادة كلها، شاشة واحدة لكل دور</span></h1>
@@ -128,15 +123,13 @@
         <a class="t-btn" href="screens/reception-queue.html"><svg class="t-icon sm"><use href="#i-queue"/></svg><span data-en="Open reception home">افتح شاشة الاستقبال</span></a>
         <a class="t-btn ghost" href="screens/doctor-home.html"><svg class="t-icon sm"><use href="#i-home"/></svg><span data-en="Open doctor home">افتح يوم الطبيب</span></a>
       </div>
-      <p class="t-muted" style="font-size:var(--fs-sm);margin-block-start:var(--s-4)" data-en="Tip: inside any screen press Alt+N to show the numbered design notes, and use the state switcher in the spec strip to see empty / error / alternative states.">نصيحة: جوه أي شاشة اضغط Alt+N عشان تظهر ملاحظات التصميم المرقّمة، واستخدم مبدّل الحالات عشان تشوف الحالة الفاضية والبديلة.</p>
+      <p class="t-muted" style="font-size:var(--fs-sm);margin-block-start:var(--s-4)" data-en="Tip: inside any screen press Alt+N to show the numbered feature notes, and use the state switcher in the spec strip to see empty / error / alternative states.">نصيحة: جوه أي شاشة اضغط Alt+N عشان تظهر شرح المزايا المرقّم، واستخدم مبدّل الحالات عشان تشوف الحالة الفاضية والبديلة.</p>
     </div>
     <div class="facts">
-      <div class="t-card t-stat"><span class="t-stat-label" data-en="Screens built">شاشة جاهزة</span><span class="t-stat-value t-num">35</span></div>
+      <div class="t-card t-stat"><span class="t-stat-label" data-en="Screens">شاشة</span><span class="t-stat-value t-num">35</span></div>
       <div class="t-card t-stat"><span class="t-stat-label" data-en="Apps / groups">مجموعات</span><span class="t-stat-value t-num">8</span></div>
       <div class="t-card t-stat"><span class="t-stat-label" data-en="User journeys">رحلة مستخدم</span><span class="t-stat-value t-num">5</span></div>
       <div class="t-card t-stat"><span class="t-stat-label" data-en="Screen states">حالة شاشة</span><span class="t-stat-value t-num">42</span></div>
-      <div class="t-card t-stat"><span class="t-stat-label" data-en="Design notes">ملاحظة تصميم</span><span class="t-stat-value t-num">217</span></div>
-      <div class="t-card t-stat"><span class="t-stat-label" data-en="Notes citing NITCO">ملاحظة من NITCO</span><span class="t-stat-value t-num">119</span></div>
     </div>
   </header>
 
@@ -146,9 +139,7 @@
       <a class="t-tab" href="#multi" data-en="Branches & stock">تعدد الفروع والمخزون</a>
       <a class="t-tab" href="#journeys" data-en="Journeys">الرحلات</a>
       <a class="t-tab" href="#features" data-en="Features by app">المزايا حسب التطبيق</a>
-      <a class="t-tab" href="#nitco" data-en="What we learned from NITCO">اللي اتعلمناه من NITCO</a>
       <a class="t-tab" href="#design-system" data-en="Design system">نظام التصميم</a>
-      <a class="t-tab" href="#gaps" data-en="Known gaps">نواقص معروفة</a>
     </div>
   </nav>
 
@@ -163,7 +154,7 @@
     <div id="screenMap"></div>
   </section>
 
-  <!-- ===== Multi-branch & stock (tenancy round, 2026-11-14) ===== -->
+  <!-- ===== Multi-branch & stock ===== -->
   <section id="multi">
     <h2 class="sec"><svg class="t-icon"><use href="#i-building"/></svg><span data-en="Multi-branch, stock & equipment">تعدد الفروع والمخزون</span></h2>
     <p class="sec-sub" data-en="Tamargi is multi-tenant: every customer is an organization with its own data. Inside it, branches and rooms organise daily work. The sample polyclinic (Nile Medical Centre, 2 branches, 8 rooms, 6 doctors) is fake data. Try the organization and branch switchers in the top bar of any screen.">تمرجي متعدد العملاء: كل عميل منشأة ليها بياناتها لوحدها. جواها، الفروع والغرف بتنظم الشغل اليومي. المجمع اللي في العينة (مجمع النيل الطبي، فرعين، ٨ غرف، ٦ أطباء) بيانات وهمية. جرّب مبدّل المنشأة والفرع في الشريط اللي فوق في أي شاشة.</p>
@@ -180,7 +171,7 @@
       <a class="mt-card" href="screens/doctors-branches.html"><span class="ttl"><svg class="t-icon sm"><use href="#i-users"/></svg><span data-en="Doctors & branches">الأطباء والفروع</span><span class="t-tier">Tier 2</span></span><p data-en="Each doctor's specialties and pack, branches, rooms, hours and fee per branch. One doctor in 2 branches; one room shared by 3 specialties.">تخصصات كل طبيب وباقته، الفروع والغرف والمواعيد وسعر الكشف لكل فرع. طبيب في فرعين، وغرفة بـ٣ تخصصات.</p><span class="f">doctors-branches.html</span></a>
       <a class="mt-card" href="screens/stock.html"><span class="ttl"><svg class="t-icon sm"><use href="#i-box"/></svg><span data-en="Clinic stock">مخزون العيادة</span><span class="t-tier t-phase" data-en="Later phase">مرحلة لاحقة</span></span><p data-en="Items per branch store with batch and expiry, low-stock and expiry flags, receive from supplier, movements (issued in visit, linked to the invoice), stock count. Not a pharmacy.">الأصناف لكل مخزن فرع بالتشغيلة والانتهاء، تنبيه النقص والانتهاء، استلام من مورد، الحركة (صرف في زيارة مربوط بالفاتورة)، الجرد. مش صيدلية.</p><span class="f">stock.html</span></a>
       <a class="mt-card" href="screens/equipment.html"><span class="ttl"><svg class="t-icon sm"><use href="#i-device"/></svg><span data-en="Equipment register">سجل الأجهزة</span><span class="t-tier t-phase" data-en="Later phase">مرحلة لاحقة</span></span><p data-en="Devices per branch and room: in service / maintenance / out of service, next maintenance or calibration, warranty, log and files.">الأجهزة لكل فرع وغرفة: شغّال / في الصيانة / عطلان، الصيانة أو المعايرة الجاية، الضمان، السجل والملفات.</p><span class="f">equipment.html</span></a>
-      <a class="mt-card" href="screens/settings-users-roles.html"><span class="ttl"><svg class="t-icon sm"><use href="#i-users"/></svg><span data-en="Users & roles (updated)">المستخدمون والصلاحيات (اتحدّثت)</span></span><p data-en="Branches column, and roles per branch inside each person's drawer.">عمود الفروع، والأدوار لكل فرع جوه بيانات كل شخص.</p><span class="f">settings-users-roles.html</span></a>
+      <a class="mt-card" href="screens/settings-users-roles.html"><span class="ttl"><svg class="t-icon sm"><use href="#i-users"/></svg><span data-en="Users & roles">المستخدمون والصلاحيات</span></span><p data-en="Branches column, and roles per branch inside each person's drawer.">عمود الفروع، والأدوار لكل فرع جوه بيانات كل شخص.</p><span class="f">settings-users-roles.html</span></a>
     </div>
     <div class="t-alert info" style="margin-block-start:var(--s-4)"><svg class="t-icon"><use href="#i-info"/></svg><span data-en="Top bar on every screen: the organization switcher (for people who work in more than one organization, no sign-out) and the branch switcher (owner also gets All branches; a one-branch clinic shows the name only). The branch is never chosen at login.">الشريط اللي فوق في كل شاشة: مبدّل المنشأة (للي بيشتغل في أكتر من منشأة، من غير تسجيل خروج) ومبدّل الفرع (المالك عنده كمان كل الفروع؛ العيادة بفرع واحد بيظهر اسمه بس). الفرع عمره ما بيتختار وقت الدخول.</span></div>
   </section>
@@ -195,43 +186,17 @@
   <!-- ===== Features ===== -->
   <section id="features">
     <h2 class="sec"><svg class="t-icon"><use href="#i-star"/></svg><span data-en="Features by app, with priority">المزايا حسب التطبيق والأولوية</span></h2>
-    <p class="sec-sub" data-en="From the product definition. Must = solo-clinic MVP. Should = MVP if time allows. Later = after launch. Tier 2 = polyclinic plan.">من تعريف المنتج. أساسي = نسخة العيادة الفردية. مهم = لو الوقت سمح. لاحقًا = بعد الإطلاق. المرحلة ٢ = باقة المجمعات.</p>
+    <p class="sec-sub" data-en="Must = solo-clinic MVP. Should = MVP if time allows. Later = after launch. Tier 2 = polyclinic plan.">أساسي = نسخة العيادة الفردية. مهم = لو الوقت سمح. لاحقًا = بعد الإطلاق. المرحلة ٢ = باقة المجمعات.</p>
     <div class="pillrow">
       <span class="prio must" data-en="Must">أساسي</span><span class="prio should" data-en="Should">مهم</span><span class="prio tier2" data-en="Tier 2">المرحلة ٢</span><span class="prio later" data-en="Later">لاحقًا</span>
     </div>
     <div class="feat-grid" id="featGrid"></div>
   </section>
 
-  <!-- ===== NITCO ===== -->
-  <section id="nitco">
-    <h2 class="sec"><svg class="t-icon"><use href="#i-search"/></svg><span data-en="What we learned from NITCO and how we used it">اللي اتعلمناه من NITCO وإزاي استخدمناه</span></h2>
-    <p class="sec-sub" data-en="NITCO eCarePlus is the Saudi market leader (850+ facilities) with an Egypt branch in Mansoura. We watched all 112 of its demo videos. Rule: borrow its data and business rules, reject its UX. 119 of our 217 design notes cite a NITCO video.">NITCO eCarePlus هو الأول في السوق السعودي (أكتر من ٨٥٠ منشأة) وعنده فرع في المنصورة. اتفرجنا على الـ ١١٢ فيديو بتوعه كلهم. القاعدة: ناخد البيانات وقواعد الشغل، ونرفض طريقة الاستخدام. ١١٩ من ٢١٧ ملاحظة تصميم عندنا بتستشهد بفيديو من NITCO.</p>
-    <div class="two">
-      <div class="t-card flush">
-        <div class="t-card-head"><h3 data-en="Borrowed: data and rules">أخدنا: البيانات والقواعد</h3></div>
-        <div class="t-table-wrap" style="border:0;border-radius:0">
-          <table class="t-table"><thead><tr><th data-en="Rule (NITCO video)">القاعدة (فيديو NITCO)</th><th data-en="Where in Tamargi">فين في تمرجي</th></tr></thead>
-          <tbody id="borrowRows"></tbody></table>
-        </div>
-      </div>
-      <div class="t-card flush">
-        <div class="t-card-head"><h3 data-en="Rejected: their UX, and our answer">رفضنا: طريقة استخدامهم، وردّنا</h3></div>
-        <div class="t-table-wrap" style="border:0;border-radius:0">
-          <table class="t-table"><thead><tr><th data-en="NITCO weakness">ضعف NITCO</th><th data-en="Tamargi answer">ردّ تمرجي</th></tr></thead>
-          <tbody id="beatRows"></tbody></table>
-        </div>
-      </div>
-    </div>
-    <div class="t-card" style="margin-block-start:var(--s-4)">
-      <div class="t-card-head"><h3 data-en="How the team uses the video notes from now on">إزاي الفريق يستخدم ملاحظات الفيديوهات من هنا ورايح</h3></div>
-      <ol id="nitcoRules" style="margin:0;padding-inline-start:var(--s-5)"></ol>
-    </div>
-  </section>
-
   <!-- ===== Design system ===== -->
   <section id="design-system">
     <h2 class="sec"><svg class="t-icon"><use href="#i-edit"/></svg><span data-en="Design system preview">معاينة نظام التصميم</span></h2>
-    <p class="sec-sub" data-en="Ink blue of the doctor's ballpoint and the clinic stamp, on cool porcelain paper. One bold thing: the printed letterhead. Status is always a word plus a colour. Source: assets/tamargi.css.">أزرق حبر قلم الدكتور وختم العيادة، على ورق بورسلين هادي. حاجة واحدة جريئة: الترويسة المطبوعة. الحالة دايمًا كلمة ولون مع بعض. المصدر: assets/tamargi.css.</p>
+    <p class="sec-sub" data-en="Ink blue on calm porcelain paper, with the printed clinic letterhead at the centre. Status is always a word plus a colour.">أزرق حبر على ورق بورسلين هادي، والترويسة المطبوعة للعيادة في المركز. الحالة دايمًا كلمة ولون مع بعض.</p>
     <div class="t-grid c2">
       <div class="t-card">
         <div class="t-card-head"><h3 data-en="Colour tokens">ألوان النظام</h3></div>
@@ -289,17 +254,6 @@
         </div>
       </section>
       <p class="t-muted" style="margin:0;padding:var(--s-3) var(--s-4);font-size:var(--fs-sm)" data-en="Patient banner: pinned on every clinical screen. Allergy is the only solid red in the product.">شريط المريض: ثابت في كل شاشة طبية. الحساسية هي اللون الأحمر المصمت الوحيد في المنتج.</p>
-    </div>
-  </section>
-
-  <!-- ===== Gaps ===== -->
-  <section id="gaps">
-    <h2 class="sec"><svg class="t-icon"><use href="#i-alert"/></svg><span data-en="Known gaps (from design review)">نواقص معروفة (من مراجعة التصميم)</span></h2>
-    <p class="sec-sub" data-en="Fixed inside screens where possible. What is left needs one pass on the shared files (tamargi.css, shell.js) or a product decision.">اتصلّح جوه الشاشات قدر الإمكان. الباقي محتاج مرور واحد على الملفات المشتركة أو قرار منتج.</p>
-    <div class="t-grid c3">
-      <div class="t-card"><div class="t-card-head"><h3 data-en="Shared shell & CSS">الإطار والـ CSS المشترك</h3></div><ul class="gaps" id="gapShared"></ul></div>
-      <div class="t-card"><div class="t-card-head"><h3 data-en="Sample data & behaviour">بيانات العينة والسلوك</h3></div><ul class="gaps" id="gapData"></ul></div>
-      <div class="t-card"><div class="t-card-head"><h3 data-en="Not yet tested">لسه ما اتختبرش</h3></div><ul class="gaps" id="gapTest"></ul></div>
     </div>
   </section>
 
@@ -524,84 +478,13 @@
     }).join("");
   }
 
-  /* ---------- NITCO ---------- */
-  var BORROW = [
-    ["فاتورة في شاشة واحدة: مريض ← طبيب ← خدمات ← دفع", "One-screen invoice: patient → doctor → services → pay", "v35, 36, 89", "cashier-checkout"],
-    ["مدة متابعة مجانية تمنع رسوم كشف جديد", "Free follow-up window blocks a new consult fee", "v13, 62, 106", "settings-clinic"],
-    ["دفع مقسوم والباقي مديونية؛ عربون", "Split payment, remainder = debt; deposit wallet", "v32–36, 84, 88", "patient-account"],
-    ["فاتورة ثابتة؛ التصحيح بإشعار دائن وسبب", "Immutable invoice; credit note with reason", "v4, 48–50, 86", "invoice-detail"],
-    ["شرائح خصم وسبب وحد لكل مستخدم", "Discount tiers, reason, per-user cap", "v1, 53, 89", "services-prices"],
-    ["ورديات مقسومة ورمضان وإجازات بالتعارض", "Split shifts, Ramadan, leaves with conflicts", "v57, 58, 102", "doctor-schedule"],
-    ["قوالب كشف: تشخيص + أدوية + خدمات", "Visit templates: diagnosis + drugs + services", "v3", "settings-templates"],
-    ["تقفيل وردية الخزنة حسب طريقة الدفع", "Cashier shift close by payment method", "v34, 74, 91", "cash-close"],
-    ["إجازة مرضية وتقرير طبي مرقّمين", "Numbered sick-leave and medical report", "v23, 29", "prescription-print"]
-  ];
-  var BEAT = [
-    ["الدفع مربوط بالطباعة (حفظ = غير مدفوع)", "Paid status tied to printing", "زرار «حصّل» صريح", "An explicit Collect button"],
-    ["بحث بنافذة فيها ١٤–٢٠ خانة", "Search modal with 14–20 fields", "خانة بحث واحدة (Ctrl K)", "One omnibox (Ctrl K)"],
-    ["صفوف أيقونات من غير كلام وحالة باللون بس", "Unlabelled icon rows, colour-only status", "زرار الخطوة الجاية + شارة بكلمة", "One next-step button + worded chips"],
-    ["الطبيب ممنوع يفتح زيارة مش مدفوعة", "Doctor hard-blocked on unpaid visit", "تنبيه هادي بس", "Soft warning only"],
-    ["العلامات الحيوية متعبّية «طبيعي»", "Vitals prefilled as normal", "فاضية لحد ما تتقاس", "Blank until measured"],
-    ["ملاحظات نص حر بس، ١٤ تبويب لكل طبيب", "Free-text notes, 14 tabs for every doctor", "SOAP واختصارات وتبويب تخصص واحد", "SOAP, shortcuts, one specialty tab"],
-    ["إعداد عن طريق الدعم الفني وصفحات .aspx", "Support-led setup, .aspx permissions", "قائمة جاهزية وأدوار جاهزة", "Readiness checklist, role presets"],
-    ["شكل ٢٠١٨، كمبيوتر بس", "2018 look, desktop only", "متجاوب؛ لوحة المالك على الموبايل", "Responsive; owner dashboard on phone"]
-  ];
-  var RULES = [
-    ["قبل ما تصمم شاشة، افتح ملاحظات فيديوهات NITCO للجزء ده (video-index).", "Before designing a screen, open the NITCO video notes for that area (video-index)."],
-    ["انقل الخانات والحالات والتحققات وقواعد الفلوس — مش شكل الشاشة.", "Copy fields, statuses, validations and money rules — never the layout."],
-    ["قارن بقائمة «Beat» العشرة في ui-patterns §6 واعمل العكس.", "Check against the 10 'Beat' items in ui-patterns §6 and do the opposite."],
-    ["اكتب المصدر في ملاحظة التصميم، مثلًا (NITCO v89).", "Cite the source in the design note, e.g. (NITCO v89)."],
-    ["أي حاجة خاصة بالسعودية (NPHIES، ZATCA، تأمين) = بره النسخة الأولى.", "Anything Saudi-specific (NPHIES, ZATCA, insurance) = out of MVP."],
-    ["ميزة للمجمعات بس؟ علّمها Tier 2 ومتحطهاش في طريق العيادة الفردية.", "Polyclinic-only? Mark Tier 2 and keep it off the solo-clinic path."]
-  ];
-  function renderNitco() {
-    document.getElementById("borrowRows").innerHTML = BORROW.map(function (r) {
-      return "<tr><td>" + esc(L() === "en" ? r[1] : r[0]) + '<small class="t-ltr">NITCO ' + r[2] + '</small></td><td><a href="screens/' + r[3] + '.html">' + esc(sname(r[3])) + "</a></td></tr>";
-    }).join("");
-    document.getElementById("beatRows").innerHTML = BEAT.map(function (r) {
-      return "<tr><td>" + esc(L() === "en" ? r[1] : r[0]) + "</td><td><b>" + esc(L() === "en" ? r[3] : r[2]) + "</b></td></tr>";
-    }).join("");
-    document.getElementById("nitcoRules").innerHTML = RULES.map(function (r) { return "<li>" + esc(L() === "en" ? r[1] : r[0]) + "</li>"; }).join("");
-  }
-
   /* ---------- Swatches ---------- */
   var SW = ["--primary", "--primary-soft", "--bg", "--surface", "--line", "--text", "--text-2", "--focus", "--danger", "--allergy-bg", "--waiting-bg", "--called-bg", "--inroom-bg", "--done-bg", "--left-bg", "--note"];
   function renderSwatches() {
     document.getElementById("swatches").innerHTML = SW.map(function (v) { return '<div><i style="background:var(' + v + ')"></i><span>' + v + "</span></div>"; }).join("");
   }
 
-  /* ---------- Gaps ---------- */
-  var GAPS = {
-    gapShared: [
-      ["تلميح Ctrl K بيغطي خانة البحث في العربي", "Ctrl K hint covers search placeholder in RTL"],
-      ["أيقونة البحث مستخبية ورا الخانة", "Search icon hidden behind the input"],
-      ["ناقص: شارات ready / warning / free", "Missing chips: ready, warning, free"],
-      ["ناقص: ورقة A4، شريط تقدّم، فقاعة شات", "Missing: A4 sheet, progress bar, chat bubble"],
-      ["ناقص أيقونات: رفع، موقع، رابط، واتساب", "Missing icons: upload, map-pin, link, whatsapp"],
-      ["إغلاق درج جوه نافذة بيسيب الخلفية", "Closing a nested drawer leaves the backdrop"],
-      ["الرمادي الخفيف على الخلفية تحت ٤٫٥:١", "Muted grey on sunk background below 4.5:1"]
-    ],
-    gapData: [
-      ["الروشتات والشهادات والملاحظات الطبية مش في البيانات المشتركة لسه (تبويبات ملف المريض فاضية)", "Prescriptions, certificates and clinical notes are not in the shared data yet (patient-file tabs empty)"],
-      ["الأيام اللي فاتت في لوحة المالك والتقارير أرقام عينة متولّدة", "Past days on the owner dashboard and reports are generated sample figures"],
-      ["المحادثات والباقات ودرجات الأطباء لسه بيانات محلية في شاشاتها", "Chats, packages and doctor degree lines are still page-local sample data"],
-      ["الشهادات من غير «إلغاء بسبب»", "Certificates lack cancel-with-reason"],
-      ["ملف المريض لسه مش بيعرض العلامات الحيوية (موجودة في البيانات)", "Patient file does not show vitals yet (they are in the data)"]
-    ],
-    gapTest: [
-      ["بعض الشاشات ما اتفتحتش في متصفح حقيقي", "Some screens never opened in a real browser"],
-      ["النقرات في الأدراج والنوافذ ما اتجربتش كلها", "Drawer and modal clicks not all tested"],
-      ["مفيش طباعة تجربة على ورق", "No test print on paper"],
-      ["مفيش اختبار مع موظفة استقبال حقيقية", "No test with a real receptionist yet"]
-    ]
-  };
-  function renderGaps() {
-    Object.keys(GAPS).forEach(function (k) {
-      document.getElementById(k).innerHTML = GAPS[k].map(function (g) { return "<li>" + esc(L() === "en" ? g[1] : g[0]) + "</li>"; }).join("");
-    });
-  }
-
-  function renderAll() { renderRoles(); renderMap(); renderJourneys(); renderFeatures(); renderNitco(); renderSwatches(); renderGaps(); }
+  function renderAll() { renderRoles(); renderMap(); renderJourneys(); renderFeatures(); renderSwatches(); }
   renderAll();
 
   document.addEventListener("click", function (e) {

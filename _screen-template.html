@@ -11,8 +11,8 @@
   4. Start with .t-screen-head (h1 + one-line .t-sub + .t-actions). Clinical screens put the
      .t-banner (patient banner) BEFORE .t-screen-head so it pins under the top bar.
   5. Explain features with data-note="English text" (+ optional data-note-ar). Pins are numbered
-     automatically in DOM order. 4–8 notes per screen; say what it does and why (which research
-     finding or NITCO weakness it answers).
+     automatically in DOM order. 4–8 notes per screen; say what the feature does and how the user uses it,
+     in product terms. No provenance, design rationale, decision ids or competitor names.
   6. Alternative states of the same screen (empty, no-results, error) are siblings with
      data-state="name". The first one is the default; a switcher appears in the spec strip.
   7. Use only classes from tamargi.css (t-*) + inline SVG icons via <svg class="t-icon"><use href="#i-NAME"/></svg>.
@@ -21,11 +21,10 @@
   8. Realistic Egyptian data: 4-part Arabic names, 01xxxxxxxxx mobiles (wrap in .t-ltr), EGP amounts,
      Dakahlia places. Fake data only — no real patients.
   9. Primary action per screen: one .t-btn.primary, with its keyboard hint (.t-kbd).
- 10. Competitor knowledge: before designing, open the NITCO notes for your area
-     (01_Obsidian_Vault/03_Healthcare_Domain/competitors/nitco/feature-catalog.md, ui-patterns.md,
-     videos/NNN_*.md). Borrow their DATA and BUSINESS RULES (fields, statuses, validations); never
-     their UX (icon walls, colour-only status, 15-field search modals, paid-on-print, hard blocks).
-     When a feature comes from that teardown, say so in its data-note, e.g. "(NITCO v89: …)".
+ 10. The prototype shows the final product only: screens, features and user journeys. Where a
+     feature came from (research, competitor videos, decisions) is recorded ONLY in the vault file
+     01_Obsidian_Vault/03_Healthcare_Domain/competitors/nitco/feature-traceability.md, never in
+     the prototype (no change history, rationale, review notes or TODO lists either).
  11. Polyclinic-only features: mark the section with data-tier="2" and a <span class="t-tier">Tier 2</span>.
      Money: <span class="t-money debt">40<span class="cur">ج.م</span></span>; invoice states: .t-chip.paid/partial/unpaid/void/credit;
      appointment states: .t-chip.booked/confirmed/arrived/noshow/cancelled.
@@ -40,7 +39,7 @@
      Tamargi.scopeNotice({ org, branch, needBranch, what: {ar, en} }).
      Clinical screens (visit, Rx, templates) also load ../assets/demo-clinical.js between
      demo-data.js and shell.js (drug lines, templates, Rx sets by specialty).
-     Document numbers are per branch (D39): D.invoiceNo / D.nextInvoiceNo / D.docNo("CN"|"RCV", branch, n).
+     Document numbers are per branch: D.invoiceNo / D.nextInvoiceNo / D.docNo("CN"|"RCV", branch, n).
      Plan limits: D.plans. Leaves, vitals, past visits: D.leaves / D.vitals / D.visits.
 -->
 <html lang="ar" dir="rtl">
@@ -61,7 +60,7 @@
 
   <!-- (A) Patient banner: only on clinical screens (patient file, visit, prescription, vitals, checkout) -->
   <section class="t-banner" aria-label="Patient" data-en-aria-label="Patient"
-           data-note="Patient banner: pinned under the top bar on every clinical screen. Name, age/sex, file no., phone and allergies are always visible to prevent wrong-patient errors (NHS CUI pattern)."
+           data-note="Patient banner: pinned under the top bar on every clinical screen. Name, age/sex, file no., phone and allergies are always visible to prevent wrong-patient errors."
            data-note-ar="شريط المريض: ثابت أسفل الشريط العلوي في كل شاشة طبية. الاسم والسن ورقم الملف والموبايل والحساسية ظاهرين دائمًا لمنع الخطأ في المريض.">
     <div class="t-banner-id">
       <span class="t-avatar">م ع</span>
@@ -80,8 +79,8 @@
       <span class="t-flag" data-en="Pregnant — 2nd trimester">حامل — الثلث الثاني</span>
       <span class="t-balance debt" data-en="Owes 40 EGP">عليها ٤٠ ج.م</span>
       <span class="t-balance followup"
-            data-note="Balance and follow-up pills come from NITCO's patient header (v24–29, v89): debt, deposit and the free follow-up window are visible before anyone bills. We show them as labelled pills, not 15 grey read-only boxes."
-            data-note-ar="رصيد المريض ومدة المتابعة المجانية ظاهرين قبل التحصيل (مأخوذ من رأس ملف المريض في NITCO) لكن كبطاقات واضحة بدل ١٥ خانة رمادية."
+            data-note="Balance and follow-up pills: debt, deposit and the free follow-up window are visible before anyone bills, as labelled pills."
+            data-note-ar="رصيد المريض ومدة المتابعة المجانية ظاهرين قبل التحصيل، كبطاقات واضحة بأسمائها."
             data-en="Free follow-up until 16 Nov">استشارة مجانية حتى ١٦ نوفمبر</span>
     </div>
   </section>
@@ -190,7 +189,7 @@
           </div>
         </div>
         <div class="t-card sunk">
-          <p class="t-small t-muted mb-0" data-en="Use the state switcher in the spec strip (turn on Annotations) to see the empty state.">استخدم مبدّل الحالات في شريط المواصفات (شغّل ملاحظات التصميم) لرؤية الحالة الفارغة.</p>
+          <p class="t-small t-muted mb-0" data-en="Use the state switcher in the spec strip (turn on the Feature guide) to see the empty state.">استخدم مبدّل الحالات في شريط المواصفات (شغّل شرح المزايا) لرؤية الحالة الفارغة.</p>
         </div>
       </aside>
     </div>

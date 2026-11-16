@@ -57,8 +57,8 @@
 
     <!-- Hierarchy explainer -->
     <section class="t-card sunk mb-4" aria-label="Hierarchy" data-en-aria-label="Hierarchy"
-             data-note="Three fixed words, used the same way in the schema, the price list and the UI: Organization (the customer: legal entity, subscription, PDPL data controller) → Branch (a physical address) → Room (a bookable room, dental chair or laser room). In Egypt 'clinic' can mean any of the three, so the product never uses it as a level name."
-             data-note-ar="٣ كلمات ثابتة بنفس المعنى في قاعدة البيانات والأسعار والشاشات: المنشأة (العميل: الكيان القانوني والاشتراك والمسؤول عن البيانات) ← الفرع (عنوان فعلي) ← الغرفة (غرفة أو كرسي أسنان أو غرفة ليزر بتتحجز). كلمة 'عيادة' في مصر ممكن تعني أي واحدة منهم، فمش بنستخدمها كاسم مستوى.">
+             data-note="Three fixed words, used the same way everywhere in the product: Organization (the customer: legal entity, subscription, PDPL data controller) → Branch (a physical address) → Room (a bookable room, dental chair or laser room)."
+             data-note-ar="٣ كلمات ثابتة بنفس المعنى في كل البرنامج: المنشأة (العميل: الكيان القانوني والاشتراك والمسؤول عن البيانات) ← الفرع (عنوان فعلي) ← الغرفة (غرفة أو كرسي أسنان أو غرفة ليزر بتتحجز).">
       <div class="ob-tree">
         <div class="ob-level org"><span class="k" data-en="1 · ORGANIZATION (the customer)">١ · المنشأة (العميل)</span><b id="ob-t-org"></b><p data-en="Legal entity, subscription, one patient file, data owner">الكيان القانوني، الاشتراك، ملف مريض واحد، صاحب البيانات</p></div>
         <span class="ob-arrow" aria-hidden="true">←</span>
@@ -74,7 +74,7 @@
 
           <!-- Branch cards -->
           <section aria-labelledby="ob-br-h"
-                   data-note="A branch is a soft scope, not a wall: it filters queue, cash, stock and reports, but the patient file is one per organization. A patient seen in Toreil and later in University keeps one history (one file no.). Cards, counts, managers, hours and invoice series come from the shared dataset."
+                   data-note="A branch is a soft scope, not a wall: it filters queue, cash, stock and reports, but the patient file is one per organization. A patient seen in Toreil and later in University keeps one history (one file no.). Each card shows the branch's rooms, doctors, manager, hours and invoice series."
                    data-note-ar="الفرع نطاق عمل مش حيطة: بيفلتر الدور والخزنة والمخزون والتقارير، لكن ملف المريض واحد للمنشأة كلها. المريض اللي كشف في توريل وبعدين في الجامعة ليه تاريخ واحد ورقم ملف واحد.">
             <div class="t-row between mb-2">
               <h2 id="ob-br-h" style="font-size:var(--fs-lg)" data-en="Branches">الفروع</h2>
@@ -84,7 +84,7 @@
               <div id="ob-cards" style="display:contents"></div>
 
               <button class="ob-add" type="button" data-open="#ob-add"
-                      data-note="Plan limits are visible where you act, not discovered at checkout: the add card says how many branches the plan includes and what one more costs per month (D45-A add-on)."
+                      data-note="Plan limits are visible where you act, not discovered at checkout: the add card says how many branches the plan includes and what one more costs per month."
                       data-note-ar="حدود الباقة ظاهرة مكان ما بتتصرف: كارت الإضافة بيقول الباقة فيها كام فرع والفرع الزيادة بكام في الشهر.">
                 <svg class="t-icon"><use href="#i-plus"/></svg>
                 <b data-en="Add a branch">ضيف فرع</b>
@@ -104,7 +104,7 @@
                 <tbody>
                   <tr><td data-en="Patient file">ملف المريض</td><td><span class="ob-lvl org" data-en="Organization">المنشأة</span></td><td data-en="One file per patient for all branches. Every visit shows the branch it happened in.">ملف واحد للمريض في كل الفروع. كل زيارة مكتوب عليها الفرع اللي حصلت فيه.</td></tr>
                   <tr><td data-en="Doctors & specialties">الأطباء والتخصصات</td><td><span class="ob-lvl org" data-en="Organization">المنشأة</span></td><td data-en="A doctor is added once and scheduled in one or more branches.">الطبيب بيتضاف مرة واحدة ويتجدول في فرع أو أكتر.</td></tr>
-                  <tr><td data-en="Services & prices">الخدمات والأسعار</td><td><span class="ob-lvl both" data-en="Org + branch override">المنشأة + سعر للفرع</span></td><td data-en="One price list; a branch may override a price (NITCO v60/61/99).">قايمة أسعار واحدة؛ الفرع ممكن يبقى له سعر مختلف.</td></tr>
+                  <tr><td data-en="Services & prices">الخدمات والأسعار</td><td><span class="ob-lvl both" data-en="Org + branch override">المنشأة + سعر للفرع</span></td><td data-en="One price list; a branch may override a price.">قايمة أسعار واحدة؛ الفرع ممكن يبقى له سعر مختلف.</td></tr>
                   <tr><td data-en="Queue & appointments">الدور والمواعيد</td><td><span class="ob-lvl br" data-en="Branch">الفرع</span></td><td data-en="Each branch runs its own queue and room bookings.">كل فرع ليه دوره وحجز غرفه.</td></tr>
                   <tr><td data-en="Cash drawer & shift close">الخزنة وتقفيل الوردية</td><td><span class="ob-lvl br" data-en="Branch">الفرع</span></td><td data-en="Money is counted where it is held. Owner sees all branches combined.">الفلوس بتتعد مكان ما هي موجودة. المالك يشوف الفروع مجمّعة.</td></tr>
                   <tr><td data-en="Stock store">المخزن</td><td><span class="ob-lvl br" data-en="Branch">الفرع</span></td><td data-en="One store per branch; transfers between branches are logged.">مخزن لكل فرع؛ التحويل بين الفروع بيتسجل.</td></tr>
@@ -124,8 +124,8 @@
         <!-- Aside: org profile + plan usage -->
         <aside class="t-stack">
           <section class="t-card" aria-labelledby="ob-org-h"
-                   data-note="Organization profile = the legal and billing identity (NITCO v71/76 calls these 'activities / legal entities' with their own tax IDs). One org per legal entity in v1; a group with two companies opens two organizations."
-                   data-note-ar="بيانات المنشأة = الهوية القانونية والفوترة (في NITCO اسمها 'الأنشطة / الكيانات القانونية' وليها بطاقة ضريبية). منشأة واحدة لكل كيان قانوني في النسخة الأولى؛ مجموعة فيها شركتين تفتح منشأتين.">
+                   data-note="Organization profile = the legal and billing identity, with its own tax ID. One organization per legal entity; a group with two companies opens two organizations."
+                   data-note-ar="بيانات المنشأة = الهوية القانونية والفوترة وليها بطاقة ضريبية. منشأة واحدة لكل كيان قانوني؛ مجموعة فيها شركتين تفتح منشأتين.">
             <div class="t-card-head"><h2 id="ob-org-h" data-en="Organization profile">بيانات المنشأة</h2><div class="t-actions"><button class="t-btn sm ghost" type="button" data-toast="التعديل بيتسجل في سجل النشاط" data-toast-en="Edits are logged in the activity log" data-en="Edit">تعديل</button></div></div>
             <dl class="t-dl" id="ob-org-dl"></dl>
           </section>
@@ -148,8 +148,8 @@
     <!-- Solo clinic state: same model, levels hidden -->
     <div data-state="solo">
       <div class="t-card" style="max-width:760px"
-           data-note="A solo clinic is 1 organization, 1 branch, 1 room. Setup never asks about branches or rooms; this screen collapses to the clinic's address and one upgrade line. Adding a 2nd branch later is a switch, not a migration (every record already carries branch_id)."
-           data-note-ar="العيادة الفردية = منشأة واحدة وفرع واحد وغرفة واحدة. التجهيز مبيسألش عن فروع ولا غرف؛ الشاشة دي بتبقى عنوان العيادة وسطر ترقية. إضافة فرع تاني بعدين تفعيل مش نقل بيانات (كل سجل عليه الفرع من الأول).">
+           data-note="A solo clinic is 1 organization, 1 branch, 1 room. Setup never asks about branches or rooms; this screen collapses to the clinic's address and one upgrade line. Adding a 2nd branch later is a switch: existing patients, prices and history stay as they are."
+           data-note-ar="العيادة الفردية = منشأة واحدة وفرع واحد وغرفة واحدة. التجهيز مبيسألش عن فروع ولا غرف؛ الشاشة دي بتبقى عنوان العيادة وسطر ترقية. إضافة فرع تاني بعدين مجرد تفعيل، والمرضى والأسعار والتاريخ بيفضلوا زي ما هم.">
         <div class="t-card-head"><h2 id="ob-solo-name"></h2><div class="t-actions"><span class="t-chip paid" data-en="Active">شغّال</span></div></div>
         <dl class="t-dl mb-4" id="ob-solo-dl"></dl>
         <div class="t-alert info"><svg class="t-icon"><use href="#i-info"/></svg>
@@ -170,8 +170,8 @@
       <button class="t-btn icon ghost" type="button" data-close aria-label="Close" data-en-aria-label="Close" title="إغلاق" data-en-title="Close"><svg class="t-icon"><use href="#i-close"/></svg></button>
     </div>
     <div class="t-modal-body t-stack lg"
-         data-note="Six fields, then the branch exists. Rooms, doctors, prices and the stock store are added from their own screens; the new branch copies the organization price list by default. NITCO asks for the branch on every user and service even with one branch (v60, 65)."
-         data-note-ar="٦ خانات والفرع يبقى موجود. الغرف والأطباء والأسعار والمخزن بيتضافوا من شاشاتهم؛ الفرع الجديد بياخد قايمة أسعار المنشأة تلقائي. NITCO بيسأل عن الفرع في كل مستخدم وخدمة حتى لو فرع واحد.">
+         data-note="Six fields, then the branch exists. Rooms, doctors, prices and the stock store are added from their own screens; the new branch copies the organization price list by default."
+         data-note-ar="٦ خانات والفرع يبقى موجود. الغرف والأطباء والأسعار والمخزن بيتضافوا من شاشاتهم؛ الفرع الجديد بياخد قايمة أسعار المنشأة تلقائي.">
       <div class="t-form-grid">
         <div class="t-field span-2"><label class="t-label" for="ob-name"><span data-en="Branch name">اسم الفرع</span><span class="req">*</span></label><input id="ob-name" class="t-input" placeholder="مثلًا: المنصورة - حي الجامعة" data-en-placeholder="e.g. Mansoura - University district"><span class="t-hint" data-en="Shown in the top bar and on receipts.">بيظهر فوق في البرنامج وعلى الإيصال.</span></div>
         <div class="t-field"><label class="t-label" for="ob-gov"><span data-en="Governorate">المحافظة</span><span class="req">*</span></label><select id="ob-gov" class="t-select"><option data-en="Dakahlia" selected>الدقهلية</option><option data-en="Gharbia">الغربية</option><option data-en="Damietta">دمياط</option><option data-en="Cairo">القاهرة</option></select></div>
@@ -278,7 +278,7 @@
       "<dt>" + tx("المدير الطبي", "Medical director") + "</dt><dd>" + (ow ? esc(D.memberName(ow, C.lang)) : "—") + "</dd>" +
       "<dt>" + tx("مسؤول البيانات", "Data controller") + "</dt><dd>" + tx("المنشأة دي (قانون حماية البيانات)", "This organization (PDPL)") + "</dd>";
 
-    /* plan usage (limits from D.plans, D45-A) */
+    /* plan usage (limits from D.plans) */
     var docsN = D.doctors.filter(function (d) { return d.org === C.org; }).length, staffN = staff.filter(function (m) { return !m.doctor; }).length;
     $("ob-plan-name").innerHTML = "<b>" + esc(C.lang === "en" ? o.planEn : o.planAr) + '</b> <span class="t-muted">' +
       tx("· " + F.money(plan.price) + " ج.م في الشهر · بتتجدد ١ ديسمبر", "· " + F.money(plan.price) + " EGP / month · renews 1 Dec") + "</span>";

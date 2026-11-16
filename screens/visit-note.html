@@ -71,7 +71,7 @@
 
     <div id="vBody">
     <div class="vn-last"
-         data-note="Last-visit summary under the banner: date, branch and doctor of the last visit in the org-wide file, plus today's vitals. With 'own patients only' visibility (D36), visits by other doctors are counted but not shown. NITCO v24–29 puts history on a separate tab of ≈14."
+         data-note="Last-visit summary under the banner: date, branch and doctor of the last visit in the org-wide file, plus today's vitals. With 'own patients only' visibility, visits by other doctors are counted but not shown."
          data-note-ar="ملخص آخر زيارة تحت الشريط: تاريخها وفرعها ودكتورها من ملف المنشأة كله، وقياسات النهارده. لو الدكتور «مرضاه بس»، زيارات الدكاترة التانيين بتتعد ومش بتظهر.">
       <div class="t-row tight" id="vLast" style="flex:1;flex-wrap:wrap"></div>
     </div>
@@ -83,8 +83,8 @@
         <section class="t-card" aria-labelledby="noteT">
           <div class="t-card-head mb-0"><h2 id="noteT" data-en="Note">الملاحظة</h2></div>
           <div class="t-tabs mt-2" role="tablist"
-               data-note="One SOAP note instead of NITCO's 8 free-text boxes, plus only the visit doctor's own specialty tab (the specialty belongs to the doctor, not the room). NITCO v24–29 shows all ≈14 specialty tabs to every doctor. Type a dot-shortcut (.chest, .lsd) and press space to expand it."
-               data-note-ar="ملاحظة SOAP واحدة بدل ٨ خانات، وتاب تخصص دكتور الزيارة بس (التخصص تبع الدكتور مش الغرفة). اكتب اختصار بنقطة (.chest) واضغط مسافة.">
+               data-note="One SOAP note, plus only the visit doctor's own specialty tab (the specialty belongs to the doctor, not the room). Type a dot-shortcut (.chest, .lsd) and press space to expand it."
+               data-note-ar="ملاحظة SOAP واحدة، وتاب تخصص دكتور الزيارة بس (التخصص تبع الدكتور مش الغرفة). اكتب اختصار بنقطة (.chest) واضغط مسافة.">
             <button class="t-tab" role="tab" aria-selected="true" data-tab="soap" data-en="SOAP note">ملاحظة SOAP</button>
             <button class="t-tab" role="tab" aria-selected="false" data-tab="exam" id="examTab"></button>
           </div>
@@ -117,7 +117,7 @@
 
         <!-- Diagnosis -->
         <section class="t-card" aria-labelledby="dxT"
-                 data-note="Diagnosis: ICD-10 search is optional (Arabic or English words, or the code); free text is always allowed. Chronic conditions from the file and the specialty's common codes are one-click suggestions (NITCO v3, v29: ICD with diagnosis type; type comes later)."
+                 data-note="Diagnosis: ICD-10 search is optional (Arabic or English words, or the code); free text is always allowed. Chronic conditions from the file and the specialty's common codes are one-click suggestions."
                  data-note-ar="التشخيص: بحث ICD-10 اختياري بالعربي أو الإنجليزي أو الكود، والكتابة الحرة مسموحة دايمًا. الأمراض المزمنة من الملف وأكواد التخصص اقتراحات بضغطة.">
           <div class="t-card-head"><h2 id="dxT" data-en="Diagnosis">التشخيص</h2><span class="t-faint t-small" data-en="ICD-10 optional">ICD-10 اختياري</span></div>
           <div class="vn-icd mb-2">
@@ -132,7 +132,7 @@
 
         <!-- Services -->
         <section class="t-card flush" aria-labelledby="svT"
-                 data-note="Services added here go straight onto this visit's bill at this branch's price (doctor + branch override, then the org price); reception sees 'Balance due' on the branch queue. Replaces NITCO's 'send cash invoice' round-trip (v24–29, v34). The consult line came from check-in."
+                 data-note="Services added here go straight onto this visit's bill at this branch's price (doctor + branch override, then the org price); reception sees 'Balance due' on the branch queue. The consult line came from check-in."
                  data-note-ar="الخدمات اللي تضيفها هنا بتروح لفاتورة الزيارة بسعر الفرع ده (سعر الدكتور/الفرع ثم سعر المنشأة)، والاستقبال بيشوف «مطلوب تحصيل» في دور الفرع.">
           <div class="t-card-head"><h2 id="svT" data-en="Services → bill">الخدمات ← الفاتورة</h2>
             <div class="t-actions" id="svcPicks"></div>
@@ -160,7 +160,7 @@
 
         <!-- Follow-up -->
         <section class="t-card" aria-labelledby="fuT"
-                 data-note="Follow-up in one click: the date comes from the org's free follow-up window and the doctor's own shifts in THIS branch (a doctor in two branches is booked back where he saw the patient). The whole note autosaves as a draft (NITCO v13/v62 'visit days')."
+                 data-note="Follow-up in one click: the date comes from the org's free follow-up window and the doctor's own shifts in THIS branch (a doctor in two branches is booked back where he saw the patient). The whole note autosaves as a draft."
                  data-note-ar="المتابعة بضغطة: التاريخ مقترح من مدة الاستشارة المجانية للمنشأة ومواعيد الدكتور في الفرع ده بالذات. والكشف كله بيتحفظ تلقائي.">
           <div class="t-card-head"><h2 id="fuT" data-en="Follow-up">المتابعة</h2></div>
           <div class="t-row">
@@ -177,7 +177,7 @@
       <!-- Right: templates + summary -->
       <aside class="t-stack lg">
         <section class="t-card" aria-labelledby="tplT"
-                 data-note="Visit templates (NITCO v3) from the visit doctor's specialty pack: one template holds diagnosis + drugs + services. Preview it, untick what does not fit this patient, apply. Every drug is checked against the file: a severe allergy match is the only interrupting modal in the visit."
+                 data-note="Visit templates from the visit doctor's specialty pack: one template holds diagnosis + drugs + services. Preview it, untick what does not fit this patient, apply. Every drug is checked against the file: a severe allergy match is the only interrupting modal in the visit."
                  data-note-ar="قوالب الكشف من باقة تخصص دكتور الزيارة: تشخيص + أدوية + خدمات. اعرض، شيل اللي مش مناسب، طبّق. أي دوا عليه حساسية بيطلع التحذير الوحيد اللي بيوقفك.">
           <div class="t-card-head"><h2 id="tplT" data-en="Visit templates">قوالب الكشف</h2><a class="t-end t-small" href="settings-templates.html" data-en="Manage">إدارة</a></div>
           <div class="t-stack" id="tplList"></div>

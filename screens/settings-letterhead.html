@@ -67,8 +67,8 @@
               <select id="lh-doc" class="t-select"></select>
             </div>
             <label class="lh-logo-row" for="lh-logo"
-                   data-note="Logo by drag-drop or phone camera, with an initial-in-a-circle fallback. NITCO needs a native 'Browse… No file selected' plus a separate Upload, across 5 image slots in a settings tab (v62/106)."
-                   data-note-ar="اللوجو بالسحب أو كاميرا الموبايل، ولو مفيش بنحط أول حرف في دايرة. NITCO محتاج 'Browse… No file selected' وزرار رفع لوحده، و٥ خانات صور في تبويب إعدادات.">
+                   data-note="Logo by drag-drop or phone camera, with an initial-in-a-circle fallback."
+                   data-note-ar="اللوجو بالسحب أو كاميرا الموبايل، ولو مفيش بنحط أول حرف في دايرة.">
               <span class="t-avatar" id="lh-logo-thumb" style="font-family:var(--font-letterhead)"></span>
               <span class="t-grow"><b class="t-small" data-en="Logo">اللوجو</b><br><span class="t-hint" data-en="Drop an image or take a photo. Square, PNG/JPG.">اسحب صورة أو صوّر. مربعة، PNG أو JPG.</span></span>
               <span class="t-btn sm" data-en="Upload">رفع</span>
@@ -81,7 +81,7 @@
                 <textarea id="lh-title" class="t-textarea" style="min-height:72px" data-bind="title"></textarea></div>
               <div class="t-field span-2"><label class="t-label" for="lh-title-en" data-en="Title in English">اللقب بالإنجليزي</label>
                 <textarea id="lh-title-en" class="t-textarea ltr" style="min-height:56px;direction:ltr" data-bind="titleEn"></textarea></div>
-              <div class="t-field" data-note="Syndicate number and degrees on every Rx: pharmacists in Mansoura check them, and they are what makes a printed Rx look as trusted as the doctor's handwritten pad." data-note-ar="رقم القيد والشهادات على كل روشتة: الصيادلة بيراجعوها، وهي اللي بتخلي الروشتة المطبوعة موثوقة زي دفتر الدكتور."><label class="t-label" for="lh-synd" data-en="Syndicate no.">رقم القيد بالنقابة</label><input id="lh-synd" class="t-input ltr" inputmode="numeric" data-bind="synd" value=""></div>
+              <div class="t-field" data-note="Syndicate number and degrees on every Rx: pharmacists check them, and they are what makes a printed Rx look as trusted as the doctor's handwritten pad." data-note-ar="رقم القيد والشهادات على كل روشتة: الصيادلة بيراجعوها، وهي اللي بتخلي الروشتة المطبوعة موثوقة زي دفتر الدكتور."><label class="t-label" for="lh-synd" data-en="Syndicate no.">رقم القيد بالنقابة</label><input id="lh-synd" class="t-input ltr" inputmode="numeric" data-bind="synd" value=""></div>
               <div class="t-field"><label class="t-label" for="lh-spec" data-en="Specialty line">سطر التخصص</label><input id="lh-spec" class="t-input" data-bind="spec" value=""></div>
             </div>
           </div>
@@ -110,7 +110,7 @@
           </div>
         </section>
 
-        <section class="t-card" data-note="Paper settings for browser printing (online-only MVP, no desktop helper). 'Pre-printed paper' keeps the space but prints only the content, for clinics that already bought 2,000 printed Rx pads."
+        <section class="t-card" data-note="Paper settings for printing from the browser, with nothing to install. 'Pre-printed paper' keeps the space but prints only the content, for clinics that already bought 2,000 printed Rx pads."
                  data-note-ar="إعدادات الورق للطباعة من المتصفح (من غير برنامج على الجهاز). 'ورق مطبوع جاهز' بيسيب مكان الترويسة ويطبع المحتوى بس، للعيادات اللي عندها دفاتر روشتات مطبوعة.">
           <div class="t-card-head"><h2 data-en="Paper & print">الورق والطباعة</h2></div>
           <div class="t-form-grid">
@@ -144,8 +144,8 @@
           </div>
           <span class="t-small t-muted" id="lh-prev-label"></span>
         </div>
-        <div class="t-print-stage" data-note="Live A5 preview: every keystroke updates the sheet. The letterhead is Tamargi's 'one bold thing': Amiri serif, stamp-blue ink. No ads or pharma logos ever appear on the Rx (product rule)."
-             data-note-ar="معاينة A5 مباشرة: كل حرف بيتغير على الورقة. الترويسة هي العنصر المميز في تمرجي: خط أميري وحبر أزرق الختم. مفيش إعلانات ولا لوجوهات شركات أدوية على الروشتة أبدًا.">
+        <div class="t-print-stage" data-note="Live A5 preview: every keystroke updates the sheet. The letterhead uses Amiri serif in stamp-blue ink. No ads or pharma logos ever appear on the Rx."
+             data-note-ar="معاينة A5 مباشرة: كل حرف بيتغير على الورقة. الترويسة بخط أميري وحبر أزرق الختم. مفيش إعلانات ولا لوجوهات شركات أدوية على الروشتة أبدًا.">
           <div class="lh-zoom" id="lh-zoom">
             <!-- Rx -->
             <article class="t-sheet a5" id="lh-rx" data-sheet-panel="rx">
@@ -228,7 +228,7 @@
   function multi() { return D.branchesOf(C.org).length > 1; }
   function docList() { return D.doctorsIn(C); }
   function docBranches(docId) { return D.doctorBranches(docId).filter(function (b) { return C.branches.indexOf(b) > -1; }); }
-  /* numbering comes from the shared per-branch series (D39-A, demo-data.js) */
+  /* numbering comes from the shared per-branch series (demo-data.js) */
   function series(b) { return D.invoiceSeries(b.id); }
   function branchInvoices(bId) { return D.invoices.filter(function (i) { return i.branch === bId; }).sort(function (a, b) { return a.no < b.no ? -1 : 1; }); }
   function fuDays(doc) {

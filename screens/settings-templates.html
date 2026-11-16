@@ -47,14 +47,14 @@
         <p class="t-sub mb-0" data-en="Ready-made visits (diagnosis, drugs, services) and short codes that make the visit note fast.">كشوفات جاهزة (تشخيص وأدوية وخدمات) واختصارات بتخلي كتابة الكشف أسرع.</p>
       </div>
       <div class="t-actions">
-        <a class="t-btn" href="visit-note.html" data-note="Templates can also be saved from a finished visit ('Save as template' in the visit workspace), the way NITCO does it (v3) — but here the doctor picks which parts to keep."
-           data-note-ar="القالب ممكن يتحفظ من كشف خلص ('احفظ كقالب' في شاشة الكشف) زي NITCO — بس هنا الدكتور بيختار يحتفظ بأنهي أجزاء."><svg class="t-icon sm"><use href="#i-edit"/></svg><span data-en="Save from a visit">احفظ من كشف</span></a>
+        <a class="t-btn" href="visit-note.html" data-note="Templates can also be saved from a finished visit ('Save as template' in the visit workspace); the doctor picks which parts to keep."
+           data-note-ar="القالب ممكن يتحفظ من كشف خلص ('احفظ كقالب' في شاشة الكشف) والدكتور بيختار يحتفظ بأنهي أجزاء."><svg class="t-icon sm"><use href="#i-edit"/></svg><span data-en="Save from a visit">احفظ من كشف</span></a>
         <button class="t-btn primary" type="button" id="tp-new"><svg class="t-icon sm"><use href="#i-plus"/></svg><span data-en="New template">قالب جديد</span><span class="t-kbd">N</span></button>
       </div>
     </header>
 
     <div class="t-alert info mb-4"
-         data-note="Where templates live (tenancy): specialty pack → org overrides → doctor overrides. Templates follow the DOCTOR (his specialty), not the room or branch, so they are the same in every branch of the org. Service prices inside a template are resolved at the branch where the visit happens."
+         data-note="Where templates live: specialty pack → org overrides → doctor overrides. Templates follow the DOCTOR (his specialty), not the room or branch, so they are the same in every branch of the org. Service prices inside a template are resolved at the branch where the visit happens."
          data-note-ar="القوالب: باقة التخصص ← تعديلات المنشأة ← تعديلات الدكتور. القالب تبع الدكتور (تخصصه) مش الغرفة ولا الفرع، فهو نفسه في كل فروع المنشأة. أسعار الخدمات جوه القالب بتتحسب حسب الفرع اللي فيه الزيارة.">
       <svg class="t-icon"><use href="#i-info"/></svg><span id="tp-scope"></span>
     </div>
@@ -68,8 +68,8 @@
     <!-- ============ TEMPLATES ============ -->
     <section data-panel="tpl">
       <div class="t-split">
-        <div class="t-card flush" data-note="Template list grouped by the org's doctors and their specialty, with usage counts (last 30 days), most used first. NITCO's template grid shows only 'test' / 'test' with no category, owner or content hint (v3)."
-             data-note-ar="القوالب مقسمة بدكاترة المنشأة وتخصصاتهم ومعاها عدد الاستخدام (آخر ٣٠ يوم). جدول القوالب في NITCO بيعرض بس الاسم من غير تصنيف ولا صاحب ولا محتوى.">
+        <div class="t-card flush" data-note="Template list grouped by the org's doctors and their specialty, with usage counts (last 30 days), most used first."
+             data-note-ar="القوالب مقسمة بدكاترة المنشأة وتخصصاتهم ومعاها عدد الاستخدام (آخر ٣٠ يوم)، والأكتر استخدامًا الأول.">
           <div style="padding:var(--s-3) var(--s-4);border-block-end:1px solid var(--line)">
             <div class="t-input-wrap"><svg class="t-icon"><use href="#i-search"/></svg><input class="t-input" type="search" id="tp-q" placeholder="ابحث بالتشخيص أو الكود" data-en-placeholder="Search diagnosis or code"></div>
             <div class="t-seg mt-2" role="group" id="tp-own"><button type="button" aria-pressed="true" data-own="all" data-en="All">الكل</button><button type="button" aria-pressed="false" data-own="mine" data-en="Mine">بتوعي</button></div>
@@ -103,7 +103,7 @@
             <div class="tp-soap"><span class="tp-soap-k" title="Plan">P</span><div class="t-field"><label class="t-label" for="tp-p" data-en="Plan & advice">الخطة والنصائح</label><textarea id="tp-p" class="t-textarea" style="min-height:60px"></textarea></div></div>
           </div>
 
-          <div data-note="Selective apply: each drug and service has a tick. Unticked lines are offered in the visit but not added. NITCO applies every item of a template at once (v3: 'all the information is applied'), so doctors delete lines after. Service prices shown are the selected branch's prices."
+          <div data-note="Selective apply: each drug and service has a tick. Unticked lines are offered in the visit but not added. Service prices shown are the selected branch's prices."
                data-note-ar="تطبيق انتقائي: كل دوا وخدمة جنبهم علامة. اللي مش متعلّم بيظهر كاقتراح في الكشف بس مش بيتضاف. أسعار الخدمات المعروضة هي أسعار الفرع المختار.">
             <div class="t-row between mb-2"><h3 style="font-size:var(--fs-md)" data-en="Prescription lines">سطور الروشتة</h3><a class="t-small" href="rx-favourites.html" data-en="From favourites">من المفضلة</a></div>
             <div id="tp-rx"></div>
@@ -132,7 +132,7 @@
             <tbody id="sc-rows"></tbody>
           </table>
         </div>
-        <aside class="t-card" data-note="Text shortcuts: type /cbc and a space in any note field and it expands. Try it here. A shortcut belongs to one doctor or to the whole organization (all branches). Beats NITCO's free-text-only boxes and CKEditor for short clinical text."
+        <aside class="t-card" data-note="Text shortcuts: type /cbc and a space in any note field and it expands. Try it here. A shortcut belongs to one doctor or to the whole organization (all branches)."
                data-note-ar="الاختصارات: اكتب /cbc ومسافة في أي خانة في الكشف وهتتفرد. الاختصار ممكن يبقى لدكتور واحد أو للمنشأة كلها (كل الفروع).">
           <div class="t-card-head"><h3 data-en="Try it">جرّبها</h3></div>
           <label class="t-label t-sr" for="tp-try" data-en="Try a shortcut">جرّب اختصار</label>
@@ -151,7 +151,7 @@
 
     <!-- ============ PACKS ============ -->
     <section data-panel="packs" hidden>
-      <div class="t-alert info mb-4" data-note="Specialty packs import templates, favourites and shortcuts curated by Egyptian specialists, into THIS organization only. A pack is 'installed' when one of the org's doctors has that specialty. Import only adds: anything you edited is kept, never overwritten (NITCO's bulk 'apply to all' silently overwrites)."
+      <div class="t-alert info mb-4" data-note="Specialty packs import templates, favourites and shortcuts curated by Egyptian specialists, into THIS organization only. A pack is 'installed' when one of the org's doctors has that specialty. Import only adds: anything you edited is kept, never overwritten."
            data-note-ar="باقات التخصص بتستورد قوالب ومفضلة واختصارات للمنشأة دي بس. الباقة «متثبتة» لما يكون فيه دكتور في المنشأة بالتخصص ده. الاستيراد بيضيف بس: أي حاجة عدلتها بتفضل زي ما هي.">
         <svg class="t-icon"><use href="#i-info"/></svg><span data-en="Importing a pack only adds. Templates you edited stay as they are.">استيراد الباقة بيضيف بس. القوالب اللي عدلتها بتفضل زي ما هي.</span></div>
       <div class="t-grid c3" id="pack-grid"></div>

@@ -34,8 +34,8 @@
     <header class="t-screen-head">
       <div>
         <h1><span data-en="Packages &amp; treatment plans">الباقات وخطط العلاج</span> <span class="t-tier"
-            data-note="Tier 2 (polyclinic plan, 699 EGP): not in the solo-clinic MVP. Built now because it is cheap on top of invoices, payments and the patient account, and NITCO proves polyclinics need it (v31, v32, v55, v85, v87)."
-            data-note-ar="المرحلة ٢ (باقة المجمعات): مش في نسخة العيادة الفردية. اتعملت دلوقتي لأنها رخيصة فوق الفواتير وحساب المريض، وNITCO بيثبت إن المجمعات محتاجاها." data-en="Tier 2 — polyclinic plan">المرحلة ٢ — باقة المجمعات</span></h1>
+            data-note="Tier 2 (polyclinic plan, 699 EGP): packages and treatment plans, built on the same invoices, payments and patient account. Not included in the solo-clinic plan."
+            data-note-ar="المرحلة ٢ (باقة المجمعات): الباقات وخطط العلاج، مبنية على نفس الفواتير والمدفوعات وحساب المريض. مش موجودة في باقة العيادة الفردية." data-en="Tier 2 — polyclinic plan">المرحلة ٢ — باقة المجمعات</span></h1>
         <p class="t-sub mb-0" data-en="Prepaid session packages and treatment plans paid in instalments, tracked on the patient.">باقات جلسات مدفوعة مقدمًا وخطط علاج بالتقسيط، متابعة على ملف المريض.</p>
       </div>
       <div class="t-actions" id="pp-actions">
@@ -65,8 +65,8 @@
                 <div class="t-actions t-small t-muted"><span id="pp-pk-valid"></span></div>
               </div>
               <div class="pp-pk mb-4"
-                   data-note="Remaining sessions are the headline number, with a meter. The package was sold once (one invoice) and each use only writes a consumption line; NITCO issues a new zero-amount invoice for every session (v31, v85), which floods the invoice list. The package belongs to the patient's org-wide file, but a session can only be used in a branch that has a room and a doctor for that service."
-                   data-note-ar="الجلسات الباقية هي الرقم الأساسي. الباقة اتباعت مرة واحدة بفاتورة واحدة وكل استخدام بيتسجل كسطر استهلاك؛ في NITCO فاتورة بصفر لكل جلسة. الباقة على ملف المريض في المنشأة كلها، لكن الجلسة بتتستخدم بس في فرع فيه غرفة ودكتور للخدمة دي.">
+                   data-note="Remaining sessions are the headline number, with a meter. The package was sold once (one invoice) and each use only writes a consumption line, so the invoice list stays clean. The package belongs to the patient's org-wide file, but a session can only be used in a branch that has a room and a doctor for that service."
+                   data-note-ar="الجلسات الباقية هي الرقم الأساسي. الباقة اتباعت مرة واحدة بفاتورة واحدة وكل استخدام بيتسجل كسطر استهلاك، فقايمة الفواتير بتفضل نضيفة. الباقة على ملف المريض في المنشأة كلها، لكن الجلسة بتتستخدم بس في فرع فيه غرفة ودكتور للخدمة دي.">
                 <div class="t-stack" style="gap:var(--s-2)">
                   <div class="t-row tight"><span class="pp-big" id="pp-left"></span><span class="t-muted" id="pp-left-of"></span></div>
                   <div class="pp-meter" aria-hidden="true"><span id="pp-bar"></span></div>
@@ -122,8 +122,8 @@
                    data-note="Clinical visibility is respected: this doctor's membership is set to 'own patients only', so the clinical part of the plan (teeth, notes) is shown only to him. Reception and other doctors still see the schedule and the money, which they need to book and collect."
                    data-note-ar="خصوصية الكشف محترمة: عضوية الدكتور ده مظبوطة على «مرضاه بس»، فالجزء الطبي من الخطة (الأسنان والملاحظات) بيظهر له هو بس. الاستقبال والأطباء التانيين بيشوفوا المواعيد والفلوس اللي محتاجينها للحجز والتحصيل."></div>
               <div class="t-table-wrap"
-                   data-note="Treatment plan = service × sessions × every N days. Expected dates are generated from the start date; actual dates come from the visits, so a late session is visible (NITCO v16, v22, v87: expected vs actual + 'used' tick)."
-                   data-note-ar="خطة العلاج = خدمة × عدد جلسات × كل كام يوم. المواعيد المتوقعة محسوبة من البداية والفعلية من الزيارات، فالتأخير بيبان.">
+                   data-note="Treatment plan = service × sessions × every N days. Expected dates are generated from the start date; actual dates come from the visits, so a late session is visible: expected vs actual date and a 'used' tick per session."
+                   data-note-ar="خطة العلاج = خدمة × عدد جلسات × كل كام يوم. المواعيد المتوقعة محسوبة من البداية والفعلية من الزيارات، فالتأخير بيبان: المتوقع قصاد الفعلي وعلامة «اتعملت» لكل جلسة.">
                 <table class="t-table">
                   <thead><tr><th>#</th><th data-en="Expected">المتوقع</th><th data-en="Actual">الفعلي</th><th data-en="Status">الحالة</th><th></th></tr></thead>
                   <tbody id="pp-pl-rows"></tbody>
@@ -151,7 +151,7 @@
           <aside class="t-stack">
             <section class="t-card sunk">
               <h3 class="mb-2" data-en="Why plans live on the patient">ليه الخطة على المريض</h3>
-              <p class="t-small t-muted mb-0" data-en="NITCO builds plans inside an invoice modal, 2–3 modals deep (v87). Here the plan is its own object on the patient: the doctor creates it from the visit, reception books and collects from it, in whichever branch the patient comes to.">في NITCO الخطة جوه مودال الفاتورة على ٢–٣ مستويات. هنا الخطة لوحدها على ملف المريض: الدكتور يعملها من الكشف، والاستقبال يحجز ويحصّل منها، في أي فرع المريض يروحه.</p>
+              <p class="t-small t-muted mb-0" data-en="The plan is its own object on the patient: the doctor creates it from the visit, reception books and collects from it, in whichever branch the patient comes to.">الخطة لوحدها على ملف المريض: الدكتور يعملها من الكشف، والاستقبال يحجز ويحصّل منها، في أي فرع المريض يروحه.</p>
             </section>
           </aside>
         </div>
@@ -242,7 +242,7 @@
   function dLong(s) { var p = s.split("-"); return n(+p[2]) + " " + MON[C.lang][+p[1] - 1] + " " + n(+p[0]); }
   function dm(s) { var p = s.split("-"); return p[2] + "/" + p[1]; }
   function addDays(s, k) { var p = s.split("-"), d = new Date(+p[0], +p[1] - 1, +p[2] + k); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
-  function invNo(seq, br) { return D.invoiceNo(br, seq); }   /* per-branch series (D39) */
+  function invNo(seq, br) { return D.invoiceNo(br, seq); }   /* per-branch series */
   function clinicalVisible(docId) {
     if (D.visibilityOf(docId) !== "own") return C.role !== "reception" && C.role !== "cashier";
     var d = D.doctor(docId);

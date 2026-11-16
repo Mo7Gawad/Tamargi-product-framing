@@ -43,8 +43,8 @@
     <form class="t-split aside-end" id="qr-form" novalidate>
       <section class="t-card flush">
         <div class="t-card-head"
-             data-note="Five required fields (name, mobile, sex, age/DOB; NID optional) instead of NITCO's ≈40–45-field form with two languages × 4 name parts, nationality, ID type and Hijri dates (v37, v41, v94). Required = asterisk + word, never a red border alone."
-             data-note-ar="خمس خانات مطلوبة بس (الاسم، الموبايل، النوع، السن أو تاريخ الميلاد؛ الرقم القومي اختياري) بدل ٤٠–٤٥ خانة في NITCO. المطلوب عليه نجمة وكلمة مش إطار أحمر بس.">
+             data-note="Five required fields (name, mobile, sex, age/DOB; NID optional) Required fields are marked with an asterisk and the word 'required'."
+             data-note-ar="خمس خانات مطلوبة بس (الاسم، الموبايل، النوع، السن أو تاريخ الميلاد؛ الرقم القومي اختياري). المطلوب عليه نجمة وكلمة «مطلوب».">
           <h2 data-en="New patient">مريض جديد</h2>
           <span class="t-small t-faint" id="qr-fileno"></span>
         </div>
@@ -58,15 +58,15 @@
             </div>
 
             <div class="t-field"
-                 data-note="Live duplicate check on mobile and NID while typing: a match shows who it is and offers 'Open existing file'. Shared family phones are normal in Egypt, so it warns but never blocks. NITCO only offers 'merge files' after the duplicate exists (v41)."
-                 data-note-ar="فحص التكرار لحظيًا على الموبايل والرقم القومي: لو فيه تطابق بيقول مين ويعرض «فتح الملف الموجود». موبايل العيلة المشترك طبيعي، فبننبّه ومش بنمنع. NITCO بيعرض دمج الملفات بعد ما التكرار يحصل.">
+                 data-note="Live duplicate check on mobile and NID while typing: a match shows who it is and offers 'Open existing file'. Shared family phones are normal in Egypt, so it warns but never blocks."
+                 data-note-ar="فحص التكرار لحظيًا على الموبايل والرقم القومي: لو فيه تطابق بيقول مين ويعرض «فتح الملف الموجود». موبايل العيلة المشترك طبيعي، فبننبّه ومش بنمنع.">
               <label class="t-label" for="qr-mob"><span data-en="Mobile">الموبايل</span><span class="req">*</span></label>
               <input class="t-input ltr" id="qr-mob" inputmode="tel" maxlength="13" autocomplete="off" placeholder="01xxxxxxxxx" value="01000000299" aria-describedby="qr-mob-msg" required>
               <span class="t-hint" id="qr-mob-msg" data-en="11 digits starting 010, 011, 012 or 015.">11 رقم يبدأ بـ 010 أو 011 أو 012 أو 015.</span>
             </div>
 
             <div class="t-field"
-                 data-note="Optional 14-digit Egyptian NID fills date of birth, age and sex for you (digit 1 = century, 2–7 = YYMMDD, 8–9 = governorate, 13 = odd male / even female). NITCO only infers the ID type from the first digit (v41, v94)."
+                 data-note="Optional 14-digit Egyptian NID fills date of birth, age and sex for you (digit 1 = century, 2–7 = YYMMDD, 8–9 = governorate, 13 = odd male / even female)."
                  data-note-ar="الرقم القومي (١٤ رقم، اختياري) بيملأ تاريخ الميلاد والسن والنوع لوحده (أول رقم القرن، ٢–٧ التاريخ، ٨–٩ المحافظة، ١٣ فردي ذكر وزوجي أنثى).">
               <label class="t-label" for="qr-nid"><span data-en="National ID">الرقم القومي</span><span class="opt" data-en="optional">اختياري</span></label>
               <input class="t-input ltr" id="qr-nid" inputmode="numeric" maxlength="14" autocomplete="off" placeholder="14 digits" value="28911051200011" aria-describedby="qr-nid-msg">
@@ -110,8 +110,8 @@
             </div>
             <!-- Payer: inline, one save -->
             <div class="t-field span-2"
-                 data-note="How the patient pays is chosen here, in the same save. NITCO saves the file as cash first and only then lets you switch to discount/company/insurance and save again (v37, v39, v40, v95, v96). Named discount tiers come from NITCO's 'cash with discount' (v37, v53); corporate/syndicate with co-pay is Tier 2."
-                 data-note-ar="طريقة المحاسبة بتتحدد هنا في نفس الحفظ. NITCO بيحفظ الملف كاش الأول وبعدين تغيّر وتحفظ تاني. شرائح الخصم بالاسم من NITCO؛ الشركات والنقابات بنسبة تحمل = المرحلة ٢.">
+                 data-note="How the patient pays is chosen here, in the same save. Named discount tiers are available; corporate/syndicate with co-pay is Tier 2."
+                 data-note-ar="طريقة المحاسبة بتتحدد هنا في نفس الحفظ. فيه شرائح خصم بالاسم؛ الشركات والنقابات بنسبة تحمل = المرحلة ٢.">
               <span class="t-label" data-en="Pays as">طريقة المحاسبة</span>
               <div class="t-row tight">
                 <div class="t-seg" role="group" id="qr-payer">
@@ -144,7 +144,7 @@
 
             <!-- More details, collapsed -->
             <details class="t-more span-2" id="qr-more"
-                     data-note="Everything else is collapsed: address, 'how did you hear about us' (NITCO v38–41; cheap marketing data for the owner), guardian phone (opens by itself when age < 16) and an alerts note that shows on the doctor's banner and at the cashier (NITCO v94 'patient comments')."
+                     data-note="Everything else is collapsed: address, 'how did you hear about us' (marketing data for the owner), guardian phone (opens by itself when age < 16) and an alerts note that shows on the doctor's banner and at the cashier."
                      data-note-ar="الباقي مقفول: العنوان، «عرفتنا منين» (بيانات تسويق للمالك)، رقم ولي الأمر (بيتفتح لوحده لو السن أقل من ١٦)، وملاحظة تنبيه بتظهر للطبيب وفي الخزنة.">
               <summary><span data-en="More details (optional) — address, referral, guardian, alerts">تفاصيل أكتر (اختياري) — العنوان، عرفتنا منين، ولي الأمر، تنبيهات</span></summary>
               <div class="t-form-grid mt-4">
@@ -189,8 +189,8 @@
       <!-- Aside: what happens on save -->
       <aside class="t-stack">
         <section class="t-card"
-                 data-note="One save does three things: creates the file, puts the patient in the chosen doctor's lane with a ticket, and prices the visit (first visit = New consult at the doctor's fee for this branch). The file is organization-wide (one file for every branch); the branch is recorded only as where it was opened, and the queue is the selected branch's. Under 'All branches' saving asks for one branch first. No 'save, then search it back, then bill' like NITCO (v89, v90)."
-                 data-note-ar="حفظ واحد بيعمل ٣ حاجات: يفتح الملف، يدخّل المريض دور الطبيب برقم، ويسعّر الزيارة (أول زيارة = كشف جديد بسعر الطبيب في الفرع ده). الملف للمنشأة كلها (ملف واحد لكل الفروع)، والفرع بيتسجل بس كمكان فتح الملف، والدور دور الفرع المختار. من غير «احفظ ودوّر عليه تاني وبعدين اعمل فاتورة».">
+                 data-note="One save does three things: creates the file, puts the patient in the chosen doctor's lane with a ticket, and prices the visit (first visit = New consult at the doctor's fee for this branch). The file is organization-wide (one file for every branch); the branch is recorded only as where it was opened, and the queue is the selected branch's. Under 'All branches' saving asks for one branch first."
+                 data-note-ar="حفظ واحد بيعمل ٣ حاجات: يفتح الملف، يدخّل المريض دور الطبيب برقم، ويسعّر الزيارة (أول زيارة = كشف جديد بسعر الطبيب في الفرع ده). الملف للمنشأة كلها (ملف واحد لكل الفروع)، والفرع بيتسجل بس كمكان فتح الملف، والدور دور الفرع المختار.">
           <div class="t-card-head"><h2 data-en="On save">بعد الحفظ</h2></div>
           <div class="t-stack">
             <div class="t-field">

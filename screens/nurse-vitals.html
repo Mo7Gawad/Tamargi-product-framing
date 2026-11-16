@@ -41,8 +41,8 @@
       </div>
       <div class="t-actions">
         <div id="nv-doc-pick"
-             data-note="The nurse only sees patients of the doctors working in her branch today (her role is granted per branch). Patients of other branches never show here, even in the same organization. NITCO v16 shows every visit of the day with 9 filter fields."
-             data-note-ar="الممرضة بتشوف مرضى الدكاترة الشغالين في فرعها النهارده بس (صلاحيتها لكل فرع). مرضى الفروع التانية مش بيظهروا هنا حتى لو في نفس المنشأة. NITCO بيعرض كل زيارات اليوم بفلاتر كتير."></div>
+             data-note="The nurse only sees patients of the doctors working in her branch today (her role is granted per branch). Patients of other branches never show here, even in the same organization."
+             data-note-ar="الممرضة بتشوف مرضى الدكاترة الشغالين في فرعها النهارده بس (صلاحيتها لكل فرع). مرضى الفروع التانية مش بيظهروا هنا حتى لو في نفس المنشأة."></div>
       </div>
     </header>
 
@@ -67,14 +67,14 @@
           </div>
 
           <div class="t-alert mb-4"
-               data-note="Every field starts blank and stays blank until measured. NITCO v16 opens sliders pre-set to 'normal', so an unmeasured patient looks healthy. Here, a blank value means 'not measured', never 'normal'."
-               data-note-ar="كل خانة بتبدأ فاضية لحد ما تتقاس. في NITCO القيم بتبدأ «طبيعي» فالمريض اللي متقاسش يبان سليم.">
+               data-note="Every field starts blank and stays blank until measured. Here, a blank value means 'not measured', never 'normal'."
+               data-note-ar="كل خانة بتبدأ فاضية لحد ما تتقاس. الخانة الفاضية معناها «متقاسش»، مش «طبيعي».">
             <svg class="t-icon"><use href="#i-info"/></svg>
             <span data-en="Leave a box empty if you did not measure it. Empty means not measured, never normal.">سيب الخانة فاضية لو مقستهاش. الفاضي معناه متقاسش، مش طبيعي.</span>
           </div>
 
           <div class="nv-grid"
-               data-note="Out-of-range values are flagged in words next to the number (High / Low + the normal range), not by colour alone. The flag travels to the doctor's next-patient card. NITCO v15 showed BP 183/86 and temp 38.5 unflagged."
+               data-note="Out-of-range values are flagged in words next to the number (High / Low + the normal range), not by colour alone. The flag travels to the doctor's next-patient card."
                data-note-ar="القيمة اللي برا المعدل بتتعلّم بكلمة (عالي/واطي + المعدل الطبيعي) مش بلون بس، والتنبيه بيوصل لكارت الدكتور.">
             <div class="nv-box" data-v="bp">
               <label class="t-label" for="bpS"><span data-en="Blood pressure">ضغط الدم</span> <span class="opt">mmHg</span></label>
@@ -130,8 +130,8 @@
           <div class="t-field">
             <label class="t-label" for="nnote"><span data-en="Nursing note">ملاحظة التمريض</span> <span class="opt" data-en="(optional)">(اختياري)</span></label>
             <div class="t-row tight" role="group" aria-label="عبارات جاهزة" data-en-aria-label="Quick phrases"
-                 data-note="Quick phrases insert common nursing notes in one tap (NITCO v15 has one free-text line only). The note shows on the doctor's next-patient card."
-                 data-note-ar="عبارات جاهزة بضغطة واحدة بدل الكتابة الحرة بس، والملاحظة بتظهر للدكتور.">
+                 data-note="Quick phrases insert common nursing notes in one tap. The note shows on the doctor's next-patient card."
+                 data-note-ar="عبارات جاهزة بضغطة واحدة، والملاحظة بتظهر للدكتور.">
               <button class="t-pick" type="button" data-phrase="صايمة من الصبح" data-phrase-en="Fasting since morning" data-en="Fasting since morning">صايمة من الصبح</button>
               <button class="t-pick" type="button" data-phrase="مخدتش الدوا النهارده" data-phrase-en="Did not take medication today" data-en="Missed meds today">مخدتش الدوا النهارده</button>
               <button class="t-pick" type="button" data-phrase="دايخة وتعبانة" data-phrase-en="Feels dizzy and tired" data-en="Dizzy, tired">دايخة وتعبانة</button>
