@@ -129,6 +129,86 @@
         "symbolOnInk": "r5-care-cradle-symbol-rev.svg",
         "lockup": "r5-care-cradle-lockup.svg"
       }
+    },
+    {
+      "id": "r8-queue-beat",
+      "name": {
+        "ar": "نبض الدور",
+        "en": "Queue Beat"
+      },
+      "idea": {
+        "ar": "أربع نبضات زي المرضى في الدور، والنقطة الخضرا هي اللي عليه الدور دلوقتي.",
+        "en": "Four even beats are patients in the queue; the green dot is who is called now."
+      },
+      "files": {
+        "symbol": "r8-queue-beat-symbol.svg",
+        "symbolOnInk": "r8-queue-beat-symbol-rev.svg",
+        "lockup": "r8-queue-beat-lockup.svg"
+      }
+    },
+    {
+      "id": "r8-heart-tile",
+      "name": {
+        "ar": "قلب النبض",
+        "en": "Heart Tile"
+      },
+      "idea": {
+        "ar": "قلب مصمت بيقطعه خط نبض واحد.",
+        "en": "A solid heart cut by one pulse beat."
+      },
+      "files": {
+        "symbol": "r8-heart-tile-symbol.svg",
+        "symbolOnInk": "r8-heart-tile-symbol-rev.svg",
+        "lockup": "r8-heart-tile-lockup.svg"
+      }
+    },
+    {
+      "id": "r8-clinic-day",
+      "name": {
+        "ar": "يوم العيادة",
+        "en": "Clinic Day"
+      },
+      "idea": {
+        "ar": "صفحة نتيجة بخط واحد، ونبضاتها هي مواعيد اليوم.",
+        "en": "A one-line calendar page whose beats are the day’s appointments."
+      },
+      "files": {
+        "symbol": "r8-clinic-day-symbol.svg",
+        "symbolOnInk": "r8-clinic-day-symbol-rev.svg",
+        "lockup": "r8-clinic-day-lockup.svg"
+      }
+    },
+    {
+      "id": "r8-care-stroke",
+      "name": {
+        "ar": "لمسة الرعاية",
+        "en": "Care Stroke"
+      },
+      "idea": {
+        "ar": "ضربة قلم واحدة بترسم قلب ونبضة، بنقطة حمرا.",
+        "en": "One reed-pen stroke draws a heart and a beat, with a vermilion dot."
+      },
+      "files": {
+        "symbol": "r8-care-stroke-symbol.svg",
+        "symbolOnInk": "r8-care-stroke-symbol-rev.svg",
+        "lockup": "r8-care-stroke-lockup.svg"
+      }
+    },
+    {
+      "id": "r8-all-good",
+      "name": {
+        "ar": "تمام",
+        "en": "All Good"
+      },
+      "idea": {
+        "ar": "النبض بيهدى ويخلص بعلامة صح: العيادة تمام والمريض متطمن.",
+        "en": "The pulse settles into a tick: the clinic is handled."
+      },
+      "files": {
+        "symbol": "r8-all-good-symbol.svg",
+        "symbolOnInk": "r8-all-good-symbol-rev.svg",
+        "lockup": "r8-all-good-lockup.svg"
+      }
     }
   ]
 }
