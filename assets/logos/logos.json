@@ -1,0 +1,29 @@
+{
+  "round": "shortlist-1",
+  "logos": [
+    {
+      "id": "care-cradle",
+      "name": { "ar": "مهد الرعاية", "en": "Care Cradle" },
+      "idea": { "ar": "حوض حرف التاء بيحضن علامة زائد: التمرجي هو اللي بيرعى.", "en": "The ت bowl tends a plus: timar means care." },
+      "files": { "symbol": "care-cradle-symbol.svg", "symbolOnInk": "care-cradle-symbol-rev.svg", "lockup": "care-cradle-lockup.svg" }
+    },
+    {
+      "id": "two-hands",
+      "name": { "ar": "إيدين", "en": "Two Hands" },
+      "idea": { "ar": "حوض التاء متقسم لإيدين (الطبيب والتمرجي) شايلين علامة زائد.", "en": "The ت bowl split into two hands (doctor + tamargi) holding the plus." },
+      "files": { "symbol": "two-hands-symbol.svg", "symbolOnInk": "two-hands-symbol-rev.svg", "lockup": "two-hands-lockup.svg" }
+    },
+    {
+      "id": "called-dots",
+      "name": { "ar": "النقط المنادى عليها", "en": "Called Dots" },
+      "idea": { "ar": "نقط التاء هم المرضى؛ لما يتنادى عليهم بيتجمعوا في علامة زائد جوه الحضن.", "en": "The dots of ت are patients; called in, they gather into a plus inside the cradle." },
+      "files": { "symbol": "called-dots-symbol.svg", "symbolOnInk": "called-dots-symbol-rev.svg", "lockup": "called-dots-lockup.svg", "splash": "called-dots-splash.svg" }
+    },
+    {
+      "id": "word-seal",
+      "name": { "ar": "ختم الاسم", "en": "Word Seal" },
+      "idea": { "ar": "كلمة تمرجي مفرّغة من ختم أزرق؛ الفاصل بين الحروف شايل علامة زائد.", "en": "تمرجي reversed out of an ink seal; the word break holds the plus." },
+      "files": { "symbol": "word-seal-symbol.svg", "symbolOnInk": "word-seal-symbol-rev.svg", "lockup": "word-seal-lockup.svg" }
+    }
+  ]
+}

@@ -109,8 +109,10 @@
   /* Screen labels (AR/EN) by stable screen id = file name without .html. One map for the nav, the
      hub, the feedback widget and feedback-admin. Unknown ids fall back to the id itself. */
   var HUB_SCREEN = { f: "index", ar: "دليل النموذج", en: "Prototype hub" };
+  /* Pages outside the product nav that still need a label (hub link, feedback widget, admin). */
+  var EXTRA_SCREENS = [{ f: "logo-vote", ar: "تصويت الشعار", en: "Logo vote" }];
   var SCREEN_LABELS = {};
-  SCREENS.concat([HUB_SCREEN]).forEach(function (s) { SCREEN_LABELS[s.f] = { ar: s.ar, en: s.en }; });
+  SCREENS.concat([HUB_SCREEN], EXTRA_SCREENS).forEach(function (s) { SCREEN_LABELS[s.f] = { ar: s.ar, en: s.en }; });
   function screenIdFrom(p) {
     var last = String(p || "").split(/[?#]/)[0].split("/").filter(Boolean).pop() || "index";
     var id = last.replace(/\.html?$/i, "").toLowerCase();

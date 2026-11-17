@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-en="Logo vote — Tamargi">تصويت الشعار — تمرجي</title>
+  <link rel="stylesheet" href="../assets/tamargi.css">
+  <style>
+    /* page-specific CSS: tokens only */
+    .lv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); gap: var(--s-4); }
+    .lv-card { display: flex; flex-direction: column; gap: var(--s-4); }
+    .lv-card.is-voted { border-color: var(--primary-line); box-shadow: 0 0 0 1px var(--primary-line); }
+    .lv-card h2 { font-size: var(--fs-xl); }
+    .lv-idea { color: var(--text-2); font-size: var(--fs-sm); margin: var(--s-1) 0 0; }
+    .lv-stage { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: var(--s-2); }
+    .lv-tile { display: grid; place-items: center; aspect-ratio: 1; border-radius: var(--r-md); padding: var(--s-4); border: 1px solid var(--line); }
+    .lv-tile img { width: 100%; height: 100%; object-fit: contain; }
+    .lv-white { background: var(--n-0); }
+    .lv-ink { background: var(--ink-600); border-color: var(--ink-600); }
+    .lv-cap { display: block; text-align: center; font-size: var(--fs-xs); color: var(--text-3); margin-block-start: var(--s-1); }
+    .lv-row { display: flex; align-items: center; gap: var(--s-4); flex-wrap: wrap; }
+    .lv-lockup { flex: 1 1 200px; display: flex; align-items: center; justify-content: center; min-height: 88px; background: var(--n-0); border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--s-3) var(--s-4); }
+    .lv-lockup img { height: 56px; max-width: 100%; }
+    .lv-icons { display: flex; align-items: flex-end; gap: var(--s-3); }
+    .lv-app { width: 60px; height: 60px; border-radius: 14px; background: var(--ink-600); display: grid; place-items: center; box-shadow: var(--e-1); }
+    .lv-app img { width: 42px; height: 42px; }
+    .lv-fav { width: 16px; height: 16px; }
+    .lv-vote { display: flex; flex-direction: column; align-items: stretch; gap: var(--s-2); padding-block-start: var(--s-3); border-block-start: 1px solid var(--line); }
+    .lv-vote .t-btn.lg { font-size: var(--fs-lg); height: 56px; }
+    .lv-count { display: flex; align-items: baseline; justify-content: center; gap: var(--s-2); color: var(--text-2); }
+    .lv-count b { font-size: var(--fs-3xl); color: var(--text); font-variant-numeric: tabular-nums; }
+    .lv-voted { display: flex; align-items: center; justify-content: center; gap: var(--s-2); flex-wrap: wrap; color: var(--success-fg); font-weight: var(--fw-sb); }
+    .lv-rank { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s-3); }
+    .lv-rank li { display: grid; grid-template-columns: 24px minmax(90px, 160px) minmax(0, 1fr) 3.5em; align-items: center; gap: var(--s-3); }
+    .lv-rank img { width: 24px; height: 24px; }
+    .lv-rank .nm { font-weight: var(--fw-sb); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .lv-track { height: 14px; background: var(--surface-sunk); border-radius: 4px; overflow: hidden; }
+    .lv-bar { height: 100%; min-width: 2px; background: var(--primary); border-start-end-radius: 4px; border-end-end-radius: 4px; transition: width .4s var(--ease); }
+    .lv-rank .n { text-align: end; font-variant-numeric: tabular-nums; font-weight: var(--fw-sb); }
+    @media (max-width: 480px) { .lv-rank li { grid-template-columns: 24px minmax(70px, 110px) minmax(0, 1fr) 2.8em; gap: var(--s-2); } }
+    @media (prefers-reduced-motion: reduce) { .lv-bar { transition: none; } }
+  </style>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body data-screen="logo-vote">
+<main id="screen">
+  <div class="t-container">
+    <header class="t-screen-head">
+      <div>
+        <h1 data-en="Logo vote">تصويت الشعار</h1>
+        <p class="t-sub mb-0" data-en="Press “I like it” under every logo you like. One vote per logo on each device; you can undo it any time.">دوس «أعجبني» تحت كل شعار عاجبك. صوت واحد لكل شعار من كل جهاز، وتقدر تلغيه في أي وقت.</p>
+      </div>
+      <div class="t-actions">
+        <a class="t-btn" href="#lv-ranking"><svg class="t-icon sm"><use href="#i-chart"/></svg><span data-en="See ranking">شوف الترتيب</span></a>
+      </div>
+    </header>
+
+    <div id="lv-alert" hidden></div>
+    <div class="lv-grid" id="lv-grid" aria-live="polite"></div>
+
+    <section class="t-card" id="lv-ranking" style="margin-block-start:var(--s-6)">
+      <div class="t-card-head">
+        <h2 data-en="Ranking: votes per logo">الترتيب: الأصوات لكل شعار</h2>
+        <div class="t-actions">
+          <span class="t-small t-muted" id="lv-updated"></span>
+          <button class="t-btn sm" type="button" id="lv-refresh"><span data-en="Refresh">تحديث</span></button>
+        </div>
+      </div>
+      <ol class="lv-rank" id="lv-rank"></ol>
+      <p class="t-small t-muted mb-0" id="lv-total" style="margin-block-start:var(--s-4)"></p>
+    </section>
+  </div>
+</main>
+<script src="../assets/demo-data.js"></script>
+<script src="../assets/shell.js"></script>
+<script>
+(function () {
+  var API = "/api/logo-votes", LOGOS_URL = "../assets/logos/", REFRESH_MS = 30000, FRESH_MS = 15000;
+  var live = location.protocol === "http:" || location.protocol === "https:";
+  var logos = [], counts = {}, fresh = {}, pending = {}, updatedAt = null, failed = false;
+  var grid = document.getElementById("lv-grid");
+
+  function en() { return Tamargi.lang() === "en"; }
+  function L(o) { return en() ? o.en : o.ar; }
+  function num(n) { try { return Number(n).toLocaleString(en() ? "en-US" : "ar-EG"); } catch (e) { return String(n); } }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function src(f) { return LOGOS_URL + encodeURIComponent(f); }
+
+  /* ---- this browser's votes + random device id (localStorage is optional) ---- */
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private mode */ } }
+  var myVotes = (function () { try { var o = JSON.parse(lsGet("tamargi.logoVotes") || "{}"); return o && typeof o === "object" && !Array.isArray(o) ? o : {}; } catch (e) { return {}; } })();
+  function saveVotes() { lsSet("tamargi.logoVotes", JSON.stringify(myVotes)); }
+  var deviceId = (function () {
+    var id = lsGet("tamargi.voteDevice");
+    if (id && /^[A-Za-z0-9_-]{16,64}$/.test(id)) return id;
+    var b = new Uint8Array(16);
+    if (window.crypto && crypto.getRandomValues) crypto.getRandomValues(b); else for (var i = 0; i < 16; i++) b[i] = Math.floor(Math.random() * 256);
+    id = "d_" + Array.prototype.map.call(b, function (x) { return (x < 16 ? "0" : "") + x.toString(16); }).join("");
+    lsSet("tamargi.voteDevice", id);
+    return id;
+  })();
+
+  function countOf(id) {
+    var f = fresh[id];
+    if (f && Date.now() - f.at < FRESH_MS) return f.count;   // own change beats a CDN-cached total
+    return counts[id];
+  }
+
+  function showAlert(kind, ar, enTxt) {
+    var a = document.getElementById("lv-alert");
+    a.hidden = false;
+    a.className = "t-alert " + kind;
+    a.style.marginBlockEnd = "var(--s-4)";
+    a.innerHTML = '<svg class="t-icon"><use href="#i-alert"/></svg><span>' + esc(en() ? enTxt : ar) + "</span>";
+  }
+
+  function cardHtml(l) {
+    var f = l.files, voted = !!myVotes[l.id], busy = !!pending[l.id], c = countOf(l.id), name = esc(L(l.name));
+    var tiles =
+      '<div><div class="lv-tile lv-white"><img src="' + src(f.symbol) + '" alt="' + name + '"></div><span class="lv-cap">' + (en() ? "On white" : "على أبيض") + "</span></div>" +
+      '<div><div class="lv-tile lv-ink"><img src="' + src(f.symbolOnInk) + '" alt="' + name + '"></div><span class="lv-cap">' + (en() ? "On ink blue" : "على الأزرق") + "</span></div>" +
+      (f.splash ? '<div><div class="lv-tile lv-white"><img src="' + src(f.splash) + '" alt="' + name + '"></div><span class="lv-cap">' + (en() ? "Splash (animated)" : "شاشة البداية (متحركة)") + "</span></div>" : "");
+    var vote = voted
+      ? '<div class="lv-voted"><span>✓ ' + (en() ? "You voted for this logo" : "إنت صوّتّ للشعار ده") + '</span><button class="t-btn sm" type="button" data-unvote="' + esc(l.id) + '"' + (busy || !live ? " disabled" : "") + ">" + (en() ? "Undo my vote" : "إلغاء صوتي") + "</button></div>"
+      : '<button class="t-btn primary lg block" type="button" data-vote="' + esc(l.id) + '"' + (busy || !live ? " disabled" : "") + '><span aria-hidden="true">👍</span> ' + (en() ? "I like it" : "أعجبني") + "</button>";
+    var countTxt = c === undefined ? "—" : num(c);
+    return '<article class="t-card lv-card' + (voted ? " is-voted" : "") + '" id="logo-' + esc(l.id) + '">' +
+      "<div><h2>" + name + '</h2><p class="lv-idea">' + esc(L(l.idea)) + "</p></div>" +
+      '<div class="lv-stage">' + tiles + "</div>" +
+      '<div class="lv-row"><div class="lv-lockup"><img src="' + src(f.lockup) + '" alt="' + name + '"></div>' +
+        '<div><div class="lv-icons"><span class="lv-app"><img src="' + src(f.symbolOnInk) + '" alt=""></span><img class="lv-fav" src="' + src(f.symbol) + '" alt=""></div><span class="lv-cap">' + (en() ? "App icon · 16 px" : "أيقونة التطبيق · ١٦ بكسل") + "</span></div></div>" +
+      '<div class="lv-vote">' + vote +
+        '<div class="lv-count" data-count="' + esc(l.id) + '"><b>' + countTxt + "</b><span>" + (en() ? (c === 1 ? "vote" : "votes") : "صوت") + "</span></div></div>" +
+      "</article>";
+  }
+
+  function renderRanking() {
+    var list = logos.map(function (l, i) { return { l: l, i: i, c: countOf(l.id) || 0 }; })
+      .sort(function (a, b) { return b.c - a.c || a.i - b.i; });
+    var max = Math.max(1, list.reduce(function (m, x) { return Math.max(m, x.c); }, 0));
+    var total = list.reduce(function (s, x) { return s + x.c; }, 0);
+    document.getElementById("lv-rank").innerHTML = list.map(function (x) {
+      var name = esc(L(x.l.name)), pct = Math.round(x.c / max * 100);
+      return '<li title="' + name + ": " + num(x.c) + '"><img src="' + src(x.l.files.symbol) + '" alt=""><span class="nm">' + name + "</span>" +
+        '<span class="lv-track" role="img" aria-label="' + name + ": " + num(x.c) + '"><span class="lv-bar" style="width:' + (x.c ? pct : 0) + '%"></span></span>' +
+        '<span class="n">' + num(x.c) + "</span></li>";
+    }).join("");
+    document.getElementById("lv-total").textContent = (en() ? "Total votes: " : "إجمالي الأصوات: ") + num(total);
+    var u = document.getElementById("lv-updated");
+    u.textContent = updatedAt ? (en() ? "Updated " : "آخر تحديث ") + updatedAt.toLocaleTimeString(en() ? "en-GB" : "ar-EG", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "";
+  }
+
+  function render() {
+    if (!live) showAlert("info", "التصويت شغال على الموقع المنشور بس. افتح الصفحة من رابط النموذج.", "Voting works on the published site only. Open this page from the prototype link.");
+    else if (failed) showAlert("warning", "مش قادرين نجيب الأصوات دلوقتي. هنحاول تاني تلقائيًا.", "Could not load the votes right now. We will retry automatically.");
+    else document.getElementById("lv-alert").hidden = true;
+    grid.innerHTML = logos.map(cardHtml).join("");
+    renderRanking();
+  }
+
+  function loadCounts() {
+    if (!live) return Promise.resolve();
+    return fetch(API, { headers: { accept: "application/json" } })
+      .then(function (r) { if (!r.ok) throw new Error("http " + r.status); return r.json(); })
+      .then(function (d) { counts = d.counts || {}; updatedAt = new Date(); failed = false; render(); })
+      .catch(function () { failed = true; render(); });
+  }
+
+  function send(id, action) {
+    if (!live || pending[id]) return;
+    pending[id] = true; render();
+    fetch(API, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ logoId: id, deviceId: deviceId, action: action }) })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { status: r.status, d: d }; }); })
+      .then(function (res) {
+        pending[id] = false;
+        if (res.status === 200 && res.d.ok) {
+          if (action === "vote") myVotes[id] = true; else delete myVotes[id];
+          saveVotes();
+          fresh[id] = { count: res.d.count, at: Date.now() };
+          Tamargi.toast(action === "vote" ? (en() ? "Thanks, your vote is in" : "شكرًا، صوتك اتسجّل") : (en() ? "Your vote was removed" : "اتلغى صوتك"));
+        } else if (res.status === 429) {
+          Tamargi.toast(en() ? "Too many tries. Wait a few minutes." : "محاولات كتير. استنى كام دقيقة.");
+        } else {
+          Tamargi.toast(en() ? "Could not save. Try again." : "مقدرناش نحفظ. جرّب تاني.");
+        }
+        render();
+      })
+      .catch(function () { pending[id] = false; Tamargi.toast(en() ? "No connection. Try again." : "مفيش اتصال. جرّب تاني."); render(); });
+  }
+
+  grid.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-vote],[data-unvote]");
+    if (!b || b.disabled) return;
+    if (b.hasAttribute("data-vote")) send(b.getAttribute("data-vote"), "vote");
+    else send(b.getAttribute("data-unvote"), "unvote");
+  });
+  document.getElementById("lv-refresh").addEventListener("click", loadCounts);
+
+  fetch(LOGOS_URL + "logos.json")
+    .then(function (r) { if (!r.ok) throw new Error("http " + r.status); return r.json(); })
+    .then(function (d) {
+      logos = (d.logos || []).filter(function (l) { return l && l.id && l.name && l.idea && l.files; });
+      render();
+      Tamargi.onCtx(function (c, reason) { if (reason === "lang") render(); });
+      loadCounts();
+      setInterval(function () { if (!document.hidden) loadCounts(); }, REFRESH_MS);
+    })
+    .catch(function () {
+      showAlert("warning", "مش قادرين نحمّل الشعارات. افتح الصفحة من رابط النموذج المنشور.", "Could not load the logos. Open this page from the published prototype link.");
+    });
+})();
+</script>
+</body>
+</html>

@@ -36,3 +36,12 @@ Every page shows a "💬 ملاحظات / Feedback" button (from `assets/shell.j
 **Screen names:** each comment stores `screen_id` (file name without `.html`, e.g. `clinic-web-page`), `screen_label_ar` / `screen_label_en` (from the one screen registry in `assets/shell.js`, also used by the hub) and `page_path`. `screenTitle` / `screenFile` are kept for compatibility; older comments get their `screen_id` from `page_path` or `screenFile`.
 
 **Developers:** `npm install` then `npm test` (node --test, Blob calls mocked). Code: `api/feedback.js`, `api/feedback-export.js`, shared logic in `api/_lib/feedback-core.js`.
+
+## Logo vote
+`screens/logo-vote.html` ("🗳️ صوّت على الشعار / Vote on the logo" on the hub) lets testers like the shortlisted logos. Each logo shows on white, on ink blue, as a lockup and as an app icon, with a "👍 أعجبني / I like it" button, its live count, and a ranking bar chart at the bottom.
+
+- **Logos:** the list lives in one data file, `assets/logos/logos.json` (id, name AR/EN, one-line idea AR/EN, files). The SVGs sit next to it. To add a logo, drop its SVGs in `assets/logos/` and add an entry; no code change. `npm test` checks every listed SVG exists and has no scripts, external refs or `foreignObject`.
+- **One vote per logo per browser:** the browser remembers its votes and a random device id in localStorage; "Undo my vote" removes the vote.
+- **API:** `GET /api/logo-votes` returns public counts (cached up to 10 s). `POST /api/logo-votes {logoId, deviceId, action: "vote"|"unvote"}` validates the logo id against `logos.json` and the device id format, caps the body at 1 KB and rate-limits per IP.
+- **Storage:** the same private Vercel Blob store as feedback. Each vote is its own blob, `votes/<logoId>/<deviceId>.json` (never overwritten, so the same device cannot vote twice); undo deletes it, and counts come from listing by prefix. Device ids are never returned.
+- Opened as a local file, the logos show but voting is off. Code: `api/logo-votes.js`, `api/_lib/logo-votes-core.js`; `vercel.json` bundles `logos.json` with the function.

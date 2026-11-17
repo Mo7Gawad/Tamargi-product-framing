@@ -15,6 +15,11 @@
     .hero h1 { font-size: var(--fs-4xl); line-height: var(--lh-tight); margin: 0 0 var(--s-3); letter-spacing: -.01em; }
     .hero h1 .ink { color: var(--primary); }
     .hero p.lead { font-size: var(--fs-lg); color: var(--text-2); margin: 0 0 var(--s-4); max-width: 60ch; }
+    .vote-cta { display: flex; align-items: center; gap: var(--s-3); margin-block-end: var(--s-4); padding: var(--s-3) var(--s-4); border-color: var(--primary-line); background: var(--primary-soft); color: var(--text); text-decoration: none; max-width: 60ch; }
+    .vote-cta:hover { border-color: var(--primary); }
+    .vote-cta b { display: block; color: var(--primary); font-size: var(--fs-lg); }
+    .vote-cta .t-muted { font-size: var(--fs-sm); }
+    .vote-cta-ico { font-size: var(--fs-3xl); line-height: 1; }
     .facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-3); }
     .facts .t-card { padding: var(--s-4); }
     .facts .t-stat-value { font-size: var(--fs-3xl); }
@@ -119,6 +124,10 @@
       </div>
       <h1><span class="ink" data-en="Tamargi">تمرجي</span> <span data-en="— the clinic, run from one screen per role">— العيادة كلها، شاشة واحدة لكل دور</span></h1>
       <p class="lead" data-en="An Arabic-first clinic system for Egyptian solo and 2-doctor clinics that run on paper and cash today. Reception runs a live queue, the doctor writes the visit and prints the Rx on the clinic letterhead, the cashier collects and closes the drawer, the owner sees today's money on the phone.">نظام عيادات عربي أولًا للعيادات المصرية الفردية وعيادات الطبيبين اللي شغالة النهارده بالورق والكاش. الاستقبال بيشغّل دور مباشر، والطبيب بيكتب الكشف ويطبع الروشتة على ترويسة العيادة، والخزنة بتحصّل وتقفل الدرج، والمالك بيشوف فلوس النهارده على موبايله.</p>
+      <a class="t-card vote-cta" href="screens/logo-vote.html">
+        <span class="vote-cta-ico" aria-hidden="true">🗳️</span>
+        <span><b data-en="Vote on the logo">صوّت على الشعار</b><span class="t-muted" data-en="Like the logos you prefer from the shortlist.">اختار الشعارات اللي عاجباك من القائمة النهائية.</span></span>
+      </a>
       <div class="t-row tight">
         <a class="t-btn primary" href="#journeys"><svg class="t-icon sm"><use href="#i-check"/></svg><span data-en="Walk the 5 journeys">امشي في الرحلات الخمسة</span></a>
         <a class="t-btn" href="screens/reception-queue.html"><svg class="t-icon sm"><use href="#i-queue"/></svg><span data-en="Open reception home">افتح شاشة الاستقبال</span></a>

@@ -1,0 +1,5 @@
+{
+  "functions": {
+    "api/logo-votes.js": { "includeFiles": "assets/logos/logos.json" }
+  }
+}
