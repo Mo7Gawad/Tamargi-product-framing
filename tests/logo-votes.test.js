@@ -8,6 +8,7 @@ import {
 
 const BASE = "https://proto.example.com";
 const IDS = loadLogoIds();
+const zeros = () => Object.fromEntries(IDS.map((id) => [id, 0]));
 const DEV = "d_0123456789abcdef0123";
 const DEV2 = "d_fedcba9876543210fedc";
 const openLimiter = () => ({ allowed: true, retryAfter: 0 });
@@ -52,7 +53,8 @@ const post = (body, headers = {}) => new Request(BASE + "/api/logo-votes", {
 const get = () => new Request(BASE + "/api/logo-votes", { headers: { host: "proto.example.com" } });
 
 test("logos.json ids load and match the shortlist", () => {
-  assert.deepEqual(IDS, ["care-cradle", "two-hands", "called-dots", "word-seal"]);
+  assert.deepEqual(IDS.slice(0, 4), ["care-cradle", "two-hands", "called-dots", "word-seal"]);
+  assert.equal(new Set(IDS).size, IDS.length);
 });
 
 test("every logo file exists and is a safe SVG (no script, foreignObject, external refs or handlers)", () => {
@@ -94,7 +96,7 @@ test("countVotes counts only known logos and well-formed names", () => {
     { pathname: votePath("two-hands", DEV) }, { pathname: votePath("two-hands", DEV2) }, { pathname: votePath("word-seal", DEV) },
     { pathname: "votes/other-logo/" + DEV + ".json" }, { pathname: "votes/two-hands/bad.json" }, { pathname: "feedback/x.json" }
   ], IDS);
-  assert.deepEqual(c, { "care-cradle": 0, "two-hands": 2, "called-dots": 0, "word-seal": 1 });
+  assert.deepEqual(c, { ...zeros(), "two-hands": 2, "word-seal": 1 });
 });
 
 test("vote stores one private blob per device and logo; second vote is idempotent; unvote deletes", async () => {
@@ -129,7 +131,7 @@ test("GET returns counts for every logo, paginates the listing, and is cached fo
   assert.equal(res.status, 200);
   assert.equal(res.headers.get("cache-control"), "public, max-age=0, s-maxage=10");
   let out = await res.json();
-  assert.deepEqual(out.counts, { "care-cradle": 0, "two-hands": 1, "called-dots": 0, "word-seal": 1203 });
+  assert.deepEqual(out.counts, { ...zeros(), "two-hands": 1, "word-seal": 1203 });
   assert.equal(out.total, 1204);
   assert.ok(!JSON.stringify(out).includes(DEV), "device ids are never exposed");
   const listsAfterFirst = blob.calls.list;
