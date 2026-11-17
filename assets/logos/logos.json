@@ -24,6 +24,24 @@
       "name": { "ar": "ختم الاسم", "en": "Word Seal" },
       "idea": { "ar": "كلمة تمرجي مفرّغة من ختم أزرق؛ الفاصل بين الحروف شايل علامة زائد.", "en": "تمرجي reversed out of an ink seal; the word break holds the plus." },
       "files": { "symbol": "word-seal-symbol.svg", "symbolOnInk": "word-seal-symbol-rev.svg", "lockup": "word-seal-lockup.svg" }
+    },
+    {
+      "id": "r4-care-cradle",
+      "name": { "ar": "مهد الرعاية (مبسّط)", "en": "Care Cradle, simplified" },
+      "idea": { "ar": "كف واحد مفتوح شايل علامة زائد: الرعاية في الإيد.", "en": "One open palm holds one plus: care is held." },
+      "files": { "symbol": "r4-care-cradle-symbol.svg", "symbolOnInk": "r4-care-cradle-symbol-rev.svg", "lockup": "r4-care-cradle-lockup.svg" }
+    },
+    {
+      "id": "r4-two-hands",
+      "name": { "ar": "إيدين (مبسّط)", "en": "Two Hands, simplified" },
+      "idea": { "ar": "إيد الطبيب وإيد التمرجي بيتقابلوا؛ المسافة بينهم هي علامة الرعاية.", "en": "The doctor's and the tamargi's hands meet; the space between them is the care." },
+      "files": { "symbol": "r4-two-hands-symbol.svg", "symbolOnInk": "r4-two-hands-symbol-rev.svg", "lockup": "r4-two-hands-lockup.svg" }
+    },
+    {
+      "id": "r4-one-stroke",
+      "name": { "ar": "تاء بخط واحد", "en": "One Stroke Ta" },
+      "idea": { "ar": "خط واحد بيرسم حرف التاء ويعدّي على نفسه فيعمل علامة زائد.", "en": "One pen line draws the ت and crosses itself to make the plus." },
+      "files": { "symbol": "r4-one-stroke-symbol.svg", "symbolOnInk": "r4-one-stroke-symbol-rev.svg", "lockup": "r4-one-stroke-lockup.svg" }
     }
   ]
 }
