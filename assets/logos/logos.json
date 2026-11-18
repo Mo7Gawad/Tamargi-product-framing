@@ -2235,6 +2235,767 @@
           "h": 464.0
         }
       ]
+    },
+    {
+      "id": "r9-queue-beat",
+      "name": {
+        "ar": "نبض الدور (نهائي)",
+        "en": "Queue Beat, final"
+      },
+      "idea": {
+        "ar": "أربع نبضات زي المرضى في الدور، والنبضة الأطول المليانة هي اللي عليه الدور دلوقتي.",
+        "en": "Four even beats are patients in the queue; the taller, filled beat is who is called now."
+      },
+      "palette": [
+        {
+          "hex": "#0E4D3B",
+          "name": {
+            "ar": "أخضر صنوبري غامق",
+            "en": "Deep Pine"
+          },
+          "role": {
+            "ar": "الأساسي (الخط والاسم)",
+            "en": "Primary (line and name)"
+          }
+        },
+        {
+          "hex": "#24D68A",
+          "name": {
+            "ar": "أخضر الإشارة",
+            "en": "Live Signal"
+          },
+          "role": {
+            "ar": "نبضة «الدور عليك» على الغامق والأيقونة",
+            "en": "“Your turn” beat on dark and tiles"
+          }
+        },
+        {
+          "hex": "#0B8A55",
+          "name": {
+            "ar": "أخضر الإشارة الغامق",
+            "en": "Signal Deep"
+          },
+          "role": {
+            "ar": "نبضة «الدور عليك» على الفاتح",
+            "en": "“Your turn” beat on light"
+          }
+        },
+        {
+          "hex": "#0A7D4D",
+          "name": {
+            "ar": "أخضر النص",
+            "en": "Signal Text"
+          },
+          "role": {
+            "ar": "النص الأخضر على الفاتح",
+            "en": "Green text on light"
+          }
+        },
+        {
+          "hex": "#9FD3BC",
+          "name": {
+            "ar": "صنوبري فاتح",
+            "en": "Pine Tint"
+          },
+          "role": {
+            "ar": "الأساسي على الغامق",
+            "en": "Primary on dark"
+          }
+        },
+        {
+          "hex": "#0A1F18",
+          "name": {
+            "ar": "حبر صنوبري",
+            "en": "Pine Ink"
+          },
+          "role": {
+            "ar": "النص الإنجليزي",
+            "en": "Latin text"
+          }
+        },
+        {
+          "hex": "#F2F7F4",
+          "name": {
+            "ar": "ضباب العيادة",
+            "en": "Clinic Mist"
+          },
+          "role": {
+            "ar": "الخلفية",
+            "en": "Background"
+          }
+        },
+        {
+          "hex": "#0B1A15",
+          "name": {
+            "ar": "صنوبري الليل",
+            "en": "Night Pine"
+          },
+          "role": {
+            "ar": "الخلفية الغامقة",
+            "en": "Dark background"
+          }
+        }
+      ],
+      "grounds": {
+        "light": "#F2F7F4",
+        "dark": "#0B1A15"
+      },
+      "variants": [
+        {
+          "kind": "symbol",
+          "file": "r9-queue-beat/symbol.svg",
+          "label": {
+            "ar": "الرمز",
+            "en": "Symbol"
+          },
+          "bg": "#F2F7F4",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "symbol-dark",
+          "file": "r9-queue-beat/symbol-dark.svg",
+          "label": {
+            "ar": "الرمز على الغامق",
+            "en": "Symbol on dark"
+          },
+          "bg": "#0B1A15",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "mono",
+          "file": "r9-queue-beat/mono.svg",
+          "label": {
+            "ar": "أسود بس (طباعة حرارية)",
+            "en": "Black only (thermal print)"
+          },
+          "bg": "#F2F7F4",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "favicon",
+          "file": "r9-queue-beat/favicon.svg",
+          "label": {
+            "ar": "أيقونة المتصفح ١٦ بكسل",
+            "en": "Browser tab icon, 16 px"
+          },
+          "bg": "#F2F7F4",
+          "w": 16.0,
+          "h": 16.0
+        },
+        {
+          "kind": "app-icon",
+          "file": "r9-queue-beat/app-icon.svg",
+          "label": {
+            "ar": "أيقونة التطبيق",
+            "en": "App icon"
+          },
+          "bg": "#F2F7F4",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "whatsapp",
+          "file": "r9-queue-beat/whatsapp.svg",
+          "label": {
+            "ar": "صورة واتساب",
+            "en": "WhatsApp avatar"
+          },
+          "bg": "#F2F7F4",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup",
+          "file": "r9-queue-beat/lockup.svg",
+          "label": {
+            "ar": "الرمز مع الاسم عربي وإنجليزي",
+            "en": "Bilingual lockup"
+          },
+          "bg": "#F2F7F4",
+          "w": 684.3,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-dark",
+          "file": "r9-queue-beat/lockup-dark.svg",
+          "label": {
+            "ar": "الاسم على الغامق",
+            "en": "Lockup on dark"
+          },
+          "bg": "#0B1A15",
+          "w": 684.3,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-ar",
+          "file": "r9-queue-beat/lockup-ar.svg",
+          "label": {
+            "ar": "الرمز مع الاسم بالعربي",
+            "en": "Arabic lockup"
+          },
+          "bg": "#F2F7F4",
+          "w": 890.7,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-la",
+          "file": "r9-queue-beat/lockup-la.svg",
+          "label": {
+            "ar": "الرمز مع الاسم بالإنجليزي",
+            "en": "Latin lockup"
+          },
+          "bg": "#F2F7F4",
+          "w": 1375.54,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-stacked",
+          "file": "r9-queue-beat/lockup-stacked.svg",
+          "label": {
+            "ar": "الاسم تحت الرمز",
+            "en": "Stacked lockup"
+          },
+          "bg": "#F2F7F4",
+          "w": 621.31,
+          "h": 512.0
+        },
+        {
+          "kind": "lockup-mono",
+          "file": "r9-queue-beat/lockup-mono.svg",
+          "label": {
+            "ar": "الرمز والاسم بالأسود بس",
+            "en": "Black-only lockup"
+          },
+          "bg": "#FFFFFF",
+          "w": 684.3,
+          "h": 256.0
+        },
+        {
+          "kind": "alt",
+          "file": "r9-queue-beat/alt.svg",
+          "label": {
+            "ar": "ألوان بديلة",
+            "en": "Alternative colourway"
+          },
+          "bg": "#F2F7F4",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "palette",
+          "file": "r9-queue-beat/palette.svg",
+          "label": {
+            "ar": "لوحة الألوان",
+            "en": "Palette board"
+          },
+          "bg": "#FFFFFF",
+          "w": 1200.0,
+          "h": 1000.0
+        }
+      ]
+    },
+    {
+      "id": "r9-clinic-day",
+      "name": {
+        "ar": "يوم العيادة (نهائي)",
+        "en": "Clinic Day, final"
+      },
+      "idea": {
+        "ar": "صفحة نتيجة بخط واحد، حلقاتها نبضات، والخانة الصفرا هي المريض الجاي.",
+        "en": "A one-line calendar page whose rings are heartbeats; the sun-yellow slot is the next patient."
+      },
+      "palette": [
+        {
+          "hex": "#4A2B86",
+          "name": {
+            "ar": "بنفسجي العيادة",
+            "en": "Clinic Violet"
+          },
+          "role": {
+            "ar": "الأساسي (الخط والاسم)",
+            "en": "Primary (line and name)"
+          }
+        },
+        {
+          "hex": "#F3C43F",
+          "name": {
+            "ar": "شمس الصبح",
+            "en": "Morning Sun"
+          },
+          "role": {
+            "ar": "خانة المريض الجاي (على البنفسجي والغامق بس)",
+            "en": "Next-patient slot (on violet or dark only)"
+          }
+        },
+        {
+          "hex": "#1B1430",
+          "name": {
+            "ar": "حبر",
+            "en": "Ink"
+          },
+          "role": {
+            "ar": "النص الإنجليزي",
+            "en": "Latin text"
+          }
+        },
+        {
+          "hex": "#F8F6FC",
+          "name": {
+            "ar": "ورق لافندر",
+            "en": "Paper"
+          },
+          "role": {
+            "ar": "الخلفية",
+            "en": "Background"
+          }
+        },
+        {
+          "hex": "#15102A",
+          "name": {
+            "ar": "ليل",
+            "en": "Night"
+          },
+          "role": {
+            "ar": "الخلفية الغامقة",
+            "en": "Dark background"
+          }
+        },
+        {
+          "hex": "#B9A6EE",
+          "name": {
+            "ar": "لافندر",
+            "en": "Lavender"
+          },
+          "role": {
+            "ar": "الأساسي على الغامق",
+            "en": "Primary on dark"
+          }
+        },
+        {
+          "hex": "#34195F",
+          "name": {
+            "ar": "بنفسجي غامق",
+            "en": "Deep Violet"
+          },
+          "role": {
+            "ar": "النص على الفاتح",
+            "en": "Text on light"
+          }
+        }
+      ],
+      "grounds": {
+        "light": "#F8F6FC",
+        "dark": "#15102A"
+      },
+      "variants": [
+        {
+          "kind": "symbol",
+          "file": "r9-clinic-day/symbol.svg",
+          "label": {
+            "ar": "الرمز",
+            "en": "Symbol"
+          },
+          "bg": "#F8F6FC",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "symbol-dark",
+          "file": "r9-clinic-day/symbol-dark.svg",
+          "label": {
+            "ar": "الرمز على الغامق",
+            "en": "Symbol on dark"
+          },
+          "bg": "#15102A",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "mono",
+          "file": "r9-clinic-day/mono.svg",
+          "label": {
+            "ar": "أسود بس (طباعة حرارية)",
+            "en": "Black only (thermal print)"
+          },
+          "bg": "#F8F6FC",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "favicon",
+          "file": "r9-clinic-day/favicon.svg",
+          "label": {
+            "ar": "أيقونة المتصفح ١٦ بكسل",
+            "en": "Browser tab icon, 16 px"
+          },
+          "bg": "#F8F6FC",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "app-icon",
+          "file": "r9-clinic-day/app-icon.svg",
+          "label": {
+            "ar": "أيقونة التطبيق",
+            "en": "App icon"
+          },
+          "bg": "#F8F6FC",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "whatsapp",
+          "file": "r9-clinic-day/whatsapp.svg",
+          "label": {
+            "ar": "صورة واتساب",
+            "en": "WhatsApp avatar"
+          },
+          "bg": "#F8F6FC",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup",
+          "file": "r9-clinic-day/lockup.svg",
+          "label": {
+            "ar": "الرمز مع الاسم عربي وإنجليزي",
+            "en": "Bilingual lockup"
+          },
+          "bg": "#F8F6FC",
+          "w": 424.88,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-dark",
+          "file": "r9-clinic-day/lockup-dark.svg",
+          "label": {
+            "ar": "الاسم على الغامق",
+            "en": "Lockup on dark"
+          },
+          "bg": "#15102A",
+          "w": 424.81,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-ar",
+          "file": "r9-clinic-day/lockup-ar.svg",
+          "label": {
+            "ar": "الرمز مع الاسم بالعربي",
+            "en": "Arabic lockup"
+          },
+          "bg": "#F8F6FC",
+          "w": 574.42,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-la",
+          "file": "r9-clinic-day/lockup-la.svg",
+          "label": {
+            "ar": "الرمز مع الاسم بالإنجليزي",
+            "en": "Latin lockup"
+          },
+          "bg": "#F8F6FC",
+          "w": 819.5,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-stacked",
+          "file": "r9-clinic-day/lockup-stacked.svg",
+          "label": {
+            "ar": "الاسم تحت الرمز",
+            "en": "Stacked lockup"
+          },
+          "bg": "#F8F6FC",
+          "w": 161.73,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-mono",
+          "file": "r9-clinic-day/lockup-mono.svg",
+          "label": {
+            "ar": "الرمز والاسم بالأسود بس",
+            "en": "Black-only lockup"
+          },
+          "bg": "#FFFFFF",
+          "w": 424.88,
+          "h": 256.0
+        },
+        {
+          "kind": "alt",
+          "file": "r9-clinic-day/alt.svg",
+          "label": {
+            "ar": "ألوان بديلة",
+            "en": "Alternative colourway"
+          },
+          "bg": "#F8F6FC",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "palette",
+          "file": "r9-clinic-day/palette.svg",
+          "label": {
+            "ar": "لوحة الألوان",
+            "en": "Palette board"
+          },
+          "bg": "#FFFFFF",
+          "w": 1200.0,
+          "h": 760.0
+        }
+      ]
+    },
+    {
+      "id": "r9-all-good",
+      "name": {
+        "ar": "تمام (نهائي)",
+        "en": "All Good, final"
+      },
+      "idea": {
+        "ar": "نبضة واحدة، وبعدها الخط بيهدى ويرتاح: تمام يا دكتور.",
+        "en": "One beat, then the line calms and comes to rest: all good, doctor."
+      },
+      "palette": [
+        {
+          "hex": "#4E5A22",
+          "name": {
+            "ar": "زيتوني",
+            "en": "Olive Moss"
+          },
+          "role": {
+            "ar": "الأساسي (الخط والاسم)",
+            "en": "Primary (line and name)"
+          }
+        },
+        {
+          "hex": "#9CC6E4",
+          "name": {
+            "ar": "سماوي هادي",
+            "en": "Soft Sky"
+          },
+          "role": {
+            "ar": "الخط وهو بيهدى (على الزيتوني والغامق بس)",
+            "en": "The settle (on moss or dark only)"
+          }
+        },
+        {
+          "hex": "#2F6E99",
+          "name": {
+            "ar": "سماوي غامق",
+            "en": "Deep Sky"
+          },
+          "role": {
+            "ar": "اللمسة والروابط على الفاتح",
+            "en": "Accent and links on light"
+          }
+        },
+        {
+          "hex": "#B9CB8E",
+          "name": {
+            "ar": "زيتوني فاتح",
+            "en": "Moss Light"
+          },
+          "role": {
+            "ar": "الأساسي على الغامق",
+            "en": "Primary on dark"
+          }
+        },
+        {
+          "hex": "#1C2414",
+          "name": {
+            "ar": "حبر",
+            "en": "Ink"
+          },
+          "role": {
+            "ar": "النص الإنجليزي",
+            "en": "Latin text"
+          }
+        },
+        {
+          "hex": "#F5F3EA",
+          "name": {
+            "ar": "كتان",
+            "en": "Linen"
+          },
+          "role": {
+            "ar": "الخلفية",
+            "en": "Background"
+          }
+        },
+        {
+          "hex": "#161B0F",
+          "name": {
+            "ar": "زيتوني الليل",
+            "en": "Night Moss"
+          },
+          "role": {
+            "ar": "الخلفية الغامقة",
+            "en": "Dark background"
+          }
+        }
+      ],
+      "grounds": {
+        "light": "#F5F3EA",
+        "dark": "#161B0F"
+      },
+      "variants": [
+        {
+          "kind": "symbol",
+          "file": "r9-all-good/symbol.svg",
+          "label": {
+            "ar": "الرمز",
+            "en": "Symbol"
+          },
+          "bg": "#F5F3EA",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "symbol-dark",
+          "file": "r9-all-good/symbol-dark.svg",
+          "label": {
+            "ar": "الرمز على الغامق",
+            "en": "Symbol on dark"
+          },
+          "bg": "#161B0F",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "mono",
+          "file": "r9-all-good/mono.svg",
+          "label": {
+            "ar": "أسود بس (طباعة حرارية)",
+            "en": "Black only (thermal print)"
+          },
+          "bg": "#F5F3EA",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "favicon",
+          "file": "r9-all-good/favicon.svg",
+          "label": {
+            "ar": "أيقونة المتصفح ١٦ بكسل",
+            "en": "Browser tab icon, 16 px"
+          },
+          "bg": "#F5F3EA",
+          "w": 16.0,
+          "h": 16.0
+        },
+        {
+          "kind": "app-icon",
+          "file": "r9-all-good/app-icon.svg",
+          "label": {
+            "ar": "أيقونة التطبيق",
+            "en": "App icon"
+          },
+          "bg": "#F5F3EA",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "whatsapp",
+          "file": "r9-all-good/whatsapp.svg",
+          "label": {
+            "ar": "صورة واتساب",
+            "en": "WhatsApp avatar"
+          },
+          "bg": "#F5F3EA",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup",
+          "file": "r9-all-good/lockup.svg",
+          "label": {
+            "ar": "الرمز مع الاسم عربي وإنجليزي",
+            "en": "Bilingual lockup"
+          },
+          "bg": "#F5F3EA",
+          "w": 4050.43,
+          "h": 2288.43
+        },
+        {
+          "kind": "lockup-dark",
+          "file": "r9-all-good/lockup-dark.svg",
+          "label": {
+            "ar": "الاسم على الغامق",
+            "en": "Lockup on dark"
+          },
+          "bg": "#161B0F",
+          "w": 4046.43,
+          "h": 2277.39
+        },
+        {
+          "kind": "lockup-ar",
+          "file": "r9-all-good/lockup-ar.svg",
+          "label": {
+            "ar": "الرمز مع الاسم بالعربي",
+            "en": "Arabic lockup"
+          },
+          "bg": "#F5F3EA",
+          "w": 4050.43,
+          "h": 1673.92
+        },
+        {
+          "kind": "lockup-la",
+          "file": "r9-all-good/lockup-la.svg",
+          "label": {
+            "ar": "الرمز مع الاسم بالإنجليزي",
+            "en": "Latin lockup"
+          },
+          "bg": "#F5F3EA",
+          "w": 6179.07,
+          "h": 1801.73
+        },
+        {
+          "kind": "lockup-stacked",
+          "file": "r9-all-good/lockup-stacked.svg",
+          "label": {
+            "ar": "الاسم تحت الرمز",
+            "en": "Stacked lockup"
+          },
+          "bg": "#F5F3EA",
+          "w": 2215.73,
+          "h": 3430.69
+        },
+        {
+          "kind": "lockup-mono",
+          "file": "r9-all-good/lockup-mono.svg",
+          "label": {
+            "ar": "الرمز والاسم بالأسود بس",
+            "en": "Black-only lockup"
+          },
+          "bg": "#FFFFFF",
+          "w": 4050.43,
+          "h": 2288.43
+        },
+        {
+          "kind": "alt",
+          "file": "r9-all-good/alt.svg",
+          "label": {
+            "ar": "ألوان بديلة",
+            "en": "Alternative colourway"
+          },
+          "bg": "#F5F3EA",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "palette",
+          "file": "r9-all-good/palette.svg",
+          "label": {
+            "ar": "لوحة الألوان",
+            "en": "Palette board"
+          },
+          "bg": "#FFFFFF",
+          "w": 960.0,
+          "h": 560.0
+        }
+      ]
     }
   ]
 }
