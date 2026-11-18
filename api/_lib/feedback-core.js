@@ -8,6 +8,9 @@ export const MAX_COMMENT = 4000;
 export const PREFIX = "feedback/";
 export const ROLES = ["doctor", "reception_nurse", "owner_manager", "partner", "other"];
 export const TYPES = ["screen", "general"];
+/* Logo-vote comments: which logo, and which aspects the tester is commenting on. */
+export const ASPECTS = ["colour", "shape", "arabic_font", "latin_font", "small_size", "other"];
+const LOGO_ID = /^[a-z0-9-]{1,40}$/;
 
 const NO_STORE = { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" };
 
@@ -36,14 +39,15 @@ export function cleanText(v, max, multiline) {
 const STRING_FIELDS = {
   name: [80, false], comment: [MAX_COMMENT, true, true], screenFile: [120, false], screenTitle: [200, false],
   screenState: [40, false], screen_id: [80, false], screen_label_ar: [200, false], screen_label_en: [200, false],
-  page_path: [200, false], org: [40, false], branch: [40, false], viewAs: [20, false],
+  page_path: [200, false], logo_id: [40, false], org: [40, false], branch: [40, false], viewAs: [20, false],
   clientTs: [40, false], viewport: [20, false], clientId: [64, false], website: [200, false]
 };
 const ENUM_FIELDS = { type: TYPES, role: ROLES, lang: ["ar", "en"] };
-const ALLOWED = new Set(Object.keys(STRING_FIELDS).concat(Object.keys(ENUM_FIELDS)));
+const ALLOWED = new Set(Object.keys(STRING_FIELDS).concat(Object.keys(ENUM_FIELDS), ["aspects"]));
 
-/* Returns { ok: true, value } or { ok: false, error }. value.website is the honeypot. */
-export function validateFeedback(input) {
+/* Returns { ok: true, value } or { ok: false, error }. value.website is the honeypot.
+   opts.logoIds: when given, logo_id must be one of them (the shortlist in assets/logos/logos.json). */
+export function validateFeedback(input, opts = {}) {
   if (!input || typeof input !== "object" || Array.isArray(input)) return { ok: false, error: "body must be a JSON object" };
   for (const k of Object.keys(input)) if (!ALLOWED.has(k)) return { ok: false, error: "unknown field: " + k.slice(0, 40) };
   const out = {};
@@ -66,6 +70,14 @@ export function validateFeedback(input) {
   if (out.clientId && !/^[A-Za-z0-9_-]+$/.test(out.clientId)) return { ok: false, error: "invalid clientId" };
   if (out.screen_id && !/^[a-z0-9-]+$/.test(out.screen_id)) return { ok: false, error: "invalid screen_id" };
   if (out.page_path && !/^\/\S*$/.test(out.page_path)) return { ok: false, error: "invalid page_path" };
+  if (out.logo_id && (!LOGO_ID.test(out.logo_id) || (opts.logoIds && !opts.logoIds.includes(out.logo_id)))) return { ok: false, error: "invalid logo_id" };
+  const a = input.aspects;
+  if (a === undefined || a === null) out.aspects = [];
+  else {
+    if (!Array.isArray(a) || a.length > ASPECTS.length || a.some((x) => typeof x !== "string" || !ASPECTS.includes(x)) || new Set(a).size !== a.length) return { ok: false, error: "invalid aspects" };
+    if (a.length && !out.logo_id) return { ok: false, error: "aspects need logo_id" };
+    out.aspects = ASPECTS.filter((x) => a.includes(x));   // canonical order
+  }
   return { ok: true, value: out };
 }
 
@@ -155,7 +167,7 @@ export function newPathname(now = new Date()) {
 }
 
 /* ---------- CSV ---------- */
-export const CSV_COLUMNS = ["receivedAt", "type", "role", "name", "comment", "screen_id", "screen_label_ar", "screen_label_en", "page_path",
+export const CSV_COLUMNS = ["receivedAt", "type", "role", "name", "comment", "logo_id", "aspects", "screen_id", "screen_label_ar", "screen_label_en", "page_path",
   "screenFile", "screenTitle", "screenState",
   "org", "branch", "viewAs", "lang", "viewport", "clientTs", "id"];
 
@@ -167,7 +179,7 @@ export function csvCell(v) {
 
 export function toCsv(items) {
   const lines = [CSV_COLUMNS.join(",")];
-  for (const it of items) lines.push(CSV_COLUMNS.map((c) => csvCell(it[c])).join(","));
+  for (const it of items) lines.push(CSV_COLUMNS.map((c) => csvCell(Array.isArray(it[c]) ? it[c].join(" | ") : it[c])).join(","));
   return "﻿" + lines.join("\r\n") + "\r\n";
 }
 
@@ -179,7 +191,7 @@ export function blobAccess(env) {
   return env.FEEDBACK_BLOB_ACCESS === "public" ? "public" : "private";
 }
 
-/* deps: { put, env, limiter, now } */
+/* deps: { put, env, limiter, now, logoIds } */
 export function createFeedbackHandler(deps) {
   const env = deps.env || process.env;
   const limiter = deps.limiter || postLimiter;
@@ -190,7 +202,7 @@ export function createFeedbackHandler(deps) {
     if (!rl.allowed) return json(429, { ok: false, error: "too many requests" }, { "Retry-After": String(rl.retryAfter) });
     const body = await readJsonBody(request);
     if (!body.ok) return json(body.status, { ok: false, error: body.error });
-    const v = validateFeedback(body.value);
+    const v = validateFeedback(body.value, { logoIds: deps.logoIds });
     if (!v.ok) return json(400, { ok: false, error: v.error });
     const { website, ...item } = v.value;
     if (website) return json(200, { ok: true, id: "ok" });   // honeypot: look successful, store nothing

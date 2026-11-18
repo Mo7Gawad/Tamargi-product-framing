@@ -1,5 +1,6 @@
 {
   "functions": {
-    "api/logo-votes.js": { "includeFiles": "assets/logos/logos.json" }
+    "api/logo-votes.js": { "includeFiles": "assets/logos/logos.json" },
+    "api/feedback.js": { "includeFiles": "assets/logos/logos.json" }
   }
 }

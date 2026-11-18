@@ -6,38 +6,51 @@
   <title data-en="Logo vote — Tamargi">تصويت الشعار — تمرجي</title>
   <link rel="stylesheet" href="../assets/tamargi.css">
   <style>
-    /* page-specific CSS: tokens only */
-    .lv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); gap: var(--s-4); }
-    .lv-card { display: flex; flex-direction: column; gap: var(--s-4); }
-    .lv-card.is-voted { border-color: var(--primary-line); box-shadow: 0 0 0 1px var(--primary-line); }
-    .lv-card h2 { font-size: var(--fs-xl); }
+    /* page-specific CSS: tokens only. Tile backgrounds come from logos.json (each concept's own designed grounds). */
+    .lv-list { display: flex; flex-direction: column; gap: var(--s-4); }
+    .lv-item { display: grid; grid-template-columns: minmax(0, 1fr) 184px; gap: var(--s-5); align-items: stretch; padding: var(--pad-card); }
+    .lv-item.is-voted { border-color: var(--primary-line); box-shadow: 0 0 0 1px var(--primary-line); }
+    .lv-main { min-width: 0; display: flex; flex-direction: column; gap: var(--s-3); }
+    .lv-head h2 { font-size: var(--fs-xl); margin: 0; display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 var(--s-2); }
+    .lv-head .lv-other { font-size: var(--fs-sm); font-weight: var(--fw-m); color: var(--text-3); }
     .lv-idea { color: var(--text-2); font-size: var(--fs-sm); margin: var(--s-1) 0 0; }
-    .lv-stage { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: var(--s-2); }
-    .lv-tile { display: grid; place-items: center; aspect-ratio: 1; border-radius: var(--r-md); padding: var(--s-4); border: 1px solid var(--line); }
-    .lv-tile img { width: 100%; height: 100%; object-fit: contain; }
-    .lv-white { background: var(--n-0); }
-    .lv-ink { background: var(--ink-600); border-color: var(--ink-600); }
-    .lv-cap { display: block; text-align: center; font-size: var(--fs-xs); color: var(--text-3); margin-block-start: var(--s-1); }
-    .lv-row { display: flex; align-items: center; gap: var(--s-4); flex-wrap: wrap; }
-    .lv-lockup { flex: 1 1 200px; display: flex; align-items: center; justify-content: center; min-height: 88px; background: var(--n-0); border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--s-3) var(--s-4); }
-    .lv-lockup img { height: 56px; max-width: 100%; }
-    .lv-icons { display: flex; align-items: flex-end; gap: var(--s-3); }
-    .lv-app { width: 60px; height: 60px; border-radius: 14px; background: var(--ink-600); display: grid; place-items: center; box-shadow: var(--e-1); }
-    .lv-app img { width: 42px; height: 42px; }
-    .lv-fav { width: 16px; height: 16px; }
-    .lv-vote { display: flex; flex-direction: column; align-items: stretch; gap: var(--s-2); padding-block-start: var(--s-3); border-block-start: 1px solid var(--line); }
-    .lv-vote .t-btn.lg { font-size: var(--fs-lg); height: 56px; }
+    .lv-pal { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-2); }
+    .lv-pal li { display: flex; align-items: center; gap: var(--s-2); padding: 4px var(--s-3) 4px 4px; border: 1px solid var(--line); border-radius: var(--r-pill); background: var(--surface); font-size: var(--fs-xs); max-width: 100%; }
+    .lv-sw { width: 22px; height: 22px; border-radius: 50%; flex: none; box-shadow: inset 0 0 0 1px rgba(23,32,54,.18); }
+    .lv-hex { font-family: var(--font-en); font-weight: var(--fw-sb); font-variant-numeric: tabular-nums; }
+    .lv-pn { color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .lv-strip { display: flex; flex-wrap: wrap; gap: var(--s-3); margin: 0; padding: 0; list-style: none; }
+    .lv-strip:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+    .lv-v { flex: none; scroll-snap-align: start; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+    .lv-tile { height: 136px; display: flex; align-items: center; justify-content: center; gap: var(--s-3); padding: var(--s-3); border-radius: var(--r-md); border: 1px solid var(--line); box-sizing: border-box; }
+    .lv-tile img { display: block; max-width: none; }
+    .lv-tile .r { border-radius: 50%; }
+    .lv-cap { font-size: var(--fs-xs); color: var(--text-2); max-width: 100%; }
+    .lv-cap .px { font-family: var(--font-en); color: var(--text-3); }
+    .lv-act { display: flex; flex-direction: column; justify-content: center; gap: var(--s-3); padding-inline-start: var(--s-5); border-inline-start: 1px solid var(--line); }
     .lv-count { display: flex; align-items: baseline; justify-content: center; gap: var(--s-2); color: var(--text-2); }
     .lv-count b { font-size: var(--fs-3xl); color: var(--text); font-variant-numeric: tabular-nums; }
-    .lv-voted { display: flex; align-items: center; justify-content: center; gap: var(--s-2); flex-wrap: wrap; color: var(--success-fg); font-weight: var(--fw-sb); }
+    .lv-act .t-btn.lg { font-size: var(--fs-lg); height: 52px; }
+    .lv-voted { display: flex; flex-direction: column; align-items: stretch; gap: var(--s-2); text-align: center; color: var(--success-fg); font-weight: var(--fw-sb); }
     .lv-rank { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s-3); }
-    .lv-rank li { display: grid; grid-template-columns: 24px minmax(90px, 160px) minmax(0, 1fr) 3.5em; align-items: center; gap: var(--s-3); }
-    .lv-rank img { width: 24px; height: 24px; }
+    .lv-rank li { display: grid; grid-template-columns: 28px minmax(90px, 180px) minmax(0, 1fr) 3.5em; align-items: center; gap: var(--s-3); }
+    .lv-rank .th { width: 28px; height: 28px; border-radius: var(--r-xs); display: grid; place-items: center; border: 1px solid var(--line); }
+    .lv-rank .th img { width: 22px; height: 22px; }
     .lv-rank .nm { font-weight: var(--fw-sb); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .lv-track { height: 14px; background: var(--surface-sunk); border-radius: 4px; overflow: hidden; }
-    .lv-bar { height: 100%; min-width: 2px; background: var(--primary); border-start-end-radius: 4px; border-end-end-radius: 4px; transition: width .4s var(--ease); }
+    .lv-bar { display: block; height: 100%; min-width: 2px; background: var(--primary); border-start-end-radius: 4px; border-end-end-radius: 4px; transition: width .4s var(--ease); }
     .lv-rank .n { text-align: end; font-variant-numeric: tabular-nums; font-weight: var(--fw-sb); }
-    @media (max-width: 480px) { .lv-rank li { grid-template-columns: 24px minmax(70px, 110px) minmax(0, 1fr) 2.8em; gap: var(--s-2); } }
+    @media (max-width: 760px) {
+      .lv-item { grid-template-columns: minmax(0, 1fr); gap: var(--s-4); }
+      .lv-act { flex-direction: row; flex-wrap: wrap; align-items: center; padding-inline-start: 0; padding-block-start: var(--s-3); border-inline-start: 0; border-block-start: 1px solid var(--line); }
+      .lv-act > * { flex: 1 1 140px; }
+      .lv-count { flex: 0 0 auto; }
+      .lv-pal { flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-x: contain; padding-block-end: 4px; }
+      .lv-pal li { flex: none; }
+      .lv-strip { flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; padding-block-end: var(--s-2); }
+      .lv-tile { height: 120px; }
+    }
+    @media (max-width: 480px) { .lv-rank li { grid-template-columns: 28px minmax(70px, 110px) minmax(0, 1fr) 2.8em; gap: var(--s-2); } }
     @media (prefers-reduced-motion: reduce) { .lv-bar { transition: none; } }
   </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
@@ -49,15 +62,15 @@
     <header class="t-screen-head">
       <div>
         <h1 data-en="Logo vote">تصويت الشعار</h1>
-        <p class="t-sub mb-0" data-en="Press “I like it” under every logo you like. One vote per logo on each device; you can undo it any time.">دوس «أعجبني» تحت كل شعار عاجبك. صوت واحد لكل شعار من كل جهاز، وتقدر تلغيه في أي وقت.</p>
+        <p class="t-sub mb-0" data-en="Each row is one logo with its real colours and all its versions (scroll sideways). Press “I like it” at the end of every row you like; one vote per logo on each device, and you can undo it. Use “Comment” to tell us if the colour or the shape is off.">كل صف هو شعار واحد بألوانه الحقيقية وكل أشكاله (اسحب يمين وشمال). دوس «أعجبني» في آخر كل صف عاجبك؛ صوت واحد لكل شعار من كل جهاز، وتقدر تلغيه. ولو اللون أو الشكل مش مظبوط، قولنا من «علّق».</p>
       </div>
       <div class="t-actions">
-        <a class="t-btn" href="#lv-ranking"><svg class="t-icon sm"><use href="#i-chart"/></svg><span data-en="See ranking">شوف الترتيب</span></a>
+        <a class="t-btn" href="#lv-ranking"><svg class="t-icon sm" aria-hidden="true"><use href="#i-chart"/></svg><span data-en="See ranking">شوف الترتيب</span></a>
       </div>
     </header>
 
     <div id="lv-alert" hidden></div>
-    <div class="lv-grid" id="lv-grid" aria-live="polite"></div>
+    <div class="lv-list" id="lv-list"></div>
 
     <section class="t-card" id="lv-ranking" style="margin-block-start:var(--s-6)">
       <div class="t-card-head">
@@ -76,16 +89,27 @@
 <script src="../assets/shell.js"></script>
 <script>
 (function () {
+  /* All logos.json strings go into the page through textContent / setAttribute only (never innerHTML).
+     File paths and colours are checked against strict patterns before use. */
   var API = "/api/logo-votes", LOGOS_URL = "../assets/logos/", REFRESH_MS = 30000, FRESH_MS = 15000;
+  var ID_RE = /^[a-z0-9-]{1,40}$/, FILE_RE = /^[a-z0-9-]+\/[a-z0-9-]+\.svg$/, HEX_RE = /^#[0-9A-Fa-f]{6}$/;
   var live = location.protocol === "http:" || location.protocol === "https:";
   var logos = [], counts = {}, fresh = {}, pending = {}, updatedAt = null, failed = false;
-  var grid = document.getElementById("lv-grid");
+  var list = document.getElementById("lv-list");
 
   function en() { return Tamargi.lang() === "en"; }
   function L(o) { return en() ? o.en : o.ar; }
+  function tx(ar, enTxt) { return en() ? enTxt : ar; }
   function num(n) { try { return Number(n).toLocaleString(en() ? "en-US" : "ar-EG"); } catch (e) { return String(n); } }
-  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
-  function src(f) { return LOGOS_URL + encodeURIComponent(f); }
+  /* h("tag.cls", {attr}, children): children are nodes or plain text (textContent). */
+  function h(sel, attrs, kids) {
+    var p = sel.split("."), n = document.createElement(p[0]);
+    if (p.length > 1) n.className = p.slice(1).join(" ");
+    if (attrs) for (var k in attrs) { if (attrs[k] === false || attrs[k] == null) continue; if (k === "style") for (var s in attrs.style) n.style[s] = attrs.style[s]; else n.setAttribute(k, attrs[k] === true ? "" : attrs[k]); }
+    (kids || []).forEach(function (c) { if (c == null) return; n.appendChild(typeof c === "string" ? document.createTextNode(c) : c); });
+    return n;
+  }
+  function txt2(o) { return o && typeof o.ar === "string" && typeof o.en === "string"; }
 
   /* ---- this browser's votes + random device id (localStorage is optional) ---- */
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
@@ -113,64 +137,145 @@
     a.hidden = false;
     a.className = "t-alert " + kind;
     a.style.marginBlockEnd = "var(--s-4)";
-    a.innerHTML = '<svg class="t-icon"><use href="#i-alert"/></svg><span>' + esc(en() ? enTxt : ar) + "</span>";
+    a.textContent = "";
+    a.appendChild(h("span", null, [tx(ar, enTxt)]));
   }
 
-  function cardHtml(l) {
-    var f = l.files, voted = !!myVotes[l.id], busy = !!pending[l.id], c = countOf(l.id), name = esc(L(l.name));
-    var tiles =
-      '<div><div class="lv-tile lv-white"><img src="' + src(f.symbol) + '" alt="' + name + '"></div><span class="lv-cap">' + (en() ? "On white" : "على أبيض") + "</span></div>" +
-      '<div><div class="lv-tile lv-ink"><img src="' + src(f.symbolOnInk) + '" alt="' + name + '"></div><span class="lv-cap">' + (en() ? "On ink blue" : "على الأزرق") + "</span></div>" +
-      (f.splash ? '<div><div class="lv-tile lv-white"><img src="' + src(f.splash) + '" alt="' + name + '"></div><span class="lv-cap">' + (en() ? "Splash (animated)" : "شاشة البداية (متحركة)") + "</span></div>" : "");
+  /* ---- data from logos.json, validated ---- */
+  function cleanLogo(l) {
+    if (!l || typeof l.id !== "string" || !ID_RE.test(l.id) || !txt2(l.name) || !txt2(l.idea)) return null;
+    var pal = (Array.isArray(l.palette) ? l.palette : []).filter(function (p) { return p && HEX_RE.test(p.hex) && txt2(p.name) && txt2(p.role); });
+    var vars = (Array.isArray(l.variants) ? l.variants : []).filter(function (v) {
+      return v && typeof v.kind === "string" && FILE_RE.test(v.file) && v.file.indexOf(l.id + "/") === 0 && HEX_RE.test(v.bg) && txt2(v.label) && v.w > 0 && v.h > 0;
+    });
+    if (!vars.length) return null;
+    return { id: l.id, name: l.name, idea: l.idea, palette: pal, variants: vars };
+  }
+  function thumbOf(l) { return l.variants.filter(function (v) { return v.kind === "symbol"; })[0] || l.variants[0]; }
+
+  /* ---- one variant tile, on the background it was designed for ---- */
+  function img(v, height, extraCls, alt) {
+    var w = Math.round(height * v.w / v.h);
+    return h("img" + (extraCls ? "." + extraCls : ""), { src: LOGOS_URL + v.file, width: w, height: height, alt: alt, loading: "lazy", decoding: "async", style: { width: w + "px", height: height + "px" } });
+  }
+  function tileFor(l, v) {
+    var name = L(l.name), label = L(v.label), alt = name + ": " + label, k = v.kind, big = matchMedia("(max-width: 760px)").matches ? 0.86 : 1;
+    var kids, capExtra = null;
+    if (k === "favicon") {
+      kids = [img(v, 16, "", alt + " (16 px)"), img(v, Math.round(64 * big), "", "")];
+      capExtra = h("span.px", null, [" · " + tx("بالمقاس الحقيقي وكبير", "real size and enlarged")]);
+    } else if (k === "palette" || k === "palette-alt") {
+      kids = [img(v, Math.round(112 * big), "", alt)];
+    } else if (/^lockup/.test(k) || v.w / v.h > 1.3) {
+      kids = [img(v, Math.round((k === "lockup-stacked" ? 104 : v.w / v.h > 3 ? 54 : 70) * big), "", alt)];
+    } else {
+      kids = [img(v, Math.round(92 * big), k === "whatsapp" ? "r" : "", alt)];
+    }
+    return h("li.lv-v", null, [
+      h("div.lv-tile", { style: { background: v.bg } }, kids),
+      h("span.lv-cap", null, [label, capExtra])
+    ]);
+  }
+
+  function actFor(l) {
+    var id = l.id, voted = !!myVotes[id], busy = !!pending[id], c = countOf(id), name = L(l.name);
     var vote = voted
-      ? '<div class="lv-voted"><span>✓ ' + (en() ? "You voted for this logo" : "إنت صوّتّ للشعار ده") + '</span><button class="t-btn sm" type="button" data-unvote="' + esc(l.id) + '"' + (busy || !live ? " disabled" : "") + ">" + (en() ? "Undo my vote" : "إلغاء صوتي") + "</button></div>"
-      : '<button class="t-btn primary lg block" type="button" data-vote="' + esc(l.id) + '"' + (busy || !live ? " disabled" : "") + '><span aria-hidden="true">👍</span> ' + (en() ? "I like it" : "أعجبني") + "</button>";
-    var countTxt = c === undefined ? "—" : num(c);
-    return '<article class="t-card lv-card' + (voted ? " is-voted" : "") + '" id="logo-' + esc(l.id) + '">' +
-      "<div><h2>" + name + '</h2><p class="lv-idea">' + esc(L(l.idea)) + "</p></div>" +
-      '<div class="lv-stage">' + tiles + "</div>" +
-      '<div class="lv-row"><div class="lv-lockup"><img src="' + src(f.lockup) + '" alt="' + name + '"></div>' +
-        '<div><div class="lv-icons"><span class="lv-app"><img src="' + src(f.symbolOnInk) + '" alt=""></span><img class="lv-fav" src="' + src(f.symbol) + '" alt=""></div><span class="lv-cap">' + (en() ? "App icon · 16 px" : "أيقونة التطبيق · ١٦ بكسل") + "</span></div></div>" +
-      '<div class="lv-vote">' + vote +
-        '<div class="lv-count" data-count="' + esc(l.id) + '"><b>' + countTxt + "</b><span>" + (en() ? (c === 1 ? "vote" : "votes") : "صوت") + "</span></div></div>" +
-      "</article>";
+      ? h("div.lv-voted", null, [
+          h("span", null, ["✓ " + tx("إنت صوّتّ للشعار ده", "You voted for this logo")]),
+          h("button.t-btn.sm", { type: "button", "data-unvote": id, disabled: busy || !live, "aria-label": tx("إلغاء صوتي: ", "Undo my vote: ") + name }, [tx("إلغاء صوتي", "Undo my vote")])
+        ])
+      : h("button.t-btn.primary.lg.block", { type: "button", "data-vote": id, disabled: busy || !live, "aria-label": tx("أعجبني: ", "I like it: ") + name }, [
+          h("span", { "aria-hidden": "true" }, ["👍"]), " " + tx("أعجبني", "I like it")
+        ]);
+    var count = h("div.lv-count", { "aria-label": name + ": " + (c === undefined ? "—" : num(c)) + " " + tx("صوت", c === 1 ? "vote" : "votes") }, [
+      h("b", null, [c === undefined ? "—" : num(c)]), h("span", null, [tx("صوت", c === 1 ? "vote" : "votes")])
+    ]);
+    var comment = Tamargi.feedback && Tamargi.feedback.available
+      ? h("button.t-btn.sm", { type: "button", "data-comment": id, "aria-label": tx("علّق على الشعار ده: ", "Comment on this logo: ") + name }, [
+          h("span", { "aria-hidden": "true" }, ["💬"]), " " + tx("علّق على الشعار ده", "Comment on this logo")
+        ])
+      : null;
+    return [count, vote, comment];
+  }
+
+  function rowFor(l) {
+    var other = en() ? l.name.ar : l.name.en;
+    var pal = l.palette.length ? h("ul.lv-pal", { "aria-label": tx("ألوان الشعار", "Logo colours") }, l.palette.map(function (p) {
+      return h("li", { title: L(p.name) + " · " + L(p.role) + " · " + p.hex.toUpperCase() }, [
+        h("span.lv-sw", { style: { background: p.hex }, "aria-hidden": "true" }),
+        h("span.lv-hex", { dir: "ltr" }, [p.hex.toUpperCase()]),
+        h("span.lv-pn", null, [L(p.name) + " · " + L(p.role)])
+      ]);
+    })) : null;
+    var art = h("article.t-card.lv-item" + (myVotes[l.id] ? ".is-voted" : ""), { id: "logo-" + l.id, "aria-labelledby": "lv-h-" + l.id }, [
+      h("div.lv-main", null, [
+        h("div.lv-head", null, [
+          h("h2", { id: "lv-h-" + l.id }, [L(l.name), h("span.lv-other", { lang: en() ? "ar" : "en", dir: en() ? "rtl" : "ltr" }, [other])]),
+          h("p.lv-idea", null, [L(l.idea)])
+        ]),
+        pal,
+        h("ul.lv-strip", { tabindex: "0", "aria-label": tx("كل أشكال الشعار: ", "All versions of the logo: ") + L(l.name) }, l.variants.map(function (v) { return tileFor(l, v); }))
+      ]),
+      h("div.lv-act", { "data-act": l.id }, actFor(l))
+    ]);
+    return art;
+  }
+
+  function renderRows() {
+    list.textContent = "";
+    logos.forEach(function (l) { list.appendChild(rowFor(l)); });
+  }
+  /* Votes and counts update only the action column, so image strips keep their scroll position. */
+  function renderActs() {
+    logos.forEach(function (l) {
+      var box = list.querySelector('[data-act="' + l.id + '"]');
+      if (!box) return;
+      var hadFocus = box.contains(document.activeElement);
+      box.textContent = "";
+      actFor(l).forEach(function (n) { if (n) box.appendChild(n); });
+      box.parentNode.classList.toggle("is-voted", !!myVotes[l.id]);
+      if (hadFocus) { var b = box.querySelector("button:not([disabled])"); if (b) b.focus(); }
+    });
+    renderRanking();
   }
 
   function renderRanking() {
-    var list = logos.map(function (l, i) { return { l: l, i: i, c: countOf(l.id) || 0 }; })
+    var rows = logos.map(function (l, i) { return { l: l, i: i, c: countOf(l.id) || 0 }; })
       .sort(function (a, b) { return b.c - a.c || a.i - b.i; });
-    var max = Math.max(1, list.reduce(function (m, x) { return Math.max(m, x.c); }, 0));
-    var total = list.reduce(function (s, x) { return s + x.c; }, 0);
-    document.getElementById("lv-rank").innerHTML = list.map(function (x) {
-      var name = esc(L(x.l.name)), pct = Math.round(x.c / max * 100);
-      return '<li title="' + name + ": " + num(x.c) + '"><img src="' + src(x.l.files.symbol) + '" alt=""><span class="nm">' + name + "</span>" +
-        '<span class="lv-track" role="img" aria-label="' + name + ": " + num(x.c) + '"><span class="lv-bar" style="width:' + (x.c ? pct : 0) + '%"></span></span>' +
-        '<span class="n">' + num(x.c) + "</span></li>";
-    }).join("");
-    document.getElementById("lv-total").textContent = (en() ? "Total votes: " : "إجمالي الأصوات: ") + num(total);
-    var u = document.getElementById("lv-updated");
-    u.textContent = updatedAt ? (en() ? "Updated " : "آخر تحديث ") + updatedAt.toLocaleTimeString(en() ? "en-GB" : "ar-EG", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "";
+    var max = Math.max(1, rows.reduce(function (m, x) { return Math.max(m, x.c); }, 0));
+    var total = rows.reduce(function (s, x) { return s + x.c; }, 0);
+    var ol = document.getElementById("lv-rank");
+    ol.textContent = "";
+    rows.forEach(function (x) {
+      var name = L(x.l.name), t = thumbOf(x.l), pct = x.c ? Math.round(x.c / max * 100) : 0;
+      ol.appendChild(h("li", { title: name + ": " + num(x.c) }, [
+        h("span.th", { style: { background: t.bg }, "aria-hidden": "true" }, [h("img", { src: LOGOS_URL + t.file, alt: "", width: 22, height: 22, loading: "lazy" })]),
+        h("span.nm", null, [name]),
+        h("span.lv-track", { role: "img", "aria-label": name + ": " + num(x.c) }, [h("span.lv-bar", { style: { width: pct + "%" } })]),
+        h("span.n", null, [num(x.c)])
+      ]));
+    });
+    document.getElementById("lv-total").textContent = tx("إجمالي الأصوات: ", "Total votes: ") + num(total);
+    document.getElementById("lv-updated").textContent = updatedAt ? tx("آخر تحديث ", "Updated ") + updatedAt.toLocaleTimeString(en() ? "en-GB" : "ar-EG", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "";
   }
 
-  function render() {
+  function renderAlert() {
     if (!live) showAlert("info", "التصويت شغال على الموقع المنشور بس. افتح الصفحة من رابط النموذج.", "Voting works on the published site only. Open this page from the prototype link.");
     else if (failed) showAlert("warning", "مش قادرين نجيب الأصوات دلوقتي. هنحاول تاني تلقائيًا.", "Could not load the votes right now. We will retry automatically.");
     else document.getElementById("lv-alert").hidden = true;
-    grid.innerHTML = logos.map(cardHtml).join("");
-    renderRanking();
   }
 
   function loadCounts() {
     if (!live) return Promise.resolve();
     return fetch(API, { headers: { accept: "application/json" } })
       .then(function (r) { if (!r.ok) throw new Error("http " + r.status); return r.json(); })
-      .then(function (d) { counts = d.counts || {}; updatedAt = new Date(); failed = false; render(); })
-      .catch(function () { failed = true; render(); });
+      .then(function (d) { counts = d && typeof d.counts === "object" && d.counts ? d.counts : {}; updatedAt = new Date(); failed = false; renderAlert(); renderActs(); })
+      .catch(function () { failed = true; renderAlert(); renderActs(); });
   }
 
   function send(id, action) {
     if (!live || pending[id]) return;
-    pending[id] = true; render();
+    pending[id] = true; renderActs();
     fetch(API, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ logoId: id, deviceId: deviceId, action: action }) })
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { status: r.status, d: d }; }); })
       .then(function (res) {
@@ -179,31 +284,35 @@
           if (action === "vote") myVotes[id] = true; else delete myVotes[id];
           saveVotes();
           fresh[id] = { count: res.d.count, at: Date.now() };
-          Tamargi.toast(action === "vote" ? (en() ? "Thanks, your vote is in" : "شكرًا، صوتك اتسجّل") : (en() ? "Your vote was removed" : "اتلغى صوتك"));
+          Tamargi.toast(action === "vote" ? tx("شكرًا، صوتك اتسجّل", "Thanks, your vote is in") : tx("اتلغى صوتك", "Your vote was removed"));
         } else if (res.status === 429) {
-          Tamargi.toast(en() ? "Too many tries. Wait a few minutes." : "محاولات كتير. استنى كام دقيقة.");
+          Tamargi.toast(tx("محاولات كتير. استنى كام دقيقة.", "Too many tries. Wait a few minutes."));
         } else {
-          Tamargi.toast(en() ? "Could not save. Try again." : "مقدرناش نحفظ. جرّب تاني.");
+          Tamargi.toast(tx("مقدرناش نحفظ. جرّب تاني.", "Could not save. Try again."));
         }
-        render();
+        renderActs();
       })
-      .catch(function () { pending[id] = false; Tamargi.toast(en() ? "No connection. Try again." : "مفيش اتصال. جرّب تاني."); render(); });
+      .catch(function () { pending[id] = false; Tamargi.toast(tx("مفيش اتصال. جرّب تاني.", "No connection. Try again.")); renderActs(); });
   }
 
-  grid.addEventListener("click", function (e) {
-    var b = e.target.closest("[data-vote],[data-unvote]");
+  list.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-vote],[data-unvote],[data-comment]");
     if (!b || b.disabled) return;
     if (b.hasAttribute("data-vote")) send(b.getAttribute("data-vote"), "vote");
-    else send(b.getAttribute("data-unvote"), "unvote");
+    else if (b.hasAttribute("data-unvote")) send(b.getAttribute("data-unvote"), "unvote");
+    else {
+      var l = logos.filter(function (x) { return x.id === b.getAttribute("data-comment"); })[0];
+      if (l) Tamargi.feedback.open({ logo: { id: l.id, ar: l.name.ar, en: l.name.en } });
+    }
   });
   document.getElementById("lv-refresh").addEventListener("click", loadCounts);
 
   fetch(LOGOS_URL + "logos.json")
     .then(function (r) { if (!r.ok) throw new Error("http " + r.status); return r.json(); })
     .then(function (d) {
-      logos = (d.logos || []).filter(function (l) { return l && l.id && l.name && l.idea && l.files; });
-      render();
-      Tamargi.onCtx(function (c, reason) { if (reason === "lang") render(); });
+      logos = (d && Array.isArray(d.logos) ? d.logos : []).map(cleanLogo).filter(Boolean);
+      renderAlert(); renderRows(); renderRanking();
+      Tamargi.onCtx(function (c, reason) { if (reason === "lang") { renderAlert(); renderRows(); renderRanking(); } });
       loadCounts();
       setInterval(function () { if (!document.hidden) loadCounts(); }, REFRESH_MS);
     })

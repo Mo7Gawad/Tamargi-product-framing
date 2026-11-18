@@ -57,18 +57,54 @@ test("logos.json ids load and match the shortlist", () => {
   assert.equal(new Set(IDS).size, IDS.length);
 });
 
-test("every logo file exists and is a safe SVG (no script, foreignObject, external refs or handlers)", () => {
-  const data = JSON.parse(readFileSync(new URL("../assets/logos/logos.json", import.meta.url), "utf8"));
-  for (const l of data.logos) {
-    assert.ok(l.name.ar && l.name.en && l.idea.ar && l.idea.en, l.id + " text");
-    for (const k of ["symbol", "symbolOnInk", "lockup"]) assert.ok(l.files[k], l.id + " " + k);
-    for (const f of Object.values(l.files)) {
-      assert.match(f, /^[a-z0-9-]+\.svg$/);
-      const url = new URL("../assets/logos/" + f, import.meta.url);
-      assert.ok(existsSync(url), f);
+const LOGO_DIR = new URL("../assets/logos/", import.meta.url);
+const LOGOS = JSON.parse(readFileSync(new URL("logos.json", LOGO_DIR), "utf8")).logos;
+const HEX = /^#[0-9A-F]{6}$/;
+const txt = (o) => o && typeof o.ar === "string" && o.ar.trim() && typeof o.en === "string" && o.en.trim();
+
+test("logos.json schema: names, palette with hex/name/role, grounds, and variants on hex backgrounds", () => {
+  for (const l of LOGOS) {
+    assert.ok(txt(l.name) && txt(l.idea), l.id + " text");
+    assert.ok(Array.isArray(l.palette) && l.palette.length, l.id + " palette");
+    for (const p of l.palette) { assert.match(p.hex, HEX, l.id); assert.ok(txt(p.name) && txt(p.role), l.id + " " + p.hex); }
+    assert.match(l.grounds.light, HEX, l.id + " light ground");
+    if (l.grounds.dark !== undefined) assert.match(l.grounds.dark, HEX, l.id + " dark ground");
+    assert.ok(Array.isArray(l.variants) && l.variants.length >= 3, l.id + " variants");
+    assert.equal(l.variants[0].kind, "symbol", l.id + " starts with its symbol");
+    const kinds = l.variants.map((v) => v.kind);
+    assert.equal(new Set(kinds).size, kinds.length, l.id + " unique kinds");
+    for (const v of l.variants) {
+      assert.match(v.file, new RegExp("^" + l.id + "/[a-z0-9-]+\\.svg$"), l.id + " " + v.kind);
+      assert.match(v.bg, HEX, v.file);
+      assert.ok(txt(v.label), v.file + " label");
+      assert.ok(v.w > 0 && v.h > 0, v.file + " size");
+      if (v.kind === "symbol-dark") assert.equal(v.bg, l.grounds.dark, v.file + " sits on the concept's own dark ground");
+      if (v.kind === "symbol") assert.equal(v.bg, l.grounds.light, v.file + " sits on the concept's own light ground");
+    }
+  }
+});
+
+test("product-only: no internal round codes in names, ideas, labels or SVG titles", () => {
+  const internal = /\b(r\d+-[a-z]|round\s*\d)\b/i;
+  for (const l of LOGOS) {
+    for (const t of [l.name.ar, l.name.en, l.idea.ar, l.idea.en, ...l.variants.flatMap((v) => [v.label.ar, v.label.en])]) assert.doesNotMatch(t, internal, l.id);
+    for (const v of l.variants) {
+      const svg = readFileSync(new URL(v.file, LOGO_DIR), "utf8");
+      const meta = (svg.match(/<title>[^<]*<\/title>|aria-label="[^"]*"/g) || []).join(" ");
+      assert.doesNotMatch(meta, internal, v.file);
+    }
+  }
+});
+
+test("every referenced logo file exists and is a safe SVG (no script, fonts, text, images, external refs or handlers)", () => {
+  for (const l of LOGOS) {
+    for (const v of l.variants) {
+      const url = new URL(v.file, LOGO_DIR);
+      assert.ok(existsSync(url), v.file);
       const svg = readFileSync(url, "utf8");
-      assert.match(svg, /^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" viewBox="[\d. ]+"/, f);
-      assert.doesNotMatch(svg, /<script|foreignObject|<image|<iframe|<use|href|url\(|@import|javascript:|\son[a-z]+\s*=/i, f);
+      assert.match(svg, /^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" viewBox="[-\d. ]+"/, v.file);
+      assert.doesNotMatch(svg, /<script|foreignObject|<image|<iframe|<use|<text|href|url\(|@import|@font-face|font-family|javascript:|\son[a-z]+\s*=/i, v.file);
+      if (/<style/.test(svg)) assert.ok(["splash", "animated"].includes(v.kind), v.file + ": <style> only in animations");
     }
   }
 });

@@ -684,8 +684,16 @@
       mine: ["ملاحظاتك من الجهاز ده", "Your feedback from this device"],
       mineCount: ["{s} اتبعتت · {q} مستنية", "{s} sent · {q} waiting"],
       dlJson: ["تنزيل JSON", "Download JSON"], dlCsv: ["تنزيل CSV (Excel)", "Download CSV (Excel)"],
-      flushed: ["اتبعتت {n} ملاحظة كانت مستنية", "{n} waiting comments were sent"]
+      flushed: ["اتبعتت {n} ملاحظة كانت مستنية", "{n} waiting comments were sent"],
+      about: ["التعليق على شعار:", "Comment on the logo:"],
+      aspectsLegend: ["على إيه بالظبط؟ (اختار واحدة أو أكتر)", "About what exactly? (pick any)"],
+      commentPhLogo: ["مثلًا: اللون غامق زيادة، أو الشكل مش واضح في المقاس الصغير", "For example: the colour is too dark, or the shape is unclear when small"],
+      a_colour: ["اللون", "Colour"], a_shape: ["الشكل", "Shape"], a_arabic_font: ["الخط العربي", "Arabic font"],
+      a_latin_font: ["الخط الإنجليزي", "Latin font"], a_small_size: ["المقاس الصغير", "Small size"], a_other: ["حاجة تانية", "Other"]
     };
+    /* Same list as ASPECTS in api/_lib/feedback-core.js. */
+    var ASPECT_IDS = ["colour", "shape", "arabic_font", "latin_font", "small_size", "other"];
+    var logoCtx = null;   /* { id, ar, en } while commenting on one logo (logo-vote page) */
     var ROLE_IDS = ["doctor", "reception_nurse", "owner_manager", "partner", "other"];
     function tr(k) { var v = L[k]; return v ? (en() ? v[1] : v[0]) : k; }
     function num(n) { var s = String(n); return en() ? s : s.replace(/\d/g, function (d) { return "٠١٢٣٤٥٦٧٨٩".charAt(+d); }); }
@@ -718,6 +726,10 @@
           '<div class="t-modal-body">' +
             '<p class="t-muted t-fb-intro" data-fb-t="intro"></p>' +
             '<div class="t-alert warning t-fb-filemsg" role="note"' + (isFile ? "" : " hidden") + ">" + icon("info") + '<span data-fb-t="file"></span></div>' +
+            '<div class="t-fb-logo" hidden><p class="t-fb-about"><b data-fb-t="about"></b> <span class="t-fb-logoname"></span></p>' +
+              '<fieldset class="t-fb-aspects"><legend class="t-label" data-fb-t="aspectsLegend"></legend><div class="t-fb-chips">' +
+              ASPECT_IDS.map(function (a) { return '<label class="t-fb-chip"><input type="checkbox" name="aspect" value="' + a + '"><span data-fb-t="a_' + a + '"></span></label>'; }).join("") +
+              "</div></fieldset></div>" +
             '<fieldset class="t-fb-type"><legend class="t-label" data-fb-t="typeLegend"></legend>' +
               '<div class="t-seg" role="radiogroup">' +
                 '<label><input type="radio" name="type" value="screen" checked><span data-fb-t="typeScreen"></span></label>' +
@@ -774,12 +786,20 @@
       Array.prototype.forEach.call(scrim.querySelectorAll("[data-fb-aria]"), function (n) { n.setAttribute("aria-label", tr(n.getAttribute("data-fb-aria"))); n.title = tr(n.getAttribute("data-fb-aria")); });
       Array.prototype.forEach.call(scrim.querySelectorAll("[data-fb-ph]"), function (n) { n.setAttribute("placeholder", tr(n.getAttribute("data-fb-ph"))); });
       scrim.querySelector(".t-fb-screen").textContent = screenInfo().title;
+      scrim.querySelector(".t-fb-logo").hidden = !logoCtx;
+      scrim.querySelector(".t-fb-type").hidden = !!logoCtx;
+      scrim.querySelector(".t-fb-logoname").textContent = logoCtx ? (en() ? logoCtx.en : logoCtx.ar) : "";
+      if (logoCtx) f.comment.setAttribute("placeholder", tr("commentPhLogo"));
       updateCount(); renderMine();
       if (sending) scrim.querySelector("[data-fb-submit] span").textContent = tr("sending");
     }
     function updateCount() { scrim.querySelector(".t-fb-count").textContent = num(f.comment.value.length) + " / " + num(MAX_COMMENT); }
     function focusables() { return Array.prototype.filter.call(panelEl.querySelectorAll("button,input:not([tabindex='-1']),select,textarea"), function (n) { return !n.disabled && n.offsetParent !== null; }); }
-    function open() {
+    /* opts.logo = { id, ar, en }: comment tagged with that logo (logo_id + aspects). Without it: the normal widget. */
+    function open(opts) {
+      var lg = opts && opts.logo;
+      logoCtx = lg && typeof lg.id === "string" && /^[a-z0-9-]{1,40}$/.test(lg.id) ? { id: lg.id, ar: String(lg.ar || lg.id).slice(0, 200), en: String(lg.en || lg.id).slice(0, 200) } : null;
+      Array.prototype.forEach.call(form.querySelectorAll("input[name=aspect]"), function (c) { c.checked = false; });
       lastFocus = document.activeElement; scrim.hidden = false; html.classList.add("t-fb-open");
       setStatus(null); render();
       (f.role.value ? f.comment : f.role).focus();
@@ -789,8 +809,9 @@
 
     function buildItem() {
       var si = screenInfo(), c = ctx || {};
-      var type = form.querySelector("input[name=type]:checked").value;
-      return { type: type, name: f.name.value.trim().slice(0, 80), role: f.role.value, comment: f.comment.value.trim().slice(0, MAX_COMMENT),
+      var type = logoCtx ? "screen" : form.querySelector("input[name=type]:checked").value;
+      var aspects = logoCtx ? Array.prototype.filter.call(form.querySelectorAll("input[name=aspect]"), function (c) { return c.checked; }).map(function (c) { return c.value; }) : [];
+      return { type: type, logo_id: logoCtx ? logoCtx.id : "", aspects: aspects, name: f.name.value.trim().slice(0, 80), role: f.role.value, comment: f.comment.value.trim().slice(0, MAX_COMMENT),
         screenFile: si.file.slice(0, 120), screenTitle: si.title.slice(0, 200), screenState: String(si.state).slice(0, 40),
         screen_id: si.id.slice(0, 80), screen_label_ar: si.ar.slice(0, 200), screen_label_en: si.en.slice(0, 200), page_path: /^\/\S*$/.test(si.path) ? si.path : "",
         org: String(c.org || "").slice(0, 40), branch: String(c.branch || "").slice(0, 40), viewAs: String(state.role || "").slice(0, 20),
@@ -843,8 +864,8 @@
     }
 
     /* ---- download what this browser sent / queued ---- */
-    var COLS = ["status", "savedAt", "sentAt", "type", "role", "name", "comment", "screen_id", "screen_label_ar", "screen_label_en", "page_path", "screenFile", "screenTitle", "screenState", "org", "branch", "viewAs", "lang", "viewport", "clientId"];
-    function csvCell(v) { var s = v == null ? "" : String(v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; }
+    var COLS = ["status", "savedAt", "sentAt", "type", "role", "name", "comment", "logo_id", "aspects", "screen_id", "screen_label_ar", "screen_label_en", "page_path", "screenFile", "screenTitle", "screenState", "org", "branch", "viewAs", "lang", "viewport", "clientId"];
+    function csvCell(v) { var s = v == null ? "" : Array.isArray(v) ? v.join(" | ") : String(v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; }
     function rows() { return logAll().map(function (x) { var r = {}; for (var k in x.item) r[k] = x.item[k]; delete r.website; r.status = x.status; r.savedAt = x.savedAt; r.sentAt = x.sentAt || ""; return r; }); }
     function download(kind) {
       var data = rows(), day = new Date().toISOString().slice(0, 10), text, type;
@@ -856,7 +877,7 @@
     }
 
     /* ---- events ---- */
-    fbFab.addEventListener("click", open);
+    fbFab.addEventListener("click", function () { open(); });
     scrim.addEventListener("click", function (e) {
       if (e.target === scrim || e.target.closest("[data-fb-close]")) { close(); return; }
       var d = e.target.closest("[data-fb-dl]"); if (d) download(d.getAttribute("data-fb-dl"));
@@ -879,7 +900,8 @@
     return { render: render, open: open };
   })();
 
-  window.Tamargi = { toast: toast, screens: SCREENS, groups: GROUPS, screenLabel: screenLabel, screenIdFrom: screenIdFrom, orgs: ORGS, data: DATA, ctx: ctx,
+  window.Tamargi = { toast: toast,
+    feedback: { available: !!feedback, open: function (opts) { if (feedback) feedback.open(opts); } }, screens: SCREENS, groups: GROUPS, screenLabel: screenLabel, screenIdFrom: screenIdFrom, orgs: ORGS, data: DATA, ctx: ctx,
     setState: function (s) { activeState = s; applyState(); renderNotes(); }, lang: function () { return state.lang; },
     tx: function (ar, enTxt) { return state.lang === "en" ? enTxt : ar; },
     scope: function () { return { org: state.org, branch: state.branch, all: state.branch === "all", mismatch: !!(pageOrg && pageOrg !== state.org), branchName: branchName(state.branch) }; },

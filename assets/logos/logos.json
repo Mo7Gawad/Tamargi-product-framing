@@ -1,5 +1,4 @@
 {
-  "round": "shortlist-1",
   "logos": [
     {
       "id": "care-cradle",
@@ -11,11 +10,68 @@
         "ar": "حوض حرف التاء بيحضن علامة زائد: التمرجي هو اللي بيرعى.",
         "en": "The ت bowl tends a plus: timar means care."
       },
-      "files": {
-        "symbol": "care-cradle-symbol.svg",
-        "symbolOnInk": "care-cradle-symbol-rev.svg",
-        "lockup": "care-cradle-lockup.svg"
-      }
+      "palette": [
+        {
+          "hex": "#2944A8",
+          "name": {
+            "ar": "حبر الختم",
+            "en": "Stamp ink"
+          },
+          "role": {
+            "ar": "لون الرمز والاسم (لون واحد)",
+            "en": "Mark and name (one colour)"
+          }
+        },
+        {
+          "hex": "#FFFFFF",
+          "name": {
+            "ar": "أبيض",
+            "en": "White"
+          },
+          "role": {
+            "ar": "الخلفية",
+            "en": "Background"
+          }
+        }
+      ],
+      "grounds": {
+        "light": "#FFFFFF"
+      },
+      "variants": [
+        {
+          "kind": "symbol",
+          "file": "care-cradle/symbol.svg",
+          "label": {
+            "ar": "الرمز",
+            "en": "Symbol"
+          },
+          "bg": "#FFFFFF",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "mono",
+          "file": "care-cradle/mono.svg",
+          "label": {
+            "ar": "أسود بس (طباعة حرارية)",
+            "en": "Black only (thermal print)"
+          },
+          "bg": "#FFFFFF",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup",
+          "file": "care-cradle/lockup.svg",
+          "label": {
+            "ar": "الرمز مع الاسم عربي وإنجليزي",
+            "en": "Bilingual lockup"
+          },
+          "bg": "#FFFFFF",
+          "w": 650.0,
+          "h": 256.0
+        }
+      ]
     },
     {
       "id": "two-hands",
@@ -27,11 +83,113 @@
         "ar": "حوض التاء متقسم لإيدين (الطبيب والتمرجي) شايلين علامة زائد.",
         "en": "The ت bowl split into two hands (doctor + tamargi) holding the plus."
       },
-      "files": {
-        "symbol": "two-hands-symbol.svg",
-        "symbolOnInk": "two-hands-symbol-rev.svg",
-        "lockup": "two-hands-lockup.svg"
-      }
+      "palette": [
+        {
+          "hex": "#2944A8",
+          "name": {
+            "ar": "حبر الختم",
+            "en": "Stamp ink"
+          },
+          "role": {
+            "ar": "الأساسي (الرمز والاسم)",
+            "en": "Primary (mark and name)"
+          }
+        },
+        {
+          "hex": "#B8720A",
+          "name": {
+            "ar": "زعفران غامق",
+            "en": "Deep saffron"
+          },
+          "role": {
+            "ar": "علامة الزائد على الفاتح",
+            "en": "Plus on light"
+          }
+        },
+        {
+          "hex": "#F2A93B",
+          "name": {
+            "ar": "زعفران",
+            "en": "Saffron"
+          },
+          "role": {
+            "ar": "علامة الزائد على الغامق",
+            "en": "Plus on dark"
+          }
+        },
+        {
+          "hex": "#FFFFFF",
+          "name": {
+            "ar": "أبيض",
+            "en": "White"
+          },
+          "role": {
+            "ar": "الخلفية",
+            "en": "Background"
+          }
+        }
+      ],
+      "grounds": {
+        "light": "#FFFFFF",
+        "dark": "#2944A8"
+      },
+      "variants": [
+        {
+          "kind": "symbol",
+          "file": "two-hands/symbol.svg",
+          "label": {
+            "ar": "الرمز",
+            "en": "Symbol"
+          },
+          "bg": "#FFFFFF",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "symbol-dark",
+          "file": "two-hands/symbol-dark.svg",
+          "label": {
+            "ar": "الرمز على الغامق",
+            "en": "Symbol on dark"
+          },
+          "bg": "#2944A8",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "one-colour",
+          "file": "two-hands/one-colour.svg",
+          "label": {
+            "ar": "لون واحد",
+            "en": "One colour"
+          },
+          "bg": "#FFFFFF",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "mono",
+          "file": "two-hands/mono.svg",
+          "label": {
+            "ar": "أسود بس (طباعة حرارية)",
+            "en": "Black only (thermal print)"
+          },
+          "bg": "#FFFFFF",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup",
+          "file": "two-hands/lockup.svg",
+          "label": {
+            "ar": "الرمز مع الاسم عربي وإنجليزي",
+            "en": "Bilingual lockup"
+          },
+          "bg": "#FFFFFF",
+          "w": 652.26,
+          "h": 256.0
+        }
+      ]
     },
     {
       "id": "called-dots",
@@ -43,12 +201,124 @@
         "ar": "نقط التاء هم المرضى؛ لما يتنادى عليهم بيتجمعوا في علامة زائد جوه الحضن.",
         "en": "The dots of ت are patients; called in, they gather into a plus inside the cradle."
       },
-      "files": {
-        "symbol": "called-dots-symbol.svg",
-        "symbolOnInk": "called-dots-symbol-rev.svg",
-        "lockup": "called-dots-lockup.svg",
-        "splash": "called-dots-splash.svg"
-      }
+      "palette": [
+        {
+          "hex": "#2944A8",
+          "name": {
+            "ar": "حبر الختم",
+            "en": "Stamp ink"
+          },
+          "role": {
+            "ar": "الأساسي (الرمز والاسم)",
+            "en": "Primary (mark and name)"
+          }
+        },
+        {
+          "hex": "#B8720A",
+          "name": {
+            "ar": "زعفران غامق",
+            "en": "Deep saffron"
+          },
+          "role": {
+            "ar": "علامة الزائد على الفاتح",
+            "en": "Plus on light"
+          }
+        },
+        {
+          "hex": "#F2A93B",
+          "name": {
+            "ar": "زعفران",
+            "en": "Saffron"
+          },
+          "role": {
+            "ar": "علامة الزائد على الغامق",
+            "en": "Plus on dark"
+          }
+        },
+        {
+          "hex": "#FFFFFF",
+          "name": {
+            "ar": "أبيض",
+            "en": "White"
+          },
+          "role": {
+            "ar": "الخلفية",
+            "en": "Background"
+          }
+        }
+      ],
+      "grounds": {
+        "light": "#FFFFFF",
+        "dark": "#2944A8"
+      },
+      "variants": [
+        {
+          "kind": "symbol",
+          "file": "called-dots/symbol.svg",
+          "label": {
+            "ar": "الرمز",
+            "en": "Symbol"
+          },
+          "bg": "#FFFFFF",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "symbol-dark",
+          "file": "called-dots/symbol-dark.svg",
+          "label": {
+            "ar": "الرمز على الغامق",
+            "en": "Symbol on dark"
+          },
+          "bg": "#2944A8",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "one-colour",
+          "file": "called-dots/one-colour.svg",
+          "label": {
+            "ar": "لون واحد",
+            "en": "One colour"
+          },
+          "bg": "#FFFFFF",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "mono",
+          "file": "called-dots/mono.svg",
+          "label": {
+            "ar": "أسود بس (طباعة حرارية)",
+            "en": "Black only (thermal print)"
+          },
+          "bg": "#FFFFFF",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup",
+          "file": "called-dots/lockup.svg",
+          "label": {
+            "ar": "الرمز مع الاسم عربي وإنجليزي",
+            "en": "Bilingual lockup"
+          },
+          "bg": "#FFFFFF",
+          "w": 652.26,
+          "h": 256.0
+        },
+        {
+          "kind": "splash",
+          "file": "called-dots/splash.svg",
+          "label": {
+            "ar": "شاشة البداية (متحركة)",
+            "en": "Splash screen (animated)"
+          },
+          "bg": "#FFFFFF",
+          "w": 256.0,
+          "h": 256.0
+        }
+      ]
     },
     {
       "id": "word-seal",
@@ -60,11 +330,90 @@
         "ar": "كلمة تمرجي مفرّغة من ختم أزرق؛ الفاصل بين الحروف شايل علامة زائد.",
         "en": "تمرجي reversed out of an ink seal; the word break holds the plus."
       },
-      "files": {
-        "symbol": "word-seal-symbol.svg",
-        "symbolOnInk": "word-seal-symbol-rev.svg",
-        "lockup": "word-seal-lockup.svg"
-      }
+      "palette": [
+        {
+          "hex": "#2944A8",
+          "name": {
+            "ar": "حبر الختم",
+            "en": "Stamp ink"
+          },
+          "role": {
+            "ar": "الختم والاسم",
+            "en": "Seal and name"
+          }
+        },
+        {
+          "hex": "#F2A93B",
+          "name": {
+            "ar": "زعفران",
+            "en": "Saffron"
+          },
+          "role": {
+            "ar": "علامة الزائد",
+            "en": "Plus"
+          }
+        },
+        {
+          "hex": "#FFFFFF",
+          "name": {
+            "ar": "أبيض",
+            "en": "White"
+          },
+          "role": {
+            "ar": "الخلفية والحروف المفرّغة",
+            "en": "Background and cut-out letters"
+          }
+        }
+      ],
+      "grounds": {
+        "light": "#FFFFFF"
+      },
+      "variants": [
+        {
+          "kind": "symbol",
+          "file": "word-seal/symbol.svg",
+          "label": {
+            "ar": "الرمز",
+            "en": "Symbol"
+          },
+          "bg": "#FFFFFF",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "one-colour",
+          "file": "word-seal/one-colour.svg",
+          "label": {
+            "ar": "لون واحد",
+            "en": "One colour"
+          },
+          "bg": "#FFFFFF",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "mono",
+          "file": "word-seal/mono.svg",
+          "label": {
+            "ar": "أسود بس (طباعة حرارية)",
+            "en": "Black only (thermal print)"
+          },
+          "bg": "#FFFFFF",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup",
+          "file": "word-seal/lockup.svg",
+          "label": {
+            "ar": "الرمز مع الاسم عربي وإنجليزي",
+            "en": "Bilingual lockup"
+          },
+          "bg": "#FFFFFF",
+          "w": 408.48,
+          "h": 256.0
+        }
+      ]
     },
     {
       "id": "r4-care-cradle",
@@ -76,11 +425,157 @@
         "ar": "كف واحد مفتوح شايل علامة زائد: الرعاية في الإيد.",
         "en": "One open palm holds one plus: care is held."
       },
-      "files": {
-        "symbol": "r4-care-cradle-symbol.svg",
-        "symbolOnInk": "r4-care-cradle-symbol-rev.svg",
-        "lockup": "r4-care-cradle-lockup.svg"
-      }
+      "palette": [
+        {
+          "hex": "#2944A8",
+          "name": {
+            "ar": "حبر الختم",
+            "en": "Stamp ink"
+          },
+          "role": {
+            "ar": "الأساسي (الرمز والاسم)",
+            "en": "Primary (mark and name)"
+          }
+        },
+        {
+          "hex": "#B8720A",
+          "name": {
+            "ar": "زعفران غامق",
+            "en": "Deep saffron"
+          },
+          "role": {
+            "ar": "علامة الزائد على الفاتح",
+            "en": "Plus on light"
+          }
+        },
+        {
+          "hex": "#F2A93B",
+          "name": {
+            "ar": "زعفران",
+            "en": "Saffron"
+          },
+          "role": {
+            "ar": "علامة الزائد على الغامق",
+            "en": "Plus on dark"
+          }
+        },
+        {
+          "hex": "#FFFFFF",
+          "name": {
+            "ar": "أبيض",
+            "en": "White"
+          },
+          "role": {
+            "ar": "الخلفية",
+            "en": "Background"
+          }
+        }
+      ],
+      "grounds": {
+        "light": "#FFFFFF",
+        "dark": "#2944A8"
+      },
+      "variants": [
+        {
+          "kind": "symbol",
+          "file": "r4-care-cradle/symbol.svg",
+          "label": {
+            "ar": "الرمز",
+            "en": "Symbol"
+          },
+          "bg": "#FFFFFF",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "symbol-dark",
+          "file": "r4-care-cradle/symbol-dark.svg",
+          "label": {
+            "ar": "الرمز على الغامق",
+            "en": "Symbol on dark"
+          },
+          "bg": "#2944A8",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "one-colour",
+          "file": "r4-care-cradle/one-colour.svg",
+          "label": {
+            "ar": "لون واحد",
+            "en": "One colour"
+          },
+          "bg": "#FFFFFF",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "mono",
+          "file": "r4-care-cradle/mono.svg",
+          "label": {
+            "ar": "أسود بس (طباعة حرارية)",
+            "en": "Black only (thermal print)"
+          },
+          "bg": "#FFFFFF",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "favicon",
+          "file": "r4-care-cradle/favicon.svg",
+          "label": {
+            "ar": "أيقونة المتصفح ١٦ بكسل",
+            "en": "Browser tab icon, 16 px"
+          },
+          "bg": "#FFFFFF",
+          "w": 16.0,
+          "h": 16.0
+        },
+        {
+          "kind": "app-icon",
+          "file": "r4-care-cradle/app-icon.svg",
+          "label": {
+            "ar": "أيقونة التطبيق",
+            "en": "App icon"
+          },
+          "bg": "#FFFFFF",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup",
+          "file": "r4-care-cradle/lockup.svg",
+          "label": {
+            "ar": "الرمز مع الاسم عربي وإنجليزي",
+            "en": "Bilingual lockup"
+          },
+          "bg": "#FFFFFF",
+          "w": 551.0,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-ar",
+          "file": "r4-care-cradle/lockup-ar.svg",
+          "label": {
+            "ar": "الرمز مع الاسم بالعربي",
+            "en": "Arabic lockup"
+          },
+          "bg": "#FFFFFF",
+          "w": 643.0,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-la",
+          "file": "r4-care-cradle/lockup-la.svg",
+          "label": {
+            "ar": "الرمز مع الاسم بالإنجليزي",
+            "en": "Latin lockup"
+          },
+          "bg": "#FFFFFF",
+          "w": 714.0,
+          "h": 256.0
+        }
+      ]
     },
     {
       "id": "r4-two-hands",
@@ -92,11 +587,168 @@
         "ar": "إيد الطبيب وإيد التمرجي بيتقابلوا؛ المسافة بينهم هي علامة الرعاية.",
         "en": "The doctor's and the tamargi's hands meet; the space between them is the care."
       },
-      "files": {
-        "symbol": "r4-two-hands-symbol.svg",
-        "symbolOnInk": "r4-two-hands-symbol-rev.svg",
-        "lockup": "r4-two-hands-lockup.svg"
-      }
+      "palette": [
+        {
+          "hex": "#2944A8",
+          "name": {
+            "ar": "حبر الختم",
+            "en": "Stamp ink"
+          },
+          "role": {
+            "ar": "الأساسي (الرمز والاسم)",
+            "en": "Primary (mark and name)"
+          }
+        },
+        {
+          "hex": "#B8720A",
+          "name": {
+            "ar": "زعفران غامق",
+            "en": "Deep saffron"
+          },
+          "role": {
+            "ar": "علامة الزائد على الفاتح",
+            "en": "Plus on light"
+          }
+        },
+        {
+          "hex": "#F2A93B",
+          "name": {
+            "ar": "زعفران",
+            "en": "Saffron"
+          },
+          "role": {
+            "ar": "علامة الزائد على الغامق",
+            "en": "Plus on dark"
+          }
+        },
+        {
+          "hex": "#FFFFFF",
+          "name": {
+            "ar": "أبيض",
+            "en": "White"
+          },
+          "role": {
+            "ar": "الخلفية",
+            "en": "Background"
+          }
+        }
+      ],
+      "grounds": {
+        "light": "#FFFFFF",
+        "dark": "#2944A8"
+      },
+      "variants": [
+        {
+          "kind": "symbol",
+          "file": "r4-two-hands/symbol.svg",
+          "label": {
+            "ar": "الرمز",
+            "en": "Symbol"
+          },
+          "bg": "#FFFFFF",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "symbol-dark",
+          "file": "r4-two-hands/symbol-dark.svg",
+          "label": {
+            "ar": "الرمز على الغامق",
+            "en": "Symbol on dark"
+          },
+          "bg": "#2944A8",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "one-colour",
+          "file": "r4-two-hands/one-colour.svg",
+          "label": {
+            "ar": "لون واحد",
+            "en": "One colour"
+          },
+          "bg": "#FFFFFF",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "mono",
+          "file": "r4-two-hands/mono.svg",
+          "label": {
+            "ar": "أسود بس (طباعة حرارية)",
+            "en": "Black only (thermal print)"
+          },
+          "bg": "#FFFFFF",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "favicon",
+          "file": "r4-two-hands/favicon.svg",
+          "label": {
+            "ar": "أيقونة المتصفح ١٦ بكسل",
+            "en": "Browser tab icon, 16 px"
+          },
+          "bg": "#FFFFFF",
+          "w": 16.0,
+          "h": 16.0
+        },
+        {
+          "kind": "app-icon",
+          "file": "r4-two-hands/app-icon.svg",
+          "label": {
+            "ar": "أيقونة التطبيق",
+            "en": "App icon"
+          },
+          "bg": "#FFFFFF",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup",
+          "file": "r4-two-hands/lockup.svg",
+          "label": {
+            "ar": "الرمز مع الاسم عربي وإنجليزي",
+            "en": "Bilingual lockup"
+          },
+          "bg": "#FFFFFF",
+          "w": 543.0,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-dark",
+          "file": "r4-two-hands/lockup-dark.svg",
+          "label": {
+            "ar": "الاسم على الغامق",
+            "en": "Lockup on dark"
+          },
+          "bg": "#2944A8",
+          "w": 543.0,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-ar",
+          "file": "r4-two-hands/lockup-ar.svg",
+          "label": {
+            "ar": "الرمز مع الاسم بالعربي",
+            "en": "Arabic lockup"
+          },
+          "bg": "#FFFFFF",
+          "w": 585.0,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-la",
+          "file": "r4-two-hands/lockup-la.svg",
+          "label": {
+            "ar": "الرمز مع الاسم بالإنجليزي",
+            "en": "Latin lockup"
+          },
+          "bg": "#FFFFFF",
+          "w": 592.0,
+          "h": 256.0
+        }
+      ]
     },
     {
       "id": "r4-one-stroke",
@@ -108,11 +760,135 @@
         "ar": "خط واحد بيرسم حرف التاء ويعدّي على نفسه فيعمل علامة زائد.",
         "en": "One pen line draws the ت and crosses itself to make the plus."
       },
-      "files": {
-        "symbol": "r4-one-stroke-symbol.svg",
-        "symbolOnInk": "r4-one-stroke-symbol-rev.svg",
-        "lockup": "r4-one-stroke-lockup.svg"
-      }
+      "palette": [
+        {
+          "hex": "#2944A8",
+          "name": {
+            "ar": "حبر الختم",
+            "en": "Stamp ink"
+          },
+          "role": {
+            "ar": "الخط الواحد والاسم",
+            "en": "The one line and the name"
+          }
+        },
+        {
+          "hex": "#FFFFFF",
+          "name": {
+            "ar": "أبيض",
+            "en": "White"
+          },
+          "role": {
+            "ar": "الخلفية، والخط على الغامق",
+            "en": "Background, and the line on dark"
+          }
+        }
+      ],
+      "grounds": {
+        "light": "#FFFFFF",
+        "dark": "#2944A8"
+      },
+      "variants": [
+        {
+          "kind": "symbol",
+          "file": "r4-one-stroke/symbol.svg",
+          "label": {
+            "ar": "الرمز",
+            "en": "Symbol"
+          },
+          "bg": "#FFFFFF",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "symbol-dark",
+          "file": "r4-one-stroke/symbol-dark.svg",
+          "label": {
+            "ar": "الرمز على الغامق",
+            "en": "Symbol on dark"
+          },
+          "bg": "#2944A8",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "mono",
+          "file": "r4-one-stroke/mono.svg",
+          "label": {
+            "ar": "أسود بس (طباعة حرارية)",
+            "en": "Black only (thermal print)"
+          },
+          "bg": "#FFFFFF",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "favicon",
+          "file": "r4-one-stroke/favicon.svg",
+          "label": {
+            "ar": "أيقونة المتصفح ١٦ بكسل",
+            "en": "Browser tab icon, 16 px"
+          },
+          "bg": "#FFFFFF",
+          "w": 16.0,
+          "h": 16.0
+        },
+        {
+          "kind": "app-icon",
+          "file": "r4-one-stroke/app-icon.svg",
+          "label": {
+            "ar": "أيقونة التطبيق",
+            "en": "App icon"
+          },
+          "bg": "#FFFFFF",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup",
+          "file": "r4-one-stroke/lockup.svg",
+          "label": {
+            "ar": "الرمز مع الاسم عربي وإنجليزي",
+            "en": "Bilingual lockup"
+          },
+          "bg": "#FFFFFF",
+          "w": 621.0,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-ar",
+          "file": "r4-one-stroke/lockup-ar.svg",
+          "label": {
+            "ar": "الرمز مع الاسم بالعربي",
+            "en": "Arabic lockup"
+          },
+          "bg": "#FFFFFF",
+          "w": 731.0,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-la",
+          "file": "r4-one-stroke/lockup-la.svg",
+          "label": {
+            "ar": "الرمز مع الاسم بالإنجليزي",
+            "en": "Latin lockup"
+          },
+          "bg": "#FFFFFF",
+          "w": 600.0,
+          "h": 256.0
+        },
+        {
+          "kind": "animated",
+          "file": "r4-one-stroke/animated.svg",
+          "label": {
+            "ar": "الرسم بخط واحد (متحرك)",
+            "en": "One-line draw (animated)"
+          },
+          "bg": "#FFFFFF",
+          "w": 256.0,
+          "h": 256.0
+        }
+      ]
     },
     {
       "id": "r5-care-cradle",
@@ -124,11 +900,223 @@
         "ar": "كف مفتوح شايل علامة زائد مرفوعة فوق الحافة، بألوان نيلي ومشمشي.",
         "en": "An open palm lifts a plus above its rim, in indigo and apricot."
       },
-      "files": {
-        "symbol": "r5-care-cradle-symbol.svg",
-        "symbolOnInk": "r5-care-cradle-symbol-rev.svg",
-        "lockup": "r5-care-cradle-lockup.svg"
-      }
+      "palette": [
+        {
+          "hex": "#2A2F6E",
+          "name": {
+            "ar": "نيلة",
+            "en": "Nila indigo"
+          },
+          "role": {
+            "ar": "الأساسي (الكف والاسم)",
+            "en": "Primary (palm and name)"
+          }
+        },
+        {
+          "hex": "#A55312",
+          "name": {
+            "ar": "قمر الدين",
+            "en": "Qamar el-Din apricot"
+          },
+          "role": {
+            "ar": "علامة الزائد على الفاتح",
+            "en": "Plus on light"
+          }
+        },
+        {
+          "hex": "#F2A272",
+          "name": {
+            "ar": "قمر الدين فاتح",
+            "en": "Light apricot"
+          },
+          "role": {
+            "ar": "علامة الزائد على الغامق",
+            "en": "Plus on dark"
+          }
+        },
+        {
+          "hex": "#F6F1E8",
+          "name": {
+            "ar": "كتان",
+            "en": "Linen"
+          },
+          "role": {
+            "ar": "الخلفية",
+            "en": "Background"
+          }
+        },
+        {
+          "hex": "#141733",
+          "name": {
+            "ar": "كحل",
+            "en": "Kohl"
+          },
+          "role": {
+            "ar": "الخلفية الغامقة",
+            "en": "Dark background"
+          }
+        }
+      ],
+      "grounds": {
+        "light": "#F6F1E8",
+        "dark": "#2A2F6E"
+      },
+      "variants": [
+        {
+          "kind": "symbol",
+          "file": "r5-care-cradle/symbol.svg",
+          "label": {
+            "ar": "الرمز",
+            "en": "Symbol"
+          },
+          "bg": "#F6F1E8",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "symbol-dark",
+          "file": "r5-care-cradle/symbol-dark.svg",
+          "label": {
+            "ar": "الرمز على الغامق",
+            "en": "Symbol on dark"
+          },
+          "bg": "#2A2F6E",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "one-colour",
+          "file": "r5-care-cradle/one-colour.svg",
+          "label": {
+            "ar": "لون واحد",
+            "en": "One colour"
+          },
+          "bg": "#F6F1E8",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "mono",
+          "file": "r5-care-cradle/mono.svg",
+          "label": {
+            "ar": "أسود بس (طباعة حرارية)",
+            "en": "Black only (thermal print)"
+          },
+          "bg": "#F6F1E8",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "favicon",
+          "file": "r5-care-cradle/favicon.svg",
+          "label": {
+            "ar": "أيقونة المتصفح ١٦ بكسل",
+            "en": "Browser tab icon, 16 px"
+          },
+          "bg": "#F6F1E8",
+          "w": 16.0,
+          "h": 16.0
+        },
+        {
+          "kind": "app-icon",
+          "file": "r5-care-cradle/app-icon.svg",
+          "label": {
+            "ar": "أيقونة التطبيق",
+            "en": "App icon"
+          },
+          "bg": "#F6F1E8",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "whatsapp",
+          "file": "r5-care-cradle/whatsapp.svg",
+          "label": {
+            "ar": "صورة واتساب",
+            "en": "WhatsApp avatar"
+          },
+          "bg": "#F6F1E8",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup",
+          "file": "r5-care-cradle/lockup.svg",
+          "label": {
+            "ar": "الرمز مع الاسم عربي وإنجليزي",
+            "en": "Bilingual lockup"
+          },
+          "bg": "#F6F1E8",
+          "w": 502.0,
+          "h": 236.0
+        },
+        {
+          "kind": "lockup-dark",
+          "file": "r5-care-cradle/lockup-dark.svg",
+          "label": {
+            "ar": "الاسم على الغامق",
+            "en": "Lockup on dark"
+          },
+          "bg": "#2A2F6E",
+          "w": 502.0,
+          "h": 236.0
+        },
+        {
+          "kind": "lockup-ar",
+          "file": "r5-care-cradle/lockup-ar.svg",
+          "label": {
+            "ar": "الرمز مع الاسم بالعربي",
+            "en": "Arabic lockup"
+          },
+          "bg": "#F6F1E8",
+          "w": 514.0,
+          "h": 232.0
+        },
+        {
+          "kind": "lockup-la",
+          "file": "r5-care-cradle/lockup-la.svg",
+          "label": {
+            "ar": "الرمز مع الاسم بالإنجليزي",
+            "en": "Latin lockup"
+          },
+          "bg": "#F6F1E8",
+          "w": 630.0,
+          "h": 232.0
+        },
+        {
+          "kind": "alt",
+          "file": "r5-care-cradle/alt.svg",
+          "label": {
+            "ar": "ألوان بديلة",
+            "en": "Alternative colourway"
+          },
+          "bg": "#F4EEE4",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "palette",
+          "file": "r5-care-cradle/palette.svg",
+          "label": {
+            "ar": "لوحة الألوان",
+            "en": "Palette board"
+          },
+          "bg": "#FFFFFF",
+          "w": 1200.0,
+          "h": 520.0
+        },
+        {
+          "kind": "palette-alt",
+          "file": "r5-care-cradle/palette-alt.svg",
+          "label": {
+            "ar": "لوحة الألوان البديلة",
+            "en": "Alternative palette board"
+          },
+          "bg": "#FFFFFF",
+          "w": 1200.0,
+          "h": 520.0
+        }
+      ]
     },
     {
       "id": "r8-queue-beat",
@@ -140,11 +1128,223 @@
         "ar": "أربع نبضات زي المرضى في الدور، والنقطة الخضرا هي اللي عليه الدور دلوقتي.",
         "en": "Four even beats are patients in the queue; the green dot is who is called now."
       },
-      "files": {
-        "symbol": "r8-queue-beat-symbol.svg",
-        "symbolOnInk": "r8-queue-beat-symbol-rev.svg",
-        "lockup": "r8-queue-beat-lockup.svg"
-      }
+      "palette": [
+        {
+          "hex": "#0E4D3B",
+          "name": {
+            "ar": "أخضر صنوبري غامق",
+            "en": "Deep Pine"
+          },
+          "role": {
+            "ar": "الأساسي (الخط والاسم)",
+            "en": "Primary (line and name)"
+          }
+        },
+        {
+          "hex": "#0B8A55",
+          "name": {
+            "ar": "أخضر الإشارة الغامق",
+            "en": "Signal Deep"
+          },
+          "role": {
+            "ar": "نقطة «الدور عليك» على الفاتح",
+            "en": "“Your turn” dot on light"
+          }
+        },
+        {
+          "hex": "#24D68A",
+          "name": {
+            "ar": "أخضر الإشارة",
+            "en": "Live Signal"
+          },
+          "role": {
+            "ar": "نقطة «الدور عليك» على الغامق",
+            "en": "“Your turn” dot on dark"
+          }
+        },
+        {
+          "hex": "#0A1F18",
+          "name": {
+            "ar": "حبر صنوبري",
+            "en": "Pine Ink"
+          },
+          "role": {
+            "ar": "النص الإنجليزي والخلفية الغامقة",
+            "en": "Latin text and dark ground"
+          }
+        },
+        {
+          "hex": "#F2F7F4",
+          "name": {
+            "ar": "ضباب العيادة",
+            "en": "Clinic Mist"
+          },
+          "role": {
+            "ar": "الخلفية",
+            "en": "Background"
+          }
+        },
+        {
+          "hex": "#9FD3BC",
+          "name": {
+            "ar": "صنوبري فاتح",
+            "en": "Pine Tint"
+          },
+          "role": {
+            "ar": "الأساسي على الغامق",
+            "en": "Primary on dark"
+          }
+        }
+      ],
+      "grounds": {
+        "light": "#F2F7F4",
+        "dark": "#0A1F18"
+      },
+      "variants": [
+        {
+          "kind": "symbol",
+          "file": "r8-queue-beat/symbol.svg",
+          "label": {
+            "ar": "الرمز",
+            "en": "Symbol"
+          },
+          "bg": "#F2F7F4",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "symbol-dark",
+          "file": "r8-queue-beat/symbol-dark.svg",
+          "label": {
+            "ar": "الرمز على الغامق",
+            "en": "Symbol on dark"
+          },
+          "bg": "#0A1F18",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "mono",
+          "file": "r8-queue-beat/mono.svg",
+          "label": {
+            "ar": "أسود بس (طباعة حرارية)",
+            "en": "Black only (thermal print)"
+          },
+          "bg": "#F2F7F4",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "favicon",
+          "file": "r8-queue-beat/favicon.svg",
+          "label": {
+            "ar": "أيقونة المتصفح ١٦ بكسل",
+            "en": "Browser tab icon, 16 px"
+          },
+          "bg": "#F2F7F4",
+          "w": 16.0,
+          "h": 16.0
+        },
+        {
+          "kind": "app-icon",
+          "file": "r8-queue-beat/app-icon.svg",
+          "label": {
+            "ar": "أيقونة التطبيق",
+            "en": "App icon"
+          },
+          "bg": "#F2F7F4",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "whatsapp",
+          "file": "r8-queue-beat/whatsapp.svg",
+          "label": {
+            "ar": "صورة واتساب",
+            "en": "WhatsApp avatar"
+          },
+          "bg": "#F2F7F4",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup",
+          "file": "r8-queue-beat/lockup.svg",
+          "label": {
+            "ar": "الرمز مع الاسم عربي وإنجليزي",
+            "en": "Bilingual lockup"
+          },
+          "bg": "#F2F7F4",
+          "w": 697.08,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-dark",
+          "file": "r8-queue-beat/lockup-dark.svg",
+          "label": {
+            "ar": "الاسم على الغامق",
+            "en": "Lockup on dark"
+          },
+          "bg": "#121212",
+          "w": 697.08,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-ar",
+          "file": "r8-queue-beat/lockup-ar.svg",
+          "label": {
+            "ar": "الرمز مع الاسم بالعربي",
+            "en": "Arabic lockup"
+          },
+          "bg": "#F2F7F4",
+          "w": 456.77,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-la",
+          "file": "r8-queue-beat/lockup-la.svg",
+          "label": {
+            "ar": "الرمز مع الاسم بالإنجليزي",
+            "en": "Latin lockup"
+          },
+          "bg": "#F2F7F4",
+          "w": 548.15,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-stacked",
+          "file": "r8-queue-beat/lockup-stacked.svg",
+          "label": {
+            "ar": "الاسم تحت الرمز",
+            "en": "Stacked lockup"
+          },
+          "bg": "#F2F7F4",
+          "w": 400.0,
+          "h": 445.02
+        },
+        {
+          "kind": "alt",
+          "file": "r8-queue-beat/alt.svg",
+          "label": {
+            "ar": "ألوان بديلة",
+            "en": "Alternative colourway"
+          },
+          "bg": "#F2F7F4",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "palette",
+          "file": "r8-queue-beat/palette.svg",
+          "label": {
+            "ar": "لوحة الألوان",
+            "en": "Palette board"
+          },
+          "bg": "#FFFFFF",
+          "w": 920.0,
+          "h": 440.0
+        }
+      ]
     },
     {
       "id": "r8-heart-tile",
@@ -156,11 +1356,212 @@
         "ar": "قلب مصمت بيقطعه خط نبض واحد.",
         "en": "A solid heart cut by one pulse beat."
       },
-      "files": {
-        "symbol": "r8-heart-tile-symbol.svg",
-        "symbolOnInk": "r8-heart-tile-symbol-rev.svg",
-        "lockup": "r8-heart-tile-lockup.svg"
-      }
+      "palette": [
+        {
+          "hex": "#2B2FA6",
+          "name": {
+            "ar": "لازوردي",
+            "en": "Ultramarine"
+          },
+          "role": {
+            "ar": "الأساسي (القلب والاسم العربي)",
+            "en": "Primary (heart and Arabic name)"
+          }
+        },
+        {
+          "hex": "#A9ABF2",
+          "name": {
+            "ar": "لازوردي فاتح",
+            "en": "Ultramarine Tint"
+          },
+          "role": {
+            "ar": "الأساسي على الغامق",
+            "en": "Primary on dark"
+          }
+        },
+        {
+          "hex": "#F79B6B",
+          "name": {
+            "ar": "مشمشي",
+            "en": "Apricot"
+          },
+          "role": {
+            "ar": "اللمسة (قلب الأيقونة)",
+            "en": "Accent (app-icon heart)"
+          }
+        },
+        {
+          "hex": "#12133A",
+          "name": {
+            "ar": "حبر الليل",
+            "en": "Night Ink"
+          },
+          "role": {
+            "ar": "النص الإنجليزي والخلفية الغامقة",
+            "en": "Latin text and dark ground"
+          }
+        },
+        {
+          "hex": "#F4F4FC",
+          "name": {
+            "ar": "ضباب لافندر",
+            "en": "Lavender Mist"
+          },
+          "role": {
+            "ar": "الخلفية",
+            "en": "Background"
+          }
+        }
+      ],
+      "grounds": {
+        "light": "#F4F4FC",
+        "dark": "#12133A"
+      },
+      "variants": [
+        {
+          "kind": "symbol",
+          "file": "r8-heart-tile/symbol.svg",
+          "label": {
+            "ar": "الرمز",
+            "en": "Symbol"
+          },
+          "bg": "#F4F4FC",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "symbol-dark",
+          "file": "r8-heart-tile/symbol-dark.svg",
+          "label": {
+            "ar": "الرمز على الغامق",
+            "en": "Symbol on dark"
+          },
+          "bg": "#12133A",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "mono",
+          "file": "r8-heart-tile/mono.svg",
+          "label": {
+            "ar": "أسود بس (طباعة حرارية)",
+            "en": "Black only (thermal print)"
+          },
+          "bg": "#F4F4FC",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "favicon",
+          "file": "r8-heart-tile/favicon.svg",
+          "label": {
+            "ar": "أيقونة المتصفح ١٦ بكسل",
+            "en": "Browser tab icon, 16 px"
+          },
+          "bg": "#F4F4FC",
+          "w": 16.0,
+          "h": 16.0
+        },
+        {
+          "kind": "app-icon",
+          "file": "r8-heart-tile/app-icon.svg",
+          "label": {
+            "ar": "أيقونة التطبيق",
+            "en": "App icon"
+          },
+          "bg": "#F4F4FC",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "whatsapp",
+          "file": "r8-heart-tile/whatsapp.svg",
+          "label": {
+            "ar": "صورة واتساب",
+            "en": "WhatsApp avatar"
+          },
+          "bg": "#F4F4FC",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup",
+          "file": "r8-heart-tile/lockup.svg",
+          "label": {
+            "ar": "الرمز مع الاسم عربي وإنجليزي",
+            "en": "Bilingual lockup"
+          },
+          "bg": "#F4F4FC",
+          "w": 743.21,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-dark",
+          "file": "r8-heart-tile/lockup-dark.svg",
+          "label": {
+            "ar": "الاسم على الغامق",
+            "en": "Lockup on dark"
+          },
+          "bg": "#121212",
+          "w": 743.21,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-ar",
+          "file": "r8-heart-tile/lockup-ar.svg",
+          "label": {
+            "ar": "الرمز مع الاسم بالعربي",
+            "en": "Arabic lockup"
+          },
+          "bg": "#F4F4FC",
+          "w": 457.19,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-la",
+          "file": "r8-heart-tile/lockup-la.svg",
+          "label": {
+            "ar": "الرمز مع الاسم بالإنجليزي",
+            "en": "Latin lockup"
+          },
+          "bg": "#F4F4FC",
+          "w": 614.63,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-stacked",
+          "file": "r8-heart-tile/lockup-stacked.svg",
+          "label": {
+            "ar": "الاسم تحت الرمز",
+            "en": "Stacked lockup"
+          },
+          "bg": "#F4F4FC",
+          "w": 420.0,
+          "h": 513.79
+        },
+        {
+          "kind": "alt",
+          "file": "r8-heart-tile/alt.svg",
+          "label": {
+            "ar": "ألوان بديلة",
+            "en": "Alternative colourway"
+          },
+          "bg": "#F4F4FC",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "palette",
+          "file": "r8-heart-tile/palette.svg",
+          "label": {
+            "ar": "لوحة الألوان",
+            "en": "Palette board"
+          },
+          "bg": "#FFFFFF",
+          "w": 780.0,
+          "h": 450.0
+        }
+      ]
     },
     {
       "id": "r8-clinic-day",
@@ -172,11 +1573,212 @@
         "ar": "صفحة نتيجة بخط واحد، ونبضاتها هي مواعيد اليوم.",
         "en": "A one-line calendar page whose beats are the day’s appointments."
       },
-      "files": {
-        "symbol": "r8-clinic-day-symbol.svg",
-        "symbolOnInk": "r8-clinic-day-symbol-rev.svg",
-        "lockup": "r8-clinic-day-lockup.svg"
-      }
+      "palette": [
+        {
+          "hex": "#4A2B86",
+          "name": {
+            "ar": "بنفسجي العيادة",
+            "en": "Clinic Violet"
+          },
+          "role": {
+            "ar": "الأساسي (الخط والاسم)",
+            "en": "Primary (line and name)"
+          }
+        },
+        {
+          "hex": "#F3C43F",
+          "name": {
+            "ar": "شمس الصبح",
+            "en": "Morning Sun"
+          },
+          "role": {
+            "ar": "اللمسة (على البنفسجي والغامق بس)",
+            "en": "Accent (on violet or dark only)"
+          }
+        },
+        {
+          "hex": "#1B1430",
+          "name": {
+            "ar": "حبر",
+            "en": "Ink"
+          },
+          "role": {
+            "ar": "النص الإنجليزي والخلفية الغامقة",
+            "en": "Latin text and dark ground"
+          }
+        },
+        {
+          "hex": "#F8F6FC",
+          "name": {
+            "ar": "ورق لافندر",
+            "en": "Lavender Paper"
+          },
+          "role": {
+            "ar": "الخلفية",
+            "en": "Background"
+          }
+        },
+        {
+          "hex": "#B9A6EE",
+          "name": {
+            "ar": "لافندر",
+            "en": "Lavender Tint"
+          },
+          "role": {
+            "ar": "الأساسي على الغامق",
+            "en": "Primary on dark"
+          }
+        }
+      ],
+      "grounds": {
+        "light": "#F8F6FC",
+        "dark": "#1B1430"
+      },
+      "variants": [
+        {
+          "kind": "symbol",
+          "file": "r8-clinic-day/symbol.svg",
+          "label": {
+            "ar": "الرمز",
+            "en": "Symbol"
+          },
+          "bg": "#F8F6FC",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "symbol-dark",
+          "file": "r8-clinic-day/symbol-dark.svg",
+          "label": {
+            "ar": "الرمز على الغامق",
+            "en": "Symbol on dark"
+          },
+          "bg": "#1B1430",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "mono",
+          "file": "r8-clinic-day/mono.svg",
+          "label": {
+            "ar": "أسود بس (طباعة حرارية)",
+            "en": "Black only (thermal print)"
+          },
+          "bg": "#F8F6FC",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "favicon",
+          "file": "r8-clinic-day/favicon.svg",
+          "label": {
+            "ar": "أيقونة المتصفح ١٦ بكسل",
+            "en": "Browser tab icon, 16 px"
+          },
+          "bg": "#F8F6FC",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "app-icon",
+          "file": "r8-clinic-day/app-icon.svg",
+          "label": {
+            "ar": "أيقونة التطبيق",
+            "en": "App icon"
+          },
+          "bg": "#F8F6FC",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "whatsapp",
+          "file": "r8-clinic-day/whatsapp.svg",
+          "label": {
+            "ar": "صورة واتساب",
+            "en": "WhatsApp avatar"
+          },
+          "bg": "#F8F6FC",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup",
+          "file": "r8-clinic-day/lockup.svg",
+          "label": {
+            "ar": "الرمز مع الاسم عربي وإنجليزي",
+            "en": "Bilingual lockup"
+          },
+          "bg": "#F8F6FC",
+          "w": 965.21,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-dark",
+          "file": "r8-clinic-day/lockup-dark.svg",
+          "label": {
+            "ar": "الاسم على الغامق",
+            "en": "Lockup on dark"
+          },
+          "bg": "#121212",
+          "w": 964.36,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-ar",
+          "file": "r8-clinic-day/lockup-ar.svg",
+          "label": {
+            "ar": "الرمز مع الاسم بالعربي",
+            "en": "Arabic lockup"
+          },
+          "bg": "#F8F6FC",
+          "w": 591.71,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-la",
+          "file": "r8-clinic-day/lockup-la.svg",
+          "label": {
+            "ar": "الرمز مع الاسم بالإنجليزي",
+            "en": "Latin lockup"
+          },
+          "bg": "#F8F6FC",
+          "w": 834.55,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-stacked",
+          "file": "r8-clinic-day/lockup-stacked.svg",
+          "label": {
+            "ar": "الاسم تحت الرمز",
+            "en": "Stacked lockup"
+          },
+          "bg": "#F8F6FC",
+          "w": 181.8,
+          "h": 256.0
+        },
+        {
+          "kind": "alt",
+          "file": "r8-clinic-day/alt.svg",
+          "label": {
+            "ar": "ألوان بديلة",
+            "en": "Alternative colourway"
+          },
+          "bg": "#F8F6FC",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "palette",
+          "file": "r8-clinic-day/palette.svg",
+          "label": {
+            "ar": "لوحة الألوان",
+            "en": "Palette board"
+          },
+          "bg": "#FFFFFF",
+          "w": 1000.0,
+          "h": 440.0
+        }
+      ]
     },
     {
       "id": "r8-care-stroke",
@@ -188,11 +1790,212 @@
         "ar": "ضربة قلم واحدة بترسم قلب ونبضة، بنقطة حمرا.",
         "en": "One reed-pen stroke draws a heart and a beat, with a vermilion dot."
       },
-      "files": {
-        "symbol": "r8-care-stroke-symbol.svg",
-        "symbolOnInk": "r8-care-stroke-symbol-rev.svg",
-        "lockup": "r8-care-stroke-lockup.svg"
-      }
+      "palette": [
+        {
+          "hex": "#1D1916",
+          "name": {
+            "ar": "حبر دافي",
+            "en": "Warm ink"
+          },
+          "role": {
+            "ar": "الأساسي (ضربة القلم والاسم)",
+            "en": "Primary (pen stroke and name)"
+          }
+        },
+        {
+          "hex": "#D9472B",
+          "name": {
+            "ar": "زنجفر",
+            "en": "Vermilion"
+          },
+          "role": {
+            "ar": "النقطة بس",
+            "en": "The dot only"
+          }
+        },
+        {
+          "hex": "#F7F1E5",
+          "name": {
+            "ar": "ورق عاجي",
+            "en": "Ivory paper"
+          },
+          "role": {
+            "ar": "الخلفية",
+            "en": "Background"
+          }
+        },
+        {
+          "hex": "#E8603F",
+          "name": {
+            "ar": "زنجفر فاتح",
+            "en": "Lifted vermilion"
+          },
+          "role": {
+            "ar": "النقطة على الغامق",
+            "en": "Dot on dark"
+          }
+        },
+        {
+          "hex": "#B83A20",
+          "name": {
+            "ar": "زنجفر غامق",
+            "en": "Deep vermilion"
+          },
+          "role": {
+            "ar": "للنص الصغير",
+            "en": "Small text"
+          }
+        }
+      ],
+      "grounds": {
+        "light": "#F7F1E5",
+        "dark": "#2A2420"
+      },
+      "variants": [
+        {
+          "kind": "symbol",
+          "file": "r8-care-stroke/symbol.svg",
+          "label": {
+            "ar": "الرمز",
+            "en": "Symbol"
+          },
+          "bg": "#F7F1E5",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "symbol-dark",
+          "file": "r8-care-stroke/symbol-dark.svg",
+          "label": {
+            "ar": "الرمز على الغامق",
+            "en": "Symbol on dark"
+          },
+          "bg": "#2A2420",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "mono",
+          "file": "r8-care-stroke/mono.svg",
+          "label": {
+            "ar": "أسود بس (طباعة حرارية)",
+            "en": "Black only (thermal print)"
+          },
+          "bg": "#F7F1E5",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "favicon",
+          "file": "r8-care-stroke/favicon.svg",
+          "label": {
+            "ar": "أيقونة المتصفح ١٦ بكسل",
+            "en": "Browser tab icon, 16 px"
+          },
+          "bg": "#F7F1E5",
+          "w": 16.0,
+          "h": 16.0
+        },
+        {
+          "kind": "app-icon",
+          "file": "r8-care-stroke/app-icon.svg",
+          "label": {
+            "ar": "أيقونة التطبيق",
+            "en": "App icon"
+          },
+          "bg": "#F7F1E5",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "whatsapp",
+          "file": "r8-care-stroke/whatsapp.svg",
+          "label": {
+            "ar": "صورة واتساب",
+            "en": "WhatsApp avatar"
+          },
+          "bg": "#F7F1E5",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup",
+          "file": "r8-care-stroke/lockup.svg",
+          "label": {
+            "ar": "الرمز مع الاسم عربي وإنجليزي",
+            "en": "Bilingual lockup"
+          },
+          "bg": "#F7F1E5",
+          "w": 443.0,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-dark",
+          "file": "r8-care-stroke/lockup-dark.svg",
+          "label": {
+            "ar": "الاسم على الغامق",
+            "en": "Lockup on dark"
+          },
+          "bg": "#121212",
+          "w": 443.0,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-ar",
+          "file": "r8-care-stroke/lockup-ar.svg",
+          "label": {
+            "ar": "الرمز مع الاسم بالعربي",
+            "en": "Arabic lockup"
+          },
+          "bg": "#F7F1E5",
+          "w": 457.5,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-la",
+          "file": "r8-care-stroke/lockup-la.svg",
+          "label": {
+            "ar": "الرمز مع الاسم بالإنجليزي",
+            "en": "Latin lockup"
+          },
+          "bg": "#F7F1E5",
+          "w": 632.1,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-stacked",
+          "file": "r8-care-stroke/lockup-stacked.svg",
+          "label": {
+            "ar": "الاسم تحت الرمز",
+            "en": "Stacked lockup"
+          },
+          "bg": "#F7F1E5",
+          "w": 420.0,
+          "h": 465.81
+        },
+        {
+          "kind": "alt",
+          "file": "r8-care-stroke/alt.svg",
+          "label": {
+            "ar": "ألوان بديلة",
+            "en": "Alternative colourway"
+          },
+          "bg": "#F7F1E5",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "palette",
+          "file": "r8-care-stroke/palette.svg",
+          "label": {
+            "ar": "لوحة الألوان",
+            "en": "Palette board"
+          },
+          "bg": "#FFFFFF",
+          "w": 800.0,
+          "h": 460.0
+        }
+      ]
     },
     {
       "id": "r8-all-good",
@@ -204,11 +2007,234 @@
         "ar": "النبض بيهدى ويخلص بعلامة صح: العيادة تمام والمريض متطمن.",
         "en": "The pulse settles into a tick: the clinic is handled."
       },
-      "files": {
-        "symbol": "r8-all-good-symbol.svg",
-        "symbolOnInk": "r8-all-good-symbol-rev.svg",
-        "lockup": "r8-all-good-lockup.svg"
-      }
+      "palette": [
+        {
+          "hex": "#44582B",
+          "name": {
+            "ar": "زيتوني غامق",
+            "en": "Deep Moss"
+          },
+          "role": {
+            "ar": "الأساسي (الخط والاسم)",
+            "en": "Primary (line and name)"
+          }
+        },
+        {
+          "hex": "#9CC6E4",
+          "name": {
+            "ar": "سماوي هادي",
+            "en": "Soft Sky"
+          },
+          "role": {
+            "ar": "علامة الصح (على الزيتوني والغامق بس)",
+            "en": "The tick (on moss or dark only)"
+          }
+        },
+        {
+          "hex": "#1C2414",
+          "name": {
+            "ar": "حبر الليل",
+            "en": "Night Ink"
+          },
+          "role": {
+            "ar": "النص الإنجليزي والخلفية الغامقة",
+            "en": "Latin text and dark ground"
+          }
+        },
+        {
+          "hex": "#F5F3EA",
+          "name": {
+            "ar": "كتان",
+            "en": "Linen"
+          },
+          "role": {
+            "ar": "الخلفية",
+            "en": "Background"
+          }
+        },
+        {
+          "hex": "#B9CB8E",
+          "name": {
+            "ar": "زيتوني فاتح",
+            "en": "Moss Light"
+          },
+          "role": {
+            "ar": "الأساسي على الغامق",
+            "en": "Primary on dark"
+          }
+        },
+        {
+          "hex": "#2F6E99",
+          "name": {
+            "ar": "سماوي غامق",
+            "en": "Deep Sky"
+          },
+          "role": {
+            "ar": "علامة الصح على الفاتح",
+            "en": "Tick on light"
+          }
+        }
+      ],
+      "grounds": {
+        "light": "#F5F3EA",
+        "dark": "#1C2414"
+      },
+      "variants": [
+        {
+          "kind": "symbol",
+          "file": "r8-all-good/symbol.svg",
+          "label": {
+            "ar": "الرمز",
+            "en": "Symbol"
+          },
+          "bg": "#F5F3EA",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "symbol-duo",
+          "file": "r8-all-good/symbol-duo.svg",
+          "label": {
+            "ar": "الرمز بلونين على الفاتح",
+            "en": "Two-colour symbol on light"
+          },
+          "bg": "#F5F3EA",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "symbol-dark",
+          "file": "r8-all-good/symbol-dark.svg",
+          "label": {
+            "ar": "الرمز على الغامق",
+            "en": "Symbol on dark"
+          },
+          "bg": "#1C2414",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "mono",
+          "file": "r8-all-good/mono.svg",
+          "label": {
+            "ar": "أسود بس (طباعة حرارية)",
+            "en": "Black only (thermal print)"
+          },
+          "bg": "#F5F3EA",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "favicon",
+          "file": "r8-all-good/favicon.svg",
+          "label": {
+            "ar": "أيقونة المتصفح ١٦ بكسل",
+            "en": "Browser tab icon, 16 px"
+          },
+          "bg": "#F5F3EA",
+          "w": 16.0,
+          "h": 16.0
+        },
+        {
+          "kind": "app-icon",
+          "file": "r8-all-good/app-icon.svg",
+          "label": {
+            "ar": "أيقونة التطبيق",
+            "en": "App icon"
+          },
+          "bg": "#F5F3EA",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "whatsapp",
+          "file": "r8-all-good/whatsapp.svg",
+          "label": {
+            "ar": "صورة واتساب",
+            "en": "WhatsApp avatar"
+          },
+          "bg": "#F5F3EA",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup",
+          "file": "r8-all-good/lockup.svg",
+          "label": {
+            "ar": "الرمز مع الاسم عربي وإنجليزي",
+            "en": "Bilingual lockup"
+          },
+          "bg": "#F5F3EA",
+          "w": 901.86,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-dark",
+          "file": "r8-all-good/lockup-dark.svg",
+          "label": {
+            "ar": "الاسم على الغامق",
+            "en": "Lockup on dark"
+          },
+          "bg": "#121212",
+          "w": 901.86,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-ar",
+          "file": "r8-all-good/lockup-ar.svg",
+          "label": {
+            "ar": "الرمز مع الاسم بالعربي",
+            "en": "Arabic lockup"
+          },
+          "bg": "#F5F3EA",
+          "w": 532.38,
+          "h": 256.0
+        },
+        {
+          "kind": "lockup-la",
+          "file": "r8-all-good/lockup-la.svg",
+          "label": {
+            "ar": "الرمز مع الاسم بالإنجليزي",
+            "en": "Latin lockup"
+          },
+          "bg": "#F5F3EA",
+          "w": 831.67,
+          "h": 230.0
+        },
+        {
+          "kind": "lockup-stacked",
+          "file": "r8-all-good/lockup-stacked.svg",
+          "label": {
+            "ar": "الاسم تحت الرمز",
+            "en": "Stacked lockup"
+          },
+          "bg": "#F5F3EA",
+          "w": 400.0,
+          "h": 492.88
+        },
+        {
+          "kind": "alt",
+          "file": "r8-all-good/alt.svg",
+          "label": {
+            "ar": "ألوان بديلة",
+            "en": "Alternative colourway"
+          },
+          "bg": "#F5F3EA",
+          "w": 256.0,
+          "h": 256.0
+        },
+        {
+          "kind": "palette",
+          "file": "r8-all-good/palette.svg",
+          "label": {
+            "ar": "لوحة الألوان",
+            "en": "Palette board"
+          },
+          "bg": "#FFFFFF",
+          "w": 920.0,
+          "h": 464.0
+        }
+      ]
     }
   ]
 }

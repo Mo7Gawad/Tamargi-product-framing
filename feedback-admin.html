@@ -17,11 +17,12 @@
     .fa-key .t-field { flex: 1 1 240px; }
     .fa-bar { display: flex; gap: var(--s-2); flex-wrap: wrap; align-items: center; margin-block-end: var(--s-4); }
     .fa-bar .fa-count { font-size: var(--fs-lg); font-weight: var(--fw-sb); margin-inline-end: auto; }
-    .fa-filters { display: grid; grid-template-columns: repeat(3, minmax(0, 160px)) minmax(0, 1fr); gap: var(--s-2); margin-block-end: var(--s-4); }
+    .fa-filters { display: grid; grid-template-columns: repeat(4, minmax(0, 160px)) minmax(0, 1fr); gap: var(--s-2); margin-block-end: var(--s-4); }
     .fa-filters .t-field { min-width: 0; }
     .fa table td { vertical-align: top; padding-block: var(--s-2); height: auto; }
     .fa td.fa-comment { white-space: pre-wrap; overflow-wrap: anywhere; min-width: 220px; max-width: 520px; }
     .fa td.fa-nowrap { white-space: nowrap; }
+    .fa .fa-sub.fa-aspects { direction: inherit; color: var(--primary); font-weight: var(--fw-sb); }
     .fa .fa-sub { display: block; color: var(--text-3); font-size: var(--fs-xs); direction: ltr; text-align: start; overflow-wrap: anywhere; }
     .fa-empty { padding: var(--s-6); text-align: center; color: var(--text-2); }
     @media (max-width: 720px) {
@@ -68,12 +69,13 @@
       <div class="t-field"><label class="t-label" for="fa-ftype" data-en="Type">النوع</label><select class="t-select" id="fa-ftype"></select></div>
       <div class="t-field"><label class="t-label" for="fa-frole" data-en="Role">الدور</label><select class="t-select" id="fa-frole"></select></div>
       <div class="t-field"><label class="t-label" for="fa-fscreen" data-en="Screen">الشاشة</label><select class="t-select" id="fa-fscreen"></select></div>
+      <div class="t-field"><label class="t-label" for="fa-flogo" data-en="Logo">الشعار</label><select class="t-select" id="fa-flogo"></select></div>
       <div class="t-field fa-q"><label class="t-label" for="fa-fq" data-en="Search">بحث</label><input class="t-input" id="fa-fq" type="search" autocomplete="off"></div>
     </div>
     <div class="t-table-wrap">
       <table class="t-table">
         <thead><tr>
-          <th data-en="Time">الوقت</th><th data-en="Type">النوع</th><th data-en="Screen">الشاشة</th><th data-en="Role">الدور</th><th data-en="Name">الاسم</th>
+          <th data-en="Time">الوقت</th><th data-en="Type">النوع</th><th data-en="Screen">الشاشة</th><th data-en="Logo">الشعار</th><th data-en="Role">الدور</th><th data-en="Name">الاسم</th>
           <th data-en="Org / branch">المنشأة / الفرع</th><th data-en="Lang">اللغة</th><th data-en="Comment">الملاحظة</th>
         </tr></thead>
         <tbody id="fa-rows"></tbody>

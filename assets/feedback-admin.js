@@ -24,7 +24,8 @@
   if (!key) key = (lsGet(KEY_STORE) || "").trim();
 
   var items = null;
-  var f = { type: "", role: "", screen: "", q: "" };
+  var f = { type: "", role: "", screen: "", logo: "", q: "" };
+  var logoNames = {};   // id -> { ar, en } from assets/logos/logos.json (falls back to the id)
   var $ = function (id) { return document.getElementById(id); };
   var keyIn = $("fa-keyin"), statusEl = $("fa-status");
 
@@ -43,6 +44,9 @@
     forgot: ["المفتاح اتمسح من الجهاز ده.", "The key was removed from this device."],
     none: ["مفيش ملاحظات لسه.", "No feedback yet."],
     noMatch: ["مفيش ملاحظات بالفلتر ده.", "No feedback matches these filters."],
+    allLogos: ["كل الشعارات", "All logos"],
+    colour: ["اللون", "Colour"], shape: ["الشكل", "Shape"], arabic_font: ["الخط العربي", "Arabic font"],
+    latin_font: ["الخط الإنجليزي", "Latin font"], small_size: ["المقاس الصغير", "Small size"],
     allTypes: ["كل الأنواع", "All types"], allRoles: ["كل الأدوار", "All roles"], allScreens: ["كل الشاشات", "All screens"],
     searchPh: ["ابحث في الملاحظة أو الاسم أو الشاشة", "Search comment, name or screen"],
     general: ["عامة", "General"], screen: ["شاشة", "Screen"],
@@ -61,6 +65,11 @@
     var l = REG.screenLabel ? REG.screenLabel(id) : null;
     return l ? (lang === "en" ? l.en : l.ar) || id : id;
   }
+  function logoOf(it) { return typeof it.logo_id === "string" ? it.logo_id : ""; }
+  function logoLabel(id) { var n = logoNames[id]; return n ? (lang === "en" ? n.en : n.ar) || id : id; }
+  /* "other" is also a role key in T; aspects use the same Arabic/English word so the shared entry is fine. */
+  function aspectsOf(it) { return Array.isArray(it.aspects) ? it.aspects.filter(function (a) { return typeof a === "string"; }) : []; }
+  function aspectsText(it) { return aspectsOf(it).map(function (a) { return T[a] ? tr(a) : a; }).join("، "); }
   function pathOf(it) { return String(it.page_path || (it.screenFile ? "/" + it.screenFile : "")); }
 
   function setStatus(kind, msg, extra) {
@@ -102,6 +111,9 @@
     var opts = ids.map(function (id) { return [id, labelOf(id) + (labelOf(id) !== id ? " (" + id + ")" : "")]; });
     opts.sort(function (a, b) { return a[1].localeCompare(b[1]); });
     fillSelect($("fa-fscreen"), [["", tr("allScreens")]].concat(opts), f.screen);
+    var lids = [];
+    items.forEach(function (it) { var l = logoOf(it); if (l && lids.indexOf(l) < 0) lids.push(l); });
+    fillSelect($("fa-flogo"), [["", tr("allLogos")]].concat(lids.map(function (id) { return [id, logoLabel(id)]; })), f.logo);
     $("fa-fq").placeholder = tr("searchPh");
   }
 
@@ -112,9 +124,10 @@
       if (f.type && (it.type === "general" ? "general" : "screen") !== f.type) return false;
       if (f.role && it.role !== f.role) return false;
       if (f.screen && screenIdOf(it) !== f.screen) return false;
+      if (f.logo && logoOf(it) !== f.logo) return false;
       if (q) {
         var sid = screenIdOf(it), l = sid && REG.screenLabel ? REG.screenLabel(sid) : null;
-        var hay = [it.comment, it.name, sid, l ? l.ar + " " + l.en : "", pathOf(it), it.org, it.branch, it.role, T[it.role] ? T[it.role].join(" ") : ""].join(" ").toLowerCase();
+        var hay = [it.comment, it.name, sid, l ? l.ar + " " + l.en : "", pathOf(it), logoOf(it), logoOf(it) ? logoLabel(logoOf(it)) : "", aspectsText(it), it.org, it.branch, it.role, T[it.role] ? T[it.role].join(" ") : ""].join(" ").toLowerCase();
         if (hay.indexOf(q) < 0) return false;
       }
       return true;
@@ -129,6 +142,8 @@
       cell(row, tr(it.type === "general" ? "general" : "screen"));
       var sid = screenIdOf(it), td = cell(row, sid ? labelOf(sid) : "—");
       if (sid) { var sub = document.createElement("span"); sub.className = "fa-sub"; sub.textContent = sid + (pathOf(it) ? " · " + pathOf(it) : ""); td.appendChild(sub); }
+      var lid = logoOf(it), ltd = cell(row, lid ? logoLabel(lid) : "—");
+      if (lid && aspectsOf(it).length) { var as = document.createElement("span"); as.className = "fa-sub fa-aspects"; as.textContent = aspectsText(it); ltd.appendChild(as); }
       cell(row, T[it.role] ? tr(it.role) : it.role);
       cell(row, it.name);
       cell(row, [it.org, it.branch].filter(Boolean).join(" / "), "fa-nowrap");
@@ -167,7 +182,7 @@
     }).catch(function () { /* status already shown */ });
   }
   /* CSV is built here from the loaded list so the screen label follows the page language (and old records get one). */
-  var CSV_COLS = ["receivedAt", "type", "role", "name", "comment", "screen_id", "screen_label", "page_path", "screenState",
+  var CSV_COLS = ["receivedAt", "type", "role", "name", "comment", "logo_id", "logo_name", "aspects", "screen_id", "screen_label", "page_path", "screenState",
     "org", "branch", "viewAs", "lang", "viewport", "clientTs", "id"];
   function csvCell(v) { var s = v == null ? "" : String(v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; }
   function saveFile(name, text, type) {
@@ -181,6 +196,7 @@
     items.slice().reverse().forEach(function (it) {
       var sid = screenIdOf(it), r = {};
       for (var k in it) r[k] = it[k];
+      r.logo_name = logoOf(it) ? logoLabel(logoOf(it)) : ""; r.aspects = aspectsText(it);
       r.screen_id = sid; r.screen_label = sid ? labelOf(sid) : ""; r.page_path = sid ? pathOf(it) : "";
       lines.push(CSV_COLS.map(function (c) { return csvCell(r[c]); }).join(","));
     });
@@ -222,9 +238,18 @@
   $("fa-ftype").addEventListener("change", function (e) { f.type = e.target.value; renderTable(); });
   $("fa-frole").addEventListener("change", function (e) { f.role = e.target.value; renderTable(); });
   $("fa-fscreen").addEventListener("change", function (e) { f.screen = e.target.value; renderTable(); });
+  $("fa-flogo").addEventListener("change", function (e) { f.logo = e.target.value; renderTable(); });
   $("fa-fq").addEventListener("input", function (e) { f.q = e.target.value.trim(); renderTable(); });
   $("fa-lang").addEventListener("click", function () { lang = lang === "en" ? "ar" : "en"; lsSet("tamargi.lang", lang); applyLang(); });
   document.addEventListener("click", function (e) { var b = e.target.closest && e.target.closest("[data-dl]"); if (b) download(b.getAttribute("data-dl")); });
+
+  /* Logo names for comments made on the logo vote page; textContent only. */
+  fetch("assets/logos/logos.json", { cache: "no-cache", credentials: "same-origin" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+    (d && Array.isArray(d.logos) ? d.logos : []).forEach(function (l) {
+      if (l && typeof l.id === "string" && l.name && typeof l.name.ar === "string" && typeof l.name.en === "string") logoNames[l.id] = { ar: l.name.ar, en: l.name.en };
+    });
+    if (items) { renderFilters(); renderTable(); }
+  }).catch(function () { /* names fall back to ids */ });
 
   applyLang();
   if (key) load(); else showKeyForm(true);

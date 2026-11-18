@@ -240,3 +240,31 @@ test("export fills screen_id for old records and CSV has the new columns", async
   assert.ok(csv.split("\r\n")[0].includes("screen_id,screen_label_ar,screen_label_en,page_path"));
   assert.ok(csv.includes('"clinic-web-page"'));
 });
+
+test("logo comments: logo_id + aspects are validated against the shortlist and stored", async () => {
+  const logoIds = ["care-cradle", "r8-queue-beat"];
+  const withLogo = (o) => Object.assign(good(), { screen_id: "logo-vote", page_path: "/screens/logo-vote.html" }, o);
+  const ok = validateFeedback(withLogo({ logo_id: "r8-queue-beat", aspects: ["shape", "colour"] }), { logoIds });
+  assert.equal(ok.ok, true);
+  assert.equal(ok.value.logo_id, "r8-queue-beat");
+  assert.deepEqual(ok.value.aspects, ["colour", "shape"]);   // canonical order
+  assert.deepEqual(validateFeedback(good()).value.aspects, []);   // old clients still accepted
+  assert.equal(validateFeedback(good()).value.logo_id, "");
+  for (const bad of [
+    { logo_id: "unknown-logo" }, { logo_id: "../x" }, { logo_id: "A" }, { logo_id: "x".repeat(41) }, { logo_id: 5 },
+    { logo_id: "care-cradle", aspects: ["font"] }, { logo_id: "care-cradle", aspects: "colour" },
+    { logo_id: "care-cradle", aspects: ["colour", "colour"] }, { logo_id: "care-cradle", aspects: [1] },
+    { logo_id: "care-cradle", aspects: ["colour", "shape", "arabic_font", "latin_font", "small_size", "other", "other"] },
+    { aspects: ["colour"] }   // aspects need a logo
+  ]) assert.equal(validateFeedback(withLogo(bad), { logoIds }).ok, false, JSON.stringify(bad));
+  const calls = [];
+  const handle = createFeedbackHandler({ put: async (pathname, body) => { calls.push(body); return { pathname }; }, env: {}, limiter: openLimiter, logoIds });
+  assert.equal((await handle(post(withLogo({ logo_id: "care-cradle", aspects: ["small_size"] })))).status, 201);
+  const rec = JSON.parse(calls[0]);
+  assert.equal(rec.logo_id, "care-cradle");
+  assert.deepEqual(rec.aspects, ["small_size"]);
+  assert.equal((await handle(post(withLogo({ logo_id: "word-seal" })))).status, 400);
+  const csv = toCsv([Object.assign({}, rec)]);
+  assert.ok(csv.split("\r\n")[0].includes("comment,logo_id,aspects"));
+  assert.ok(csv.includes('"care-cradle","small_size"'));
+});
